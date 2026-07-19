@@ -1,0 +1,12 @@
+{
+  "symbol": "AAPL",
+  "market_cap": 4901757779968.0,
+  "payout_ratio_pct": 12.590000000000002,
+  "eps_growth_yoy_pct": 21.8,
+  "revenue_growth_yoy_pct": 16.6,
+  "trailing_pe": 40.502426,
+  "analyst_rating": 2.0,
+  "analyst_target_price": 318.25116,
+  "current_price": 333.74,
+  "fetched_at": "2026-07-18T21:14:07+00:00"
+}

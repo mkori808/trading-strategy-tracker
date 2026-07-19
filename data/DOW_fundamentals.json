@@ -1,0 +1,12 @@
+{
+  "symbol": "DOW",
+  "market_cap": 21564583936.0,
+  "payout_ratio_pct": 700.0,
+  "eps_growth_yoy_pct": null,
+  "revenue_growth_yoy_pct": -6.1,
+  "trailing_pe": null,
+  "analyst_rating": 2.38889,
+  "analyst_target_price": 36.9375,
+  "current_price": 29.92,
+  "fetched_at": "2026-07-18T21:14:31+00:00"
+}

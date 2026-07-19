@@ -1,0 +1,12 @@
+{
+  "symbol": "IBM",
+  "market_cap": 199885406208.0,
+  "payout_ratio_pct": 59.470003999999996,
+  "eps_growth_yoy_pct": 14.2,
+  "revenue_growth_yoy_pct": 9.5,
+  "trailing_pe": 18.837025,
+  "analyst_rating": 2.125,
+  "analyst_target_price": 273.75455,
+  "current_price": 212.67,
+  "fetched_at": "2026-07-18T21:14:13+00:00"
+}

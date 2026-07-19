@@ -1,0 +1,12 @@
+{
+  "symbol": "JNJ",
+  "market_cap": 609122123776.0,
+  "payout_ratio_pct": 60.79,
+  "eps_growth_yoy_pct": -1.0,
+  "revenue_growth_yoy_pct": 6.6000000000000005,
+  "trailing_pe": 29.320972,
+  "analyst_rating": 1.91304,
+  "analyst_target_price": 269.95456,
+  "current_price": 253.04,
+  "fetched_at": "2026-07-18T21:14:17+00:00"
+}

@@ -1,0 +1,13 @@
+pandas
+numpy
+yfinance
+backtesting
+openpyxl
+pyarrow
+python-dotenv
+pytest
+fastapi
+uvicorn
+statsmodels
+alpaca-py
+lxml

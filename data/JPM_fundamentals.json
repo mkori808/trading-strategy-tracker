@@ -1,0 +1,12 @@
+{
+  "symbol": "JPM",
+  "market_cap": 906712055808.0,
+  "payout_ratio_pct": 25.71,
+  "eps_growth_yoy_pct": 46.9,
+  "revenue_growth_yoy_pct": 30.4,
+  "trailing_pe": 14.620661,
+  "analyst_rating": 2.16667,
+  "analyst_target_price": 367.57144,
+  "current_price": 341.1,
+  "fetched_at": "2026-07-18T21:14:21+00:00"
+}

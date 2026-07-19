@@ -1,0 +1,12 @@
+{
+  "symbol": "CSCO",
+  "market_cap": 441204211712.0,
+  "payout_ratio_pct": 55.00000000000001,
+  "eps_growth_yoy_pct": 37.1,
+  "revenue_growth_yoy_pct": 12.0,
+  "trailing_pe": 37.313335,
+  "analyst_rating": 1.88462,
+  "analyst_target_price": 130.22726,
+  "current_price": 111.94,
+  "fetched_at": "2026-07-18T21:14:24+00:00"
+}
