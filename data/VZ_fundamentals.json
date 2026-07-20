@@ -8,5 +8,8 @@
   "analyst_rating": 2.26923,
   "analyst_target_price": 51.25217,
   "current_price": 43.59,
-  "fetched_at": "2026-07-18T21:03:34+00:00"
+  "fetched_at": "2026-07-20T04:46:04+00:00",
+  "profit_margins_pct": 12.462,
+  "return_on_equity_pct": 17.198,
+  "debt_to_equity": 192.045
 }

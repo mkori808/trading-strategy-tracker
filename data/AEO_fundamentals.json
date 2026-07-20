@@ -1,0 +1,15 @@
+{
+  "symbol": "AEO",
+  "market_cap": 2853773824.0,
+  "payout_ratio_pct": 31.45,
+  "eps_growth_yoy_pct": null,
+  "revenue_growth_yoy_pct": 9.700000000000001,
+  "trailing_pe": 10.710692,
+  "analyst_rating": 2.92308,
+  "analyst_target_price": 19.5,
+  "current_price": 17.03,
+  "fetched_at": "2026-07-20T04:46:33+00:00",
+  "profit_margins_pct": 4.96,
+  "return_on_equity_pct": 17.569000000000003,
+  "debt_to_equity": 114.064
+}

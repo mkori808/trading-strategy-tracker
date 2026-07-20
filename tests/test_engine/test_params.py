@@ -79,7 +79,9 @@ def test_pullback_21ema_schema():
     from strategies.swing.pullback_21ema import PullbackTo21Ema
 
     names = {s.name for s in describe_params(PullbackTo21Ema)}
-    assert names == {"pullback_atr_tolerance", "trend_lookback"}
+    assert names == {
+        "pullback_atr_tolerance", "trend_lookback", "stop_swing_lookback", "stop_buffer_pct",
+    }
 
 
 def test_sector_rotation_excludes_benchmark_bars():
@@ -87,7 +89,7 @@ def test_sector_rotation_excludes_benchmark_bars():
 
     names = {s.name for s in describe_params(SectorRotationPlay)}
     assert "benchmark_bars" not in names
-    assert names == {"rs_fast", "rs_slow", "support_lookback_weeks"}
+    assert names == {"rs_fast", "rs_slow", "support_lookback_weeks", "stop_buffer_pct"}
 
 
 def test_pead_excludes_positive_earnings():
@@ -95,7 +97,7 @@ def test_pead_excludes_positive_earnings():
 
     names = {s.name for s in describe_params(PostEarningsDrift)}
     assert "positive_earnings" not in names
-    assert names == {"entry_window_bars", "ema_period", "stop_atr_multiple"}
+    assert names == {"entry_window_bars", "ema_period", "stop_atr_multiple", "atr_period"}
 
 
 def test_dual_momentum_excludes_risk_free_rate():

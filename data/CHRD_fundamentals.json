@@ -1,0 +1,15 @@
+{
+  "symbol": "CHRD",
+  "market_cap": 7211926016.0,
+  "payout_ratio_pct": 702.7,
+  "eps_growth_yoy_pct": -48.199999999999996,
+  "revenue_growth_yoy_pct": 38.5,
+  "trailing_pe": null,
+  "analyst_rating": 1.4,
+  "analyst_target_price": 165.8,
+  "current_price": 128.1,
+  "fetched_at": "2026-07-20T04:46:18+00:00",
+  "profit_margins_pct": -1.329,
+  "return_on_equity_pct": -0.8009999999999999,
+  "debt_to_equity": 18.657
+}

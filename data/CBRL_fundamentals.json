@@ -1,0 +1,15 @@
+{
+  "symbol": "CBRL",
+  "market_cap": 1198261760.0,
+  "payout_ratio_pct": 86.96000000000001,
+  "eps_growth_yoy_pct": 239.29999999999998,
+  "revenue_growth_yoy_pct": -2.9000000000000004,
+  "trailing_pe": 46.617393,
+  "analyst_rating": null,
+  "analyst_target_price": 39.5,
+  "current_price": 53.61,
+  "fetched_at": "2026-07-20T04:46:38+00:00",
+  "profit_margins_pct": 0.786,
+  "return_on_equity_pct": 5.6110002,
+  "debt_to_equity": 246.663
+}

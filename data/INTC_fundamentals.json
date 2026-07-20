@@ -1,12 +1,15 @@
 {
   "symbol": "INTC",
   "market_cap": 477671030784.0,
-  "payout_ratio_pct": 0.0,
+  "payout_ratio_pct": null,
   "eps_growth_yoy_pct": null,
-  "revenue_growth_yoy_pct": 7.199999999999999,
+  "revenue_growth_yoy_pct": null,
   "trailing_pe": null,
-  "analyst_rating": 2.60417,
-  "analyst_target_price": 106.70244,
-  "current_price": 95.04,
-  "fetched_at": "2026-07-18T21:14:09+00:00"
+  "analyst_rating": null,
+  "analyst_target_price": null,
+  "current_price": null,
+  "fetched_at": "2026-07-20T04:45:58+00:00",
+  "profit_margins_pct": null,
+  "return_on_equity_pct": null,
+  "debt_to_equity": null
 }

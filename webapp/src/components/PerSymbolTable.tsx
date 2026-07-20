@@ -43,6 +43,10 @@ function fmtPF(v: number | null): string {
   return v > 1000 ? "∞" : v.toFixed(2);
 }
 
+function fmtSignedPct(v: number | null): string {
+  return v === null ? "—" : `${v >= 0 ? "+" : ""}${v.toFixed(1)}%`;
+}
+
 export function PerSymbolTable({ rows }: { rows: PerSymbolRow[] }) {
   const traded = rows.filter((r) => r.tradesTaken > 0).length;
   return (
@@ -58,7 +62,7 @@ export function PerSymbolTable({ rows }: { rows: PerSymbolRow[] }) {
         <table className="w-full min-w-[720px] border-collapse text-sm">
           <thead>
             <tr style={{ borderBottom: "1px solid var(--gridline)" }}>
-              {["Symbol", "Trades", "Win Rate", "Expectancy (R)", "Profit Factor", "Net P&L", "Sharpe", "Equity"].map(
+              {["Symbol", "Trades", "Win Rate", "Expectancy (R)", "Profit Factor", "Net P&L", "Buy & Hold", "Sharpe", "Equity"].map(
                 (h) => (
                   <th
                     key={h}
@@ -110,6 +114,9 @@ export function PerSymbolTable({ rows }: { rows: PerSymbolRow[] }) {
                   }}
                 >
                   {r.tradesTaken ? fmtMoney(r.pnl) : "—"}
+                </td>
+                <td className="px-4 py-3 tabular-nums" style={{ color: "var(--text-muted)" }}>
+                  {fmtSignedPct(r.buyHoldReturnPct)}
                 </td>
                 <td className="px-4 py-3 tabular-nums" style={{ color: "var(--text-secondary)" }}>
                   {r.sharpe === null ? "—" : r.sharpe.toFixed(2)}

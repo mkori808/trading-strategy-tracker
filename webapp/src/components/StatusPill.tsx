@@ -19,6 +19,25 @@ const STATUS_STYLE: Record<string, { color: string; bg: string; icon: string }> 
     bg: "var(--status-warning-bg)",
     icon: "●",
   },
+  // Portfolio-engine verdicts (Dual Momentum, Pairs / Stat Arb) -- same
+  // tiers as the expectancy-based ones, phrased in return terms because
+  // those engines have no R-multiple trades. See
+  // engine/metrics.py:portfolio_status().
+  "Positive return - shortlist": {
+    color: "var(--status-good)",
+    bg: "var(--status-good-bg)",
+    icon: "▲",
+  },
+  "Negative return - drop": {
+    color: "var(--status-critical)",
+    bg: "var(--status-critical-bg)",
+    icon: "▼",
+  },
+  "Positive return but underperforms cash/benchmark - hold": {
+    color: "var(--status-warning)",
+    bg: "var(--status-warning-bg)",
+    icon: "◐",
+  },
 };
 
 const DEFAULT_STYLE = { color: "var(--text-muted)", bg: "transparent", icon: "○" };

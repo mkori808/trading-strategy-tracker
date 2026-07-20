@@ -1,0 +1,15 @@
+{
+  "symbol": "BRX",
+  "market_cap": 9993668608.0,
+  "payout_ratio_pct": 83.22,
+  "eps_growth_yoy_pct": 80.80000000000001,
+  "revenue_growth_yoy_pct": 5.1,
+  "trailing_pe": 22.776224,
+  "analyst_rating": 1.5,
+  "analyst_target_price": 34.27778,
+  "current_price": 32.57,
+  "fetched_at": "2026-07-20T04:46:16+00:00",
+  "profit_margins_pct": 31.985999999999997,
+  "return_on_equity_pct": 14.832,
+  "debt_to_equity": 182.638
+}

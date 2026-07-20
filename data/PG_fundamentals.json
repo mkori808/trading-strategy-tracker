@@ -1,12 +1,15 @@
 {
   "symbol": "PG",
   "market_cap": 349243277312.0,
-  "payout_ratio_pct": 61.8,
-  "eps_growth_yoy_pct": 5.800000000000001,
-  "revenue_growth_yoy_pct": 7.3999999999999995,
+  "payout_ratio_pct": null,
+  "eps_growth_yoy_pct": null,
+  "revenue_growth_yoy_pct": null,
   "trailing_pe": 21.926899,
-  "analyst_rating": 2.04,
-  "analyst_target_price": 163.34782,
-  "current_price": 149.98,
-  "fetched_at": "2026-07-18T21:14:03+00:00"
+  "analyst_rating": null,
+  "analyst_target_price": null,
+  "current_price": null,
+  "fetched_at": "2026-07-20T04:45:54+00:00",
+  "profit_margins_pct": null,
+  "return_on_equity_pct": null,
+  "debt_to_equity": null
 }

@@ -208,7 +208,9 @@ def aggregate_symbol_results(
     SymbolBacktestResult shape (e.g. engine/overnight.py)."""
     all_trades = []
     all_excursions = []
-    drawdowns, sharpes, sortinos, alphas, betas, cagrs, exposures = [], [], [], [], [], [], []
+    drawdowns, sharpes, sortinos, alphas, betas, cagrs, exposures, buy_holds = (
+        [], [], [], [], [], [], [], []
+    )
     for symbol, result in per_symbol.items():
         if not result.trades.empty:
             tagged = result.trades.copy()
@@ -230,6 +232,7 @@ def aggregate_symbol_results(
                 (betas, "Beta"),
                 (cagrs, "CAGR [%]"),
                 (exposures, "Exposure Time [%]"),
+                (buy_holds, "Buy & Hold Return [%]"),
             ):
                 value = result.stats.get(key)
                 if pd.notna(value):
@@ -254,6 +257,7 @@ def aggregate_symbol_results(
         cagr_pct=_mean(cagrs),
         exposure_pct=_mean(exposures),
         risk_free_rate=risk_free_rate,
+        buy_hold_return_pct=_mean(buy_holds),
     )
     return StrategyBacktestResult(
         strategy_name, symbols, start, end, per_symbol, metrics, pooled_excursions

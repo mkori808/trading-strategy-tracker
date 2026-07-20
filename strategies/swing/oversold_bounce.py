@@ -37,6 +37,10 @@ class OversoldBounce(Strategy):
         2.0, label="Target (x risk)", minimum=0.5, maximum=5.0, step=0.5,
         help="Take profit at N times the initial risk (a quick counter-trend bounce).",
     )
+    stop_buffer_pct: float = param_field(
+        0.01, label="Stop buffer below low (fraction)", minimum=0.0, maximum=0.05, step=0.005,
+        help="Extra cushion below the reversal candle's low used for the stop.",
+    )
 
     def entry_signal(self, bars: pd.DataFrame) -> bool:
         if len(bars) < self.rsi_period + self.support_lookback:
@@ -48,7 +52,7 @@ class OversoldBounce(Strategy):
         return r.iloc[-1] < self.rsi_threshold and near_support and is_bullish_candle(last)
 
     def stop_price(self, bars: pd.DataFrame, entry_price: float) -> float:
-        return bars.iloc[-1]["Low"] * 0.99
+        return bars.iloc[-1]["Low"] * (1 - self.stop_buffer_pct)
 
     def target_price(self, bars: pd.DataFrame, entry_price: float) -> float | None:
         stop = self.stop_price(bars, entry_price)

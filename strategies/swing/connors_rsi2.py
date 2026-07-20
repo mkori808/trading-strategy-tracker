@@ -45,6 +45,9 @@ class ConnorsMeanReversion(Strategy):
     stop_atr_multiple: float = param_field(
         3.0, label="Stop distance (x ATR)", minimum=1.0, maximum=6.0, step=0.5,
     )
+    atr_period: int = param_field(
+        14, label="ATR period (days)", minimum=5, maximum=30, step=1,
+    )
 
     def entry_signal(self, bars: pd.DataFrame) -> bool:
         if len(bars) < self.trend_sma_period:
@@ -54,7 +57,7 @@ class ConnorsMeanReversion(Strategy):
         return bool(bars["Close"].iloc[-1] > trend.iloc[-1] and r.iloc[-1] < self.rsi_threshold)
 
     def stop_price(self, bars: pd.DataFrame, entry_price: float) -> float:
-        return entry_price - self.stop_atr_multiple * atr(bars).iloc[-1]
+        return entry_price - self.stop_atr_multiple * atr(bars, self.atr_period).iloc[-1]
 
     def exit_signal(self, bars: pd.DataFrame) -> bool:
         if len(bars) < self.exit_sma_period:

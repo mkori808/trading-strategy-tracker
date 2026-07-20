@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { BacktestResult, HistoryRow, Metrics } from "../api";
+import { ChatPanel } from "./ChatPanel";
 import { EquityChart } from "./EquityChart";
 import { PerSymbolTable } from "./PerSymbolTable";
 import { PortfolioPanel } from "./PortfolioPanel";
@@ -7,13 +8,14 @@ import { StatTile } from "./StatTile";
 import { StatusPill } from "./StatusPill";
 import { TradesTable } from "./TradesTable";
 
-type Tab = "overview" | "trades" | "perSymbol" | "portfolio" | "history";
+type Tab = "overview" | "trades" | "perSymbol" | "portfolio" | "chat" | "history";
 
 const TABS: { key: Tab; label: string }[] = [
   { key: "overview", label: "Overview" },
   { key: "trades", label: "Trades" },
   { key: "perSymbol", label: "Per-Symbol" },
   { key: "portfolio", label: "Portfolio" },
+  { key: "chat", label: "Chat" },
   { key: "history", label: "History" },
 ];
 
@@ -45,11 +47,15 @@ function OverviewTab({ result }: { result: BacktestResult }) {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-6">
         <StatTile
           label="Sharpe (vs. risk-free)"
           value={m.sharpe !== null ? m.sharpe.toFixed(2) : "—"}
           valueColor={m.sharpe !== null ? (m.sharpe > 0 ? "var(--status-good)" : "var(--status-critical)") : undefined}
+        />
+        <StatTile
+          label="Buy & Hold Return"
+          value={m.buyHoldReturnPct !== null ? `${m.buyHoldReturnPct >= 0 ? "+" : ""}${m.buyHoldReturnPct.toFixed(1)}%` : "—"}
         />
         <StatTile
           label="Alpha vs. buy & hold"
@@ -254,6 +260,16 @@ export function ResultTabs({
           {tab === "trades" && <TradesTable trades={result.trades} />}
           {tab === "perSymbol" && <PerSymbolTable rows={result.perSymbol} />}
           {tab === "portfolio" && <PortfolioPanel portfolio={result.portfolio} />}
+          {tab === "chat" && (
+            <ChatPanel
+              // Reset the conversation when the underlying run changes (a
+              // different strategy, window, symbols, or params) -- but NOT
+              // on every re-render of the same result, e.g. switching tabs
+              // back and forth.
+              key={`${result.strategyName}-${result.start}-${result.end}-${result.appliedSymbols.join(",")}-${JSON.stringify(result.appliedParams)}`}
+              result={result}
+            />
+          )}
         </>
       )}
     </div>

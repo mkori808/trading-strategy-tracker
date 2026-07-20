@@ -1,12 +1,15 @@
 {
   "symbol": "HD",
-  "market_cap": 337892933632.0,
-  "payout_ratio_pct": 65.550005,
-  "eps_growth_yoy_pct": -4.3,
-  "revenue_growth_yoy_pct": 4.8,
-  "trailing_pe": 24.101706,
+  "market_cap": null,
+  "payout_ratio_pct": null,
+  "eps_growth_yoy_pct": null,
+  "revenue_growth_yoy_pct": null,
+  "trailing_pe": null,
   "analyst_rating": null,
-  "analyst_target_price": 370.34375,
-  "current_price": 338.87,
-  "fetched_at": "2026-07-18T21:14:02+00:00"
+  "analyst_target_price": null,
+  "current_price": null,
+  "fetched_at": "2026-07-20T04:45:53+00:00",
+  "profit_margins_pct": null,
+  "return_on_equity_pct": null,
+  "debt_to_equity": null
 }

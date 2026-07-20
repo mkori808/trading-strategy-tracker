@@ -1,0 +1,15 @@
+{
+  "symbol": "LNTH",
+  "market_cap": 7004763136.0,
+  "payout_ratio_pct": 0.0,
+  "eps_growth_yoy_pct": 76.5,
+  "revenue_growth_yoy_pct": 1.2,
+  "trailing_pe": 25.739235,
+  "analyst_rating": 1.46154,
+  "analyst_target_price": 111.58333,
+  "current_price": 107.59,
+  "fetched_at": "2026-07-20T04:46:27+00:00",
+  "profit_margins_pct": 18.045999,
+  "return_on_equity_pct": 23.482999,
+  "debt_to_equity": 51.617
+}

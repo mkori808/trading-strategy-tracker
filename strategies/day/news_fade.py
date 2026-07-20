@@ -37,6 +37,14 @@ class NewsFade(Strategy):
         0.5, label="Retrace fraction", minimum=0.1, maximum=0.9, step=0.05,
         help="How much of the spike's range must be given back by the close to count as a fade.",
     )
+    atr_period: int = param_field(
+        14, label="ATR period (bars)", minimum=5, maximum=30, step=1,
+        help="Lookback window for the ATR used to size the spike-range threshold.",
+    )
+    volume_lookback_bars: int = param_field(
+        20, label="Volume baseline lookback (bars)", minimum=10, maximum=40, step=5,
+        help="Bars (excluding the spike bar) used to compute the normal-volume baseline.",
+    )
 
     def _spike(self, bars: pd.DataFrame):
         # Session-scoped, not the raw multi-day array: the ATR/volume
@@ -44,11 +52,11 @@ class NewsFade(Strategy):
         # every new session gets compared against yesterday afternoon's
         # baseline and its normal overnight gap misreads as a "spike".
         sess = session_bars(bars)
-        if len(sess) < 21:
+        if len(sess) < self.volume_lookback_bars + 1:
             return None
         last = sess.iloc[-1]
-        bar_atr = atr(sess).iloc[-2]  # ATR excluding the spike bar itself
-        avg_vol = sess["Volume"].iloc[-21:-1].mean()
+        bar_atr = atr(sess, self.atr_period).iloc[-2]  # ATR excluding the spike bar itself
+        avg_vol = sess["Volume"].iloc[-(self.volume_lookback_bars + 1):-1].mean()
         bar_range = last["High"] - last["Low"]
         if bar_atr <= 0 or avg_vol <= 0:
             return None

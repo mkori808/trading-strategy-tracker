@@ -26,11 +26,20 @@ class RangeTrading(Strategy):
         0.001, label="Boundary tolerance (fraction)", minimum=0.0001, maximum=0.01, step=0.0001,
         help="How close to the range boundary counts as a touch.",
     )
+    stop_buffer_pct: float = param_field(
+        0.002, label="Stop buffer beyond boundary (fraction)", minimum=0.0001, maximum=0.01, step=0.0001,
+        help="Extra cushion beyond the range boundary used for the stop.",
+    )
 
     def _range(self, bars: pd.DataFrame) -> tuple[float, float] | None:
         sess = session_bars(bars)
         window = sess.iloc[:-1].tail(self.range_lookback_bars)
-        if len(window) < 6:
+        # Was a hardcoded `< 6` -- at range_lookback_bars's own declared
+        # minimum (5), tail(5) can never reach 6 rows, so the strategy could
+        # never fire at that end of its slider range. Check against the
+        # parameter itself instead, so "enough history" always means
+        # "a full window of the size requested."
+        if len(window) < self.range_lookback_bars:
             return None
         return window["High"].max(), window["Low"].min()
 
@@ -57,8 +66,8 @@ class RangeTrading(Strategy):
         high, low = self._range(bars)
         last = bars.iloc[-1]
         if last["Low"] <= low * (1 + self.boundary_tolerance):
-            return low * 0.998
-        return high * 1.002
+            return low * (1 - self.stop_buffer_pct)
+        return high * (1 + self.stop_buffer_pct)
 
     def target_price(self, bars: pd.DataFrame, entry_price: float) -> float | None:
         high, low = self._range(bars)

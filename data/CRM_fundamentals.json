@@ -1,12 +1,15 @@
 {
   "symbol": "CRM",
   "market_cap": 139860639744.0,
-  "payout_ratio_pct": 19.559999,
-  "eps_growth_yoy_pct": 52.2,
-  "revenue_growth_yoy_pct": 13.3,
+  "payout_ratio_pct": null,
+  "eps_growth_yoy_pct": null,
+  "revenue_growth_yoy_pct": null,
   "trailing_pe": 19.810905,
-  "analyst_rating": 1.61538,
-  "analyst_target_price": 245.15672,
-  "current_price": 170.77,
-  "fetched_at": "2026-07-18T21:14:06+00:00"
+  "analyst_rating": null,
+  "analyst_target_price": null,
+  "current_price": null,
+  "fetched_at": "2026-07-20T04:45:57+00:00",
+  "profit_margins_pct": null,
+  "return_on_equity_pct": null,
+  "debt_to_equity": null
 }

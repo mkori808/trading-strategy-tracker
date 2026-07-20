@@ -1,0 +1,15 @@
+{
+  "symbol": "HRB",
+  "market_cap": 5334069760.0,
+  "payout_ratio_pct": 29.25,
+  "eps_growth_yoy_pct": 24.2,
+  "revenue_growth_yoy_pct": 5.3,
+  "trailing_pe": 7.527728,
+  "analyst_rating": null,
+  "analyst_target_price": 39.5,
+  "current_price": 42.08,
+  "fetched_at": "2026-07-20T04:46:24+00:00",
+  "profit_margins_pct": 18.902001,
+  "return_on_equity_pct": null,
+  "debt_to_equity": null
+}

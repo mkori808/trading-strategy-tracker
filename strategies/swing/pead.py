@@ -50,6 +50,9 @@ class PostEarningsDrift(Strategy):
     stop_atr_multiple: float = param_field(
         2.0, label="Stop distance (x ATR)", minimum=0.5, maximum=5.0, step=0.5,
     )
+    atr_period: int = param_field(
+        14, label="ATR period (bars)", minimum=5, maximum=30, step=1,
+    )
 
     def __post_init__(self) -> None:
         self._events = sorted(self.positive_earnings)
@@ -77,7 +80,7 @@ class PostEarningsDrift(Strategy):
         return bool(bars["Close"].iloc[-1] > ema20)
 
     def stop_price(self, bars: pd.DataFrame, entry_price: float) -> float:
-        return entry_price - self.stop_atr_multiple * atr(bars).iloc[-1]
+        return entry_price - self.stop_atr_multiple * atr(bars, self.atr_period).iloc[-1]
 
     def exit_signal(self, bars: pd.DataFrame) -> bool:
         if len(bars) < self.ema_period:

@@ -38,6 +38,14 @@ class EarningsMomentumGapHold(Strategy):
     consolidation_min_bars: int = param_field(
         2, label="Min consolidation length (bars)", minimum=1, maximum=10, step=1,
     )
+    stop_buffer_pct: float = param_field(
+        0.01, label="Stop buffer below consolidation (fraction)", minimum=0.0, maximum=0.05, step=0.005,
+        help="Extra cushion below the post-gap consolidation low used for the stop.",
+    )
+    exit_ema_period: int = param_field(
+        9, label="Exit momentum EMA period", minimum=3, maximum=30, step=1,
+        help="Exit when price closes back below this EMA (momentum failure).",
+    )
 
     def _setup(self, bars: pd.DataFrame):
         if len(bars) < self.gap_lookback + 5:
@@ -69,11 +77,11 @@ class EarningsMomentumGapHold(Strategy):
 
     def stop_price(self, bars: pd.DataFrame, entry_price: float) -> float:
         consolidation_low, _ = self._setup(bars)
-        return consolidation_low * 0.99
+        return consolidation_low * (1 - self.stop_buffer_pct)
 
     def exit_signal(self, bars: pd.DataFrame) -> bool:
         # ride the second-leg move until short-term momentum fails
-        if len(bars) < 9:
+        if len(bars) < self.exit_ema_period:
             return False
-        ema9 = ema(bars["Close"], 9)
-        return bars["Close"].iloc[-1] < ema9.iloc[-1]
+        exit_ema = ema(bars["Close"], self.exit_ema_period)
+        return bars["Close"].iloc[-1] < exit_ema.iloc[-1]

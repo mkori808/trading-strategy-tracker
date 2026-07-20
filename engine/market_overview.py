@@ -15,7 +15,10 @@ from __future__ import annotations
 from datetime import date, timedelta
 from typing import Any
 
+import pandas as pd
+
 from engine import data as data_module
+from engine import market_signals as market_signals_module
 from engine import quotes as quotes_module
 from engine import regime as regime_module
 from engine import trend_template
@@ -24,6 +27,15 @@ from engine.universe import EQUITY_UNIVERSE, SECTOR_BENCHMARK, SECTOR_UNIVERSE
 # How far back the regime log/distribution look -- a rolling window for the
 # dashboard, not a backtest range.
 REGIME_LOG_DAYS = 90
+
+# ~21 trading days, calendar-day approximation matching the convention
+# engine/screener.py and engine/market_signals.py already use for lookback
+# windows rather than exact trading-day counts.
+RS_LOOKBACK_DAYS = 30
+# ~5 trading days back, for the rising/falling arrow (is this sector's RS
+# improving or deteriorating vs. a week ago) -- a real comparison, not a
+# cosmetic indicator.
+RS_TREND_OFFSET_DAYS = 7
 
 
 def _refresh_daily_cache(symbols: list[str], end: date) -> None:
@@ -70,6 +82,59 @@ def sector_performance() -> list[dict[str, Any]]:
     return rows
 
 
+def _return_pct(symbol: str, end: date, lookback_days: int) -> float | None:
+    """Simple return (%) over the trailing `lookback_days` calendar days
+    ending at `end`, from cached daily bars."""
+    start = end - timedelta(days=lookback_days + 10)
+    bars = data_module.get_bars(symbol, "1d", start, end)
+    closes = bars["Close"] if not bars.empty else None
+    if closes is None or closes.empty:
+        return None
+    cutoff = closes.index.max() - pd.Timedelta(days=lookback_days)
+    window = closes.loc[closes.index >= cutoff]
+    if len(window) < 2:
+        return None
+    first, last = float(window.iloc[0]), float(window.iloc[-1])
+    return None if first <= 0 else (last / first - 1) * 100
+
+
+def _relative_strength(symbol: str, end: date, lookback_days: int) -> float | None:
+    """Sector return / SPY return over the same trailing window, both as
+    growth factors (1 + return). RS > 1 means the sector outperformed SPY
+    over that window; RS < 1 means it lagged. None if either leg is
+    unavailable -- never defaulted to a "neutral" 1.0 that would misrepresent
+    missing data as parity."""
+    sector_ret = _return_pct(symbol, end, lookback_days)
+    spy_ret = _return_pct(SECTOR_BENCHMARK, end, lookback_days)
+    if sector_ret is None or spy_ret is None:
+        return None
+    spy_factor = 1 + spy_ret / 100
+    if spy_factor == 0:
+        return None
+    return (1 + sector_ret / 100) / spy_factor
+
+
+def sector_rotation() -> dict[str, Any]:
+    """Each sector SPDR's relative strength vs SPY (trailing ~21 trading
+    days), ranked, with a rising/falling flag comparing today's RS to RS
+    ~1 week ago -- reuses the same cached bars sector_performance() already
+    warms. A real, computed ratio (not a cosmetic indicator)."""
+    today = date.today()
+    _refresh_daily_cache([*SECTOR_UNIVERSE, SECTOR_BENCHMARK], today)
+
+    rows = []
+    for symbol in SECTOR_UNIVERSE:
+        rs_now = _relative_strength(symbol, today, RS_LOOKBACK_DAYS)
+        rs_prior = _relative_strength(
+            symbol, today - timedelta(days=RS_TREND_OFFSET_DAYS), RS_LOOKBACK_DAYS
+        )
+        rising = None if rs_now is None or rs_prior is None else rs_now > rs_prior
+        rows.append({"symbol": symbol, "relativeStrength": rs_now, "rising": rising})
+
+    rows.sort(key=lambda r: (r["relativeStrength"] is None, -(r["relativeStrength"] or 0.0)))
+    return {"asOf": today.isoformat(), "lookbackDays": RS_LOOKBACK_DAYS, "rows": rows}
+
+
 def trend_template_scan() -> dict[str, Any]:
     """Which symbols in the equity universe pass the 8-point trend template
     today, and why the rest don't -- the drill-down CLAUDE.md's "always log
@@ -108,5 +173,7 @@ def market_overview() -> dict[str, Any]:
     return {
         "regime": current_regime(),
         "sectorPerformance": sector_performance(),
+        "sectorRotation": sector_rotation(),
         "trendTemplate": trend_template_scan(),
+        "marketSignals": market_signals_module.market_signals(),
     }

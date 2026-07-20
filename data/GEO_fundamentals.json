@@ -1,0 +1,15 @@
+{
+  "symbol": "GEO",
+  "market_cap": 3936394752.0,
+  "payout_ratio_pct": 0.0,
+  "eps_growth_yoy_pct": 106.5,
+  "revenue_growth_yoy_pct": 16.6,
+  "trailing_pe": 14.954314,
+  "analyst_rating": 1.0,
+  "analyst_target_price": 33.75,
+  "current_price": 29.46,
+  "fetched_at": "2026-07-20T04:46:45+00:00",
+  "profit_margins_pct": 9.9980004,
+  "return_on_equity_pct": 19.25,
+  "debt_to_equity": 110.988
+}

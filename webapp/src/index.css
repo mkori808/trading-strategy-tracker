@@ -10,14 +10,20 @@
   --gridline: #e1e0d9;
   --baseline: #c3c2b7;
   --border: rgba(11, 11, 11, 0.1);
-  --series-1: #2a78d6;
-  --series-1-wash: rgba(42, 120, 214, 0.1);
+  /* Orange brand/accent (Alpha Move AI-inspired), 2026-07-19 -- was blue
+     (#2a78d6). Single token, reused everywhere: buttons, active nav/tab
+     state, selected-row highlight, AND the equity-curve line color, same
+     as before the retheme -- a value change, not a new token. */
+  --series-1: #c2410c;
+  --series-1-wash: rgba(194, 65, 12, 0.1);
   --status-good: #0ca30c;
   --status-warning: #fab219;
   --status-critical: #d03b3b;
   --status-good-bg: rgba(12, 163, 12, 0.1);
   --status-warning-bg: rgba(250, 178, 25, 0.14);
   --status-critical-bg: rgba(208, 59, 59, 0.1);
+  --pill-bg: rgba(11, 11, 11, 0.05);
+  --pill-bg-active: var(--series-1);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -31,14 +37,16 @@
     --gridline: #2c2c2a;
     --baseline: #383835;
     --border: rgba(255, 255, 255, 0.1);
-    --series-1: #3987e5;
-    --series-1-wash: rgba(57, 135, 229, 0.14);
-    --status-good: #0ca30c;
+    --series-1: #fb923c;
+    --series-1-wash: rgba(251, 146, 60, 0.14);
+    --status-good: #22c55e;
     --status-warning: #fab219;
-    --status-critical: #e66767;
-    --status-good-bg: rgba(12, 163, 12, 0.16);
+    --status-critical: #f87171;
+    --status-good-bg: rgba(34, 197, 94, 0.16);
     --status-warning-bg: rgba(250, 178, 25, 0.16);
-    --status-critical-bg: rgba(230, 103, 103, 0.16);
+    --status-critical-bg: rgba(248, 113, 113, 0.16);
+    --pill-bg: rgba(255, 255, 255, 0.06);
+    --pill-bg-active: var(--series-1);
   }
 }
 
@@ -52,14 +60,16 @@
   --gridline: #2c2c2a;
   --baseline: #383835;
   --border: rgba(255, 255, 255, 0.1);
-  --series-1: #3987e5;
-  --series-1-wash: rgba(57, 135, 229, 0.14);
-  --status-good: #0ca30c;
+  --series-1: #fb923c;
+  --series-1-wash: rgba(251, 146, 60, 0.14);
+  --status-good: #22c55e;
   --status-warning: #fab219;
-  --status-critical: #e66767;
-  --status-good-bg: rgba(12, 163, 12, 0.16);
+  --status-critical: #f87171;
+  --status-good-bg: rgba(34, 197, 94, 0.16);
   --status-warning-bg: rgba(250, 178, 25, 0.16);
-  --status-critical-bg: rgba(230, 103, 103, 0.16);
+  --status-critical-bg: rgba(248, 113, 113, 0.16);
+  --pill-bg: rgba(255, 255, 255, 0.06);
+  --pill-bg-active: var(--series-1);
 }
 
 body {

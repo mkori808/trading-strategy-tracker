@@ -41,13 +41,16 @@ class GapFade(Strategy):
         0.5, label="Target reversion fraction", minimum=0.1, maximum=1.0, step=0.05,
         help="Target: this fraction of the gap reverted toward the prior close.",
     )
+    atr_period: int = param_field(
+        14, label="ATR period (bars)", minimum=5, maximum=30, step=1,
+    )
 
     def _gap(self, bars: pd.DataFrame) -> tuple[str, float] | None:
         if len(bars) < 21:
             return None
         prev_close = bars["Close"].iloc[-2]
         today_open = bars["Open"].iloc[-1]
-        bar_atr = atr(bars).iloc[-2]  # ATR excluding the gap bar itself
+        bar_atr = atr(bars, self.atr_period).iloc[-2]  # ATR excluding the gap bar itself
         if bar_atr <= 0 or prev_close <= 0:
             return None
         gap = today_open - prev_close

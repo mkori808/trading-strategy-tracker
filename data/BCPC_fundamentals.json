@@ -1,0 +1,15 @@
+{
+  "symbol": "BCPC",
+  "market_cap": 5248409088.0,
+  "payout_ratio_pct": 19.709998000000002,
+  "eps_growth_yoy_pct": 10.6,
+  "revenue_growth_yoy_pct": 8.1,
+  "trailing_pe": 33.542095,
+  "analyst_rating": 2.0,
+  "analyst_target_price": 200.75,
+  "current_price": 163.35,
+  "fetched_at": "2026-07-20T04:46:36+00:00",
+  "profit_margins_pct": 14.95,
+  "return_on_equity_pct": 12.678,
+  "debt_to_equity": 14.373
+}

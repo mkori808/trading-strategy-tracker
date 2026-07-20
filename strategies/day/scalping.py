@@ -26,12 +26,33 @@ class Scalping(Strategy):
         0.00225, label="Target distance (fraction)", minimum=0.0005, maximum=0.02, step=0.00025,
         help="Fixed target as a fraction of entry price (default is a 1.5:1 reward:risk).",
     )
+    ema_fast_period: int = param_field(
+        9, label="Fast EMA period", minimum=3, maximum=15, step=1,
+    )
+    ema_slow_period: int = param_field(
+        20, label="Slow EMA period", minimum=10, maximum=50, step=1,
+    )
+    macd_fast_period: int = param_field(
+        12, label="MACD fast period", minimum=5, maximum=20, step=1,
+    )
+    macd_slow_period: int = param_field(
+        26, label="MACD slow period", minimum=15, maximum=40, step=1,
+    )
+    macd_signal_period: int = param_field(
+        9, label="MACD signal period", minimum=3, maximum=15, step=1,
+    )
 
     def _confluence(self, bars: pd.DataFrame) -> str | None:
+        # A fixed floor, not scaled to ema_slow_period/macd_slow_period below:
+        # ema()/macd() are ewm()-based, which (unlike a rolling/sma window)
+        # never produces NaN for having "too little" history -- it just takes
+        # a few periods to numerically converge. 25 bars was already fine at
+        # the original fixed 20/26-period defaults; no correctness reason to
+        # scale it with the now-tunable periods.
         if len(bars) < 25:
             return None
-        ema9, ema20 = ema(bars["Close"], 9), ema(bars["Close"], 20)
-        _, _, hist = macd(bars["Close"])
+        ema9, ema20 = ema(bars["Close"], self.ema_fast_period), ema(bars["Close"], self.ema_slow_period)
+        _, _, hist = macd(bars["Close"], self.macd_fast_period, self.macd_slow_period, self.macd_signal_period)
         vw = vwap(bars)
         close = bars["Close"].iloc[-1]
         bullish = ema9.iloc[-1] > ema20.iloc[-1] and hist.iloc[-1] > 0 and close > vw.iloc[-1]

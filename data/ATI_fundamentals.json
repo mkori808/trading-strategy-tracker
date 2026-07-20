@@ -1,0 +1,15 @@
+{
+  "symbol": "ATI",
+  "market_cap": 25406699520.0,
+  "payout_ratio_pct": 0.0,
+  "eps_growth_yoy_pct": 26.900000000000002,
+  "revenue_growth_yoy_pct": 0.6,
+  "trailing_pe": 61.442245,
+  "analyst_rating": 1.11111,
+  "analyst_target_price": 200.33333,
+  "current_price": 186.17,
+  "fetched_at": "2026-07-20T04:46:15+00:00",
+  "profit_margins_pct": 9.2609994,
+  "return_on_equity_pct": 22.674999,
+  "debt_to_equity": 96.904
+}

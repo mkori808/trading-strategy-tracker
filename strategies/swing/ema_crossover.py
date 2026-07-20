@@ -24,6 +24,14 @@ class Ema9_21Crossover(Strategy):
         5, label="Slope confirmation lookback (bars)", minimum=2, maximum=20, step=1,
         help="Bars back both EMAs must have climbed over to confirm the crossover isn't chop.",
     )
+    stop_swing_lookback: int = param_field(
+        20, label="Stop swing-low lookback (bars)", minimum=5, maximum=60, step=5,
+        help="Bars back to search for the swing low used in the stop calculation.",
+    )
+    stop_buffer_pct: float = param_field(
+        0.01, label="Stop buffer below level (fraction)", minimum=0.0, maximum=0.05, step=0.005,
+        help="Extra cushion below the EMA/swing-low stop level.",
+    )
 
     def entry_signal(self, bars: pd.DataFrame) -> bool:
         if len(bars) < 25:
@@ -38,7 +46,8 @@ class Ema9_21Crossover(Strategy):
 
     def stop_price(self, bars: pd.DataFrame, entry_price: float) -> float:
         ema21 = ema(bars["Close"], 21)
-        return min(ema21.iloc[-1], swing_low(bars)) * 0.99
+        level = min(ema21.iloc[-1], swing_low(bars, self.stop_swing_lookback))
+        return level * (1 - self.stop_buffer_pct)
 
     def exit_signal(self, bars: pd.DataFrame) -> bool:
         if len(bars) < 25:

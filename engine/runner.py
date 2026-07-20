@@ -26,9 +26,10 @@ from engine import run_avwap_breakout as avwap_breakout_module
 from engine.cross_sectional import CrossSectionalResult, run_cross_sectional_backtest
 from engine.excursion import write_excursion_report
 from engine.filters import build_filter_factory
-from engine.logging_db import log_run
+from engine.logging_db import log_portfolio_run, log_run
 from engine.overnight import run_overnight_backtest
 from engine.pairs import PairsResult, run_pairs_backtest
+from engine.metrics import portfolio_status
 from engine.universe import (
     EQUITY_UNIVERSE,
     ETF_AND_EQUITY_UNIVERSE,
@@ -277,6 +278,19 @@ def _run_overnight(request: RunRequest | None = None) -> StrategyBacktestResult:
     return result
 
 
+def _benchmark_window_return(start: date, end: date) -> float | None:
+    """SPY's buy-and-hold total return (%) over [start, end] -- the benchmark
+    a portfolio-engine run's own return is judged against in
+    engine/metrics.py:portfolio_status(), since these engines have no
+    per-symbol alpha. Uses the same adjusted daily bars everything else
+    uses (adjusted = correct for computing returns; see
+    engine/fundamentals.py for the one place that must NOT use them)."""
+    bars = data_module.get_bars(SECTOR_BENCHMARK, "1d", start, end)
+    if bars.empty or len(bars) < 2:
+        return None
+    return float((bars["Close"].iloc[-1] / bars["Close"].iloc[0] - 1.0) * 100.0)
+
+
 def run_cross_sectional(
     strategy_name: str, request: RunRequest | None = None
 ) -> CrossSectionalResult:
@@ -300,9 +314,35 @@ def run_cross_sectional(
     strategy = build_cross_sectional_strategy(strategy_name, risk_free_rate=rf)
     if request and request.params:
         strategy = apply_params(strategy, request.params)
-    return run_cross_sectional_backtest(
+    result = run_cross_sectional_backtest(
         strategy_name, strategy, symbols, start, end, risk_free_rate=rf
     )
+    # No verdict for a run that never rebalanced (no data) -- status stays
+    # NULL and the UI keeps its old "Backtested" fallback.
+    benchmark = _benchmark_window_return(result.start, result.end)
+    status = (
+        None
+        if result.rebalances.empty
+        else portfolio_status(result.return_pct, result.sharpe, benchmark)
+    )
+    log_portfolio_run(
+        strategy_name=strategy_name,
+        symbols=result.symbols,
+        start=result.start,
+        end=result.end,
+        final_equity=result.final_equity,
+        return_pct=result.return_pct,
+        cagr_pct=result.cagr_pct,
+        max_drawdown_pct=result.max_drawdown_pct,
+        sharpe=result.sharpe,
+        sortino=result.sortino,
+        risk_free_rate=result.risk_free_rate,
+        params=request.params if request else None,
+        is_canonical=request is None or request.is_default(),
+        benchmark_return_pct=benchmark,
+        status=status,
+    )
+    return result
 
 
 def run_pairs(strategy_name: str, request: RunRequest | None = None) -> PairsResult:
@@ -324,9 +364,42 @@ def run_pairs(strategy_name: str, request: RunRequest | None = None) -> PairsRes
     strategy = build_pairs_strategy(strategy_name)
     if request and request.params:
         strategy = apply_params(strategy, request.params)
-    return run_pairs_backtest(
+    result = run_pairs_backtest(
         strategy_name, strategy, symbols, start, end, risk_free_rate=rf
     )
+    # A run that found no cointegrated pair traded nothing -- no verdict
+    # (status stays NULL -> the UI's old "Backtested" fallback), same
+    # reasoning as run_cross_sectional's empty-rebalances guard above.
+    trade_start = result.trading_window[0].date()
+    trade_end = result.trading_window[1].date()
+    benchmark = _benchmark_window_return(trade_start, trade_end)
+    status = (
+        None
+        if result.pair is None
+        else portfolio_status(result.return_pct, result.sharpe, benchmark)
+    )
+    log_portfolio_run(
+        strategy_name=strategy_name,
+        symbols=result.symbols,
+        start=trade_start,
+        end=trade_end,
+        final_equity=result.final_equity,
+        return_pct=result.return_pct,
+        cagr_pct=result.cagr_pct,
+        max_drawdown_pct=result.max_drawdown_pct,
+        sharpe=result.sharpe,
+        sortino=result.sortino,
+        risk_free_rate=result.risk_free_rate,
+        params=request.params if request else None,
+        pair=(
+            (result.pair.symbol_a, result.pair.symbol_b, result.pair.p_value)
+            if result.pair else None
+        ),
+        is_canonical=request is None or request.is_default(),
+        benchmark_return_pct=benchmark,
+        status=status,
+    )
+    return result
 
 
 def is_cross_sectional(strategy_name: str) -> bool:

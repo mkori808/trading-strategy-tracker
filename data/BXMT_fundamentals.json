@@ -1,0 +1,15 @@
+{
+  "symbol": "BXMT",
+  "market_cap": 2881114624.0,
+  "payout_ratio_pct": 313.32998000000003,
+  "eps_growth_yoy_pct": null,
+  "revenue_growth_yoy_pct": 34.9,
+  "trailing_pe": 28.466665,
+  "analyst_rating": 1.77778,
+  "analyst_target_price": 20.75,
+  "current_price": 17.08,
+  "fetched_at": "2026-07-20T04:46:37+00:00",
+  "profit_margins_pct": 22.192,
+  "return_on_equity_pct": 2.918,
+  "debt_to_equity": 465.17
+}

@@ -48,6 +48,14 @@ class InternalBarStrength(Strategy):
         0.9, label="IBS exit threshold", minimum=0.5, maximum=0.99, step=0.05,
         help="Exit when IBS rises above this (close near the day's high).",
     )
+    stop_swing_lookback: int = param_field(
+        20, label="Stop swing-low lookback (bars)", minimum=5, maximum=60, step=5,
+        help="Bars back to search for the swing low used in the stop calculation.",
+    )
+    stop_buffer_pct: float = param_field(
+        0.01, label="Stop buffer below level (fraction)", minimum=0.0, maximum=0.05, step=0.005,
+        help="Extra cushion below the swing-low stop level.",
+    )
 
     def entry_signal(self, bars: pd.DataFrame) -> bool:
         if len(bars) < self.trend_ema_period:
@@ -59,7 +67,7 @@ class InternalBarStrength(Strategy):
         return ibs < self.ibs_entry_threshold and bool(bars["Close"].iloc[-1] > trend.iloc[-1])
 
     def stop_price(self, bars: pd.DataFrame, entry_price: float) -> float:
-        return swing_low(bars) * 0.99
+        return swing_low(bars, self.stop_swing_lookback) * (1 - self.stop_buffer_pct)
 
     def exit_signal(self, bars: pd.DataFrame) -> bool:
         ibs = _ibs(bars.iloc[-1])

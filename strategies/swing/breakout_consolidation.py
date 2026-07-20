@@ -24,6 +24,14 @@ class BreakoutFromConsolidation(Strategy):
         1.5, label="Breakout volume multiple", minimum=1.0, maximum=5.0, step=0.1,
         help="Breakout bar's volume must be at least this many times the trailing average.",
     )
+    stop_range_fraction: float = param_field(
+        0.5, label="Stop position within range (0=low, 1=high)", minimum=0.0, maximum=1.0, step=0.1,
+        help="Where within the consolidation range the stop sits.",
+    )
+    target_measured_move_multiple: float = param_field(
+        1.0, label="Target projection (x range height)", minimum=0.5, maximum=2.5, step=0.25,
+        help="Target = breakout level + this multiple of the consolidation range height.",
+    )
 
     def _range(self, bars: pd.DataFrame) -> tuple[float, float] | None:
         window = bars.iloc[:-1].tail(self.consolidation_lookback)
@@ -43,8 +51,8 @@ class BreakoutFromConsolidation(Strategy):
 
     def stop_price(self, bars: pd.DataFrame, entry_price: float) -> float:
         high, low = self._range(bars)
-        return (high + low) / 2  # back inside the range
+        return low + self.stop_range_fraction * (high - low)  # back inside the range
 
     def target_price(self, bars: pd.DataFrame, entry_price: float) -> float | None:
         high, low = self._range(bars)
-        return high + (high - low)  # measured move: consolidation height projected from the breakout
+        return high + self.target_measured_move_multiple * (high - low)  # measured move

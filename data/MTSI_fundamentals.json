@@ -1,0 +1,15 @@
+{
+  "symbol": "MTSI",
+  "market_cap": 20398438400.0,
+  "payout_ratio_pct": 0.0,
+  "eps_growth_yoy_pct": 42.9,
+  "revenue_growth_yoy_pct": 22.5,
+  "trailing_pe": 113.77021,
+  "analyst_rating": 1.64286,
+  "analyst_target_price": 404.76923,
+  "current_price": 267.36,
+  "fetched_at": "2026-07-20T04:46:28+00:00",
+  "profit_margins_pct": 16.459998000000002,
+  "return_on_equity_pct": 13.492,
+  "debt_to_equity": 29.203
+}

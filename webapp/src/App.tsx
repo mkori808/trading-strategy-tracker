@@ -1,15 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   api,
   type BacktestOverrides,
   type BacktestResult,
   type CrossSectionalResponse,
   type HistoryRow,
+  type MarketResponse,
   type PairsResponse,
+  type PortfolioHistoryRow,
   type StrategySummary,
 } from "./api";
+import { Sidebar } from "./components/Sidebar";
 import { CrossSectionalResultView } from "./components/CrossSectionalResultView";
 import { PairsResultView } from "./components/PairsResultView";
+import { PortfolioRunHistory } from "./components/PortfolioRunHistory";
 import { StrategyTable } from "./components/StrategyTable";
 import { StrategyPicker } from "./components/StrategyPicker";
 import { RunConfigPanel } from "./components/RunConfigPanel";
@@ -24,9 +28,10 @@ import { PortfolioPanel } from "./components/PortfolioPanel";
 import { PerSymbolTable } from "./components/PerSymbolTable";
 import { SymbolsView } from "./components/SymbolsView";
 import { MarketView } from "./components/MarketView";
+import { ScreenerView } from "./components/ScreenerView";
+import { MoversView } from "./components/MoversView";
 import { LiveMonitorView } from "./components/LiveMonitorView";
-
-type Tab = "lab" | "compare" | "symbols" | "market" | "monitor";
+import type { Tab } from "./tabs";
 
 const DAY_TRADING_CAPTION = "Day-trading strategy: backtests the last ~60 days of 5-min bars.";
 const SWING_TRADING_CAPTION = "Swing-trading strategy: backtests the last 5 years of daily bars.";
@@ -40,6 +45,16 @@ function App() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("lab");
 
+  // Fetched ONCE at this level and shared by Sidebar + MarketView -- a cold
+  // /api/market call scans the full 94-symbol research universe (see
+  // CLAUDE.md's "Research platform" section) and can take up to ~40s.
+  // Fetching it per-tab-switch or per-component would multiply that cost;
+  // this is the one place it's requested, on mount, for the whole session.
+  const [marketData, setMarketData] = useState<MarketResponse | null>(null);
+  const [marketLoading, setMarketLoading] = useState(false);
+  const [marketLastUpdated, setMarketLastUpdated] = useState<Date | null>(null);
+  const [marketError, setMarketError] = useState<string | null>(null);
+
   const loadStrategies = () => {
     api
       .listStrategies()
@@ -50,72 +65,87 @@ function App() {
       .catch((e) => setLoadError(String(e)));
   };
 
+  const loadMarket = () => {
+    setMarketLoading(true);
+    setMarketError(null);
+    api
+      .market()
+      .then((res) => {
+        setMarketData(res);
+        setMarketLastUpdated(new Date());
+      })
+      .catch((e) => setMarketError(String(e)))
+      .finally(() => setMarketLoading(false));
+  };
+
+  // StrictMode double-invokes mount effects in dev (React's intentional
+  // "flush out non-idempotent effects" check) -- harmless for the cheap
+  // loadStrategies() call, but /api/market is a real ~40s 94-symbol scan,
+  // so a bare useEffect(loadMarket, []) would fire it TWICE on every real
+  // `npm run dev` session (this project's actual day-to-day workflow, not
+  // just a build step -- see CLAUDE.md). Guard with a ref so the second
+  // StrictMode invocation is a no-op instead of a second concurrent scan.
+  const marketFetchedRef = useRef(false);
   useEffect(loadStrategies, []);
+  useEffect(() => {
+    if (marketFetchedRef.current) return;
+    marketFetchedRef.current = true;
+    loadMarket();
+  }, []);
 
   return (
-    <div className="mx-auto max-w-7xl px-6 py-8">
-      <header className="mb-6">
-        <div className="flex items-baseline justify-between gap-4">
-          <h1 className="text-2xl font-semibold" style={{ color: "var(--text-primary)" }}>
-            Trading Strategy Lab
-          </h1>
-        </div>
-        <p className="mt-1 max-w-3xl text-sm" style={{ color: "var(--text-secondary)" }}>
-          Backtests run against a pre-registered symbol universe by default. Strategies under
-          30 trades are flagged "sample too small" — treat those numbers as directional, not
-          conclusive.
-        </p>
-        <details className="mt-1">
-          <summary className="cursor-pointer text-xs" style={{ color: "var(--text-muted)" }}>
-            About this tool
-          </summary>
-          <p className="mt-1 max-w-3xl text-xs" style={{ color: "var(--text-muted)" }}>
-            Day-trading strategies use ~60 days of 5-min bars (yfinance's intraday history
-            limit); swing strategies use 5 years of daily bars. The <strong>Lab</strong> tab lets
-            you test variations — custom symbols, date ranges, and rule parameters — against any
-            strategy; those runs are tagged as experiments and never replace the strategy's
-            canonical (registered-default) result shown in <strong>Compare</strong>.
-          </p>
-        </details>
-      </header>
+    <div className="flex min-h-screen">
+      <Sidebar
+        marketData={marketData}
+        marketLoading={marketLoading}
+        lastUpdated={marketLastUpdated}
+        activeTab={tab}
+        onSelectTab={setTab}
+      />
 
-      <nav className="mb-6 flex gap-1 border-b" style={{ borderColor: "var(--gridline)" }}>
-        {([
-          ["lab", "Lab"],
-          ["compare", "Compare"],
-          ["symbols", "Symbols"],
-          ["market", "Market"],
-          ["monitor", "Live Monitor"],
-        ] as const).map(([key, label]) => (
-          <button
-            key={key}
-            type="button"
-            onClick={() => setTab(key)}
-            className="border-b-2 px-4 py-2 text-sm font-medium transition-colors"
-            style={{
-              borderColor: tab === key ? "var(--series-1)" : "transparent",
-              color: tab === key ? "var(--text-primary)" : "var(--text-muted)",
-            }}
+      <div className="mx-auto w-full max-w-6xl px-6 py-8">
+        <header className="mb-6">
+          <details>
+            <summary className="cursor-pointer text-xs" style={{ color: "var(--text-muted)" }}>
+              About this tool
+            </summary>
+            <p className="mt-1 max-w-3xl text-xs" style={{ color: "var(--text-muted)" }}>
+              Backtests run against a pre-registered symbol universe by default. Strategies
+              under 30 trades are flagged "sample too small" — treat those numbers as
+              directional, not conclusive. Day-trading strategies use ~60 days of 5-min bars
+              (yfinance's intraday history limit); swing strategies use 5 years of daily bars.
+              The <strong>Lab</strong> tab lets you test variations — custom symbols, date
+              ranges, and rule parameters — against any strategy; those runs are tagged as
+              experiments and never replace the strategy's canonical (registered-default)
+              result shown in <strong>Compare</strong>.
+            </p>
+          </details>
+        </header>
+
+        {loadError && (
+          <div
+            className="mb-6 rounded-lg border px-4 py-3 text-sm"
+            style={{ borderColor: "var(--status-critical)", color: "var(--status-critical)" }}
           >
-            {label}
-          </button>
-        ))}
-      </nav>
+            Failed to load strategies: {loadError}. Is the API running (uvicorn api.main:app)?
+          </div>
+        )}
 
-      {loadError && (
-        <div
-          className="mb-6 rounded-lg border px-4 py-3 text-sm"
-          style={{ borderColor: "var(--status-critical)", color: "var(--status-critical)" }}
-        >
-          Failed to load strategies: {loadError}. Is the API running (uvicorn api.main:app)?
-        </div>
-      )}
-
-      {tab === "symbols" && <SymbolsView />}
-      {tab === "market" && <MarketView />}
-      {tab === "monitor" && <LiveMonitorView />}
-      {tab === "lab" && <LabTab strategies={strategies} onRunLogged={loadStrategies} />}
-      {tab === "compare" && <CompareTab strategies={strategies} />}
+        {tab === "symbols" && <SymbolsView />}
+        {tab === "market" && (
+          <MarketView
+            data={marketData}
+            loading={marketLoading}
+            error={marketError}
+            onRefresh={loadMarket}
+          />
+        )}
+        {tab === "screener" && <ScreenerView />}
+        {tab === "movers" && <MoversView />}
+        {tab === "monitor" && <LiveMonitorView />}
+        {tab === "lab" && <LabTab strategies={strategies} onRunLogged={loadStrategies} />}
+        {tab === "compare" && <CompareTab strategies={strategies} onRunLogged={loadStrategies} />}
+      </div>
     </div>
   );
 }
@@ -132,6 +162,7 @@ function LabTab({
   const [csResult, setCsResult] = useState<CrossSectionalResponse | null>(null);
   const [pairsResult, setPairsResult] = useState<PairsResponse | null>(null);
   const [history, setHistory] = useState<HistoryRow[]>([]);
+  const [portfolioHistory, setPortfolioHistory] = useState<PortfolioHistoryRow[]>([]);
   const [running, setRunning] = useState(false);
   const [runError, setRunError] = useState<string | null>(null);
   const [replay, setReplay] = useState<{ token: number; overrides: BacktestOverrides } | null>(null);
@@ -140,19 +171,21 @@ function LabTab({
     if (!selected && strategies.length > 0) setSelected(strategies[0].name);
   }, [strategies, selected]);
 
+  const selectedEngine = strategies.find((s) => s.name === selected)?.engine ?? "standard";
+
   useEffect(() => {
     if (!selected) return;
     setResult(null);
     setCsResult(null);
     setPairsResult(null);
     setRunError(null);
-    api
-      .history(selected)
-      .then(setHistory)
-      .catch(() => setHistory([]));
-  }, [selected]);
-
-  const selectedEngine = strategies.find((s) => s.name === selected)?.engine ?? "standard";
+    if (selectedEngine === "standard") {
+      api.history(selected).then(setHistory).catch(() => setHistory([]));
+    } else {
+      api.portfolioHistory(selected).then(setPortfolioHistory).catch(() => setPortfolioHistory([]));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected, selectedEngine]);
 
   const runBacktest = async (overrides: BacktestOverrides) => {
     if (!selected) return;
@@ -161,8 +194,12 @@ function LabTab({
     try {
       if (selectedEngine === "cross_sectional") {
         setCsResult(await api.runCrossSectional(selected, overrides));
+        setPortfolioHistory(await api.portfolioHistory(selected));
+        onRunLogged();
       } else if (selectedEngine === "pairs") {
         setPairsResult(await api.runPairs(selected, overrides));
+        setPortfolioHistory(await api.portfolioHistory(selected));
+        onRunLogged();
       } else {
         const res = await api.runBacktest(selected, overrides);
         setResult(res);
@@ -204,29 +241,35 @@ function LabTab({
           />
         )}
       </div>
-      <div>
+      <div className="space-y-6">
         {selectedEngine === "cross_sectional" ? (
-          csResult ? (
-            <CrossSectionalResultView result={csResult} />
-          ) : (
-            <div
-              className="flex h-64 items-center justify-center rounded-lg border text-sm"
-              style={{ borderColor: "var(--border)", background: "var(--surface-1)", color: "var(--text-muted)" }}
-            >
-              Run a backtest to see results here.
-            </div>
-          )
+          <>
+            {csResult ? (
+              <CrossSectionalResultView result={csResult} />
+            ) : (
+              <div
+                className="flex h-64 items-center justify-center rounded-lg border text-sm"
+                style={{ borderColor: "var(--border)", background: "var(--surface-1)", color: "var(--text-muted)" }}
+              >
+                Run a backtest to see results here.
+              </div>
+            )}
+            <PortfolioRunHistory rows={portfolioHistory} />
+          </>
         ) : selectedEngine === "pairs" ? (
-          pairsResult ? (
-            <PairsResultView result={pairsResult} />
-          ) : (
-            <div
-              className="flex h-64 items-center justify-center rounded-lg border text-sm"
-              style={{ borderColor: "var(--border)", background: "var(--surface-1)", color: "var(--text-muted)" }}
-            >
-              Run a backtest to see results here.
-            </div>
-          )
+          <>
+            {pairsResult ? (
+              <PairsResultView result={pairsResult} />
+            ) : (
+              <div
+                className="flex h-64 items-center justify-center rounded-lg border text-sm"
+                style={{ borderColor: "var(--border)", background: "var(--surface-1)", color: "var(--text-muted)" }}
+              >
+                Run a backtest to see results here.
+              </div>
+            )}
+            <PortfolioRunHistory rows={portfolioHistory} />
+          </>
         ) : (
           <ResultTabs result={result} history={history} onReplay={handleReplay} />
         )}
@@ -235,10 +278,17 @@ function LabTab({
   );
 }
 
-function CompareTab({ strategies }: { strategies: StrategySummary[] }) {
+function CompareTab({
+  strategies,
+  onRunLogged,
+}: {
+  strategies: StrategySummary[];
+  onRunLogged: () => void;
+}) {
   const [selected, setSelected] = useState<string | null>(null);
   const [result, setResult] = useState<BacktestResult | null>(null);
   const [history, setHistory] = useState<HistoryRow[]>([]);
+  const [portfolioHistory, setPortfolioHistory] = useState<PortfolioHistoryRow[]>([]);
   const [running, setRunning] = useState(false);
   const [runError, setRunError] = useState<string | null>(null);
   const [csResult, setCsResult] = useState<CrossSectionalResponse | null>(null);
@@ -248,19 +298,21 @@ function CompareTab({ strategies }: { strategies: StrategySummary[] }) {
     if (selected === null && strategies.length > 0) setSelected(strategies[0].name);
   }, [strategies, selected]);
 
+  const selectedMeta = strategies.find((s) => s.name === selected);
+
   useEffect(() => {
     if (!selected) return;
     setResult(null);
     setCsResult(null);
     setPairsResult(null);
     setRunError(null);
-    api
-      .history(selected)
-      .then(setHistory)
-      .catch(() => setHistory([]));
-  }, [selected]);
-
-  const selectedMeta = strategies.find((s) => s.name === selected);
+    if (selectedMeta?.engine === "standard" || !selectedMeta) {
+      api.history(selected).then(setHistory).catch(() => setHistory([]));
+    } else {
+      api.portfolioHistory(selected).then(setPortfolioHistory).catch(() => setPortfolioHistory([]));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected, selectedMeta?.engine]);
 
   const runBacktest = async () => {
     if (!selected || !selectedMeta) return;
@@ -269,13 +321,18 @@ function CompareTab({ strategies }: { strategies: StrategySummary[] }) {
     try {
       if (selectedMeta.engine === "cross_sectional") {
         setCsResult(await api.runCrossSectional(selected));
+        setPortfolioHistory(await api.portfolioHistory(selected));
+        onRunLogged();
       } else if (selectedMeta.engine === "pairs") {
         setPairsResult(await api.runPairs(selected));
+        setPortfolioHistory(await api.portfolioHistory(selected));
+        onRunLogged();
       } else {
         const res = await api.runBacktest(selected);
         setResult(res);
         const hist = await api.history(selected);
         setHistory(hist);
+        onRunLogged();
       }
     } catch (e) {
       setRunError(String(e));
@@ -377,11 +434,15 @@ function CompareTab({ strategies }: { strategies: StrategySummary[] }) {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-6">
               <StatTile
                 label="Sharpe (vs. risk-free)"
                 value={m.sharpe !== null ? m.sharpe.toFixed(2) : "—"}
                 valueColor={m.sharpe !== null ? (m.sharpe > 0 ? "var(--status-good)" : "var(--status-critical)") : undefined}
+              />
+              <StatTile
+                label="Buy & Hold Return"
+                value={m.buyHoldReturnPct !== null ? `${m.buyHoldReturnPct >= 0 ? "+" : ""}${m.buyHoldReturnPct.toFixed(1)}%` : "—"}
               />
               <StatTile
                 label="Alpha vs. buy & hold"
@@ -432,10 +493,14 @@ function CompareTab({ strategies }: { strategies: StrategySummary[] }) {
           <h2 className="mb-3 text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
             Previous runs — {selected}
           </h2>
-          <div className="space-y-4">
-            <MetricsHistoryChart rows={history} />
-            <RunHistory rows={history} />
-          </div>
+          {selectedMeta && selectedMeta.engine !== "standard" ? (
+            <PortfolioRunHistory rows={portfolioHistory} />
+          ) : (
+            <div className="space-y-4">
+              <MetricsHistoryChart rows={history} />
+              <RunHistory rows={history} />
+            </div>
+          )}
         </section>
       )}
     </>

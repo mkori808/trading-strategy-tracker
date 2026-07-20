@@ -1,0 +1,15 @@
+{
+  "symbol": "EAT",
+  "market_cap": 8120803840.0,
+  "payout_ratio_pct": 0.0,
+  "eps_growth_yoy_pct": 12.1,
+  "revenue_growth_yoy_pct": 3.2,
+  "trailing_pe": 18.455166,
+  "analyst_rating": 1.63636,
+  "analyst_target_price": 189.2857,
+  "current_price": 189.35,
+  "fetched_at": "2026-07-20T04:46:41+00:00",
+  "profit_margins_pct": 8.0740005,
+  "return_on_equity_pct": 139.218,
+  "debt_to_equity": 430.542
+}

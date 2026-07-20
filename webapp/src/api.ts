@@ -4,20 +4,40 @@ export interface StrategySummary {
   // "standard" runs through /api/backtest and the Lab tab's override UI.
   // "cross_sectional" (Dual Momentum) and "pairs" (Pairs / Stat Arb) run on
   // different engines with different result shapes -- see
-  // /api/backtest/cross-sectional and /api/backtest/pairs below. No
-  // overrides exist for either yet, so they're Compare-tab only.
+  // /api/backtest/cross-sectional and /api/backtest/pairs below, and
+  // engine/logging_db.py's separate portfolio_runs table for their run
+  // history (win rate/avg win/avg loss/expectancy/profit factor/alpha/beta
+  // are structurally not applicable to these two -- always null; cagrPct/
+  // returnPct are the closest equivalents).
   engine: "standard" | "cross_sectional" | "pairs";
-  tradesTaken: number;
+  // null for cross_sectional/pairs rows: "no discrete-trade concept" is
+  // different from "traded zero times" -- render as "--", not 0.
+  tradesTaken: number | null;
   winRate: number | null;
   avgWinR: number | null;
   avgLossR: number | null;
   expectancyR: number | null;
   profitFactor: number | null;
+  cagrPct: number | null;
+  returnPct: number | null;
+  maxDrawdownPct: number | null;
+  // SPY's buy-and-hold return over the same window -- only set for
+  // cross_sectional/pairs rows, whose status verdict is judged against it
+  // (standard rows carry alphaPct instead).
+  benchmarkReturnPct: number | null;
   status: string;
   lastRun: string | null;
   sharpe: number | null;
   alphaPct: number | null;
   beta: number | null;
+  // The exact configuration behind the run this row's scores came from --
+  // same fields /api/history/{name} rows carry, surfaced here too so the
+  // leaderboard doesn't require opening run history to answer "what
+  // symbols/date range/params produced this number."
+  symbols: string[];
+  startDate: string | null;
+  endDate: string | null;
+  params: Record<string, number | boolean | string>;
 }
 
 export interface Metrics {
@@ -37,6 +57,10 @@ export interface Metrics {
   cagrPct: number | null;
   exposurePct: number | null;
   riskFreeRate: number | null;
+  // What buying and holding the same symbol(s) over the same window alone
+  // would have returned -- alphaPct is the strategy's excess return over
+  // this, shown alongside it rather than only the difference.
+  buyHoldReturnPct: number | null;
   status: string;
 }
 
@@ -97,6 +121,7 @@ export interface PerSymbolRow {
   profitFactor: number | null;
   pnl: number;
   returnPct: number | null;
+  buyHoldReturnPct: number | null;
   sharpe: number | null;
   sparkline: number[];
 }
@@ -240,10 +265,40 @@ export interface TrendTemplateScan {
   symbols: TrendTemplateSymbolRow[];
 }
 
+export interface MarketSignals {
+  asOf: string;
+  score: number | null;
+  methodology: string;
+  components: {
+    pctAboveSma50: number | null;
+    pctAboveSma200: number | null;
+    netNewHighsLowsPct: number | null;
+    spyRegime: "Bullish" | "Neutral" | "Bearish";
+    spyRegimeScore: number | null;
+  };
+  symbolsTracked: number;
+  newHighs20d: number;
+  newLows20d: number;
+}
+
+export interface SectorRotationRow {
+  symbol: string;
+  relativeStrength: number | null;
+  rising: boolean | null;
+}
+
+export interface SectorRotation {
+  asOf: string;
+  lookbackDays: number;
+  rows: SectorRotationRow[];
+}
+
 export interface MarketResponse {
   regime: RegimeInfo;
   sectorPerformance: SectorPerformanceRow[];
+  sectorRotation: SectorRotation;
   trendTemplate: TrendTemplateScan;
+  marketSignals: MarketSignals;
 }
 
 export interface LiveAccount {
@@ -372,11 +427,129 @@ export interface PairsResponse {
   riskFreeRate: number;
 }
 
+export interface PortfolioHistoryRow {
+  runAt: string;
+  startDate: string | null;
+  endDate: string | null;
+  finalEquity: number | null;
+  returnPct: number | null;
+  cagrPct: number | null;
+  maxDrawdownPct: number | null;
+  sharpe: number | null;
+  sortino: number | null;
+  isCanonical: boolean;
+  symbols: string[];
+  params: Record<string, number | boolean | string>;
+  pairSymbolA: string | null;
+  pairSymbolB: string | null;
+  pairPValue: number | null;
+  benchmarkReturnPct: number | null;
+  // Verdict from engine/metrics.py:portfolio_status(); null on rows logged
+  // before it existed, or on runs with no meaningful verdict (e.g. a Pairs
+  // run that found no cointegrated pair).
+  status: string | null;
+}
+
+export interface ScreenerRow {
+  symbol: string;
+  price: number | null;
+  compositeScore: number | null;
+  valuationScore: number | null;
+  qualityScore: number | null;
+  growthMomentumScore: number | null;
+  riskScore: number | null;
+  trailingPe: number | null;
+  profitMarginsPct: number | null;
+  returnOnEquityPct: number | null;
+  debtToEquity: number | null;
+  momentum6mPct: number | null;
+  volatilityPct: number | null;
+  maxDrawdownPct: number | null;
+  analystRating: number | null;
+  analystTargetPrice: number | null;
+  upsidePct: number | null;
+  marketCap: number | null;
+}
+
+export interface ScreenerResponse {
+  asOf: string;
+  methodology: string;
+  rows: ScreenerRow[];
+}
+
+export interface StreakRow {
+  symbol: string;
+  direction: "up" | "down" | null;
+  days: number;
+}
+
+export interface MoversResponse {
+  asOf: string;
+  gainers: SymbolMeta[];
+  losers: SymbolMeta[];
+  streaks: StreakRow[];
+}
+
+export interface InsiderPurchase {
+  issuerTicker: string;
+  issuerName: string;
+  filerName: string;
+  filedAt: string;
+  signalDate: string;
+  transactionDate: string;
+  sharesTransacted: number;
+  pricePerShare: number;
+  transactionValue: number;
+  pctChangeHoldings: number | null;
+  ownershipNature: string | null;
+  formUrl: string;
+}
+
+export interface InsiderStatus {
+  running: boolean;
+  lastCompletedAt: string | null;
+  lastError: string | null;
+}
+
+export interface InsiderRecentResponse extends InsiderStatus {
+  rows: InsiderPurchase[];
+}
+
+export interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface ChatResponse {
+  reply: string;
+}
+
+export interface DigestPreview {
+  asOf: string;
+  regime: RegimeInfo;
+  marketSignals: MarketSignals;
+  movers: MoversResponse;
+  insiderPurchases: InsiderPurchase[];
+  disclaimer: string;
+  text: string;
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`/api${path}`, init);
   if (!res.ok) {
     const body = await res.text();
-    throw new Error(`${res.status} ${res.statusText}: ${body}`);
+    // FastAPI error bodies are {"detail": "..."} -- surface just that
+    // clean message rather than the raw status/JSON, which otherwise
+    // leaks straight into user-facing error text (e.g. RunConfigPanel's
+    // "Couldn't load configuration" banner).
+    let message = body;
+    try {
+      const parsed = JSON.parse(body) as { detail?: string };
+      if (parsed?.detail) message = parsed.detail;
+    } catch {
+      // not JSON -- fall back to the raw body
+    }
+    throw new Error(message || `${res.status} ${res.statusText}`);
   }
   return res.json() as Promise<T>;
 }
@@ -404,6 +577,8 @@ export const api = {
         : {}),
     }),
   history: (name: string) => request<HistoryRow[]>(`/history/${encodeURIComponent(name)}`),
+  portfolioHistory: (name: string) =>
+    request<PortfolioHistoryRow[]>(`/history/portfolio/${encodeURIComponent(name)}`),
   listSymbols: () => request<SymbolsResponse>("/symbols"),
   symbolDetail: (ticker: string) =>
     request<SymbolDetail>(`/symbols/${encodeURIComponent(ticker)}`),
@@ -429,4 +604,25 @@ export const api = {
   liveSignals: (limit = 100) => request<SignalAlert[]>(`/live/signals?limit=${limit}`),
   triggerScan: () =>
     request<{ newAlerts: unknown[] }>("/live/scan", { method: "POST" }),
+  screener: (symbols?: string[]) =>
+    request<ScreenerResponse>(
+      `/screener${symbols?.length ? `?symbols=${encodeURIComponent(symbols.join(","))}` : ""}`,
+    ),
+  movers: (symbols?: string[], topN = 10) =>
+    request<MoversResponse>(
+      `/movers?topN=${topN}${symbols?.length ? `&symbols=${encodeURIComponent(symbols.join(","))}` : ""}`,
+    ),
+  insiderRecent: (limit = 50) => request<InsiderRecentResponse>(`/insider/recent?limit=${limit}`),
+  insiderStatus: () => request<InsiderStatus>("/insider/status"),
+  insiderRefresh: () =>
+    request<{ started: boolean; reason?: string } & InsiderStatus>("/insider/refresh", {
+      method: "POST",
+    }),
+  digestPreview: () => request<DigestPreview>("/digest/preview"),
+  chat: (result: BacktestResult, messages: ChatMessage[]) =>
+    request<ChatResponse>("/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ result, messages }),
+    }),
 };

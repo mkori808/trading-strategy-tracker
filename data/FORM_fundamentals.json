@@ -1,0 +1,15 @@
+{
+  "symbol": "FORM",
+  "market_cap": 8229684736.0,
+  "payout_ratio_pct": 0.0,
+  "eps_growth_yoy_pct": 225.0,
+  "revenue_growth_yoy_pct": 32.0,
+  "trailing_pe": 119.96591,
+  "analyst_rating": 2.0,
+  "analyst_target_price": 144.66667,
+  "current_price": 105.57,
+  "fetched_at": "2026-07-20T04:46:44+00:00",
+  "profit_margins_pct": 8.1379995,
+  "return_on_equity_pct": 6.751,
+  "debt_to_equity": 3.012
+}

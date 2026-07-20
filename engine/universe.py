@@ -119,6 +119,22 @@ SECTOR_BENCHMARK = "SPY"
 # for the ETF-oriented strategies (Pivot-Level ETF Reversal, Overnight Hold).
 ETF_UNIVERSE: list[str] = [*SECTOR_UNIVERSE, SECTOR_BENCHMARK]
 
+# Every symbol tracked anywhere in the app, deduped -- for LIVE research
+# display only (Screener, Movers, Market Signals, insider-buying feed).
+# Never use this for a backtest: it has none of the point-in-time-membership
+# disclosures EQUITY_UNIVERSE/MIDCAP_UNIVERSE/SMALL_CAP_UNIVERSE carry above,
+# because that bias doesn't apply here -- these features describe today's
+# state, not a fixed historical sample, so "which symbols are we tracking
+# today" carries no survivorship-bias risk the way a backtest universe would.
+def _research_universe() -> list[str]:
+    seen: dict[str, None] = {}
+    for sym in [*EQUITY_UNIVERSE, *MIDCAP_UNIVERSE, *SMALL_CAP_UNIVERSE, *ETF_UNIVERSE]:
+        seen.setdefault(sym, None)
+    return list(seen)
+
+
+RESEARCH_UNIVERSE: list[str] = _research_universe()
+
 # For strategies the user wants tested on BOTH ETFs and single names: the ETF
 # set plus the Dow universe. The per-symbol backtest breakdown then separates
 # ETF behavior from single-stock behavior within one run (an effect that's

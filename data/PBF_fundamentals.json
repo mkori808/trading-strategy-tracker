@@ -1,0 +1,15 @@
+{
+  "symbol": "PBF",
+  "market_cap": 7423855616.0,
+  "payout_ratio_pct": 29.020000000000003,
+  "eps_growth_yoy_pct": null,
+  "revenue_growth_yoy_pct": 11.899999999999999,
+  "trailing_pe": 16.556728,
+  "analyst_rating": 3.21429,
+  "analyst_target_price": 48.30769,
+  "current_price": 62.75,
+  "fetched_at": "2026-07-20T04:46:31+00:00",
+  "profit_margins_pct": 1.464,
+  "return_on_equity_pct": 8.178,
+  "debt_to_equity": 63.715
+}

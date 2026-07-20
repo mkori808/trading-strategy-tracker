@@ -1,0 +1,15 @@
+{
+  "symbol": "CCK",
+  "market_cap": 13097821184.0,
+  "payout_ratio_pct": 17.969999,
+  "eps_growth_yoy_pct": -5.5,
+  "revenue_growth_yoy_pct": 12.9,
+  "trailing_pe": 18.63434,
+  "analyst_rating": 1.73333,
+  "analyst_target_price": 128.14285,
+  "current_price": 117.21,
+  "fetched_at": "2026-07-20T04:46:17+00:00",
+  "profit_margins_pct": 5.653,
+  "return_on_equity_pct": 26.185000000000002,
+  "debt_to_equity": 189.508
+}

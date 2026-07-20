@@ -1,0 +1,15 @@
+{
+  "symbol": "CVLT",
+  "market_cap": 6122539520.0,
+  "payout_ratio_pct": 0.0,
+  "eps_growth_yoy_pct": -50.2,
+  "revenue_growth_yoy_pct": 13.3,
+  "trailing_pe": 93.55063,
+  "analyst_rating": 1.83333,
+  "analyst_target_price": 150.90062,
+  "current_price": 147.81,
+  "fetched_at": "2026-07-20T04:46:19+00:00",
+  "profit_margins_pct": 5.969,
+  "return_on_equity_pct": 42.486000000000004,
+  "debt_to_equity": 12260.488
+}

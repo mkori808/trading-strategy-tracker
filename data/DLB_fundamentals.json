@@ -1,0 +1,15 @@
+{
+  "symbol": "DLB",
+  "market_cap": 4641929216.0,
+  "payout_ratio_pct": 54.76,
+  "eps_growth_yoy_pct": 5.3,
+  "revenue_growth_yoy_pct": 7.1,
+  "trailing_pe": 19.472221,
+  "analyst_rating": 1.75,
+  "analyst_target_price": 78.33333,
+  "current_price": 49.07,
+  "fetched_at": "2026-07-20T04:46:20+00:00",
+  "profit_margins_pct": 17.851,
+  "return_on_equity_pct": 9.417,
+  "debt_to_equity": 1.891
+}

@@ -1,0 +1,15 @@
+{
+  "symbol": "AAMI",
+  "market_cap": 2949723904.0,
+  "payout_ratio_pct": 5.53,
+  "eps_growth_yoy_pct": 26.400000000000002,
+  "revenue_growth_yoy_pct": 39.300000000000004,
+  "trailing_pe": 35.22979,
+  "analyst_rating": 3.0,
+  "analyst_target_price": 78.0,
+  "current_price": 82.79,
+  "fetched_at": "2026-07-20T04:46:32+00:00",
+  "profit_margins_pct": 13.785,
+  "return_on_equity_pct": 111.72500000000001,
+  "debt_to_equity": 346.579
+}

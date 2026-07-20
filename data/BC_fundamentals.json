@@ -1,0 +1,15 @@
+{
+  "symbol": "BC",
+  "market_cap": 5227193344.0,
+  "payout_ratio_pct": 193.17999,
+  "eps_growth_yoy_pct": 6.7,
+  "revenue_growth_yoy_pct": 12.8,
+  "trailing_pe": null,
+  "analyst_rating": 2.1,
+  "analyst_target_price": 90.17647,
+  "current_price": 80.45,
+  "fetched_at": "2026-07-20T04:46:15+00:00",
+  "profit_margins_pct": -2.473,
+  "return_on_equity_pct": -7.7780000000000005,
+  "debt_to_equity": 152.463
+}

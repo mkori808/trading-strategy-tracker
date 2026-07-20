@@ -1,0 +1,15 @@
+{
+  "symbol": "CFFN",
+  "market_cap": 1072265216.0,
+  "payout_ratio_pct": 56.67,
+  "eps_growth_yoy_pct": 34.300000000000004,
+  "revenue_growth_yoy_pct": 13.4,
+  "trailing_pe": 14.366666,
+  "analyst_rating": 2.33333,
+  "analyst_target_price": 8.83333,
+  "current_price": 8.62,
+  "fetched_at": "2026-07-20T04:46:39+00:00",
+  "profit_margins_pct": 35.898998,
+  "return_on_equity_pct": 7.5279996,
+  "debt_to_equity": null
+}

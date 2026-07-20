@@ -1,0 +1,15 @@
+{
+  "symbol": "ITT",
+  "market_cap": 17295063040.0,
+  "payout_ratio_pct": 25.380000000000003,
+  "eps_growth_yoy_pct": -33.1,
+  "revenue_growth_yoy_pct": 32.7,
+  "trailing_pe": 33.892605,
+  "analyst_rating": 1.28571,
+  "analyst_target_price": 244.6923,
+  "current_price": 192.51,
+  "fetched_at": "2026-07-20T04:46:25+00:00",
+  "profit_margins_pct": 10.799,
+  "return_on_equity_pct": 12.262998999999999,
+  "debt_to_equity": 83.549
+}

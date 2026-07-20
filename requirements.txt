@@ -11,3 +11,4 @@ uvicorn
 statsmodels
 alpaca-py
 lxml
+anthropic

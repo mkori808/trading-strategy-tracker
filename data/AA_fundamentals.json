@@ -1,0 +1,15 @@
+{
+  "symbol": "AA",
+  "market_cap": 11605968896.0,
+  "payout_ratio_pct": 10.26,
+  "eps_growth_yoy_pct": 146.8,
+  "revenue_growth_yoy_pct": 31.4,
+  "trailing_pe": 11.276922,
+  "analyst_rating": 1.84615,
+  "analyst_target_price": 65.775,
+  "current_price": 43.98,
+  "fetched_at": "2026-07-20T04:46:13+00:00",
+  "profit_margins_pct": 9.388,
+  "return_on_equity_pct": 18.226999,
+  "debt_to_equity": 29.918
+}

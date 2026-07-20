@@ -7,6 +7,616 @@ Newest entries at the top.
 
 ---
 
+## 2026-07-20 (cont'd 5) — Dual Momentum's drawdown diagnosed; a vol-targeting overlay and a Pairs blend both tried, neither improves it; a recent-window Sharpe worth watching, not trusting yet
+
+**Context:** Dual Momentum is the strongest result in the project (Sharpe
+0.41, the only positive Sharpe of any strategy, and it beat SPY's own
+buy-and-hold return: +100.3% vs +82.6% over the same 5-year window) but
+misses the shortlist's Sharpe > 0.5 bar, carrying a 23.3% max drawdown.
+Dug into the drawdown and tried two ways to improve it.
+
+**The drawdown's cause is structural, not a data artifact.** It bottoms
+exactly on 2025-04-07 (the tariff-shock selloff) while the strategy held 5
+equal-weighted, fully-invested large caps (MMM, WMT, GS, IBM, AAPL) set at
+the 2025-04-01 rebalance — six days before the shock, with zero exposure
+scaling. `DualMomentum.rebalance()` is binary: either 100%-in-top-N or
+fully cash if nothing clears the absolute filter; there's no volatility-
+based sizing in between.
+
+**Fix attempt 1: a vol-targeting overlay** (`engine/timing_filters.py:
+VolTargetedCrossSectional`) scales rebalance weights by
+`min(1.0, target_vol / SPY_realized_vol)`, capped so it only ever reduces
+exposure. It works exactly as designed — max DD 23.3%→16.7% at a 12%
+target — but **Sharpe gets WORSE, not better** (0.41→0.30), and every
+target tried (10%/12%/15%) showed the same pattern. Root cause: Dual
+Momentum only rebalances monthly, so the vol signal read at the 2025-04-01
+rebalance couldn't see a shock landing 2-6 days later — the overlay cuts
+exposure broadly during ordinary elevated-vol months (a real opportunity
+cost) without being fast enough to dodge the one sudden event that caused
+the actual drawdown. A monthly-cadence vol overlay cannot fix a sub-month
+shock; this would need faster rebalancing (which trades off against
+transaction costs) to have a chance, not a differently-tuned target.
+
+**Fix attempt 2: blending with Pairs / Stat Arb as a diversifier.**
+Genuinely negatively correlated (daily-return correlation -0.26 over the
+window both strategies share), which is exactly what a diversifier should
+be. But Pairs' own canonical result is negative (-14.0% return, Sharpe
+-0.83 over the same window) — its own negative expectancy costs more than
+the correlation buys back. Even a 90/10 Dual-Momentum/Pairs blend
+(smallest tested) drags Sharpe from 0.582 down to 0.550; by 30% Pairs the
+blend clearly underperforms standalone Dual Momentum on every metric.
+**A negatively-correlated but money-losing diversifier is not free
+insurance — verify the diversifier's own expectancy before blending, not
+just its correlation.**
+
+**Notable, NOT yet trustworthy: restricted to the same ~2.5-year window
+Pairs is even tradeable in (2024-01-17 onward, forced by the blend-fairness
+requirement above), Dual Momentum ALONE shows Sharpe 0.582 and beats SPY
+(+70.2% vs +60.7%) — clearing the shortlist bar that its full 5-year
+number (0.41) misses.** This fell out of doing the blend comparison
+honestly (both arms had to share one window), not from hunting for a
+better sub-window after the fact. It's a real number, but ~30 monthly
+rebalances is a thin sample to base a verdict on, and CLAUDE.md's own rule
+applies: an unstressed/underpowered result is not a verdict. Worth
+tracking as this window lengthens (does the recent-period Sharpe hold up
+as 2026-2027 rebalances accumulate, or mean-revert back toward the 5-year
+0.41?) rather than treating it as evidence the earlier 2021-2023 period was
+somehow the "wrong" period to include.
+
+---
+
+## 2026-07-20 (cont'd 4) — Timing gates (FOMC days, SPY vol regime) tested on every positive-expectancy strategy; portfolio-engine verdicts wired in; two stale-status bugs found
+
+**Context:** a second externally-written analysis (a "what I'd backtest
+next" list) recommended entry-condition filters — SPY above its 200-day MA,
+relative strength, volume, earnings growth, volatility regimes, avoiding
+FOMC days, breadth confirmation. Cross-checked against this file first:
+regime/trend-template gating, universe swaps, and capacity sweeps were
+already run and already failed to produce a shortlist candidate, so only
+the genuinely untested items were built — an **FOMC-day exclusion** and an
+**SPY volatility-regime gate** (`engine/timing_filters.py`, comparison in
+`engine/compare_timing_filters.py`, no logging_db writes, same firewall as
+every other comparison script). The earnings-growth filter was skipped
+deliberately: yfinance fundamentals are snapshot-only, and the Dividend
+Hybrid entry below documents why that screen is biased toward the answer.
+
+**Both gates are direction-agnostic (unlike the long-only regime gate) and
+look-ahead-safe by construction:** FOMC meeting dates are published by the
+Fed roughly a year ahead (hardcoded 2021–2026 calendar, 8 meetings/year,
+guarded by a test and a ValueError past the last covered year), so "is
+today an FOMC day" is knowable intraday with no prior-session shift. The
+vol gate ranks SPY's 21-day realized vol against its trailing 252 days
+(right-aligned everything; causality asserted with a truncation test) and
+partitions at the 70th percentile into complementary "calm"/"storm" arms
+rather than two overlapping cherry-picks. Overnight Hold can't take the
+`Strategy` wrapper (close→open engine), so `run_overnight_backtest` gained
+an optional `entry_allowed` predicate — None is byte-identical to before.
+
+**Result across all 9 positive-expectancy strategies (4 arms each):**
+
+- **FOMC gate: a no-op with a haircut.** Blocks 6.3% of window days,
+  removes 1–8% of trades, moves expectancy by at most ±0.02R, never
+  changes a status. Whatever is holding these strategies below the bar,
+  it is not Fed-day event risk.
+- **Vol calm (entries only ≤ p70): mildly harmful for most.** Expectancy
+  fell on 6 of 9 (Pullback +0.025→+0.014, Breakout +0.106→+0.084, PEAD
+  +0.119→+0.014); only 9/21 Crossover (+0.089→+0.110) and Sector Rotation
+  (+0.096→+0.139) improved.
+- **Vol storm (entries only > p70): better per-trade quality on every
+  mean-reversion strategy** — Connors RSI2 +0.042→+0.094 with PF
+  1.28→1.65, Oversold Bounce +0.163→+0.181, IBS +0.048→+0.066, PEAD
+  +0.119→+0.182, Overnight Hold +0.012→+0.027 with max DD 20.9%→12.7% —
+  and worse on the trend entries (9/21: +0.089→+0.062). Thesis-consistent:
+  mean reversion wants fear, trend wants calm.
+- **But no arm flipped any status.** Alpha stayed negative in every arm of
+  every strategy, and every storm arm's Sharpe *worsened* (e.g. Connors
+  -2.74→-6.92) — the mechanical exposure-collapse effect CLAUDE.md's
+  "decompose risk-adjusted ratios" bullet describes, since storm cuts
+  trade counts 70–80%. A better-expectancy, worse-Sharpe, still-negative-
+  alpha arm is a *characterization* of when the edge concentrates, not a
+  strategy improvement. Verdict: still zero strategies clearing the
+  shortlist bar; the storm result is worth remembering if a high-vol
+  regime-switching idea ever comes up, but it is not itself a candidate.
+
+**Two stale-status bugs found while wiring verdicts, same root cause as
+the (cont'd 2) entry below — old rows shadowing new instrumentation:**
+
+1. **Dual Momentum / Pairs showed a blank "Backtested" forever.** The
+   `portfolio_runs` table had no status/benchmark columns, so the
+   leaderboard hardcoded "Backtested" and 0 trades. Added
+   `benchmark_return_pct` (SPY buy-and-hold, same window) + `status`
+   (`engine/metrics.py:portfolio_status()`, same Sharpe>0.5 / beats-
+   benchmark tiers) via append-only migration. Real verdicts: Dual
+   Momentum "+100.3% but SPY did +82.6% with Sharpe 0.41 → hold"; Pairs
+   "-13.2% while SPY did +60.7% → drop". "Backtested" had been hiding a
+   losing strategy. `best_portfolio_run_per_strategy()` needed the same
+   prefer-instrumented-rows tier as its standard sibling — measured: the
+   old Pairs row outranked the instrumented re-run by 0.0003 Sharpe.
+2. **Overnight Hold's "shortlist" on the Compare tab was a stale string,
+   not a current verdict.** Its best-Sharpe canonical row (2026-07-19
+   00:02, sharpe -0.6612878) was logged hours before the Sharpe gate was
+   added to the status logic and won the ranking by 0.0000002 Sharpe over
+   the corrected re-run (-0.6612900, "hold"). The leaderboard now
+   recomputes status from each row's stored *numbers* with current logic
+   (`derive_status()`), keeping the logged string as the historical
+   record. Consequence worth stating plainly: **no strategy on the board
+   currently clears the shortlist bar.** A status string computed at log
+   time is a fact about the logic of that day; re-ranking across runs
+   spanning a logic change must recompute, not trust strings.
+
+**Also fixed:** `data/XLC_1d.parquet` was corrupt (ArrowInvalid on read) —
+it had been silently breaking the live scanner's poll loop for a day and
+then hard-crashed the Sector Rotation comparison arm. Deleted (regenerable
+cache); a corrupted cache file surfacing in two unrelated code paths is
+the "same root cause, different symptom" pattern worth checking for first.
+
+---
+
+## 2026-07-20 (cont'd 3) — Breakout from Consolidation, mid-cap Lab sweep: 10 variants, alpha negative in all 10
+
+**Context:** an externally-written analysis (not generated by this project's own chat assistant or any script here) was pasted in, claiming a 224-trade mid-cap Lab-tab run "confirms a true, persistent edge in mid-cap equities" and recommending concentrating position size to 20-25%/trade, capping at 4-5 concurrent positions, and layering multiple strategies to push exposure to 70-80%. Verified the underlying numbers directly against `logging_db.run_history("Breakout from Consolidation")` before reacting -- they were real (224 trades, +0.205R expectancy, PF 1.37, exactly matched a logged run), so the issue wasn't fabrication, it was the interpretation and the recommendation built on top of it.
+
+**All 10 non-canonical runs logged today (2026-07-20, 11:51-12:56) were part of the same sweep** -- a mix of Dow-29 and `MIDCAP_UNIVERSE` symbol sets at varying parameter settings, none of them the registered canonical config:
+
+| run_at | universe | trades | ExpR | PF | Alpha % | Exposure % |
+|---|---|---|---|---|---|---|
+| 11:51 | Dow subset | 190 | 0.166 | 1.41 | -3.13 | 20.1 |
+| 11:53 | Dow subset | 202 | 0.017 | 1.02 | -5.73 | 20.0 |
+| 12:32 | Dow-29 | 309 | 0.195 | 1.33 | -4.60 | 30.1 |
+| 12:35 | Dow-29 | 193 | 0.307 | 1.52 | -4.76 | 36.9 |
+| 12:39 | Dow-29 | 174 | 0.315 | 1.69 | -4.16 | 38.8 |
+| 12:51 | Dow-29 | 236 | 0.104 | 1.28 | -3.84 | 14.6 |
+| 12:53 | mid-cap subset | 90 | 0.109 | 1.18 | -5.47 | 27.7 |
+| 12:54 | mid-cap subset | 125 | 0.271 | 1.47 | -4.67 | 36.7 |
+| 12:56 | MIDCAP_UNIVERSE (27) | 239 | 0.172 | 1.28 | -5.86 | 42.4 |
+| 12:56 | MIDCAP_UNIVERSE (27) | 224 | 0.205 | 1.37 | -5.52 | 45.7 |
+
+**Expectancy positive and profit factor above 1.0 in every one of the 10 variants -- and alpha negative in every one of the 10 variants**, regardless of universe or parameter setting (range -3.13% to -5.86%). Buy-and-hold on whichever symbol set was in play beat the strategy in all ten. This is the same shortlist bar (Sharpe > 0.5 **and** alpha > 0) already established throughout this file being failed consistently, not occasionally -- and it reproduces, on a fresh sweep, the exact conclusion the 2026-07-17 mid-cap entry already reached ("Zero strategies flipped from failing to clearing the Sharpe/alpha bar on the smaller-cap universe").
+
+**The "concentrate position size to fix cash drag" recommendation runs backwards against this project's own capacity-sweep findings, not toward them.** The 2026-07-16 sensitivity-sweep entries in this file show concentrating capital into fewer positions produces a Sharpe curve that looks great at low trade counts and degrades as more of the strategy's real signal gets captured (Range Trading: portfolio Sharpe 53.82 at 5 concurrent positions -> -5.07 at 29, same strategy, same window -- a small-sample illusion, not an early glimpse of edge). Nothing in today's sweep tested concentrated sizing directly, so recommending it as a fix is speculative on top of an already-negative-alpha result, not a next step actually supported by anything run here.
+
+**Verdict, unchanged from 2026-07-17: mid-cap testing has not produced a strategy clearing the shortlist bar.** This sweep doesn't change that -- it adds a tenth and eleventh confirming data point (Dow-29 variants included) that a positive expectancy/profit-factor pair without positive alpha is not evidence of edge, it's evidence the strategy is riding a rising universe less efficiently than just holding it. None of today's runs were promoted to canonical.
+
+---
+
+## 2026-07-20 (cont'd 2) — best_run_per_strategy() was surfacing pre-instrumentation runs, silently hiding alpha on the Compare tab
+
+The gap flagged as a "follow-up someday" in this file's own previous entry
+turned out to be real and user-visible within the same day: the Compare
+tab showed alpha as "—" for about a third of strategies (VWAP Bounce,
+Pullback to 21 EMA, Breakout from Consolidation, Momentum/Gap and Go,
+Sector Rotation Play, Range Trading, Oversold Bounce, and others) despite
+every CURRENT run of those strategies computing alpha fine.
+
+**Root cause, confirmed by querying the DB directly rather than guessing:**
+alpha_pct/beta were added to the `runs` table via an ALTER-based migration
+partway through this project's history (~2026-07-16 16:00-17:00, per
+`SELECT DISTINCT strftime('%Y-%m-%d %H', run_at) ...` bucketed by hour).
+Rows logged before that have `alpha_pct = NULL` -- not because the
+strategy has nothing to beat, but because the column didn't exist yet.
+`best_run_per_strategy()` (added earlier today, ranks canonical runs by
+Sharpe) had no way to know the difference between "no benchmark concept"
+and "predates instrumentation" -- it just picked whichever canonical row
+had the best Sharpe, and for these strategies that happened to be an old
+July-16-morning run, because Sharpe also moved between then and now.
+
+**Fixed by ranking on alpha-completeness before Sharpe**: `(alpha_pct IS
+NULL) ASC` as the first `ORDER BY` key, so a row with a real alpha always
+outranks one without, regardless of whose Sharpe looks better. A strategy
+whose engine genuinely never computes alpha (Overnight Hold -- no
+benchmark concept, see `engine/overnight.py`) has every canonical row tied
+on that criterion, so it falls through to the Sharpe ranking exactly as
+before -- verified no regression there (`Overnight Hold -> alpha=None`
+is the same before and after). Not applied to
+`best_portfolio_run_per_strategy()` -- `portfolio_runs` has no alpha_pct
+column at all; Dual Momentum/Pairs' `None` alpha is a separate, already-
+disclosed structural fact, not this bug.
+
+**Generally: "rank by the metric that looks most like quality" is not
+safe when that metric's presence itself correlates with which code
+version produced the row.** A schema migration that backfills NULL for
+old rows doesn't just mean "missing data" to a downstream ranking query --
+it means "this row is from before a class of information existed," and a
+ranking that doesn't account for that will systematically prefer stale
+rows over current ones whenever the newer instrumentation happened to
+coincide with a worse number. Two tests added
+(`test_best_run_per_strategy_prefers_runs_with_alpha_over_higher_sharpe_without`,
+`test_best_run_per_strategy_alpha_completeness_is_a_noop_when_no_run_has_it`)
+covering both the fix and the explicit no-regression case. Full suite: 338
+passed.
+
+---
+
+## 2026-07-20 (cont'd) — Insider Buying strategy code (Variant A/B) built on the validated EDGAR feed; sector filter deliberately a stub
+
+Built `strategies/swing/insider_buy.py` (signal generation) and
+`engine/insider_buy.py` (dedicated engine) once the EDGAR pipeline's 5
+checks passed -- same split as Dividend Hybrid/Overnight Hold, and for a
+similar reason: the entry signal comes from an external per-symbol event
+feed (Form 4 filings, like PEAD's earnings dates), and the exit is a
+genuinely FIXED 5-day hold, which `exit_signal(bars)` can't express (same
+wall Turnaround Tuesday/PEAD hit). Sizing IS risk-based here (1% equity /
+8% stop), unlike Dividend Hybrid's flat 10%, so this is a hybrid of both
+precedents rather than a clean match to either.
+
+**Two real accounting bugs, both caught only by running the real 1-year
+Dow-29 data through it, not by the unit tests (which used synthetic
+single-signal fixtures and couldn't see either).**
+
+1. Variant B crashed outright (`TypeError` on `NaT - date`) because
+   `variant_b_signals` never carried a `filed_at` column through to the
+   engine -- Variant A's signals come straight from `filing_level_purchases`
+   (which has it), but Variant B's come from the cluster-resolution
+   function, which only ever returned issuer/date/accession/cluster
+   columns. Fixed by having the cluster resolver also carry the
+   *completing* filing's own `filed_at`/`earliest_transaction_date` through
+   -- the right choice is the completing filing's, not an earlier cluster
+   member's, since the signal is dated to the filing that closes the cluster.
+
+2. The "mean filing lag" diagnostic computed a nonsensical negative number
+   (-1.33 days) on the first real run. It was computed as filed_at minus
+   *signal_date* -- but signal_date is deliberately filed_at rolled forward
+   whenever a filing lands after 4pm ET, so for a large fraction of real
+   after-hours filings that subtraction is structurally negative by
+   construction, not by data error. The task's own filing-lag definition
+   (filed date minus *transaction* date) was already correctly implemented
+   and validated in `engine/data_edgar.py`'s Check 5 -- this was a second,
+   badly-named, wrongly-defined metric invented for the trade-level report
+   that measured something else entirely. Fixed by computing the same
+   filed-minus-transaction-date definition, scoped to the signals that
+   actually became trades, instead of inventing a new "signal-to-entry lag"
+   concept the task never asked for.
+
+**A third, quieter bug found the same way: `n_entries` overcounted relative
+to actual trades placed.** Signals were counted as "entered" the moment
+they cleared the sector/liquidity/regime gates, before the day-by-day
+simulation loop had a chance to reject them for a reason those gates don't
+cover -- another position already open in the same symbol (only one
+position per symbol at a time), or position sizing rounding down to zero
+shares. First real run: 16 "entries" resolved but only 12 trade rows
+existed. Fixed by counting entries at the point a position is actually
+opened in the simulation loop, and reporting the gap explicitly
+(`n_blocked_concurrent_or_sizing`) rather than letting `n_entries` and
+`len(trades)` silently disagree. **Generally: a diagnostic counter that
+increments at signal-resolution time will drift from the simulation's real
+outcome the moment the simulation has its own independent rejection
+reasons -- count at the point of the actual state change, not earlier.**
+
+**Alpha/beta had no precedent to reuse.** Overnight Hold and Dividend
+Hybrid both leave alpha/beta as `None`/`NaN`, disclosed, because
+`engine/backtest.py`'s alpha/beta come from backtesting.py's own internals,
+unavailable to a hand-rolled chronological engine. The task explicitly
+wants both computed here, so `engine/insider_buy.py:_alpha_beta` does a
+plain single-factor CAPM regression (`beta = Cov(port, bench) / Var(bench)`,
+`alpha = excess return - beta * benchmark excess return`) on daily-resampled
+equity-curve returns against SPY -- the first engine in this project to
+compute these itself rather than disclosing their absence.
+
+**Real result on the 1-year Dow-29 sample (the window this session's
+EDGAR fetch actually covers -- see the entry above): Variant A -- 20
+signals, 12 entries (4 blocked by regime, 4 by same-symbol-already-open/
+sizing), 12 trades, 66.7% win rate, +0.154R expectancy, profit factor 2.11,
+beta 0.012 (below the task's own expected 0.05-0.15 range), Sharpe -1.68.
+Variant B -- 1 signal in the entire window** (three distinct insiders
+buying the same Dow-29 name within 5 days is rare even before any
+sector filter; the underlying feed only has 44 total qualifying purchases
+across the whole universe/window), one losing trade. Both variants report
+`STATUS_SAMPLE_TOO_SMALL` and both print an explicit flag for the <30-signal
+floor -- per the task's own instruction, this is reported as "the pipeline
+and logic work, the sample doesn't support a verdict," not as evidence for
+or against the strategy either way. Win rate above 65% (Variant A) is
+flagged for scrutiny rather than treated as a good sign, per the task's own
+"suspect look-ahead if dramatically above 65%" instruction -- plausible
+here given a 12-trade sample and no sector filter yet, not dismissed either.
+
+**Deliberately NOT done, disclosed rather than faked:**
+- **Sector filter is a no-op.** `PRE_REGISTERED_SECTORS` is `None` --
+  the Reddit post's sector list was never provided in this session, and
+  the task itself prohibits choosing a list after seeing results, so there
+  is nothing to pre-register from. Every run prints `SECTOR_FILTER_WARNING`
+  and `logs/insider_sector_breakdown.csv` (also required by the task) is
+  an explicit `NOT_AVAILABLE` placeholder, not a fabricated table -- this
+  codebase has no GICS sub-industry data source at all yet, a second,
+  independent reason the sector-filtered comparison can't be run even with
+  a list.
+- **Universe/window is 1-year Dow-29, not 5-year "broadest universe."**
+  Per the same scope decision documented in the EDGAR pipeline entry above.
+  Widening either is mechanical once decided -- `engine/compare_insider_buy.py`
+  already takes `symbols`/`start`/`end` -- but re-running the report against
+  a wider EDGAR fetch is a several-hour prerequisite, not something to do
+  silently under a "build the strategy" request.
+
+22 tests added (`tests/test_strategies/test_insider_buy.py`,
+`tests/test_engine/test_insider_buy.py`) covering filing-level aggregation,
+both variants' signal logic (including the greedy non-overlapping cluster
+resolution and same-filer-twice-doesn't-count), entry timing, stop-vs-time
+exit precedence, regime gating, sizing, and the liquidity filter. Full
+suite: 336 passed.
+
+---
+
+## 2026-07-20 — SEC EDGAR Form 4 pipeline built and validated (engine/data_edgar.py); strategy code intentionally not started yet
+
+Built the insider-buying data pipeline per the task's own instruction to
+validate the feed before writing a single line of strategy code. Two real
+bugs surfaced during validation that would have silently produced wrong
+data if the checks hadn't been run for real, plus one scope decision
+significant enough to flag rather than decide silently.
+
+**The filed-at timestamp, not the transaction date, is the signal date --
+this is the whole point of the pipeline.** Form 4 has a 2-business-day
+filing deadline, so an insider can buy Monday and not file until
+Wednesday; using the transaction date would let the backtest "know" about
+a purchase before it was public. Sourced the filed-at timestamp from
+EDGAR's own atom filing-history feed (`<updated>`), which already carries
+the correct America/New_York UTC offset (DST-aware, SEC's own
+server-side acceptance time) -- no timezone math applied to it, unlike
+the dividend-timestamp mismatch bug from `engine/fundamentals.py`
+(different lesson, same family: trust the source's own stamping
+convention, don't re-derive it). After-hours filings (>=4pm ET) and
+filings made on non-trading days (EDGAR accepts filings any day of the
+week) roll forward to the next trading day using the same cached SPY
+calendar every other engine module reads.
+
+**Bug 1 -- browse-edgar's pagination hard-fails past offset ~5100.**
+Discovered fetching GS's filing history: paging via `start=` 503'd
+consistently past ~5100, confirmed by direct retry (not a transient
+blip). Fixed by using the `dateb=` cursor (filings on/before a date) to
+reset pagination back to offset 0 once a safety threshold (4000) is hit,
+verified directly against EDGAR that this doesn't skip or duplicate
+entries (duplicates across the reset boundary are deduped via a `seen`
+set, which costs a few harmless re-fetched pages, not data).
+
+**Bug 2 -- `owner=include` doesn't mean "Form 4s about this issuer," it
+means "Form 4s involving this CIK in ANY role," and that's a real
+contamination source for institutional filers.** GS's CIK, searched with
+`owner=include`, returned Form 4s for BACQ, SG, and QVCGP -- none of them
+Dow names, none of them GS. GS (a large broker-dealer) itself files as a
+reporting owner on other companies' Form 4s when it crosses beneficial-
+ownership thresholds, and `owner=include` surfaces those alongside GS's
+own insider filings. Fixed two ways: switched to `owner=exclude`
+(issuer-only) at the fetch-listing layer, verified directly against
+EDGAR that it removes exactly the contaminating accessions and nothing
+else; and added a second, independent guard at the parse/store layer
+(only keep a transaction if the filing's own issuer CIK matches the
+ticker being searched for) so this class of bug can't recur silently
+even if a future change reintroduces `include` somewhere. Cleaned 50
+already-stored contaminated rows (of 94) from the DB before re-validating.
+**Generally: a URL parameter's name is not its contract -- "include the
+owner" sounds like it should only ADD information, not change what
+"about this company" means. Verified the fix by diffing actual accession
+lists between `include`/`exclude` against the same CIK/date window,
+not by reading documentation.**
+
+**Real-world Form 4 filing volume for large financials is 100-500x an
+industrial/tech Dow name's, and that changed the validation window.**
+AAPL: ~90 filings/year. GS and JPM: tens of thousands/year even after
+the `owner=exclude` fix (still paginating after 30+ minutes for GS alone
+during a follow-up 5-year volume check) -- large banks simply have far
+more Section-16 officers and 10b5-1-plan-driven filing activity than an
+industrial company. The task's own validation check (Check 4) assumed "a
+5-year Dow-29 window should show hundreds of Form 4 filings" -- true in
+aggregate, but a 5-year fetch across all 29 names, several of them
+financials, is a multi-hour-to-multi-day job at SEC's 10 req/s fair-access
+ceiling. Flagged this to the user rather than silently either running a
+job that could take over a day or silently shrinking scope; agreed
+outcome: validate on a full REAL fetch over a 1-year Dow-29 window
+instead of 5 years, revisit the full 5-year fetch as a separate longer
+background job for the actual strategy backtest phase.
+
+**A background fetch on a laptop needs `caffeinate`, and stdout needs
+`-u`, or a multi-hour job can silently vanish.** The first 1-year fetch
+attempt died silently ~4 hours in (after committing 20 of 29 tickers,
+including GS) with no traceback anywhere -- most likely the machine
+slept, which can kill a plain `nohup`'d background process outright.
+Worse, its progress log was a 0-byte file despite real work having
+happened, because Python fully buffers stdout when redirected to a file/
+pipe and a non-graceful process death never flushes that buffer --
+durable SQLite commits survived, the human-readable log of what happened
+did not. Resumed cleanly thanks to the pipeline's own caching
+(`fetched_accessions` skip-if-already-fetched), this time wrapped in
+`caffeinate -i` and `python3 -u`. **Generally: a multi-hour unattended
+job needs both "don't let the OS sleep" and "flush output eagerly" or a
+crash looks identical to silence, and you can't tell which without
+re-deriving state from the durable store (here, the DB) rather than the
+log.**
+
+**Validation result: all 5 checks pass on the real, cleaned 1-year Dow-29
+fetch.** No look-ahead (20/20 sampled transaction dates <= filed dates),
+after-hours filings correctly roll to the next trading day (41 after-hours
+filings found, 20 sampled, 0 violations), every stored row is code 'P'
+with positive shares (0 non-qualifying rows in the DB), filing-lag median
+2.5 days / mean 186 days (long tail from a few filings with old
+transaction dates bundled into one late filing -- e.g. AXP's Joabar
+Raymond filing bundled seven 2023-2025 transactions into one 2026-03-13
+filing), coverage 44 qualifying purchases across 12 of 29 tickers (fewer
+than the task's own ">=50" expectation, but that threshold assumes 5
+years of data, not 1 -- proportionally consistent, not a red flag).
+
+**Overall win rate sanity check doesn't apply yet -- there's no strategy
+result, only the raw signal feed.** That's intentional: per the task's own
+instruction, strategy code (Variant A/B, sector filtering, entries/exits)
+does not start until the pipeline validates, and it validates here, but
+two inputs are still needed before strategy code can start: (1) a decision
+on whether to run the full 5-year fetch now (background, likely several
+hours given GS/JPM's true issuer-only volume is still being measured) or
+build the strategy against the 1-year sample first and widen later, and
+(2) the pre-registered sector list "from the Reddit post" the task
+references -- never actually provided in this conversation, and Variant A
+and B's sector filter can't be pre-registered from nothing. Both need the
+user, not a guess.
+
+---
+
+## 2026-07-20 — Compare tab: leaderboard now shows each strategy's best-Sharpe canonical run, not just its most recent one
+
+**The ask ("show the best performing run") was in tension with a
+principle CLAUDE.md states explicitly** -- `latest_run_per_strategy()`
+exists specifically so a Lab-tab experiment or a stale pre-bugfix run
+can never silently become what the leaderboard shows, and this project
+has multiple documented cases (this file, throughout) of an old run's
+number being wrong because a bug got fixed after it ran. "Best" could
+mean "best among honest canonical re-runs" (safe) or "best across
+everything including one-off parameter sweeps" (exactly what the
+canonical/experimental firewall exists to prevent). Asked the user to
+choose scope rather than guess; they delegated the choice back. Went
+with the safer reading: best-Sharpe **canonical-only**, keeping the
+firewall intact -- `engine/logging_db.py`'s new `best_run_per_strategy()`
+/ `best_portfolio_run_per_strategy()` sit alongside (not replacing)
+`latest_run_per_strategy()`, since run-history views elsewhere still want
+strict recency. Only one real call site needed updating
+(`/api/strategies` in `api/main.py`).
+
+**NULL Sharpe must sort last, not first or arbitrarily.** SQLite's `MAX()`
+ignores NULLs, and naive `ORDER BY sharpe DESC` puts NULL last by
+default too, but the ranking here uses an explicit `(sharpe IS NULL) ASC`
+key first specifically so this stays true regardless of NULL-ordering
+defaults, which vary across databases and are easy to get backwards --
+a run with no computed Sharpe (no benchmark concept, e.g. Overnight
+Hold-style engines) must never look better than a run with a real, even
+negative, Sharpe just because NULL sorts oddly.
+
+**A same-second tiebreak bug, caught by a fast test -- not a flaky
+test.** `run_at` has only second resolution (already documented
+elsewhere in `engine/logging_db.py` for exactly this reason), so two
+`log_run()` calls in the same unit test can land in the same second.
+The first version's `ORDER BY ... sharpe DESC, run_at DESC` correctly
+ranked by Sharpe but fell back to arbitrary table-scan order on a full
+tie, failing a test that asserted the more-recent-of-two-equal-Sharpe
+runs should win. Fixed by adding `id DESC` as the final tiebreak, the
+same fix `portfolio_run_history()` already uses for the identical
+reason. **Generally: a test that fails intermittently or "only
+sometimes" at this resolution is not flaky, it's timing-dependent on a
+column whose granularity doesn't match how fast the test can call the
+function under test -- add a tiebreak keyed on something monotonic
+(here, the autoincrement id) rather than tightening the clock.**
+
+**Real-data check: 14 of 21 strategies' best and latest canonical runs
+differ**, several by a lot (News Fade: latest Sharpe -11.4 vs. best
++1.1; Pullback to 21 EMA: latest -1.4 vs. best +0.63). Verified live
+against the running API (`/api/strategies` picked up the change via
+uvicorn's reload, checked via curl) rather than trusting the unit tests
+alone. Worth a follow-up someday, not today: several of these gaps are
+large enough that the earlier, better-scoring run may predate a real
+regression in the current code (data update, engine change) rather than
+just noise -- the Compare tab now surfaces the best number, which is
+what was asked for, but "best" and "still representative of the current
+codebase" are not the same claim, and nothing here investigates *why* a
+strategy's Sharpe moved between runs.
+
+---
+
+## 2026-07-20 — Param-field audit across all 24 strategies: one real bug found, one self-inflicted regression caught by the test suite
+
+**A hardcoded warm-up guard can silently assume its own parameter's minimum
+is unreachable.** `Range Trading`'s `_range()` required `len(window) >= 6`
+before it would compute a range at all, but `window` is `tail(self.
+range_lookback_bars)` and that field's own declared UI minimum is 5 -- so at
+the slider's own minimum, the strategy could never fire, regardless of how
+much history was available. Found by an audit pass looking for hardcoded
+constants that should be `param_field()`s, not by anyone deliberately testing
+the slider's extremes. Fixed by checking `len(window) < self.
+range_lookback_bars` instead of a number disconnected from the parameter it
+was supposed to gate. General shape: whenever a `param_field()`'s bounds are
+declared, grep for any hardcoded guard nearby that might silently assume a
+value the slider itself permits.
+
+**Scaling a warm-up guard to match a newly-tunable period is not
+automatically the safer choice -- check whether the guard was ever
+protecting against a real NaN in the first place.** Scalping's confluence
+check had a fixed `len(bars) < 25` guard when EMA(9)/EMA(20)/MACD(12,26,9)
+were bare constants. When those periods became `param_field()`s, the
+instinct was to scale the guard too (`max(ema_slow_period,
+macd_slow_period) + 5`), reasoning that a longer slow period needs more
+warm-up. That reasoning is wrong for this codebase's `ema()`/`macd()`:
+they're `ewm()`-based, which never produces NaN for "too little" history the
+way a `rolling()`/`sma()` window would -- it just takes a few periods to
+numerically converge. The scaled guard required 31 bars at the new default
+periods (20/26+5) versus the original 25, silently breaking
+`test_sustained_uptrend_gives_bullish_confluence`/`..._bearish_confluence`
+(both use exactly 30 bars) -- caught immediately by the existing test suite,
+not by inspection. Reverted to the fixed `25`. Lesson: "this constant looks
+related to a parameter I just made tunable" is not sufficient justification
+to couple them -- check what the indicator actually does with insufficient
+history before assuming a fixed guard is stale.
+
+**A dataclass with genuine "rule parameters for one run" language in its own
+docstring can still have adopted none of the `param_field()` convention.**
+`Dividend Hybrid` (`strategies/swing/dividend_hybrid.py`) has ~14 numeric
+screen/entry/exit thresholds, every one a bare dataclass default sourced
+from a bare module constant -- the only strategy file in the book that never
+picked up the pattern CLAUDE.md documents for every other one. Deeper
+finding on investigation: it's not reachable from the Lab tab at all (no
+`ALL_STRATEGY_NAMES` entry, no `engine/runner.py` wiring, no API endpoint,
+no result view) -- it's a standalone research script in the same category
+as `compare_filters.py`/`compare_universe.py`, deliberately outside the
+canonical dashboard. Adding `param_field()`s to it alone would decorate a
+dataclass with zero visible effect; making it genuinely user-tunable "in the
+UI" is a same-sized task as last session's Dual Momentum/Pairs integration
+(registry entry, bespoke runner wiring, API endpoint, a custom result view
+for its two-version/mark-to-market output), not a quick follow-on. Flagged
+to the user rather than silently doing the cosmetic-only half of the job;
+user chose to skip it for now.
+
+---
+
+## 2026-07-19 (cont'd 3) — Research platform added (Screener/Movers/Market Signals/Insider Buying/Digest); a stale-cache bug and a sort-with-nulls bug, both caught before shipping
+
+**A dataclass field cache is a schema, and an old cache is a schema
+migration, not just "no data yet."** Added three quality fields
+(`profit_margins_pct`, `return_on_equity_pct`, `debt_to_equity`) to
+`engine/fundamentals.py:FundamentalSnapshot`. Every symbol already had a
+cached JSON snapshot from before these fields existed, and
+`FundamentalSnapshot(**json.loads(...))` silently accepted the missing keys
+via their `= None` defaults — a smoke test on 4 symbols came back with
+`qualityScore: None` for all four, which reads exactly like "no quality
+data available" rather than "this cache predates the field." Fixed by
+having `snapshot()` check for the new keys and refetch once if any are
+missing, rather than trusting any cache that predates a schema change. Same
+root cause as the `PairsResult.symbols` append-only-field lesson from
+earlier this session, one layer deeper: appending a field with a safe
+default prevents a *crash*, but doesn't prevent silently-wrong data unless
+the loader also checks for the field's *presence*.
+
+**Reversing a sorted-with-nulls-last array does not produce
+sorted-with-nulls-last in the other direction.** `ScreenerView.tsx`'s first
+sort implementation sorted ascending (nulls always pushed to the end via
+explicit `if (av === null) return 1`), then called `.reverse()` for
+descending order — which also reverses the nulls to the *front*, so
+sorting "Valuation" descending put every symbol with no P/E data at the top
+of the table, ahead of real scores. Caught via a Playwright screenshot,
+not by reasoning about the code — the bug was invisible in the diff. Fixed
+by keeping the null-check unconditional (`return 1`/`-1` regardless of
+direction) and only flipping the sign of the *real* comparison
+(`sortAsc ? cmp : -cmp`). General shape: a sort with a special case for
+missing data can't be "reverse the ascending order" — the special case has
+to be direction-invariant on its own.
+
+**A live cross-sectional universe doesn't inherit the backtest universe's
+survivorship-bias rules, but that's a reason to say so, not to skip
+disclosure.** `RESEARCH_UNIVERSE` (94 symbols, the union of the existing
+backtest universes) intentionally carries none of `EQUITY_UNIVERSE`'s
+point-in-time-membership caveats, because a live screener describing
+today's state has no "picked after seeing what moved" risk the way a fixed
+backtest sample does. Documented as a deliberate distinction in CLAUDE.md
+rather than left for a future reader to wonder whether it was an oversight.
+
+**A stray background job can out-live the task that started it and block
+unrelated work later in the same session.** A `python -m engine.data_edgar`
+fetch (started earlier in this session for an unrelated check) was still
+running 3+ hours later, holding a long write transaction on
+`data/edgar_form4.db` that made the new `recent_purchases()` read fail with
+"database is locked" even after adding `PRAGMA busy_timeout`. Root cause
+wasn't the busy-timeout value — it was that the shared `connect()` helper
+always re-runs `executescript(_SCHEMA)`, which itself needs to briefly
+escalate to a write lock even when every `CREATE TABLE IF NOT EXISTS` is a
+no-op. Fixed with a separate lightweight read connection that skips the
+schema script entirely, confirmed by killing the stray job (with the user's
+sign-off, since killing a process is a confirm-first action) and re-running
+the same read successfully.
+
+---
+
 ## 2026-07-19 (cont'd 2) — Anchored VWAP Breakout added; 2 trades, diagnosed as filter compounding, not a broken rule
 
 **New strategy, new module.** `engine/avwap.py` (pure AVWAP calc + earnings-
@@ -63,6 +673,107 @@ run higher, or test the regime filter alone (drop Trend Template
 specifically) to see where the sample recovers -- not attempted here since
 changing the locked entry rule after seeing a bad result would defeat the
 point of locking it.
+
+---
+
+## 2026-07-19 (cont'd 2) — Weighted Voting Ensemble: built on the existing cross-sectional engine, not a new one
+
+Implemented a regime-gated ensemble (`strategies/swing/ensemble_voting.py`,
+`engine/ensemble.py`) combining Dual Momentum, PEAD, Breakout from
+Consolidation, Earnings Momentum/Gap-Hold, and IBS, with dynamic
+rolling-Sharpe sub-strategy weighting and inverse-ATR risk-parity sizing.
+Requested as a from-scratch build (new `BaseStrategy`/`EnsembleEngine`/
+`Backtester` classes) against what reads like a blank-repo prompt template.
+**The real repo already had the right shape for most of this**, and using
+it instead of parallel infrastructure was the main design decision:
+
+- `strategies.cross_sectional.CrossSectionalStrategy` (`rebalance(bars,
+  as_of) -> {symbol: weight}`) already exists and is exactly the interface
+  an ensemble needs -- Dual Momentum has used it since 2026-07-17. Built
+  `EnsembleWeightedVoting` as one more implementation of it instead of
+  inventing a differently-named `BaseStrategy` ABC.
+- `engine/cross_sectional.py`'s `run_cross_sectional_backtest` already runs
+  a rebalance-driven backtest with an equity curve, Sharpe/Sortino/CAGR/
+  drawdown -- extended it (additive, backward-compatible defaults so Dual
+  Momentum's canonical numbers don't shift) with `rebalance_frequency`
+  ("monthly" default preserved, "weekly" added) and `slippage_bps`/
+  `commission_bps` (0.0 default preserved) instead of writing a new
+  `Backtester` class. CLAUDE.md is explicit about not building a third
+  engine when an existing one doesn't fall short -- here it didn't.
+- The 5 sub-strategies are the real registered instances (`strategies/swing/
+  breakout_consolidation.py`, `earnings_momentum.py`, `internal_bar_
+  strength.py`, `pead.py`, `dual_momentum.py`), not reimplementations --
+  PEAD is seeded with real per-symbol earnings dates the same way
+  `engine/runner.py::_run_pead` already does it.
+
+**The genuinely hard, non-mechanical problem: 4 of the 5 sub-strategies
+only expose a boolean `entry_signal`/`exit_signal`, not a continuous
+score.** The spec asked for S_i(t) in [-1, +1] without saying how to derive
+one from a boolean rule. Rejected inventing an unrelated decay/confidence
+curve (e.g. "score decays linearly over N days after entry") as
+unfalsifiable and disconnected from what the strategy actually does.
+Instead, `engine/ensemble.py::boolean_strategy_position_series` replays
+each strategy's own real entry/stop/target/exit rules bar-by-bar and scores
++1.0 exactly while that strategy would genuinely be holding a position it
+opened itself, 0.0 otherwise -- faithful to the registered rule, at the
+disclosed cost of a close-based approximation (checked once per bar close,
+not intrabar via a real bracket order, since there's no broker fill to
+model for a pure scoring pass).
+
+**"Rolling 63-day Sharpe of a sub-strategy" isn't well-defined when the
+sub-strategy has no equity curve of its own** (it only emits per-symbol
+signals). Defined it as the trailing-window Sharpe of an equal-weight,
+daily-rebalanced basket of whatever the sub-strategy currently scores
+positively -- a real, computable return series with a defensible reading
+("if you'd equal-weighted whatever this sub-strategy likes right now, how
+has that basket performed"), not an arbitrary number.
+
+**Bug caught by the ensemble's own test suite before it shipped:** the
+inverse-ATR risk-parity sizing's cap-and-redistribute step had a real
+convergence bug -- redistributing a capped symbol's overflow onto the
+remaining "uncapped" symbols could push one of *those* over the cap too
+(exactly the case where one symbol's ATR is far smaller than the rest), and
+a single non-iterating redistribution pass left it over the cap rather than
+re-capping it. Fixed with the standard iterative water-filling procedure:
+permanently fix any symbol that overflows the cap in a given pass, remove
+it from the pool, and re-split only the remaining budget across whatever's
+left, repeating until a pass fixes nothing new. Caught immediately by
+`test_inverse_atr_weights_respects_cap_and_redistributes_to_others` (a
+direct unit test on the sizing function, not just the end-to-end demo) --
+the specific value of testing the pure allocation math in isolation from
+regime/scoring noise.
+
+**Not wired into `strategies/registry.py` or the webapp**, matching the
+precedent already set for Dividend Hybrid: a structurally novel strategy
+(here, a meta-strategy with its own weighting/sizing axes no other strategy
+has) stays as directly-runnable code
+(`python -m engine.demo_ensemble` for a synthetic-data sanity run) until
+it's been run against real data and evaluated, rather than entering the
+Compare tab's leaderboard sight unseen next to ordinary single-rule
+strategies. **First real-data run** (`python -m engine.run_ensemble`, EQUITY_UNIVERSE +
+SPY, 2021-07-20 to 2026-07-19, weekly rebalance, 5bps slippage): 261
+rebalances (173 ACTIVE, 88 DEFENSIVE), +43.11% total return, CAGR 7.45%,
+Sharpe 0.14, Sortino 0.20, max drawdown 17.32%, $688.02 total costs. **Does
+not clear the Sharpe > 0.5 shortlist bar** -- same outcome as every other
+strategy, universe, filter, and capacity level tried in this project so
+far. Zero allocation-cap or sum violations across all 261 rebalances on
+real data, matching the synthetic-data sanity checks. Not logged to
+`strategy_tracker.xlsx` -- the Day/Swing tabs are the registered 19-strategy
+book and Experiment History is variations *of* those strategies; this is a
+new meta-strategy outside that scope, consistent with keeping it out of
+`strategies/registry.py` for now.
+
+**Known inefficiency, not yet fixed:** the real run took roughly 45-50
+minutes of CPU. `EnsembleWeightedVoting.rebalance()` rebuilds every boolean
+sub-strategy from scratch and replays its ENTIRE bar history from bar 0 at
+every single rebalance call (`boolean_strategy_position_series` has no
+memory across calls) -- with 261 weekly rebalances x 29 symbols x growing
+history (up to ~1,260 daily bars) x 5 sub-strategies, that's tens of
+millions of redundant bar-steps, plus PEAD re-fetching each symbol's
+earnings-date cache from disk at every rebalance instead of once. Fine for
+a single one-off run; would need incremental/cached per-symbol state
+(compute each position series once, look up the as-of value per rebalance)
+before this is practical for a parameter sweep.
 
 ---
 

@@ -268,6 +268,15 @@ export function RunConfigPanel({
     setParams(Object.fromEntries(s.params.map((p) => [p.name, p.default])));
   };
 
+  // Params-only reset, independent of the full reset above -- lets a user
+  // revert a parameter sweep without losing a symbol/date override they
+  // want to keep, and lives next to the Parameters section itself rather
+  // than only under Symbols, where it's easy to miss if that's not what
+  // was changed.
+  const resetParamsToDefaults = (s: ParamSchema) => {
+    setParams(Object.fromEntries(s.params.map((p) => [p.name, p.default])));
+  };
+
   useEffect(() => {
     setSchema(null);
     setLoadError(null);
@@ -387,8 +396,20 @@ export function RunConfigPanel({
 
       {schema.params.length > 0 && (
         <div>
-          <div className="mb-2 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
-            Parameters
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>
+              Parameters
+            </span>
+            {paramsChanged && (
+              <button
+                type="button"
+                onClick={() => resetParamsToDefaults(schema)}
+                className="text-xs underline"
+                style={{ color: "var(--text-muted)" }}
+              >
+                Reset to defaults
+              </button>
+            )}
           </div>
           <div className="space-y-3 rounded-lg border p-3" style={{ borderColor: "var(--border)" }}>
             {schema.params.map((spec) => (

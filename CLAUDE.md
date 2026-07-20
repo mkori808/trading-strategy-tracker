@@ -116,11 +116,15 @@ in from the start, not as an afterthought:
                   filters.py) that gates entries before entry_signal() runs
                -- also the fundamentals feed (fundamentals.py) and the
                   Dividend Hybrid engine (dividend_hybrid.py) -- see below
+               -- also the live research platform: screener.py, movers.py,
+                  market_signals.py, digest.py, and data_edgar.py's insider-
+                  buying read path -- see "Research platform" below
 /api           -- thin FastAPI layer exposing engine/strategies as JSON for the frontend
                -- also validates and applies Lab-tab overrides (RunRequest)
 /webapp        -- React + TypeScript (Vite, Tailwind) dashboard; talks only to /api
                -- Lab tab: test strategy variations (symbols/dates/params);
-                  Compare tab: canonical-only leaderboard; Symbols tab: watchlist
+                  Compare tab: canonical-only leaderboard; Symbols tab: watchlist;
+                  Screener/Movers tabs: live research platform (see below)
 /logs          -- backtest run outputs + paper-trading signal logs (csv/sqlite)
 strategy_tracker.xlsx   -- source of truth for the strategy list (imported, not duplicated)
 ```
@@ -277,6 +281,45 @@ the filters are the only variable, and must not write to
 field, so a filtered run would silently shadow the unfiltered dashboard
 result. Same reasoning as `engine/compare_universe.py`.
 
+### Timing gates: FOMC-day exclusion and SPY volatility regime (`engine/timing_filters.py`)
+
+A second gate layer, separate from regime/trend-template above because both
+conditions are **direction-agnostic** (event risk and market volatility
+apply the same to a long or a short) rather than long-only by thesis. Same
+wrapping pattern as `engine/filters.py`: `EntryGate` re-implements
+`strategies.base.Strategy` and drops into the existing engine unchanged.
+Overnight Hold can't take the `Strategy` wrapper (it runs on the close→open
+engine, `engine/overnight.py`), so that engine instead takes an optional
+`entry_allowed(timestamp) -> bool` predicate — `None` (every pre-existing
+caller) is byte-identical to before.
+
+- **FOMC-day gate** — blocks new entries on both days of each two-day FOMC
+  meeting, from a hardcoded 2021–2026 calendar of the Fed's published
+  meeting dates (`FOMC_DECISION_DATES`). Known in advance, so no
+  prior-session shift applies even intraday; extend the tuple when the Fed
+  publishes a new year, don't approximate. `fomc_blocked_dates()` raises
+  past the last covered year rather than silently gating nothing.
+- **Volatility-regime gate** — SPY's 21-day realized vol ranked against its
+  own trailing 252-day history (right-aligned rolling std, then a trailing
+  rolling percentile — causality asserted with a truncation test, same
+  requirement as the look-ahead paragraph above). "calm"/"storm" modes
+  partition the same threshold rather than two overlapping windows.
+  Intraday lookups resolve to the prior session via the same `_asof`
+  convention `engine/filters.py` uses; daily lookups use the bar's own day.
+- **Comparison** (`engine/compare_timing_filters.py`) — same
+  universe/window/cost-model/risk-free-rate-held-identical and
+  no-`logging_db`-write discipline as `compare_filters.py`. Tested against
+  every strategy with positive canonical expectancy plus Overnight Hold
+  (see LESSONS.md): the FOMC gate is a near no-op (~6% of days, ≤0.02R
+  expectancy movement, never changes a status); the vol gate's "storm"
+  arm (entries only in the top 30% of realized vol) improves per-trade
+  expectancy on every mean-reversion strategy but not the trend strategies
+  — thesis-consistent, and worth remembering, but it does **not** flip any
+  strategy's status: alpha stays negative and Sharpe gets mechanically
+  worse everywhere (exposure collapses 70-80%). Report a gate's trade-count
+  and exposure impact alongside any expectancy change, same as the
+  filters-comparison rule already states.
+
 ## Fundamentals data (`engine/fundamentals.py`)
 
 The rest of the pipeline is OHLCV-only. This module adds dividend and
@@ -356,6 +399,88 @@ whole thesis is about what happens beyond that. Report a small or
 unstressed sample as inconclusive, not as support for whichever version has
 the better headline number.
 
+## Research platform (Screener / Movers / Market Signals / Insider Buying / Digest)
+
+Added 2026-07-19 at the user's request to turn the app into "a full service
+platform for monitoring trades and information about market," modeled on a
+UK stock-research product (screener, market signals, trending movers,
+analyst consensus, regulatory-news scoring, a daily email digest). Every
+piece below is a **live, descriptive** feature, not a backtest input — it
+describes today's state only, is never cached across days, and never feeds
+a strategy or a backtest. This is a different tier of feature from
+everything else in this file, so it gets its own non-goals reminder:
+**every score/composite here is presented as "Score: NN/100," never as a
+buy/sell signal** — the same non-goals rule the rest of the app follows.
+
+- **Universe** (`engine/universe.py:RESEARCH_UNIVERSE`): the dedup union of
+  `EQUITY_UNIVERSE`/`MIDCAP_UNIVERSE`/`SMALL_CAP_UNIVERSE`/`ETF_UNIVERSE`
+  (94 symbols). Deliberately **not** given the point-in-time-membership
+  disclosures those lists carry for backtesting — that bias doesn't apply
+  here, since "which symbols do we track today" has no survivorship-bias
+  risk the way a fixed backtest sample does. Never use `RESEARCH_UNIVERSE`
+  as a backtest universe, and never backfill point-in-time rigor onto it;
+  it exists for a different purpose than the lists above it.
+- **Screener** (`engine/screener.py`, `GET /api/screener`, Screener tab):
+  valuation/quality/growth-momentum/risk composite scores, each a
+  cross-sectional 0–100 percentile rank computed live across whichever
+  symbol set is requested (a filtered subset ranks against itself, not the
+  full universe). The composite is a **plain average of the four factor
+  scores, disclosed as such** — not a validated multi-factor model. A
+  missing field excludes that symbol from that one ranking rather than
+  defaulting to a misleading middle score. Analyst-consensus columns
+  (rating, target, upside %) come straight from `engine/fundamentals.py`'s
+  existing snapshot fields — appropriate here specifically because this is
+  a *live* display, not a backtest scan date, so the point-in-time caveat
+  that governs `fundamentals.py` elsewhere doesn't apply.
+- **Movers** (`engine/movers.py`, `GET /api/movers`, Movers tab): gainers/
+  losers reuse `engine/quotes.py`'s already-computed day change-pct — no new
+  fetch logic. Momentum streaks are consecutive up/down days from cached
+  closes.
+- **Market Signals** (`engine/market_signals.py`, folded into
+  `engine/market_overview.py`'s response so `/api/market` stays the single
+  source rather than adding a second, inconsistent endpoint): a breadth
+  score built from disclosed, computable inputs (% above 50/200-day SMA,
+  net new-20-day-highs-vs-lows, SPY's own regime state) — **not** a claim to
+  replicate any licensed index (e.g. CNN's Fear & Greed). Scanning the full
+  94-symbol universe with a 400-day warmup (matching
+  `engine/regime.py:REGIME_WARMUP_DAYS`'s calendar-vs-trading-day
+  conversion) is genuinely slow on a cold cache — `/api/market` now takes
+  up to ~40s. This is a real, accepted latency cost of breadth-scanning the
+  whole universe, not a bug; the UI's loading state should say so rather
+  than look frozen.
+- **Insider Buying** (`engine/data_edgar.py:recent_purchases`,
+  `GET /api/insider/recent`, `POST /api/insider/refresh`, Movers tab): the
+  US analog to "RNS regulatory-news scoring" — there's no US RNS
+  equivalent, but the project already had a rigorous, look-ahead-safe SEC
+  EDGAR Form 4 pipeline (see `data_edgar.py`'s own module docstring). Real,
+  structured, quantifiable open-market purchase data, ranked by transaction
+  value — a strictly better analog than scraped headlines would have been.
+  `recent_purchases` is read-only and uses its own lightweight connection
+  (not the shared `connect()` helper, which always re-runs
+  `executescript(_SCHEMA)`) plus a `PRAGMA busy_timeout`, so a read doesn't
+  collide with a multi-minute `fetch_form4_for_universe` write triggered by
+  the refresh button.
+- **Daily digest** (`engine/digest.py`, `GET /api/digest/preview`, Movers
+  tab): composes regime + movers + insider buys + the market-signals score
+  into one payload plus a plain-text rendering. **Preview only, by
+  deliberate scope decision** — no scheduler, no SMTP, nothing is ever sent.
+  Wiring up a real send is a separate decision requiring new `.env` SMTP
+  credentials the user hasn't set up; don't half-build it by adding a
+  scheduler without sending, or sending without the user's explicit
+  credentials.
+
+**A fundamentals cache written before a new field existed must be treated
+as a cache miss for that field, not as "no data."** `engine/fundamentals.py`
+gained three quality fields (`profit_margins_pct`, `return_on_equity_pct`,
+`debt_to_equity`) this session; every symbol's pre-existing cached JSON
+predated them, so a naive load would have silently shown "quality score:
+unavailable" for every tracked symbol forever. `snapshot()` now checks for
+the new keys and refetches once if they're missing, rather than trusting
+any cache that predates a schema change. The same append-only,
+default-`None` field ordering used for `PairsResult.symbols` earlier this
+session applies here too — never insert a new field in the middle of an
+existing dataclass whose cache/construction sites aren't all keyword-based.
+
 ## The Lab tab: testing strategy variations (`engine/runner.py:RunRequest`)
 
 The webapp's **Lab** tab lets a user override a strategy's symbol universe,
@@ -399,6 +524,57 @@ specifically) can't be overridden via the Lab tab — same reasoning
 universe-swap comparisons; a symbols override for it is rejected with a 400
 at the API layer (`SYMBOL_OVERRIDE_DISALLOWED_NAMES`).
 
+## Chat assistant (`engine/chat_assistant.py`, the "Chat" tab in `ResultTabs`)
+
+Added 2026-07-20 so a user can ask "why did this trade fail while all
+others succeeded?" and get an answer grounded in the same computed numbers
+the Overview/Trades/Per-Symbol tabs already show — this is the app's first
+LLM integration and its only feature with a real per-use cost (an Anthropic
+API call per message; `ANTHROPIC_API_KEY` in `.env`, degrades gracefully to
+a clear "not configured" reply like every other optional integration here).
+
+**Scoped to exactly one result, on purpose.** The assistant only ever sees
+whichever backtest result is currently on screen — the frontend sends the
+full result JSON (the same payload `/api/backtest/{name}` already returned)
+with every message; nothing is re-fetched, re-run, or read from a database.
+This isn't a shortcut: individual trades aren't persisted anywhere long-term
+(`engine/logging_db.py` only logs aggregate metrics per run, never
+per-trade rows), so there is no durable per-trade store to query across
+runs even if the assistant wanted to reach further. Making it reach across
+historical runs would first need a real schema change (a per-trade table),
+a deliberately separate, bigger piece of work — not something to bolt on
+by widening this feature's scope quietly.
+
+**Grounded via tool use, not context-stuffing.** Rather than pasting the
+whole trades list into every prompt (expensive, and stops scaling once a
+strategy has more than a few dozen trades), the model gets four tools
+(`list_trades`, `get_trade_detail`, `get_run_metrics`,
+`get_per_symbol_breakdown`) that query the result dict on demand — the
+same "give the model real computed data, don't make it invent context"
+principle already applied to the market-signals/screener composites
+elsewhere in this file. Every number the assistant can cite is something
+`engine/excursion.py` or `engine/metrics.py` already computed for that
+trade or run; the system prompt (`SYSTEM_PROMPT` in `chat_assistant.py`)
+states this explicitly and forbids inventing a reason a trade behaved a
+certain way when the tool output doesn't explain it.
+
+**Same investment-advice non-goal as the rest of the app, restated for an
+LLM specifically.** A model that can reason fluently about historical
+trade data can also drift into "so you should buy X next" without being
+told not to — the system prompt explicitly instructs it to explain
+historical backtest behavior only, never forward-looking advice about real
+money. This is worth restating per-feature, not assumed inherited, because
+an LLM's default conversational instinct is to be helpfully prescriptive.
+
+**Stateless backend, frontend owns history.** `POST /api/chat` takes the
+result plus the full conversation so far and returns one reply; tool-call
+round-trips happen entirely inside that one request and are never sent
+back to the frontend, which only ever stores finalized `{role, content}`
+text turns. `ChatPanel.tsx` is keyed on a signature of the run (strategy +
+window + applied symbols/params) so switching to a genuinely different
+result resets the conversation, while switching tabs back and forth on the
+same result does not.
+
 ## Metrics to compute (match the spreadsheet's definitions exactly)
 
 - **Win Rate** = Wins / Trades Taken
@@ -411,6 +587,16 @@ at the API layer (`SYMBOL_OVERRIDE_DISALLOWED_NAMES`).
 - Test against a fixed, pre-registered symbol list (e.g., decided before
   running the backtest), not today's top gainers/most-active list — picking
   symbols after seeing which ones moved is survivorship bias.
+- **Always show buy-and-hold's own return next to alpha, not just the
+  difference.** `backtesting.py` computes "Buy & Hold Return [%]" for every
+  per-symbol run internally; `engine/metrics.py`'s `buy_hold_return_pct`
+  (averaged the same way alpha/beta already are in
+  `engine/backtest.py:aggregate_symbol_results`) surfaces it directly in
+  the Overview/Compare tabs and the Per-Symbol table, rather than leaving
+  the user to infer it from alpha alone. A strategy can show a small
+  positive alpha while buy-and-hold itself returned triple digits on a
+  runaway symbol — the per-symbol table is where that dispersion is
+  visible (see PerSymbolTable's "Buy & Hold" column).
 - **When R-expectancy and profit factor disagree in direction, believe
   profit factor about the dollars.** R-multiples are normalized by each
   trade's initial risk, so tight stops on winners and wide stops on losers
@@ -426,6 +612,31 @@ at the API layer (`SYMBOL_OVERRIDE_DISALLOWED_NAMES`).
   whenever a version of a strategy has no way to close a losing trade** (no
   stop, held to window end). Mark unrealized positions to market in the
   headline metrics before reporting a win rate.
+- **A leaderboard status string must be recomputed from a row's stored
+  numbers, never trusted as logged.** `/api/strategies` calls
+  `engine/metrics.py:derive_status()` fresh on every row's
+  trades/expectancy/Sharpe/alpha rather than reading the `status` column
+  `logging_db.runs` stored at run time — the status *logic* itself has
+  changed over this project's life (e.g. the Sharpe/alpha gate added
+  2026-07-16), so an old row's stored string can read "shortlist" under
+  today's rules even when its own numbers no longer qualify. Measured
+  directly: Overnight Hold's best-Sharpe canonical row was logged hours
+  before that gate shipped and won the ranking by a rounding-error margin
+  over its own corrected re-run — the leaderboard showed a stale
+  "shortlist" for a strategy that, by current logic, does not clear the
+  bar. `/api/history/{name}` still shows the logged string as-is — that's
+  the honest historical record of what the app said that day; only the
+  leaderboard's "what's true right now" view recomputes.
+- **The cross-sectional/pairs engines (Dual Momentum, Pairs / Stat Arb)
+  get the same shortlist bar, phrased in return terms.**
+  `engine/metrics.py:portfolio_status()` applies Sharpe > 0.5 and
+  beats-benchmark (SPY's own buy-and-hold over the identical window,
+  stored as `benchmark_return_pct` in `logging_db.portfolio_runs`) exactly
+  like `derive_status()` does for R-multiple strategies. Before this,
+  `/api/strategies` hardcoded these two rows to a bare "Backtested" label
+  regardless of outcome — which was silently presenting a losing strategy
+  (Pairs / Stat Arb: -13.2% return vs. SPY's +60.7% over the same window)
+  with the same neutral label as a winning one.
 
 ## Development conventions
 

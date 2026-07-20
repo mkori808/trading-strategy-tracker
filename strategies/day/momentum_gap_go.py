@@ -37,6 +37,9 @@ class MomentumGapAndGo(Strategy):
         0.3, label="Min pullback depth (x ATR)", minimum=0.1, maximum=2.0, step=0.1,
         help="The post-gap pullback must retrace at least this many ATRs.",
     )
+    atr_period: int = param_field(
+        14, label="ATR period (bars)", minimum=5, maximum=30, step=1,
+    )
 
     def _setup(self, bars: pd.DataFrame):
         sess = session_bars(bars)
@@ -53,7 +56,7 @@ class MomentumGapAndGo(Strategy):
         extreme = pre["High"].max() if up else pre["Low"].min()
         pullback_extreme = pre["Low"].min() if up else pre["High"].max()
         pullback_size = (extreme - pullback_extreme) if up else (pullback_extreme - extreme)
-        bar_atr = atr(bars).iloc[-1]
+        bar_atr = atr(bars, self.atr_period).iloc[-1]
         if bar_atr <= 0 or pullback_size < self.min_pullback_atr * bar_atr:
             return None
         avg_vol = sess["Volume"].mean()

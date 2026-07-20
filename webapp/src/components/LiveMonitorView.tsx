@@ -13,6 +13,23 @@ function fmtPct(v: number | null): string {
   return v === null ? "—" : `${v >= 0 ? "+" : ""}${v.toFixed(2)}%`;
 }
 
+// Neutral "Long/Short signal" wording, never "BUY"/"SELL" -- this is a
+// detected entry-condition alert, not a recommendation (CLAUDE.md's
+// investment-advice non-goal applies here same as the Screener banner).
+function DirectionBadge({ direction }: { direction: string }) {
+  const isLong = direction.toLowerCase() === "long";
+  const color = isLong ? "var(--status-good)" : "var(--status-critical)";
+  const bg = isLong ? "var(--status-good-bg)" : "var(--status-critical-bg)";
+  return (
+    <span
+      className="rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap"
+      style={{ color, background: bg }}
+    >
+      {isLong ? "Long signal" : "Short signal"}
+    </span>
+  );
+}
+
 function fmtTime(iso: string | null): string {
   if (!iso) return "—";
   return new Date(iso).toLocaleString(undefined, {
@@ -260,7 +277,9 @@ export function LiveMonitorView() {
                   <td className="px-4 py-2 whitespace-nowrap" style={{ color: "var(--text-secondary)" }}>{fmtTime(s.barTimestamp)}</td>
                   <td className="px-4 py-2" style={{ color: "var(--text-primary)" }}>{s.strategyName}</td>
                   <td className="px-4 py-2 font-medium" style={{ color: "var(--text-primary)" }}>{s.symbol}</td>
-                  <td className="px-4 py-2" style={{ color: "var(--text-secondary)" }}>{s.direction}</td>
+                  <td className="px-4 py-2">
+                    <DirectionBadge direction={s.direction} />
+                  </td>
                   <td className="px-4 py-2 tabular-nums" style={{ color: "var(--text-secondary)" }}>{fmtMoney(s.price)}</td>
                   <td className="px-4 py-2" style={{ color: "var(--text-secondary)" }}>{s.regimeState ?? "—"}</td>
                   <td

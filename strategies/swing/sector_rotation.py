@@ -44,6 +44,10 @@ class SectorRotationPlay(Strategy):
     support_lookback_weeks: int = param_field(
         8, label="Stop support lookback (weeks)", minimum=2, maximum=26, step=1,
     )
+    stop_buffer_pct: float = param_field(
+        0.01, label="Stop buffer below support (fraction)", minimum=0.0, maximum=0.05, step=0.005,
+        help="Extra cushion below the weekly swing-low support used for the stop.",
+    )
 
     def _rs_series(self, bars: pd.DataFrame) -> tuple[pd.Series, pd.DataFrame] | None:
         sector_w = _weekly(bars)
@@ -65,7 +69,8 @@ class SectorRotationPlay(Strategy):
 
     def stop_price(self, bars: pd.DataFrame, entry_price: float) -> float:
         _, sector_w = self._rs_series(bars)
-        return sector_w["Low"].tail(self.support_lookback_weeks).min() * 0.99
+        support = sector_w["Low"].tail(self.support_lookback_weeks).min()
+        return support * (1 - self.stop_buffer_pct)
 
     def exit_signal(self, bars: pd.DataFrame) -> bool:
         # ride the rotation until relative strength turns back down

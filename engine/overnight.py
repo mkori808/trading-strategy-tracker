@@ -15,6 +15,7 @@ a real stop. See strategies/swing/overnight_hold.py and LESSONS.md.
 from __future__ import annotations
 
 from datetime import date
+from typing import Callable
 
 import numpy as np
 import pandas as pd
@@ -32,7 +33,9 @@ from strategies.swing.overnight_hold import OvernightHold
 
 
 def _run_symbol(config: OvernightHold, symbol: str, start: date, end: date,
-                risk_free_rate: float) -> SymbolBacktestResult:
+                risk_free_rate: float,
+                entry_allowed: Callable[[pd.Timestamp], bool] | None = None,
+                ) -> SymbolBacktestResult:
     bars = data_module.get_bars(symbol, "1d", start, end)
     period = config.trend_sma_period
     if bars.empty or len(bars) < period + 2:
@@ -46,6 +49,8 @@ def _run_symbol(config: OvernightHold, symbol: str, start: date, end: date,
     eq_vals = [equity]
 
     for t in range(period, len(bars) - 1):  # need t+1 for the next open
+        if entry_allowed is not None and not entry_allowed(bars.index[t]):
+            continue
         close_t = float(bars["Close"].iloc[t])
         if not close_t > float(trend.iloc[t]):
             continue
@@ -102,9 +107,15 @@ def run_overnight_backtest(
     start: date,
     end: date,
     risk_free_rate: float = 0.0,
+    entry_allowed: Callable[[pd.Timestamp], bool] | None = None,
 ) -> StrategyBacktestResult:
+    """`entry_allowed` is the timing-gate hook for this engine, since the
+    strategies.base.Strategy wrapper (engine/timing_filters.py:EntryGate)
+    can't drive a close->open loop: when set, a session whose timestamp it
+    rejects takes no new overnight position. None (every pre-existing
+    caller) is byte-identical to the original behavior."""
     per_symbol = {
-        symbol: _run_symbol(config, symbol, start, end, risk_free_rate)
+        symbol: _run_symbol(config, symbol, start, end, risk_free_rate, entry_allowed)
         for symbol in symbols
     }
     return aggregate_symbol_results(strategy_name, symbols, per_symbol, start, end, risk_free_rate)

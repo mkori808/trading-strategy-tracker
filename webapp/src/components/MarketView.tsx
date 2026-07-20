@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
-import { api, type MarketResponse } from "../api";
+import { useState } from "react";
+import type { MarketResponse } from "../api";
 import { SectorPerformanceChart } from "./SectorPerformanceChart";
+import { SectorHeatTiles } from "./SectorHeatTiles";
+import { GaugeDial } from "./GaugeDial";
 import { StatTile } from "./StatTile";
 
 const REGIME_COLOR: Record<string, string> = {
@@ -34,30 +36,30 @@ function fmtDate(iso: string | null): string {
   });
 }
 
-export function MarketView() {
-  const [data, setData] = useState<MarketResponse | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
+/** Data is fetched ONCE at the App level and shared with Sidebar (see
+ * App.tsx) -- a cold /api/market call scans the full 94-symbol research
+ * universe and can take up to ~40s, so this view must not re-fetch it on
+ * its own; "Refresh" re-triggers the shared App-level fetch instead. */
+export function MarketView({
+  data,
+  loading,
+  error,
+  onRefresh,
+}: {
+  data: MarketResponse | null;
+  loading: boolean;
+  error: string | null;
+  onRefresh: () => void;
+}) {
   const [showAllSymbols, setShowAllSymbols] = useState(false);
 
-  const load = () => {
-    api
-      .market()
-      .then((res) => {
-        setData(res);
-        setLoadError(null);
-      })
-      .catch((e) => setLoadError(String(e)));
-  };
-
-  useEffect(load, []);
-
-  if (loadError) {
+  if (error && !data) {
     return (
       <div
         className="rounded-lg border px-4 py-3 text-sm"
         style={{ borderColor: "var(--status-critical)", color: "var(--status-critical)" }}
       >
-        Failed to load market data: {loadError}
+        Failed to load market data: {error}
       </div>
     );
   }
@@ -65,12 +67,12 @@ export function MarketView() {
   if (!data) {
     return (
       <div className="text-sm" style={{ color: "var(--text-muted)" }}>
-        Loading market data…
+        Scanning market data… this takes up to ~40s the first time (94-symbol breadth scan).
       </div>
     );
   }
 
-  const { regime, sectorPerformance, trendTemplate } = data;
+  const { regime, sectorPerformance, sectorRotation, trendTemplate, marketSignals } = data;
   const regimeColor = REGIME_COLOR[regime.current] ?? "var(--text-muted)";
   const dist = regime.distribution;
   const failingSymbols = trendTemplate.symbols.filter((s) => !s.passes);
@@ -84,11 +86,12 @@ export function MarketView() {
         </h2>
         <button
           type="button"
-          onClick={load}
-          className="rounded-md border px-3 py-1.5 text-xs font-medium"
+          onClick={onRefresh}
+          disabled={loading}
+          className="rounded-md border px-3 py-1.5 text-xs font-medium disabled:opacity-50"
           style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}
         >
-          Refresh
+          {loading ? "Scanning…" : "Refresh"}
         </button>
       </div>
 
@@ -150,7 +153,50 @@ export function MarketView() {
         </p>
       </div>
 
+      <div
+        className="rounded-lg border p-4"
+        style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}
+      >
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>
+              Market Signals — breadth score
+            </div>
+            <p className="mt-1 max-w-md text-xs" style={{ color: "var(--text-muted)" }}>
+              {marketSignals.methodology}
+            </p>
+            <p className="mt-2 text-xs" style={{ color: "var(--text-muted)" }}>
+              {marketSignals.symbolsTracked} symbols tracked, as of {fmtDate(marketSignals.asOf)}
+            </p>
+          </div>
+          <GaugeDial value={marketSignals.score} label="Breadth score" />
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatTile
+            label="Above 50-day SMA"
+            value={marketSignals.components.pctAboveSma50 === null ? "—" : `${marketSignals.components.pctAboveSma50.toFixed(0)}%`}
+          />
+          <StatTile
+            label="Above 200-day SMA"
+            value={marketSignals.components.pctAboveSma200 === null ? "—" : `${marketSignals.components.pctAboveSma200.toFixed(0)}%`}
+          />
+          <StatTile label="New 20d highs" value={String(marketSignals.newHighs20d)} />
+          <StatTile label="New 20d lows" value={String(marketSignals.newLows20d)} />
+        </div>
+      </div>
+
       <SectorPerformanceChart rows={sectorPerformance} />
+
+      <div>
+        <div className="mb-3 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
+          Sector Rotation — relative strength vs. SPY ({sectorRotation.lookbackDays}d)
+        </div>
+        <p className="mb-3 text-xs" style={{ color: "var(--text-muted)" }}>
+          RS = sector's trailing return ÷ SPY's trailing return over the same window. RS &gt; 1
+          means the sector outperformed SPY; the arrow compares today's RS to ~1 week ago.
+        </p>
+        <SectorHeatTiles rows={sectorRotation.rows} />
+      </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatTile label="Trend template pass rate" value={`${(trendTemplate.passRate * 100).toFixed(0)}%`} />

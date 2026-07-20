@@ -1,0 +1,15 @@
+{
+  "symbol": "ELAN",
+  "market_cap": 12900782080.0,
+  "payout_ratio_pct": 0.0,
+  "eps_growth_yoy_pct": -15.4,
+  "revenue_growth_yoy_pct": 14.899999999999999,
+  "trailing_pe": null,
+  "analyst_rating": 1.41176,
+  "analyst_target_price": 29.85714,
+  "current_price": 25.83,
+  "fetched_at": "2026-07-20T04:46:20+00:00",
+  "profit_margins_pct": -4.946,
+  "return_on_equity_pct": -3.766,
+  "debt_to_equity": 66.154
+}

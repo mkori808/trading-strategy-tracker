@@ -37,6 +37,16 @@ STATUS_POSITIVE = "Positive expectancy - shortlist"
 STATUS_UNDERPERFORMS = "Positive expectancy but underperforms cash/benchmark - hold"
 STATUS_NEGATIVE = "Negative expectancy - drop"
 
+# Portfolio-engine counterparts (cross-sectional/pairs -- see
+# engine/logging_db.py's portfolio_runs table). These engines have no
+# R-multiple trades, so the verdict is phrased in return terms, but it
+# applies the SAME bar as derive_status() below: Sharpe > SHARPE_THRESHOLD vs.
+# cash, and beating a benchmark (here SPY's buy-and-hold return over the
+# identical window, since these engines have no per-symbol alpha).
+STATUS_PORTFOLIO_POSITIVE = "Positive return - shortlist"
+STATUS_PORTFOLIO_UNDERPERFORMS = "Positive return but underperforms cash/benchmark - hold"
+STATUS_PORTFOLIO_NEGATIVE = "Negative return - drop"
+
 
 @dataclass
 class BacktestMetrics:
@@ -61,14 +71,27 @@ class BacktestMetrics:
     cagr_pct: float | None = None
     exposure_pct: float | None = None
     risk_free_rate: float | None = None
+    # What buying and holding the same symbol(s) over the same window alone
+    # would have returned -- alpha_pct is the STRATEGY's excess return over
+    # this, so showing both lets a user see the benchmark itself, not just
+    # the difference from it.
+    buy_hold_return_pct: float | None = None
 
 
-def _status(
+def derive_status(
     trades_taken: int,
     expectancy_r: float,
     sharpe: float | None = None,
     alpha_pct: float | None = None,
 ) -> str:
+    """Verdict from a run's computed numbers. Public because the API's
+    leaderboard recomputes status from each stored row's numbers with
+    CURRENT logic rather than trusting the status string logged at run
+    time -- measured directly: Overnight Hold's best-Sharpe canonical row
+    predated the Sharpe gate added 2026-07-16 and showed a stale
+    'shortlist' (sharpe -0.66) that a re-run with identical numbers no
+    longer produces. The stored string remains the honest historical
+    record in /api/history; the leaderboard shows today's verdict."""
     if trades_taken == 0:
         return STATUS_NOT_TESTED
     if trades_taken < MIN_RELIABLE_TRADES:
@@ -90,6 +113,24 @@ def _status(
         if not (beats_cash and beats_benchmark):
             return STATUS_UNDERPERFORMS
     return STATUS_POSITIVE
+
+
+def portfolio_status(
+    return_pct: float,
+    sharpe: float | None,
+    benchmark_return_pct: float | None,
+) -> str:
+    """Verdict for a portfolio-engine run (cross-sectional/pairs), mirroring
+    derive_status()'s tiers with return-based language. A None sharpe or benchmark
+    skips that half of the gate rather than failing it -- same convention as
+    derive_status()'s handling of missing sharpe/alpha."""
+    if return_pct <= 0:
+        return STATUS_PORTFOLIO_NEGATIVE
+    beats_cash = sharpe is None or sharpe > SHARPE_THRESHOLD
+    beats_benchmark = benchmark_return_pct is None or return_pct > benchmark_return_pct
+    if not (beats_cash and beats_benchmark):
+        return STATUS_PORTFOLIO_UNDERPERFORMS
+    return STATUS_PORTFOLIO_POSITIVE
 
 
 def r_multiples(trades: pd.DataFrame) -> pd.Series:
@@ -117,6 +158,7 @@ def compute_metrics(
     cagr_pct: float | None = None,
     exposure_pct: float | None = None,
     risk_free_rate: float | None = None,
+    buy_hold_return_pct: float | None = None,
 ) -> BacktestMetrics:
     trades_taken = len(trades)
     if trades_taken == 0:
@@ -125,6 +167,7 @@ def compute_metrics(
             max_drawdown_pct, sharpe, sortino, STATUS_NOT_TESTED,
             alpha_pct=alpha_pct, beta=beta, cagr_pct=cagr_pct,
             exposure_pct=exposure_pct, risk_free_rate=risk_free_rate,
+            buy_hold_return_pct=buy_hold_return_pct,
         )
 
     r = r_multiples(trades)
@@ -160,10 +203,11 @@ def compute_metrics(
         max_drawdown_pct=max_drawdown_pct,
         sharpe=sharpe,
         sortino=sortino,
-        status=_status(trades_taken, expectancy_r, sharpe, alpha_pct),
+        status=derive_status(trades_taken, expectancy_r, sharpe, alpha_pct),
         alpha_pct=alpha_pct,
         beta=beta,
         cagr_pct=cagr_pct,
         exposure_pct=exposure_pct,
         risk_free_rate=risk_free_rate,
+        buy_hold_return_pct=buy_hold_return_pct,
     )

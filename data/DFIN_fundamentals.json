@@ -1,0 +1,15 @@
+{
+  "symbol": "DFIN",
+  "market_cap": 1247869696.0,
+  "payout_ratio_pct": 0.0,
+  "eps_growth_yoy_pct": 21.0,
+  "revenue_growth_yoy_pct": 2.1999999999999997,
+  "trailing_pe": 36.459854,
+  "analyst_rating": 1.66667,
+  "analyst_target_price": 63.0,
+  "current_price": 49.95,
+  "fetched_at": "2026-07-20T04:46:41+00:00",
+  "profit_margins_pct": 4.524,
+  "return_on_equity_pct": 8.762,
+  "debt_to_equity": 62.57
+}

@@ -1,0 +1,15 @@
+{
+  "symbol": "AROC",
+  "market_cap": 6509215744.0,
+  "payout_ratio_pct": 45.080003000000005,
+  "eps_growth_yoy_pct": 2.7,
+  "revenue_growth_yoy_pct": 7.7,
+  "trailing_pe": 20.184782,
+  "analyst_rating": 1.42857,
+  "analyst_target_price": 42.5,
+  "current_price": 37.14,
+  "fetched_at": "2026-07-20T04:46:34+00:00",
+  "profit_margins_pct": 21.447,
+  "return_on_equity_pct": 22.680001,
+  "debt_to_equity": 157.367
+}

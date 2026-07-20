@@ -76,6 +76,9 @@ SNAPSHOT_FIELDS = (
     "trailing_pe",
     "analyst_rating",
     "analyst_target_price",
+    "profit_margins_pct",
+    "return_on_equity_pct",
+    "debt_to_equity",
 )
 
 # A TTM dividend decline bigger than this counts as a cut. Not zero: payment
@@ -106,6 +109,18 @@ class FundamentalSnapshot:
     analyst_target_price: float | None
     current_price: float | None
     fetched_at: str
+    # Appended after the fields above already shipped -- kept last with
+    # defaults so a JSON cache file written before these existed still loads
+    # via `FundamentalSnapshot(**json.loads(...))` (same reasoning as
+    # PairsResult.symbols being appended last in engine/pairs.py).
+    #
+    # yfinance.Ticker.info shapes, confirmed empirically (AAPL): profitMargins
+    # and returnOnEquity are fractions (0.27 = 27%, apply _pct()); debtToEquity
+    # already arrives percentage-scale (79.5 means 79.5%, not 0.795) -- do not
+    # scale it again.
+    profit_margins_pct: float | None = None
+    return_on_equity_pct: float | None = None
+    debt_to_equity: float | None = None
 
 
 def _snapshot_path(symbol: str) -> "object":
@@ -125,7 +140,14 @@ def snapshot(symbol: str, force_refresh: bool = False) -> FundamentalSnapshot:
     never as a pass (see engine/dividend_hybrid.py)."""
     path = _snapshot_path(symbol)
     if path.exists() and not force_refresh:
-        return FundamentalSnapshot(**json.loads(path.read_text()))
+        raw = json.loads(path.read_text())
+        # A cache file written before profit_margins_pct/return_on_equity_pct/
+        # debt_to_equity existed would otherwise silently load as "no quality
+        # data for this symbol" (dataclass default None) rather than "not
+        # fetched yet" -- refetch once instead of masking a stale cache as a
+        # real None result.
+        if all(k in raw for k in ("profit_margins_pct", "return_on_equity_pct", "debt_to_equity")):
+            return FundamentalSnapshot(**raw)
 
     try:
         info = yf.Ticker(symbol).info or {}
@@ -143,6 +165,9 @@ def snapshot(symbol: str, force_refresh: bool = False) -> FundamentalSnapshot:
         analyst_target_price=_maybe_float(info.get("targetMeanPrice")),
         current_price=_maybe_float(info.get("currentPrice")),
         fetched_at=datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        profit_margins_pct=_pct(_maybe_float(info.get("profitMargins"))),
+        return_on_equity_pct=_pct(_maybe_float(info.get("returnOnEquity"))),
+        debt_to_equity=_maybe_float(info.get("debtToEquity")),
     )
     DATA_DIR.mkdir(exist_ok=True)
     path.write_text(json.dumps(asdict(snap), indent=2))

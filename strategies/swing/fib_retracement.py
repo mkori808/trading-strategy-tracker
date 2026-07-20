@@ -26,6 +26,10 @@ class FibonacciRetracementEntry(Strategy):
         0.08, label="Min swing size (fraction)", minimum=0.02, maximum=0.30, step=0.01,
         help="0.08 = 8%. The prior up-move must be at least this large to qualify.",
     )
+    stop_buffer_pct: float = param_field(
+        0.01, label="Stop buffer below zone (fraction)", minimum=0.0, maximum=0.05, step=0.005,
+        help="Extra cushion below the deep (61.8%) fib bound used for the stop.",
+    )
 
     def _swing(self, bars: pd.DataFrame) -> tuple[float, float] | None:
         window = bars.iloc[:-1].tail(self.lookback)
@@ -63,7 +67,7 @@ class FibonacciRetracementEntry(Strategy):
 
     def stop_price(self, bars: pd.DataFrame, entry_price: float) -> float:
         deep, _ = self._fib_zone(bars)
-        return deep * 0.99
+        return deep * (1 - self.stop_buffer_pct)
 
     def target_price(self, bars: pd.DataFrame, entry_price: float) -> float | None:
         _, swing_high_price = self._swing(bars)

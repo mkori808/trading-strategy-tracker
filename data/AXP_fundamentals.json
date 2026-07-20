@@ -1,12 +1,15 @@
 {
   "symbol": "AXP",
   "market_cap": 242464718848.0,
-  "payout_ratio_pct": 21.290001,
-  "eps_growth_yoy_pct": 17.599999999999998,
-  "revenue_growth_yoy_pct": 11.600000000000001,
+  "payout_ratio_pct": null,
+  "eps_growth_yoy_pct": null,
+  "revenue_growth_yoy_pct": null,
   "trailing_pe": 22.16781,
-  "analyst_rating": 2.26667,
-  "analyst_target_price": 374.9428,
-  "current_price": 355.35,
-  "fetched_at": "2026-07-18T21:14:02+00:00"
+  "analyst_rating": null,
+  "analyst_target_price": null,
+  "current_price": null,
+  "fetched_at": "2026-07-20T04:45:52+00:00",
+  "profit_margins_pct": null,
+  "return_on_equity_pct": null,
+  "debt_to_equity": null
 }
