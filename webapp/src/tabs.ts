@@ -3,11 +3,10 @@
 // (which now renders the nav itself, moved from a top pill-bar into a
 // vertical list per the user's request to match the referenced app's
 // left-hand nav placement).
-export type Tab = "lab" | "compare" | "symbols" | "market" | "screener" | "movers" | "monitor";
+export type Tab = "strategies" | "symbols" | "market" | "screener" | "movers" | "monitor";
 
 export const TABS: { key: Tab; label: string }[] = [
-  { key: "lab", label: "Lab" },
-  { key: "compare", label: "Compare" },
+  { key: "strategies", label: "Strategies" },
   { key: "symbols", label: "Symbols" },
   { key: "market", label: "Market" },
   { key: "screener", label: "Screener" },

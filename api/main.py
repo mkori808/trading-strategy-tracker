@@ -54,7 +54,7 @@ from engine.runner import (
 )
 from engine.universe import RESEARCH_UNIVERSE
 from strategies.params import describe_params
-from strategies.registry import ALL_STRATEGY_NAMES, DAY_TRADING_STRATEGIES
+from strategies.registry import ALL_STRATEGY_NAMES, ARCHIVED_STRATEGY_NAMES, DAY_TRADING_STRATEGIES
 
 MAX_CUSTOM_SYMBOLS = 60
 
@@ -314,6 +314,20 @@ def _excursion_summary(excursions: pd.DataFrame) -> dict:
     }
 
 
+def _archive_fields(name: str) -> dict:
+    """`archived`/`archivedReason` for every /api/strategies row -- see
+    strategies/registry.py:ARCHIVED_STRATEGY_NAMES's docstring. Additive
+    only: an archived strategy still runs, still logs, still has full
+    history; this just tells the webapp which rows to hide by default so
+    'cut down to the survivors' doesn't mean losing the record of what was
+    tried (ARCHIVED_STRATEGIES.md has the full detail per strategy)."""
+    archived = ARCHIVED_STRATEGY_NAMES.get(name)
+    return {
+        "archived": archived is not None,
+        "archivedReason": archived.reason if archived else None,
+    }
+
+
 def _portfolio_strategy_row(name: str, row: Any) -> dict:
     """Row shape for cross-sectional (Dual Momentum) / pairs (Pairs / Stat
     Arb) strategies -- these never had a discrete-trade result, so the
@@ -346,6 +360,7 @@ def _portfolio_strategy_row(name: str, row: Any) -> dict:
             "maxDrawdownPct": None,
             "benchmarkReturnPct": None,
             **_run_config_fields(None),
+            **_archive_fields(name),
         }
     return {
         "name": name,
@@ -371,6 +386,7 @@ def _portfolio_strategy_row(name: str, row: Any) -> dict:
         "maxDrawdownPct": row["max_drawdown_pct"],
         "benchmarkReturnPct": row["benchmark_return_pct"],
         **_run_config_fields(row),
+        **_archive_fields(name),
     }
 
 
@@ -418,6 +434,7 @@ def list_strategies() -> list[dict]:
                 "maxDrawdownPct": None,
                 "benchmarkReturnPct": None,
                 **_run_config_fields(None),
+                **_archive_fields(name),
             })
         else:
             rows.append({
@@ -447,6 +464,7 @@ def list_strategies() -> list[dict]:
                 "maxDrawdownPct": row["max_drawdown_pct"],
                 "benchmarkReturnPct": None,
                 **_run_config_fields(row),
+                **_archive_fields(name),
             })
     return _clean(rows)
 
@@ -485,6 +503,7 @@ def strategy_params(strategy_name: str) -> dict:
                 "maximum": s.maximum,
                 "step": s.step,
                 "help": s.help,
+                "choices": s.choices,
             }
             for s in specs
         ],

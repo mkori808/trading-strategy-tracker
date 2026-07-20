@@ -159,6 +159,18 @@ re-typing them — keep this file as the single source of truth for what a
 strategy "is." Writing results back into the xlsx is out of scope for the
 code; the user updates the tracker manually from what the UI reports.
 
+**A strategy that clears a large-enough sample with decisively negative
+results is archived from the default dashboard view, not deleted.**
+`strategies/registry.py:ARCHIVED_STRATEGY_NAMES` is purely additive — it
+never removes anything from the tracker, the registry dicts, or
+`ALL_STRATEGY_NAMES` (all three must still match 1:1, enforced by
+`tests/test_engine/test_registry.py`) — it only tells `/api/strategies`
+and the webapp (`StrategyTable`, `StrategyPicker`) which rows to hide
+behind a "Show archived" toggle by default. An archived strategy still
+runs, still logs, still has full history. See `ARCHIVED_STRATEGIES.md` for
+the current list and rationale, and never delete a row from that file when
+a verdict changes — update it in place so "what we tried" stays intact.
+
 Current strategies to support first (already defined in the tracker):
 - **Day trading**: Opening Range Breakout, VWAP Bounce/Reversion, Momentum/Gap
   and Go, Scalping (3-5 min), Mean Reversion Scalp, News Fade, Range Trading.

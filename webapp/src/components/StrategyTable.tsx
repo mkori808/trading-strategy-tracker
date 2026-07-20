@@ -38,6 +38,7 @@ export function StrategyTable({
   onSelect: (name: string) => void;
 }) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [showArchived, setShowArchived] = useState(false);
 
   const toggleExpanded = (name: string) => {
     setExpanded((prev) => {
@@ -48,41 +49,62 @@ export function StrategyTable({
     });
   };
 
+  const archivedCount = strategies.filter((s) => s.archived).length;
+  const visible = showArchived ? strategies : strategies.filter((s) => !s.archived);
+
   return (
-    <div
-      className="overflow-x-auto rounded-lg border"
-      style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}
-    >
-      <table className="w-full min-w-[980px] border-collapse text-sm">
-        <thead>
-          <tr style={{ borderBottom: "1px solid var(--gridline)" }}>
-            {[
-              "Strategy",
-              "Type",
-              "Window",
-              "Trades",
-              "Win Rate",
-              "Avg Win (R)",
-              "Avg Loss (R)",
-              "Expectancy (R)",
-              "Profit Factor",
-              "Sharpe (vs rf)",
-              "Alpha",
-              "Status",
-              "",
-            ].map((h) => (
-              <th
-                key={h}
-                className="px-4 py-3 text-left font-medium whitespace-nowrap"
-                style={{ color: "var(--text-muted)" }}
-              >
-                {h}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {strategies.map((s) => {
+    <div>
+      {archivedCount > 0 && (
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+            {showArchived
+              ? `Showing ${archivedCount} archived strategies alongside the active ones -- retired after a large-enough sample showed decisively negative results. Still fully runnable; see ARCHIVED_STRATEGIES.md.`
+              : `${archivedCount} strategies archived (large-sample, decisively negative) -- hidden by default.`}
+          </span>
+          <button
+            type="button"
+            onClick={() => setShowArchived((v) => !v)}
+            className="text-xs font-medium whitespace-nowrap underline-offset-2 hover:underline"
+            style={{ color: "var(--series-1)" }}
+          >
+            {showArchived ? "Hide archived" : `Show archived (${archivedCount})`}
+          </button>
+        </div>
+      )}
+      <div
+        className="overflow-x-auto rounded-lg border"
+        style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}
+      >
+        <table className="w-full min-w-[980px] border-collapse text-sm">
+          <thead>
+            <tr style={{ borderBottom: "1px solid var(--gridline)" }}>
+              {[
+                "Strategy",
+                "Type",
+                "Window",
+                "Trades",
+                "Win Rate",
+                "Avg Win (R)",
+                "Avg Loss (R)",
+                "Expectancy (R)",
+                "Profit Factor",
+                "Sharpe (vs rf)",
+                "Alpha",
+                "Status",
+                "",
+              ].map((h) => (
+                <th
+                  key={h}
+                  className="px-4 py-3 text-left font-medium whitespace-nowrap"
+                  style={{ color: "var(--text-muted)" }}
+                >
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {visible.map((s) => {
             const hasConfig = s.symbols.length > 0 || Object.keys(s.params).length > 0;
             const isExpanded = expanded.has(s.name);
             return (
@@ -93,10 +115,19 @@ export function StrategyTable({
                   style={{
                     borderBottom: isExpanded ? "none" : "1px solid var(--gridline)",
                     background: selected === s.name ? "var(--series-1-wash)" : undefined,
+                    opacity: s.archived ? 0.6 : 1,
                   }}
                 >
                   <td className="px-4 py-3 font-medium" style={{ color: "var(--text-primary)" }}>
                     {s.name}
+                    {s.archived && (
+                      <span
+                        className="ml-2 rounded px-1.5 py-0.5 text-[10px] font-medium whitespace-nowrap"
+                        style={{ color: "var(--text-muted)", background: "var(--surface-2, var(--surface-1))" }}
+                      >
+                        archived
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3" style={{ color: "var(--text-secondary)" }}>
                     {s.kind}
@@ -148,7 +179,7 @@ export function StrategyTable({
                     <StatusPill status={s.status} />
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">
-                    {hasConfig && (
+                    {(hasConfig || s.archived) && (
                       <button
                         type="button"
                         onClick={(e) => {
@@ -173,6 +204,11 @@ export function StrategyTable({
                   >
                     <td colSpan={13} className="px-4 py-3">
                       <div className="flex flex-col gap-1 text-xs" style={{ color: "var(--text-secondary)" }}>
+                        {s.archived && (
+                          <div style={{ color: "var(--status-warning)" }}>
+                            Archived: {s.archivedReason}
+                          </div>
+                        )}
                         {s.engine !== "standard" && (
                           <div>
                             <span style={{ color: "var(--text-muted)" }}>Portfolio result: </span>
@@ -207,8 +243,9 @@ export function StrategyTable({
               </Fragment>
             );
           })}
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

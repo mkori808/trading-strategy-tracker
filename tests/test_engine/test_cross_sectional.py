@@ -3,7 +3,7 @@ from datetime import date
 import pandas as pd
 import pytest
 
-from engine.cross_sectional import run_cross_sectional_backtest
+from engine.cross_sectional import _rebalance_dates, run_cross_sectional_backtest
 from strategies.cross_sectional import CrossSectionalStrategy
 
 
@@ -85,6 +85,45 @@ def test_empty_weights_means_flat_cash_equity(monkeypatch, two_symbol_bars):
 
     assert result.final_equity == 10_000
     assert result.return_pct == 0.0
+
+
+def test_daily_rebalance_dates_is_every_trading_day():
+    calendar = pd.date_range("2024-01-02", "2024-01-31", freq="B")
+    assert _rebalance_dates(calendar, "daily") == set(calendar)
+
+
+def test_daily_rebalance_trades_more_often_than_monthly(monkeypatch, two_symbol_bars):
+    a, b = two_symbol_bars
+
+    def fake_get_bars(symbol, interval, start, end, **kwargs):
+        return {"A": a, "B": b}[symbol]
+
+    monkeypatch.setattr("engine.cross_sectional.data_module.get_bars", fake_get_bars)
+
+    # A strategy that alternates its target weight every call -- daily
+    # rebalancing should log far more rebalance events than monthly over
+    # the same ~3-month window.
+    class _Alternating(CrossSectionalStrategy):
+        name = "Alternating"
+        timeframe = "1d"
+
+        def __init__(self):
+            self.calls = 0
+
+        def rebalance(self, universe_bars, as_of):
+            self.calls += 1
+            return {"A": 1.0} if self.calls % 2 == 0 else {"B": 1.0}
+
+    monthly = run_cross_sectional_backtest(
+        "Alternating", _Alternating(), ["A", "B"], date(2024, 1, 1), date(2024, 4, 1),
+        cash=10_000, rebalance_frequency="monthly",
+    )
+    daily = run_cross_sectional_backtest(
+        "Alternating", _Alternating(), ["A", "B"], date(2024, 1, 1), date(2024, 4, 1),
+        cash=10_000, rebalance_frequency="daily",
+    )
+    assert len(daily.rebalances) > len(monthly.rebalances)
+    assert len(daily.rebalances) >= 60  # ~63 trading days in the window
 
 
 def test_no_data_produces_flat_result(monkeypatch):

@@ -229,3 +229,59 @@ def test_strategy_class_resolves_every_dispatch_branch():
     assert runner.strategy_class(runner.OVERNIGHT_NAME) is OvernightHold
     assert runner.strategy_class("Sector Rotation Play") is SectorRotationPlay
     assert runner.strategy_class(PULLBACK) is Pullback
+
+
+# --- run_cross_sectional: rebalance_frequency override reaches the engine ---
+
+
+@pytest.fixture
+def stub_cross_sectional(monkeypatch):
+    """Same recording-stub pattern as stub_engine above, scoped to
+    run_cross_sectional's own dependencies (a different engine entirely)."""
+    calls: dict[str, list] = {"backtest": [], "log_portfolio_run": []}
+
+    monkeypatch.setattr(runner.data_module, "risk_free_rate", lambda start, end: 0.03)
+    monkeypatch.setattr(
+        runner.data_module, "get_bars",
+        lambda symbol, interval, start, end, **k: __import__("pandas").DataFrame(),
+    )
+
+    def fake_run_cross_sectional_backtest(name, strategy, symbols, start, end, **kwargs):
+        calls["backtest"].append({"strategy": strategy, "symbols": symbols, **kwargs})
+        empty = __import__("pandas").Series(dtype=float)
+        from engine.cross_sectional import CrossSectionalResult
+
+        return CrossSectionalResult(
+            strategy_name=name, symbols=symbols, start=start, end=end,
+            equity_curve=empty, rebalances=__import__("pandas").DataFrame(),
+            final_equity=10_000.0, return_pct=0.0, cagr_pct=None,
+            max_drawdown_pct=0.0, sharpe=None, sortino=None, risk_free_rate=0.03,
+        )
+
+    def fake_log_portfolio_run(**kwargs):
+        calls["log_portfolio_run"].append(kwargs)
+        return 1
+
+    monkeypatch.setattr(runner, "run_cross_sectional_backtest", fake_run_cross_sectional_backtest)
+    monkeypatch.setattr(runner, "log_portfolio_run", fake_log_portfolio_run)
+    return calls
+
+
+def test_rebalance_frequency_default_reaches_the_engine_as_monthly(stub_cross_sectional):
+    runner.run_cross_sectional("Dual Momentum")
+    assert stub_cross_sectional["backtest"][0]["rebalance_frequency"] == "monthly"
+
+
+def test_rebalance_frequency_override_reaches_the_engine(stub_cross_sectional):
+    request = runner.RunRequest(params={"rebalance_frequency": "weekly"})
+    runner.run_cross_sectional("Dual Momentum", request)
+    call = stub_cross_sectional["backtest"][0]
+    assert call["rebalance_frequency"] == "weekly"
+    assert call["strategy"].rebalance_frequency == "weekly"
+
+
+def test_invalid_rebalance_frequency_is_rejected_before_any_run(stub_cross_sectional):
+    request = runner.RunRequest(params={"rebalance_frequency": "hourly"})
+    with pytest.raises(ValueError, match="must be one of"):
+        runner.run_cross_sectional("Dual Momentum", request)
+    assert stub_cross_sectional["backtest"] == []

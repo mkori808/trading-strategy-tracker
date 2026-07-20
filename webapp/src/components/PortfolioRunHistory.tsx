@@ -18,7 +18,13 @@ function fmtParamValue(v: number | boolean | string): string {
  * standard ResultTabs "History" tab. Rendered even when there's no
  * in-memory result for the current session (e.g. after navigating away and
  * back), which is the actual fix for "my run doesn't seem to get saved". */
-export function PortfolioRunHistory({ rows }: { rows: PortfolioHistoryRow[] }) {
+export function PortfolioRunHistory({
+  rows,
+  onReplay,
+}: {
+  rows: PortfolioHistoryRow[];
+  onReplay: (row: PortfolioHistoryRow) => void;
+}) {
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
 
   if (rows.length === 0) {
@@ -65,9 +71,14 @@ export function PortfolioRunHistory({ rows }: { rows: PortfolioHistoryRow[] }) {
             {rows.map((r, i) => {
               const isExpanded = expanded.has(i);
               const hasParams = Object.keys(r.params).length > 0;
+              const replayable = !r.isCanonical;
               return (
                 <Fragment key={i}>
-                  <tr style={{ borderBottom: isExpanded ? "none" : "1px solid var(--gridline)" }}>
+                  <tr
+                    style={{ borderBottom: isExpanded ? "none" : "1px solid var(--gridline)" }}
+                    className={replayable ? "cursor-pointer" : undefined}
+                    onClick={replayable ? () => onReplay(r) : undefined}
+                  >
                     <td className="px-3 py-2 whitespace-nowrap" style={{ color: "var(--text-secondary)" }}>
                       {fmtDate(r.runAt)}
                     </td>
@@ -111,7 +122,10 @@ export function PortfolioRunHistory({ rows }: { rows: PortfolioHistoryRow[] }) {
                     <td className="px-3 py-2 whitespace-nowrap">
                       <button
                         type="button"
-                        onClick={() => toggleExpanded(i)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleExpanded(i);
+                        }}
                         className="text-xs font-medium underline-offset-2 hover:underline"
                         style={{ color: "var(--series-1)" }}
                       >
@@ -125,7 +139,7 @@ export function PortfolioRunHistory({ rows }: { rows: PortfolioHistoryRow[] }) {
                         <div className="flex flex-col gap-1 text-xs" style={{ color: "var(--text-secondary)" }}>
                           <div>
                             <span style={{ color: "var(--text-muted)" }}>
-                              {r.isCanonical ? "Canonical run · " : "Experiment (Lab tab override) · "}
+                              {r.isCanonical ? "Canonical run · " : "Experiment (custom configuration) · "}
                             </span>
                             <span style={{ color: "var(--text-muted)" }}>Symbols ({r.symbols.length}): </span>
                             {r.symbols.length ? r.symbols.join(", ") : "—"}

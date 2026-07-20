@@ -14,6 +14,8 @@ Those are listed separately below rather than forced into the same dict.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 import pandas as pd
 
 from strategies.base import Strategy
@@ -132,3 +134,73 @@ ALL_STRATEGY_NAMES: list[str] = (
     + PAIRS_STRATEGY_NAMES
     + [PEAD_NAME, OVERNIGHT_NAME, AVWAP_BREAKOUT_NAME]
 )
+
+
+@dataclass(frozen=True)
+class ArchivedStrategy:
+    """A strategy retired from the ACTIVE dashboard/leaderboard after a
+    large-enough sample showed decisively negative expectancy (or, for the
+    portfolio engines, negative return). See ARCHIVED_STRATEGIES.md for the
+    full rationale per strategy and LESSONS.md's 2026-07-20 entries for how
+    each number was reached."""
+
+    reason: str
+    trades_taken: int
+    expectancy_r: float | None  # None for portfolio-engine strategies (no R-multiples)
+    return_pct: float | None  # only set for portfolio-engine strategies
+    archived_at: str  # ISO date
+
+
+# Purely additive: does NOT remove anything from DAY_TRADING_STRATEGIES /
+# SWING_TRADING_STRATEGIES_NO_BENCHMARK / ALL_STRATEGY_NAMES above, all of
+# which must still match strategy_tracker.xlsx 1:1 (see
+# tests/test_engine/test_registry.py) -- the tracker is the full candidate
+# list; this is which of those candidates the app still actively surfaces
+# by default. Every archived strategy's code, run history, and backtest
+# reproducibility are fully intact -- only default visibility in
+# /api/strategies and the webapp changes (see api/main.py's `archived`
+# field and the webapp's "Show archived" toggle). Numbers are each
+# strategy's canonical figures as of its archive date.
+ARCHIVED_STRATEGY_NAMES: dict[str, ArchivedStrategy] = {
+    "Opening Range Breakout (ORB)": ArchivedStrategy(
+        reason="Large sample, consistently negative expectancy.",
+        trades_taken=6121, expectancy_r=-0.012, return_pct=None, archived_at="2026-07-20",
+    ),
+    "VWAP Bounce / Reversion": ArchivedStrategy(
+        reason="Large sample, consistently negative expectancy.",
+        trades_taken=104672, expectancy_r=-0.107, return_pct=None, archived_at="2026-07-20",
+    ),
+    "Scalping (3-5 min)": ArchivedStrategy(
+        reason="Large sample, consistently negative expectancy.",
+        trades_taken=21774, expectancy_r=-0.200, return_pct=None, archived_at="2026-07-20",
+    ),
+    "Mean Reversion Scalp": ArchivedStrategy(
+        reason="Large sample, consistently negative expectancy.",
+        trades_taken=419, expectancy_r=-0.102, return_pct=None, archived_at="2026-07-20",
+    ),
+    "News Fade": ArchivedStrategy(
+        reason="Large sample, consistently negative expectancy.",
+        trades_taken=1047, expectancy_r=-0.260, return_pct=None, archived_at="2026-07-20",
+    ),
+    "Range Trading": ArchivedStrategy(
+        reason="Large sample, consistently negative expectancy.",
+        trades_taken=3293, expectancy_r=-0.066, return_pct=None, archived_at="2026-07-20",
+    ),
+    "Fibonacci Retracement Entry": ArchivedStrategy(
+        reason="Large sample, consistently negative expectancy.",
+        trades_taken=421, expectancy_r=-0.045, return_pct=None, archived_at="2026-07-20",
+    ),
+    "Gap Fade (daily)": ArchivedStrategy(
+        reason="Large sample, consistently negative expectancy.",
+        trades_taken=328, expectancy_r=-0.150, return_pct=None, archived_at="2026-07-20",
+    ),
+    "Turnaround Tuesday": ArchivedStrategy(
+        reason="Large sample, consistently negative expectancy.",
+        trades_taken=346, expectancy_r=-0.034, return_pct=None, archived_at="2026-07-20",
+    ),
+    "Pairs / Stat Arb": ArchivedStrategy(
+        reason="Negative return and Sharpe on the portfolio engine "
+        "(no R-multiple trades to express as expectancy).",
+        trades_taken=0, expectancy_r=None, return_pct=-13.2, archived_at="2026-07-20",
+    ),
+}

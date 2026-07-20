@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { BacktestResult, HistoryRow, Metrics } from "../api";
+import type { BacktestResult, Metrics } from "../api";
 import { ChatPanel } from "./ChatPanel";
 import { EquityChart } from "./EquityChart";
 import { PerSymbolTable } from "./PerSymbolTable";
@@ -8,7 +8,7 @@ import { StatTile } from "./StatTile";
 import { StatusPill } from "./StatusPill";
 import { TradesTable } from "./TradesTable";
 
-type Tab = "overview" | "trades" | "perSymbol" | "portfolio" | "chat" | "history";
+type Tab = "overview" | "trades" | "perSymbol" | "portfolio" | "chat";
 
 const TABS: { key: Tab; label: string }[] = [
   { key: "overview", label: "Overview" },
@@ -16,7 +16,6 @@ const TABS: { key: Tab; label: string }[] = [
   { key: "perSymbol", label: "Per-Symbol" },
   { key: "portfolio", label: "Portfolio" },
   { key: "chat", label: "Chat" },
-  { key: "history", label: "History" },
 ];
 
 function pct(v: number, digits = 1): string {
@@ -120,110 +119,7 @@ function OverviewTab({ result }: { result: BacktestResult }) {
   );
 }
 
-function HistoryTab({
-  history,
-  onReplay,
-}: {
-  history: HistoryRow[];
-  onReplay: (row: HistoryRow) => void;
-}) {
-  const canonical = history.filter((r) => r.isCanonical);
-  const experiments = history.filter((r) => !r.isCanonical);
-
-  const row = (r: HistoryRow, replayable: boolean) => (
-    <tr
-      key={`${r.runAt}-${replayable}`}
-      style={{ borderBottom: "1px solid var(--gridline)" }}
-      className={replayable ? "cursor-pointer" : undefined}
-      onClick={replayable ? () => onReplay(r) : undefined}
-    >
-      <td className="px-3 py-2 whitespace-nowrap" style={{ color: "var(--text-secondary)" }}>
-        {new Date(r.runAt).toLocaleString(undefined, {
-          month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
-        })}
-      </td>
-      <td className="px-3 py-2 whitespace-nowrap" style={{ color: "var(--text-secondary)" }}>
-        {r.startDate} → {r.endDate}
-      </td>
-      <td className="px-3 py-2 tabular-nums" style={{ color: "var(--text-secondary)" }}>
-        {r.tradesTaken}
-      </td>
-      <td className="px-3 py-2 tabular-nums" style={{ color: "var(--text-secondary)" }}>
-        {r.expectancyR.toFixed(3)}
-      </td>
-      <td className="px-3 py-2" style={{ color: "var(--text-secondary)" }}>
-        {replayable
-          ? [
-              r.symbols.length ? `${r.symbols.length} symbols` : null,
-              Object.keys(r.params).length ? `${Object.keys(r.params).length} params changed` : null,
-            ]
-              .filter(Boolean)
-              .join(", ") || "—"
-          : "—"}
-      </td>
-      <td className="px-3 py-2">
-        <StatusPill status={r.status} />
-      </td>
-    </tr>
-  );
-
-  const headers = ["Run at", "Window", "Trades", "Expectancy (R)", "Config", "Status"];
-
-  const table = (rows: HistoryRow[], replayable: boolean) => (
-    <div className="overflow-x-auto rounded-lg border" style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}>
-      <table className="w-full min-w-[640px] border-collapse text-sm">
-        <thead>
-          <tr style={{ borderBottom: "1px solid var(--gridline)" }}>
-            {headers.map((h) => (
-              <th key={h} className="px-3 py-2 text-left font-medium whitespace-nowrap" style={{ color: "var(--text-muted)" }}>
-                {h}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>{rows.map((r) => row(r, replayable))}</tbody>
-      </table>
-    </div>
-  );
-
-  return (
-    <div className="space-y-6">
-      <div>
-        <div className="mb-2 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
-          Canonical runs — this strategy's registered default configuration over time
-        </div>
-        {canonical.length === 0 ? (
-          <p className="text-sm" style={{ color: "var(--text-muted)" }}>No canonical runs logged.</p>
-        ) : (
-          table(canonical, false)
-        )}
-      </div>
-      <div>
-        <div className="mb-2 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
-          Your experiments — custom symbols/dates/parameters. Click a row to reload that
-          configuration.
-        </div>
-        {experiments.length === 0 ? (
-          <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-            No experiments yet — change a symbol, date, or parameter and run to start one.
-          </p>
-        ) : (
-          table(experiments, true)
-        )}
-      </div>
-    </div>
-  );
-}
-
-export function ResultTabs({
-  result,
-  history,
-  onReplay,
-}: {
-  result: BacktestResult | null;
-  history: HistoryRow[];
-  onReplay: (row: HistoryRow) => void;
-}) {
+export function ResultTabs({ result }: { result: BacktestResult | null }) {
   const [tab, setTab] = useState<Tab>("overview");
 
   return (
@@ -245,9 +141,7 @@ export function ResultTabs({
         ))}
       </nav>
 
-      {tab === "history" ? (
-        <HistoryTab history={history} onReplay={onReplay} />
-      ) : !result ? (
+      {!result ? (
         <div
           className="flex h-40 items-center justify-center rounded-lg border text-sm"
           style={{ borderColor: "var(--border)", background: "var(--surface-1)", color: "var(--text-muted)" }}

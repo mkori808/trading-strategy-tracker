@@ -15,7 +15,13 @@ function fmtParamValue(v: number | boolean | string): string {
   return String(v);
 }
 
-export function RunHistory({ rows }: { rows: HistoryRow[] }) {
+export function RunHistory({
+  rows,
+  onReplay,
+}: {
+  rows: HistoryRow[];
+  onReplay: (row: HistoryRow) => void;
+}) {
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
 
   if (rows.length === 0) {
@@ -35,37 +41,50 @@ export function RunHistory({ rows }: { rows: HistoryRow[] }) {
     });
   };
 
+  const hasExperiments = rows.some((r) => !r.isCanonical);
+
   return (
-    <div
-      className="overflow-x-auto rounded-lg border"
-      style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}
-    >
-      <table className="w-full min-w-[760px] border-collapse text-sm">
-        <thead>
-          <tr style={{ borderBottom: "1px solid var(--gridline)" }}>
-            {["Run at", "Window", "Trades", "Win Rate", "Expectancy (R)", "Profit Factor", "Sharpe", "Alpha", "Status", "Config"].map(
-              (h) => (
-                <th
-                  key={h}
-                  className="px-3 py-2 text-left font-medium whitespace-nowrap"
-                  style={{ color: "var(--text-muted)" }}
-                >
-                  {h}
-                </th>
-              ),
-            )}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r, i) => {
-            const isExpanded = expanded.has(i);
-            const hasParams = Object.keys(r.params).length > 0;
-            return (
-              <Fragment key={i}>
-                <tr style={{ borderBottom: isExpanded ? "none" : "1px solid var(--gridline)" }}>
-                  <td className="px-3 py-2 whitespace-nowrap" style={{ color: "var(--text-secondary)" }}>
-                    {fmtWhen(r.runAt)}
-                  </td>
+    <div>
+      {hasExperiments && (
+        <p className="mb-2 text-xs" style={{ color: "var(--text-muted)" }}>
+          Click an experiment row to reload its configuration above.
+        </p>
+      )}
+      <div
+        className="overflow-x-auto rounded-lg border"
+        style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}
+      >
+        <table className="w-full min-w-[760px] border-collapse text-sm">
+          <thead>
+            <tr style={{ borderBottom: "1px solid var(--gridline)" }}>
+              {["Run at", "Window", "Trades", "Win Rate", "Expectancy (R)", "Profit Factor", "Sharpe", "Alpha", "Status", "Config"].map(
+                (h) => (
+                  <th
+                    key={h}
+                    className="px-3 py-2 text-left font-medium whitespace-nowrap"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    {h}
+                  </th>
+                ),
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r, i) => {
+              const isExpanded = expanded.has(i);
+              const hasParams = Object.keys(r.params).length > 0;
+              const replayable = !r.isCanonical;
+              return (
+                <Fragment key={i}>
+                  <tr
+                    style={{ borderBottom: isExpanded ? "none" : "1px solid var(--gridline)" }}
+                    className={replayable ? "cursor-pointer" : undefined}
+                    onClick={replayable ? () => onReplay(r) : undefined}
+                  >
+                    <td className="px-3 py-2 whitespace-nowrap" style={{ color: "var(--text-secondary)" }}>
+                      {fmtWhen(r.runAt)}
+                    </td>
                   <td className="px-3 py-2 whitespace-nowrap" style={{ color: "var(--text-secondary)" }}>
                     {r.startDate} → {r.endDate}
                   </td>
@@ -73,10 +92,10 @@ export function RunHistory({ rows }: { rows: HistoryRow[] }) {
                     {r.tradesTaken}
                   </td>
                   <td className="px-3 py-2 tabular-nums" style={{ color: "var(--text-secondary)" }}>
-                    {(r.winRate * 100).toFixed(1)}%
+                    {r.winRate === null ? "—" : `${(r.winRate * 100).toFixed(1)}%`}
                   </td>
                   <td className="px-3 py-2 tabular-nums" style={{ color: "var(--text-secondary)" }}>
-                    {r.expectancyR.toFixed(3)}
+                    {r.expectancyR === null ? "—" : r.expectancyR.toFixed(3)}
                   </td>
                   <td className="px-3 py-2 tabular-nums" style={{ color: "var(--text-secondary)" }}>
                     {r.profitFactor === null ? "∞" : r.profitFactor.toFixed(2)}
@@ -93,42 +112,46 @@ export function RunHistory({ rows }: { rows: HistoryRow[] }) {
                   <td className="px-3 py-2 whitespace-nowrap">
                     <button
                       type="button"
-                      onClick={() => toggleExpanded(i)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleExpanded(i);
+                      }}
                       className="text-xs font-medium underline-offset-2 hover:underline"
                       style={{ color: "var(--series-1)" }}
                     >
                       {isExpanded ? "Hide" : hasParams ? "Show (custom)" : "Show"}
                     </button>
                   </td>
-                </tr>
-                {isExpanded && (
-                  <tr style={{ borderBottom: "1px solid var(--gridline)", background: "var(--surface-2, var(--surface-1))" }}>
-                    <td colSpan={10} className="px-3 py-2">
-                      <div className="flex flex-col gap-1 text-xs" style={{ color: "var(--text-secondary)" }}>
-                        <div>
-                          <span style={{ color: "var(--text-muted)" }}>
-                            {r.isCanonical ? "Canonical run · " : "Experiment (Lab tab override) · "}
-                          </span>
-                          <span style={{ color: "var(--text-muted)" }}>Symbols ({r.symbols.length}): </span>
-                          {r.symbols.length ? r.symbols.join(", ") : "—"}
-                        </div>
-                        <div>
-                          <span style={{ color: "var(--text-muted)" }}>Rule parameters: </span>
-                          {hasParams
-                            ? Object.entries(r.params)
-                                .map(([k, v]) => `${k}=${fmtParamValue(v)}`)
-                                .join(",  ")
-                            : "registered defaults (no overrides)"}
-                        </div>
-                      </div>
-                    </td>
                   </tr>
-                )}
-              </Fragment>
-            );
-          })}
-        </tbody>
-      </table>
+                  {isExpanded && (
+                    <tr style={{ borderBottom: "1px solid var(--gridline)", background: "var(--surface-2, var(--surface-1))" }}>
+                      <td colSpan={10} className="px-3 py-2">
+                        <div className="flex flex-col gap-1 text-xs" style={{ color: "var(--text-secondary)" }}>
+                          <div>
+                            <span style={{ color: "var(--text-muted)" }}>
+                              {r.isCanonical ? "Canonical run · " : "Experiment (custom configuration) · "}
+                            </span>
+                            <span style={{ color: "var(--text-muted)" }}>Symbols ({r.symbols.length}): </span>
+                            {r.symbols.length ? r.symbols.join(", ") : "—"}
+                          </div>
+                          <div>
+                            <span style={{ color: "var(--text-muted)" }}>Rule parameters: </span>
+                            {hasParams
+                              ? Object.entries(r.params)
+                                  .map(([k, v]) => `${k}=${fmtParamValue(v)}`)
+                                  .join(",  ")
+                              : "registered defaults (no overrides)"}
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

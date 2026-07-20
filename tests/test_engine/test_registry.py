@@ -55,3 +55,13 @@ def test_registry_matches_tracker_swing_trading_names():
 def test_all_strategy_names_has_twenty_four_entries():
     assert len(ALL_STRATEGY_NAMES) == 24
     assert len(set(ALL_STRATEGY_NAMES)) == 24
+
+
+def test_archived_strategy_names_are_a_subset_of_all_strategy_names():
+    from strategies.registry import ARCHIVED_STRATEGY_NAMES
+
+    assert set(ARCHIVED_STRATEGY_NAMES).issubset(set(ALL_STRATEGY_NAMES))
+    # Every archived entry has a real (non-empty) reason -- this dict is a
+    # user-facing record ("what we tried and why we stopped"), not a bare
+    # exclusion list.
+    assert all(a.reason.strip() for a in ARCHIVED_STRATEGY_NAMES.values())

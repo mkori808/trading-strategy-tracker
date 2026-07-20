@@ -1,7 +1,7 @@
 export interface StrategySummary {
   name: string;
   kind: "Day Trading" | "Swing Trading";
-  // "standard" runs through /api/backtest and the Lab tab's override UI.
+  // "standard" runs through /api/backtest and the Strategies tab's override UI.
   // "cross_sectional" (Dual Momentum) and "pairs" (Pairs / Stat Arb) run on
   // different engines with different result shapes -- see
   // /api/backtest/cross-sectional and /api/backtest/pairs below, and
@@ -38,6 +38,13 @@ export interface StrategySummary {
   startDate: string | null;
   endDate: string | null;
   params: Record<string, number | boolean | string>;
+  // Retired from the default dashboard view after a large-enough sample
+  // showed decisively negative expectancy/return -- see
+  // strategies/registry.py:ARCHIVED_STRATEGY_NAMES and
+  // ARCHIVED_STRATEGIES.md. Still fully runnable/queryable; this only
+  // controls default visibility (see StrategyTable's "Show archived" toggle).
+  archived: boolean;
+  archivedReason: string | null;
 }
 
 export interface Metrics {
@@ -154,6 +161,10 @@ export interface ParamSpec {
   maximum: number | null;
   step: number | null;
   help: string | null;
+  // Fixed set of valid values for a "str" kind field -- renders as a
+  // dropdown instead of free text. null means free text (no current
+  // strategy uses that combination).
+  choices: string[] | null;
 }
 
 export interface ParamSchema {
@@ -217,8 +228,12 @@ export interface HistoryRow {
   startDate: string;
   endDate: string;
   tradesTaken: number;
-  winRate: number;
-  expectancyR: number;
+  // Genuinely nullable in practice (a handful of early-logged rows predate
+  // some metric computations existing at all) despite trades_taken > 0 on
+  // those same rows -- render null-safely, don't assume "has trades" implies
+  // "has these fields".
+  winRate: number | null;
+  expectancyR: number | null;
   profitFactor: number | null;
   maxDrawdownPct: number | null;
   sharpe: number | null;

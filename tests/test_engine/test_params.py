@@ -7,16 +7,18 @@ from dataclasses import dataclass, field
 
 import pytest
 
-from strategies.params import ParamSpec, describe_params, param_field, tunable_field_names
+from strategies.params import ParamSpec, apply_params, describe_params, param_field, tunable_field_names
 
 
 @dataclass
 class _Sample:
+    name = "Sample"
     injected: str = field(default_factory=lambda: "not tunable")
     count: int = param_field(5, label="Count", minimum=1, maximum=10, step=1, help="how many")
     ratio: float = param_field(0.5, label="Ratio", minimum=0.0, maximum=1.0)
     enabled: bool = param_field(True, label="Enabled")
     mode: str = param_field("fast", label="Mode")
+    frequency: str = param_field("monthly", label="Frequency", choices=["monthly", "weekly", "daily"])
 
 
 class _NotADataclass:
@@ -35,11 +37,13 @@ def test_tunable_fields_are_described_with_full_metadata():
 def test_structural_field_without_param_field_is_excluded():
     names = {s.name for s in describe_params(_Sample)}
     assert "injected" not in names
-    assert names == {"count", "ratio", "enabled", "mode"}
+    assert names == {"count", "ratio", "enabled", "mode", "frequency"}
 
 
 def test_field_order_matches_declaration_order():
-    assert [s.name for s in describe_params(_Sample)] == ["count", "ratio", "enabled", "mode"]
+    assert [s.name for s in describe_params(_Sample)] == [
+        "count", "ratio", "enabled", "mode", "frequency",
+    ]
 
 
 @pytest.mark.parametrize(
@@ -69,7 +73,7 @@ def test_non_dataclass_strategy_returns_empty_schema_not_an_error():
 
 
 def test_tunable_field_names_matches_describe_params():
-    assert tunable_field_names(_Sample) == {"count", "ratio", "enabled", "mode"}
+    assert tunable_field_names(_Sample) == {"count", "ratio", "enabled", "mode", "frequency"}
 
 
 # --- spot-check a handful of real strategies -------------------------------
@@ -105,7 +109,41 @@ def test_dual_momentum_excludes_risk_free_rate():
 
     names = {s.name for s in describe_params(DualMomentum)}
     assert "risk_free_rate" not in names
-    assert names == {"lookback_trading_days", "top_n"}
+    assert names == {"lookback_trading_days", "top_n", "rebalance_frequency"}
+
+
+def test_dual_momentum_rebalance_frequency_defaults_to_monthly():
+    from strategies.swing.dual_momentum import DualMomentum
+
+    spec = next(s for s in describe_params(DualMomentum) if s.name == "rebalance_frequency")
+    assert spec.default == "monthly"
+    assert spec.choices == ["monthly", "weekly", "daily"]
+    assert spec.kind == "str"
+
+
+def test_choices_field_is_exposed_on_the_spec():
+    spec = next(s for s in describe_params(_Sample) if s.name == "frequency")
+    assert spec.choices == ["monthly", "weekly", "daily"]
+
+
+def test_str_field_without_choices_has_none():
+    spec = next(s for s in describe_params(_Sample) if s.name == "mode")
+    assert spec.choices is None
+
+
+def test_apply_params_accepts_a_valid_choice():
+    updated = apply_params(_Sample(), {"frequency": "weekly"})
+    assert updated.frequency == "weekly"
+
+
+def test_apply_params_rejects_a_value_outside_choices():
+    with pytest.raises(ValueError, match="must be one of"):
+        apply_params(_Sample(), {"frequency": "hourly"})
+
+
+def test_apply_params_rejects_a_non_string_for_a_str_field():
+    with pytest.raises(ValueError, match="must be a string"):
+        apply_params(_Sample(), {"mode": 123})
 
 
 def test_pivot_reversal_has_no_tunable_params():

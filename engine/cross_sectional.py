@@ -42,7 +42,7 @@ from strategies.cross_sectional import CrossSectionalStrategy
 
 DEFAULT_CASH = 10_000.0
 
-RebalanceFrequency = Literal["monthly", "weekly"]
+RebalanceFrequency = Literal["monthly", "weekly", "daily"]
 
 
 @dataclass
@@ -67,7 +67,14 @@ def _rebalance_dates(
     calendar: pd.DatetimeIndex, frequency: RebalanceFrequency = "monthly"
 ) -> set[pd.Timestamp]:
     """First trading day present in the calendar for each period -- each
-    (year, month) for 'monthly', each (year, ISO week) for 'weekly'."""
+    (year, month) for 'monthly', each (year, ISO week) for 'weekly', every
+    single trading day for 'daily' (added to test whether a strategy's
+    drawdowns come from a rebalance cadence too slow to react -- see
+    engine/compare_dual_momentum_robustness.py -- without having to
+    special-case the main loop, which already just checks membership in
+    this set)."""
+    if frequency == "daily":
+        return set(calendar)
     s = pd.Series(calendar, index=calendar)
     if frequency == "weekly":
         iso = calendar.isocalendar()

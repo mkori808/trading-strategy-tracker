@@ -33,6 +33,12 @@ class ParamSpec:
     maximum: float | None = None
     step: float | None = None
     help: str | None = None
+    # Fixed set of valid values for a "str" kind field (e.g. a rebalance
+    # frequency) -- the UI renders a dropdown instead of free text, and
+    # apply_params() rejects anything outside this set the same way it
+    # rejects an out-of-bounds number. None for a str field means free
+    # text (no current strategy does this, but the option stays open).
+    choices: list[str] | None = None
 
 
 def param_field(
@@ -43,6 +49,7 @@ def param_field(
     maximum: float | None = None,
     step: float | None = None,
     help: str | None = None,
+    choices: list[str] | None = None,
 ) -> Any:
     """A dataclass field that is also a tunable, UI-exposed rule parameter."""
     return dataclasses.field(
@@ -53,6 +60,7 @@ def param_field(
             "maximum": maximum,
             "step": step,
             "help": help,
+            "choices": choices,
         },
     )
 
@@ -98,6 +106,7 @@ def describe_params(cls: type) -> list[ParamSpec]:
                 maximum=f.metadata.get("maximum"),
                 step=f.metadata.get("step"),
                 help=f.metadata.get("help"),
+                choices=f.metadata.get("choices"),
             )
         )
     return specs
@@ -131,6 +140,10 @@ def apply_params(strategy: Any, params: dict[str, Any] | None) -> Any:
             raise ValueError(f"{key!r} must be a number, got {value!r}")
         if spec.kind == "bool" and not isinstance(value, bool):
             raise ValueError(f"{key!r} must be a boolean, got {value!r}")
+        if spec.kind == "str" and not isinstance(value, str):
+            raise ValueError(f"{key!r} must be a string, got {value!r}")
+        if spec.choices is not None and value not in spec.choices:
+            raise ValueError(f"{key!r}={value!r} must be one of {spec.choices}")
         if spec.minimum is not None and value < spec.minimum:
             raise ValueError(f"{key!r}={value} is below its minimum of {spec.minimum}")
         if spec.maximum is not None and value > spec.maximum:

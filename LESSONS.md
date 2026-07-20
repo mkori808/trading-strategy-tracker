@@ -7,6 +7,280 @@ Newest entries at the top.
 
 ---
 
+## 2026-07-20 (cont'd 9) — 189-day lookback promoted to canonical; two follow-up ideas tested and rejected after validation
+
+**Promoted:** `strategies/swing/dual_momentum.py`'s `lookback_trading_days`
+default changed 252 -> 189 (cont'd 8's validated finding). Re-run
+canonical (`engine/runner.run_cross_sectional("Dual Momentum")`, no
+override, so it logs as canonical): **Sharpe 0.575, return +133.1%, max
+drawdown -19.3%, status "Positive return - shortlist"** -- the first
+strategy in this project to clear the shortlist bar on its own canonical
+run without caveats (Overnight Hold's earlier "shortlist" was a stale
+pre-Sharpe-gate string, corrected in cont'd 4/5). Confirmed live via the
+API and in the browser. 189 trading days (~9 months) sits inside
+`strategy_tracker.xlsx`'s own documented "6-12mo" range for this
+strategy, so this isn't a deviation from the tracker's definition.
+
+**Follow-up 1 (rejected): vol-targeting overlay on the NEW 189-day
+baseline.** Re-tested `engine/timing_filters.py:VolTargetedCrossSectional`
+now that the lookback isn't blind to fast shocks the same way -- still
+hurts Sharpe at every target tested (baseline 0.575 vs. 0.40-0.51 for
+10-18% vol targets). Confirms cont'd 5/7's finding is a property of the
+overlay mechanism itself, not the lookback it's layered on: the overlay
+only re-evaluates exposure AT each rebalance, so it inherits the exact
+same "can't react between rebalances" limitation regardless of what
+lookback drives the underlying ranking.
+
+**Follow-up 2 (rejected after validation): top_n=3 instead of 5.** Looked
+like a further improvement on the standard 5-year window (Sharpe
+0.575 -> **0.629**, return +133.1% -> +185.1%) -- but validated against
+the 26-year long history the same way 189 itself was validated, and it
+does NOT hold up: Sharpe 0.45 -> **0.43** (marginally worse, not better),
+max drawdown -50.0% -> -53.1% (worse), despite a higher raw cumulative
+return (+4567.7% vs +3543.9%) and CAGR (15.59% vs 14.51%). **This is the
+second parameter (after cont'd 8's weekly/daily-rebalance combination)
+that looked like an improvement on the 5-year window and failed the
+26-year validation** -- a real, recurring pattern worth naming
+explicitly: **the standard 5-year window rewards concentration and
+higher turnover in a way the longer history doesn't confirm.** Any future
+parameter change to this strategy should be validated against the long
+history before being trusted, not just checked against the 5-year window
+that's convenient to iterate on.
+
+**Net state after this round:** the validated, promoted change is the
+lookback shortening alone (252->189, monthly rebalance, top_n=5
+unchanged). Two plausible-looking follow-ups (an exposure-scaling
+overlay, fewer/more-concentrated positions) were both tested in good
+faith and both rejected on the same out-of-sample discipline that
+validated the original change -- exactly the asymmetric outcome that
+discipline exists to produce.
+
+---
+
+## 2026-07-20 (cont'd 8) — Shortening the lookback to 189 days is a real, out-of-sample-validated improvement; stacking faster rebalancing on top is not
+
+**Context:** cont'd 7 corrected the mechanism -- Dual Momentum's drawdowns
+come from the 252-day lookback being blind to fast shocks, not from
+rebalance cadence. Direct follow-up: swept `lookback_trading_days` (a
+`param_field`, 63/126/189/252) against all three rebalance frequencies
+(24 arms total) on the standard 5-year window, then -- critically --
+validated the standout combination against the independent 26-year
+history before trusting it, since a 24-arm grid search on one window is
+exactly the setup that produces good-looking numbers by chance.
+
+**5-year grid result: 189-day lookback (~9 months) clears the shortlist
+bar at EVERY tested frequency, even after 5bps costs** (monthly: Sharpe
+0.56; weekly: 0.69; daily: 0.69) -- a large jump from 252-day monthly's
+0.40. 63-day (~3 months) also clears the bar at monthly (0.52) but
+**collapses under faster rebalancing** (weekly 0.15, daily 0.09) --
+whipsaw on a noisy short-window signal, a clean illustration that "shorter
+lookback + faster rebalancing" isn't monotonically better, the two
+interact. 126-day is worse than both 189 and 252 at every frequency --
+not a useful middle ground.
+
+**Validation against the 26-year (2000-2026) independent long-history run
+-- 5x the data, regimes never touched by the grid search that found 189:**
+
+| Lookback | Frequency | Full-period Sharpe | CAGR | Max DD |
+|---|---|---:|---:|---:|
+| 252 (canonical) | Monthly | 0.34 | +11.43% | -52.3% |
+| **189** | **Monthly** | **0.45** | **+14.51%** | **-50.0%** |
+| 189 | Weekly @ 5bps | 0.35 | +11.63% | -49.4% |
+| 189 | Daily @ 5bps | 0.33 | +11.03% | -47.9% |
+
+**189-day + MONTHLY rebalancing is the one combination that holds up.**
+It beats 252-day/monthly on CAGR, Sharpe, max drawdown, and cumulative
+return (+3543.8% vs +1664.8%) over the full 26 years, and wins in 6 of the
+8 regime slices -- most dramatically in 2021 (Sharpe 0.29 -> 1.25) and the
+2022 bear market (a loss turned into a small gain). It loses only in the
+two earliest slices (dot-com bust, pre-GFC bull), which are also the
+slices where `EQUITY_UNIVERSE`'s point-in-time validity is weakest (see
+cont'd 6's caveat) -- a plausible, not confirmed, explanation for why
+those two don't follow the pattern.
+
+**But 189-day + weekly/daily -- the arms that looked BEST on the 5-year
+grid (Sharpe up to 0.69) -- actually underperform 189-day + monthly on
+the 26-year validation (0.35 and 0.33, both worse than monthly's 0.45),
+and transaction costs balloon** ($7,674 weekly / $16,044 daily over 26
+years on a $10k start, vs. monthly's much smaller drag). **This is the
+short-window-overfit result the validation step exists to catch: stacking
+frequency on top of the lookback change looked like the best cell in the
+grid specifically because the 5-year window happened to reward it, and
+that reward doesn't generalize.** Confirms cont'd 7's own finding a
+second, independent way -- rebalancing more often is not the lever that
+fixes this strategy.
+
+**Full-period Sharpe still doesn't clear 0.5 even at 189/monthly (0.45)
+-- this is a real, meaningful, validated improvement, not a solved
+result.** The lookback shortening plausibly works because 9 months
+captures the academically well-established momentum window (Jegadeesh-
+Titman-era literature generally supports 3-12 months) with less stale,
+noise-heavy tail data than a full 12 months -- a mechanistic explanation
+consistent with the effect appearing in every regime except the two with
+the weakest universe rigor, not just a curve-fit coincidence.
+
+**Not yet promoted to canonical.** This is a strong candidate for the
+registered default (`strategies/swing/dual_momentum.py`'s
+`lookback_trading_days` currently defaults to 252) but changing a
+strategy's own default is a real decision, not an automatic action --
+flagged for the user rather than silently applied.
+
+---
+
+## 2026-07-20 (cont'd 7) — Rebalancing more often helps Sharpe, does NOT fix the drawdown -- corrects the previous entry's mechanism
+
+**Context:** the cont'd 6 entry hypothesized that Dual Momentum's
+drawdowns come from shocks landing between monthly rebalances, and that a
+faster cadence should catch them. Tested directly: added a `"daily"`
+`RebalanceFrequency` to `engine/cross_sectional.py` (trivial -- the main
+loop already just checks calendar-day membership in a rebalance-dates
+set), then ran monthly/weekly/daily on the standard 5-year window, each
+at 0bps and at a realistic 5bps slippage (matching `engine/run_ensemble.py`'s
+existing convention -- 0bps flatters a higher-turnover arm, since more
+frequent rebalancing trades more often).
+
+| Frequency | Rebalances | Return | Sharpe | Max DD | Costs |
+|---|---:|---:|---:|---:|---:|
+| Monthly @ 0bps (canonical) | 61 | +100.3% | 0.41 | -23.3% | $0 |
+| Monthly @ 5bps | 61 | +97.7% | 0.40 | -23.3% | $163 |
+| Weekly @ 0bps | 261 | +102.5% | 0.44 | -24.5% | $0 |
+| Weekly @ 5bps | 261 | +96.2% | 0.41 | -24.6% | $410 |
+| Daily @ 0bps | 1,252 | +125.8% | **0.55** | -24.6% | $0 |
+| Daily @ 5bps | 1,252 | +111.2% | 0.48 | -24.9% | $887 |
+
+**Sharpe genuinely improves with frequency (0.41 -> 0.44 -> 0.55 at zero
+cost) -- daily rebalancing even clears the 0.5 shortlist bar. But realistic
+costs mostly cancel that gain (daily @ 5bps: 0.48, back under the bar),
+and transaction costs stay modest in absolute terms even at daily
+cadence ($887 over 5 years on a $10k account) because Dual Momentum's
+top-5 holdings don't actually change identity very often -- most "daily
+rebalances" are small drift-correction trades, not new picks.**
+
+**The important, corrected finding: max drawdown does NOT improve with
+frequency -- if anything it's marginally WORSE at every faster cadence
+(-23.3% -> -24.5% -> -24.9%).** This refutes cont'd 6's specific
+hypothesis. Rebalancing daily still didn't dodge whatever caused the
+worst drawdown. The reason is mechanistic, not a fluke: the absolute-
+momentum filter ranks symbols by their trailing **252-trading-day**
+return. A shock that plays out over days (the April 2025 tariff selloff)
+barely moves a 252-day trailing return -- checking that number more
+often doesn't help when the number itself doesn't react fast enough to
+signal "get out." **The bottleneck was mis-diagnosed as rebalance
+cadence; it's actually the lookback window's blindness to short, sharp
+moves.** A future attempt at fixing this drawdown specifically should
+target the lookback (e.g. a shorter secondary momentum window, or a
+separate fast-acting risk trigger independent of the 252-day ranking),
+not rebalance frequency -- which this entry now shows is a dead end for
+that specific goal, even though it's a genuine (cost-eroded) improvement
+to average-case Sharpe.
+
+**Practical takeaway for a "should I rebalance Dual Momentum more often"
+decision:** daily rebalancing is the only frequency that materially
+changes the verdict (0.41 -> up to 0.55 pre-cost), but even it doesn't
+durably clear the bar once realistic slippage is applied (0.48), and it
+buys no drawdown protection at all -- so it's a real but modest, cost-
+sensitive improvement to risk-adjusted return, not a fix for the
+strategy's actual weak point.
+
+---
+
+## 2026-07-20 (cont'd 6) — Dual Momentum robustness: 26-year history + regime slices + 4 universes (`engine/compare_dual_momentum_robustness.py`)
+
+**Context:** user asked to stop searching for new entry patterns and
+instead stress-test Dual Momentum specifically — the only positive-Sharpe
+result in the project (see cont'd 5 entry above) — over a longer history,
+different universes, and different market environments, to see whether
+the edge persists or was specific to the 5-year canonical window.
+
+**Data check first:** 26 of EQUITY_UNIVERSE's 29 symbols have real
+yfinance daily history back to 1999 (CRM from 2004, V from 2008, DOW —
+Dow Inc., a 2019 spinoff — from 2019). `DualMomentum.rebalance()` already
+excludes a symbol lacking enough trailing lookback from that month's
+ranking, so testing further back than a symbol's IPO isn't a look-ahead
+bug, just a smaller effective universe in the earliest years.
+
+**Caveat stated up front:** `EQUITY_UNIVERSE` is a point-in-time Dow-29
+snapshot valid for the Aug-2020-to-Feb-2024 reconstitution window (see
+`engine/universe.py`). Testing back to 2000 uses that same fixed roster
+before it existed as such — AMGN/HON/CRM joined the real Dow in Aug 2020.
+Weaker bias than hand-picking today's winners (these are pre-existing
+large industrials chosen for 2021 Dow membership, not for 2000-2020
+performance), but real, and it means the pre-2020 regime slices below
+should be read as "a fixed 29-name large-cap basket" rather than "the
+actual Dow of that era."
+
+**Long-history result (2000-01-01 to today, one continuous run, 6,674
+trading days): CAGR 11.43%, Sharpe 0.34, max drawdown -52.3%, cumulative
+return +1664.8% vs. SPY's own +715.6% over the identical 26 years** — a
+real, substantial absolute-return edge (CAGR ~11.4% vs. SPY's implied
+~8.3%) that held up over five times the length of the canonical window.
+But full-period Sharpe (0.34) is actually *lower* than the 5-year
+canonical number (0.41) — the current window is not a cherry-picked
+favorable stretch; if anything it's slightly better than the strategy's
+26-year average.
+
+**Regime slices tell a genuinely coherent, thesis-consistent story — the
+edge is real but highly regime-dependent, not uniform:**
+
+| Period | DM return | DM Sharpe | Max DD | SPY return | Verdict |
+|---|---:|---:|---:|---:|---|
+| Dot-com bust (2000-02) | -17.9% | -0.59 | -22.0% | -37.0% | Lost, but **half as much as SPY** |
+| Pre-GFC bull (2003-07) | +252.0% | **1.07** | -21.4% | +76.8% | Clears bar decisively |
+| GFC crash (2008-09H1) | -46.3% | -0.94 | **-50.4%** | -33.7% | **Lost MORE than SPY** |
+| Post-GFC bull (2009H2-19) | +412.1% | **0.71** | -22.3% | +341.1% | Clears bar |
+| COVID crash+recovery (2020) | +14.6% | 0.30 | -34.6% | +16.6% | Slight underperform |
+| 2021 blow-off top | +6.1% | 0.29 | -10.5% | +30.8% | Meaningful underperform |
+| 2022 bear market | -2.1% | -0.22 | -16.2% | -18.6% | Lost, but **far less than SPY** |
+| 2023-present | +86.8% | 0.47 | -23.3% | +104.1% | Underperform, Sharpe just misses bar |
+
+**The pattern: Dual Momentum protects capital in slow, grinding declines
+(dot-com bust, 2022 bear — loses roughly half what SPY loses) and
+compounds hard in genuine trending bull markets (Sharpe 1.07 and 0.71 in
+the two strongest slices) — but it gets hurt by FAST, violent shocks (the
+2008 GFC crash: -50.4% max DD, actually worse than SPY's own -33.7%) and
+structurally lags narrow, momentum-chasing rallies it can't fully
+participate in via monthly rebalancing (2021, 2023-2025).** This is not a
+new, separate finding — it directly explains and reproduces the same
+failure mode found investigating the 5-year window's own -23.3% drawdown
+(cont'd 5 entry): that drawdown bottomed on the April 2025 tariff shock,
+a fast single-week event landing between monthly rebalances, structurally
+identical to how the GFC slice's drawdown formed. Two independent tests
+(a single-window post-mortem, and a 26-year regime sweep) converge on the
+same mechanism: **monthly rebalancing cannot dodge a shock that develops
+faster than the rebalance cadence.** A vol-targeting overlay was already
+shown not to fix this (cont'd 5) for the same reason.
+
+**Universe comparison (standard 5-year window, same dates every arm) —
+the Dow-29 baseline is the BEST of four universes tested, not an
+artifact:**
+
+| Universe | Return | Sharpe | Max DD |
+|---|---:|---:|---:|
+| EQUITY_UNIVERSE (Dow-29, current) | +100.3% | **0.41** | -23.3% |
+| MIDCAP_UNIVERSE | +60.5% | 0.16 | -25.0% |
+| SMALL_CAP_UNIVERSE | +23.4% | **-0.03** | -35.0% |
+| SECTOR_UNIVERSE (11 sector SPDRs) | +54.9% | 0.22 | -18.4% |
+
+Every alternate universe is worse on Sharpe; small-cap goes outright
+negative. This is reassuring in the specific sense that the result isn't
+universe-cherry-picked — switching universes doesn't reveal a better
+hidden result being masked by an unlucky choice, it makes things worse
+across the board.
+
+**Overall verdict:** Dual Momentum remains the one strategy in this
+project with a real, reproducible, mechanistically-understood edge over
+buy-and-hold, persisting across 26 years and confirmed not to be a
+universe artifact — but its Sharpe sits in the 0.3-0.4 range in most
+conditions (only clearing 0.5 in 2 of 8 regime slices, both strong bull
+markets) because of one specific, now well-characterized vulnerability:
+fast shocks between rebalances. That vulnerability, not the entry logic
+itself, is the actual target for any future improvement attempt — a
+finer rebalance cadence or an intra-month circuit-breaker, not a
+different universe or a slower-reacting overlay (already tried and ruled
+out in cont'd 5).
+
+---
+
 ## 2026-07-20 (cont'd 5) — Dual Momentum's drawdown diagnosed; a vol-targeting overlay and a Pairs blend both tried, neither improves it; a recent-window Sharpe worth watching, not trusting yet
 
 **Context:** Dual Momentum is the strongest result in the project (Sharpe

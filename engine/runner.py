@@ -300,10 +300,10 @@ def run_cross_sectional(
     `_run_*` helper in this file does -- Dual Momentum's ranking isn't
     structurally tied to EQUITY_UNIVERSE the way Sector Rotation Play is
     tied to sector ETFs vs SPY, so a symbol override is allowed here.
-    Not logged to engine/logging_db.py: that schema is R-multiple-trade
-    shaped (win_rate, expectancy_r, ...), which doesn't describe a
-    continuously-rebalanced portfolio. Run history for these lives only in
-    the CrossSectionalResult returned here for now."""
+    Logged to engine/logging_db.py's portfolio_runs table (see
+    log_portfolio_run below) -- a separate schema from the R-multiple-trade
+    `runs` table, since a continuously-rebalanced portfolio has no discrete
+    trades to log."""
     start, end = daily_date_range()
     symbols = EQUITY_UNIVERSE
     if request:
@@ -314,8 +314,17 @@ def run_cross_sectional(
     strategy = build_cross_sectional_strategy(strategy_name, risk_free_rate=rf)
     if request and request.params:
         strategy = apply_params(strategy, request.params)
+    # rebalance_frequency is a param_field() on the strategy (see
+    # strategies/swing/dual_momentum.py) but it's an ENGINE setting, not
+    # something strategy.rebalance() itself reads -- pulled off the
+    # constructed, param-applied instance so a Lab-tab override reaches it
+    # through the same apply_params() validation as every other field.
+    # getattr with a "monthly" fallback: a future cross-sectional strategy
+    # isn't required to expose this field at all.
+    rebalance_frequency = getattr(strategy, "rebalance_frequency", "monthly")
     result = run_cross_sectional_backtest(
-        strategy_name, strategy, symbols, start, end, risk_free_rate=rf
+        strategy_name, strategy, symbols, start, end, risk_free_rate=rf,
+        rebalance_frequency=rebalance_frequency,
     )
     # No verdict for a run that never rebalanced (no data) -- status stays
     # NULL and the UI keeps its old "Backtested" fallback.

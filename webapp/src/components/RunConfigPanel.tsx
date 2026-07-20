@@ -177,6 +177,28 @@ function ParamControl({
     );
   }
 
+  if (spec.kind === "str" && spec.choices) {
+    return (
+      <label className="flex items-center justify-between gap-3 text-sm">
+        <span style={{ color: "var(--text-secondary)" }} title={spec.help ?? undefined}>
+          {spec.label}
+        </span>
+        <select
+          value={String(value)}
+          onChange={(e) => onChange(e.target.value)}
+          className="rounded-md border px-2 py-1 text-sm"
+          style={{ borderColor: "var(--border)", background: "var(--page)", color: "var(--text-primary)" }}
+        >
+          {spec.choices.map((choice) => (
+            <option key={choice} value={choice}>
+              {choice}
+            </option>
+          ))}
+        </select>
+      </label>
+    );
+  }
+
   if (spec.kind === "str") {
     return (
       <label className="flex flex-col gap-1 text-sm">
