@@ -322,6 +322,9 @@ export interface LiveAccount {
   accountNumber?: string;
   status?: string;
   equity?: number;
+  // Alpaca's own prior-trading-session-close equity -- the baseline the
+  // automated-execution daily-loss circuit breaker compares against.
+  lastEquity?: number | null;
   cash?: number;
   buyingPower?: number;
   portfolioValue?: number;
@@ -377,6 +380,64 @@ export interface SignalAlert {
   timeframe: string | null;
   regimeState: string | null;
   trendTemplatePass: boolean | null;
+}
+
+// Automated paper-order execution (engine/execution.py) -- distinct from
+// the day-trading signal scanner above: this actually places orders, for
+// cross-sectional strategies (currently only Dual Momentum) the user has
+// explicitly enabled below.
+export interface ExecutionStrategyConfig {
+  strategyName: string;
+  enabled: boolean;
+  enabledAt: string | null;
+}
+
+export interface RebalanceRunRow {
+  id: number;
+  strategyName: string;
+  rebalanceDate: string;
+  triggerSource: "scheduled" | "manual";
+  triggeredAt: string;
+  status: string;
+  strategyParams: Record<string, number | boolean | string> | null;
+  portfolioValueAtStart: number | null;
+  targetWeights: Record<string, number> | null;
+  dailyLossPctAtStart: number | null;
+  errorMessage: string | null;
+}
+
+export interface ExecutionOrderRow {
+  id: number;
+  symbol: string;
+  side: "buy" | "sell";
+  orderKind: "notional" | "qty" | "close";
+  qty: number | null;
+  notional: number | null;
+  stopPrice: number | null;
+  targetPrice: number | null;
+  clientOrderId: string;
+  alpacaOrderId: string | null;
+  status: string;
+  submittedAt: string | null;
+  filledAt: string | null;
+  filledQty: number | null;
+  filledAvgPrice: number | null;
+  isPaper: boolean;
+  errorMessage: string | null;
+}
+
+export interface KillSwitchStatus {
+  active: boolean;
+}
+
+export interface ExecutionSummary {
+  // Account equity right before the earliest completed rebalance --
+  // the baseline "all-time P&L since automated trading started" is
+  // measured against. null until at least one rebalance has actually
+  // traded (not just been blocked).
+  startingEquity: number | null;
+  firstTradeAt: string | null;
+  completedRebalances: number;
 }
 
 export interface CapTierPools {
@@ -619,6 +680,32 @@ export const api = {
   liveSignals: (limit = 100) => request<SignalAlert[]>(`/live/signals?limit=${limit}`),
   triggerScan: () =>
     request<{ newAlerts: unknown[] }>("/live/scan", { method: "POST" }),
+  executionConfig: () => request<ExecutionStrategyConfig[]>("/live/execution/config"),
+  setExecutionConfig: (strategyName: string, enabled: boolean) =>
+    request<{ strategyName: string; enabled: boolean }>("/live/execution/config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ strategyName, enabled }),
+    }),
+  executionRuns: (limit = 50) =>
+    request<RebalanceRunRow[]>(`/live/execution/runs?limit=${limit}`),
+  executionOrders: (runId: number) =>
+    request<ExecutionOrderRow[]>(`/live/execution/orders?runId=${runId}`),
+  rebalanceNow: (strategyName: string) =>
+    request<{ status: string; runId?: number; reason?: string }>("/live/execution/rebalance-now", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ strategyName }),
+    }),
+  killSwitchStatus: () => request<KillSwitchStatus>("/live/execution/kill-switch"),
+  executionSummary: () => request<ExecutionSummary>("/live/execution/summary"),
+  activateKillSwitch: (flatten: boolean) =>
+    request<{ flagSet: boolean; flattened: boolean; error: string | null }>(
+      "/live/execution/kill-switch",
+      { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ flatten }) },
+    ),
+  deactivateKillSwitch: () =>
+    request<KillSwitchStatus>("/live/execution/kill-switch/deactivate", { method: "POST" }),
   screener: (symbols?: string[]) =>
     request<ScreenerResponse>(
       `/screener${symbols?.length ? `?symbols=${encodeURIComponent(symbols.join(","))}` : ""}`,

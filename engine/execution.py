@@ -44,6 +44,7 @@ import pandas as pd
 from engine import alpaca_trading, data as data_module, execution_db, kill_switch, live_risk
 from engine.cross_sectional import _rebalance_dates
 from engine.runner import run_config
+from engine.universe import TIMEZONE
 from strategies.cross_sectional import CrossSectionalStrategy
 from strategies.params import describe_params
 from strategies.registry import build_cross_sectional_strategy
@@ -251,7 +252,13 @@ def execute_rebalance(
 
         start = prior_day - timedelta(days=HISTORY_LOOKBACK_DAYS)
         raw_bars = {s: data_module.get_bars(s, "1d", start, prior_day) for s in symbols}
-        target_weights = strategy.rebalance(raw_bars, as_of=pd.Timestamp(prior_day))
+        # Timezone-aware to match get_bars' own tz-localized index
+        # (CLAUDE.md: all timestamps in America/New_York) -- a naive
+        # Timestamp here raises inside bars.loc[:as_of] ("Cannot compare
+        # tz-naive and tz-aware datetime-like objects"), a real bug this
+        # unit test suite's fake strategy (which never touches its bars/
+        # as_of arguments) couldn't have caught.
+        target_weights = strategy.rebalance(raw_bars, as_of=pd.Timestamp(prior_day, tz=TIMEZONE))
         clipped = live_risk.clip_target_weights(target_weights, RISK_LIMITS)
         execution_db.update_run(run_id, target_weights=json.dumps(clipped))
 

@@ -7,6 +7,24 @@ Newest entries at the top.
 
 ---
 
+## 2026-07-21 — Semimonthly rebalancing validated as a genuine, modest improvement over monthly; quarterly is worse
+
+**Context:** the webapp's own experiment history (Compare tab, Lab-tab runs) showed semimonthly at Sharpe 0.63 and weekly at 0.72 on the standard 5-year window, both above monthly's canonical 0.58 -- the exact same shape of result that already burned weekly/daily once (cont'd 8/9: both looked better on the 5-year window, then fell to 0.35/0.33 on the 26-year validation, worse than monthly's 0.45). Ran the same validation discipline on semimonthly and quarterly before trusting either.
+
+**26-year validation, 189-day lookback, apples-to-apples at 5bps slippage:**
+
+| Frequency | Sharpe | CAGR | Max DD | Total costs (26yr) |
+|---|---:|---:|---:|---:|
+| Monthly (canonical) | 0.43 | 14.05% | -50.3% | $6,166 |
+| **Semimonthly** | **0.44** | **14.18%** | **-47.6%** | $9,815 |
+| Quarterly | 0.38 | 12.96% | -48.3% | $3,240 |
+
+**Semimonthly is the first frequency change (after weekly/daily failed and monthly itself was already the baseline) that actually holds up under validation** -- better Sharpe, better CAGR, and a meaningfully smaller max drawdown than monthly, for a real but modest extra cost (~$3,650 more over 26 years, roughly $140/year on this account size). Quarterly is worse than monthly on every metric -- less frequent isn't automatically better either; there's a real optimum somewhere between monthly and weekly, and semimonthly is closer to it than either neighbor tested.
+
+**Sized honestly: this is a small improvement (0.43 -> 0.44 Sharpe), not a repeat of the 189-day lookback's large jump (0.34 -> 0.45).** Worth adopting on its own merits, but not worth overselling as a second breakthrough. Not yet promoted to canonical -- changing `rebalance_frequency`'s registered default is a deliberate decision, flagged for the user rather than applied automatically, same as the lookback change in cont'd 9.
+
+---
+
 ## 2026-07-20 (cont'd 4) — 5-year EDGAR fetch: per-filing crash isolation wasn't enough, needed per-ticker too
 
 The full 5-year Dow-29 fetch died twice. First time: the whole machine went

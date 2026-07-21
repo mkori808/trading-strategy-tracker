@@ -109,3 +109,43 @@ def test_recent_runs_orders_newest_first(db):
     rows = db.recent_runs()
     assert rows[0]["rebalance_date"] == "2026-07-19"
     assert rows[1]["rebalance_date"] == "2026-07-18"
+
+
+def test_earliest_run_with_baseline_picks_the_oldest_completed_run(db):
+    old = db.claim_run("Dual Momentum", "2026-06-01", "manual", "2026-06-01T09:00:00")
+    db.update_run(old, status="completed", portfolio_value_at_start=100_000.0)
+    newer = db.claim_run("Dual Momentum", "2026-07-01", "manual", "2026-07-01T09:00:00")
+    db.update_run(newer, status="completed", portfolio_value_at_start=101_500.0)
+
+    row = db.earliest_run_with_baseline()
+    assert row["id"] == old
+    assert row["portfolio_value_at_start"] == 100_000.0
+
+
+def test_earliest_run_with_baseline_skips_failed_and_blocked_runs(db):
+    failed = db.claim_run("Dual Momentum", "2026-06-01", "manual", "2026-06-01T09:00:00")
+    db.update_run(failed, status="failed", portfolio_value_at_start=100_000.0, error_message="boom")
+    db.write_blocked("Dual Momentum", "2026-06-15", "scheduled", "blocked_market_closed", "2026-06-15T09:00:00")
+    real = db.claim_run("Dual Momentum", "2026-07-01", "manual", "2026-07-01T09:00:00")
+    db.update_run(real, status="partial_failure", portfolio_value_at_start=99_000.0)
+
+    row = db.earliest_run_with_baseline()
+    assert row["id"] == real
+
+
+def test_earliest_run_with_baseline_is_none_when_nothing_has_completed(db):
+    run_id = db.claim_run("Dual Momentum", "2026-07-01", "manual", "2026-07-01T09:00:00")
+    db.update_run(run_id, status="running")
+    assert db.earliest_run_with_baseline() is None
+
+
+def test_count_completed_runs(db):
+    a = db.claim_run("Dual Momentum", "2026-06-01", "manual", "2026-06-01T09:00:00")
+    db.update_run(a, status="completed")
+    b = db.claim_run("Dual Momentum", "2026-07-01", "manual", "2026-07-01T09:00:00")
+    db.update_run(b, status="completed_with_daily_loss_halt")
+    c = db.claim_run("Dual Momentum", "2026-08-01", "manual", "2026-08-01T09:00:00")
+    db.update_run(c, status="failed")
+    db.write_blocked("Dual Momentum", "2026-08-15", "scheduled", "blocked_not_enabled", "2026-08-15T09:00:00")
+
+    assert db.count_completed_runs() == 2

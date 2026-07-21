@@ -356,3 +356,52 @@ def test_reconcile_skips_orders_with_no_alpaca_id(enabled, monkeypatch):
     )
     execution.reconcile_open_orders()
     assert called == []  # never attempted -- no alpaca_order_id to look up
+
+
+# --- regression: real DualMomentum against real tz-aware bars ------------
+#
+# Caught live against the actual Alpaca paper account on 2026-07-21: every
+# test above uses _FakeStrategy, whose rebalance() ignores its bars/as_of
+# arguments entirely -- none of them could have caught
+# strategy.rebalance() itself raising when called with a tz-NAIVE as_of
+# against get_bars' tz-AWARE (America/New_York) index
+# ("Cannot compare tz-naive and tz-aware datetime-like objects"). This
+# test uses the real DualMomentum class and real tz-aware bars specifically
+# to close that gap.
+
+
+def test_execute_rebalance_with_the_real_strategy_class_and_tz_aware_bars(
+    enabled, monkeypatch, daily_bars_factory,
+):
+    from strategies.swing.dual_momentum import DualMomentum
+
+    monkeypatch.setattr(
+        execution, "build_cross_sectional_strategy",
+        lambda name, risk_free_rate: DualMomentum(
+            risk_free_rate=risk_free_rate, lookback_trading_days=63, top_n=2,
+        ),
+    )
+    # Enough tz-aware daily bars (America/New_York, via daily_bars_factory)
+    # for the 63-day lookback above -- a real DatetimeIndex, not the empty
+    # pd.DataFrame() the autouse stub_data_and_strategy fixture installs.
+    winner = daily_bars_factory(closes=[100 * 1.01**i for i in range(80)])
+    loser = daily_bars_factory(closes=[100 * 0.99**i for i in range(80)])
+    monkeypatch.setattr(
+        execution.data_module, "get_bars",
+        lambda symbol, interval, start, end, **k: {"WIN": winner, "LOSE": loser}.get(
+            symbol, pd.DataFrame()
+        ),
+    )
+    monkeypatch.setattr(execution, "run_config", lambda name: ("1d", ["WIN", "LOSE"], None, None))
+    _patch_client(monkeypatch)
+    _patch_account(monkeypatch, positions=[])
+    monkeypatch.setattr(
+        alpaca_trading, "submit_market_order",
+        lambda *a, **k: {"id": "order-1", "submittedAt": "2026-07-21T10:00:00"},
+    )
+
+    result = execution.execute_rebalance(STRATEGY_NAME, "manual", force=True, today=TODAY)
+
+    assert result["status"] == "completed"
+    orders = {o["symbol"] for o in enabled.orders_for_run(result["runId"])}
+    assert orders == {"WIN"}  # only the winner clears DualMomentum's absolute+relative filters

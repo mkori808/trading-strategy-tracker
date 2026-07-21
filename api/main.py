@@ -71,6 +71,12 @@ MAX_CUSTOM_SYMBOLS = 60
 # buys no new information against the free-tier IEX feed's ~16min delay.
 SCAN_INTERVAL_SECONDS = 5 * 60
 
+# Dual Momentum's fastest supported cadence is daily; checking hourly is
+# cheap (execute_rebalance's own is_rebalance_due short-circuits on every
+# non-rebalance-day tick with no DB write) and frequent enough that a
+# rebalance day is never missed by more than an hour after market open.
+EXECUTION_CHECK_INTERVAL_SECONDS = 60 * 60
+
 logger = logging.getLogger("uvicorn.error")
 
 # asyncio only holds a WEAK reference to a task -- if nothing else references
@@ -78,6 +84,12 @@ logger = logging.getLogger("uvicorn.error")
 # reference is what keeps the background scanner alive for the process's
 # lifetime instead of vanishing silently after an unpredictable delay.
 _scan_task: asyncio.Task | None = None
+
+# Same GC-safety reasoning, for the automated paper-order execution loop
+# (engine/execution.py). Separate task from _scan_task -- entirely
+# different strategies (cross-sectional vs. day-trading), different
+# cadence, and one's failure must never affect the other.
+_execution_task: asyncio.Task | None = None
 
 # Same GC-safety reasoning as _scan_task above, for the one-shot insider
 # Form-4 refresh job -- plus a small status dict (not persisted) so the
@@ -121,6 +133,43 @@ async def _start_live_scanner() -> None:
 
     global _scan_task
     _scan_task = asyncio.create_task(_loop())
+
+
+@app.on_event("startup")
+async def _start_execution_scheduler() -> None:
+    """Background loop for automated paper-order execution
+    (engine/execution.py) -- built on Phase 1's already-safe manual-trigger
+    path (every guardrail: enabled flag, kill switch, market-hours check,
+    one-real-attempt-per-day claim, risk limits, all already enforced
+    inside execute_rebalance itself; this loop is just what calls it on a
+    schedule instead of a button click).
+
+    Checks hourly, reconciles any open orders first, then calls
+    execute_rebalance("scheduled") for every CROSS_SECTIONAL_STRATEGY_NAMES
+    entry the user has explicitly enabled via
+    POST /api/live/execution/config. Strategies with no enabled flag are
+    skipped without even reaching Alpaca -- off by default, per-strategy
+    opt-in, exactly like the day-trading scanner never gates on anything
+    but each strategy's own entry_signal.
+
+    Known limitation, shared with _start_live_scanner above, not new to
+    this feature: only fires while this uvicorn process is actually
+    running. An always-on deployment is a separate, later operational
+    decision."""
+
+    async def _loop() -> None:
+        while True:
+            try:
+                await asyncio.to_thread(execution_module.reconcile_open_orders)
+                for name in CROSS_SECTIONAL_STRATEGY_NAMES:
+                    if execution_db.is_enabled(name):
+                        await asyncio.to_thread(execution_module.execute_rebalance, name, "scheduled")
+            except Exception:  # noqa: BLE001 -- one bad tick must not kill the server
+                logger.exception("execution scheduler tick failed")
+            await asyncio.sleep(EXECUTION_CHECK_INTERVAL_SECONDS)
+
+    global _execution_task
+    _execution_task = asyncio.create_task(_loop())
 
 
 def _clean(value: Any) -> Any:
@@ -985,6 +1034,31 @@ def execution_runs(limit: int = 50) -> list[dict]:
         for row in execution_db.recent_runs(limit)
     ]
     return _clean(rows)
+
+
+@app.get("/api/live/execution/summary")
+def execution_summary() -> dict:
+    """The starting-equity baseline + real-cycle count the live-tracking
+    UI needs to show all-time P&L -- deliberately ACCOUNT-level, not
+    per-strategy: P&L lives in one shared Alpaca paper account's equity,
+    and today Dual Momentum is the only strategy trading in it, so
+    account-level and strategy-level are the same number. If a second
+    cross-sectional strategy ever shares this account, this would need to
+    become a real per-strategy sub-ledger (tracking each strategy's own
+    slice of cash/positions) to stay accurate -- not attempted here since
+    only one strategy exists.
+
+    Unrealized P&L on current positions and current equity are already
+    available to the frontend via GET /api/live/account -- this endpoint
+    only adds the piece that needs the FULL (unpaginated) run history:
+    the earliest completed run's starting equity, used as the baseline
+    for computing "since this account started automated trading"."""
+    earliest = execution_db.earliest_run_with_baseline()
+    return _clean({
+        "startingEquity": earliest["portfolio_value_at_start"] if earliest else None,
+        "firstTradeAt": earliest["triggered_at"] if earliest else None,
+        "completedRebalances": execution_db.count_completed_runs(),
+    })
 
 
 @app.get("/api/live/execution/orders")

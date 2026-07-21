@@ -248,3 +248,47 @@ def open_orders() -> list[sqlite3.Row]:
     ).fetchall()
     conn.close()
     return rows
+
+
+# A run where at least some real trading happened -- excludes the benign
+# blocks (not_enabled/kill_switch/market_closed, which can't reach here
+# anyway per the partial unique index) and "failed" (zero orders got
+# through). Used for the live-tracking summary's "how many real rebalance
+# cycles has this account been through" count and its all-time P&L
+# baseline -- both want "the first/count of runs that actually traded",
+# not every attempt ever logged.
+_COMPLETED_STATUSES = ("completed", "completed_with_daily_loss_halt", "partial_failure")
+
+
+def earliest_run_with_baseline() -> sqlite3.Row | None:
+    """The oldest completed run (across every strategy sharing this Alpaca
+    account -- see api/main.py's /api/live/execution/summary docstring for
+    why this is deliberately account-level, not per-strategy), used as the
+    starting-equity baseline for "all-time P&L since this account started
+    automated trading". Not limited to any fetch-size window (unlike
+    recent_runs()) -- this must stay correct no matter how many runs have
+    accumulated since."""
+    conn = get_connection()
+    conn.row_factory = sqlite3.Row
+    placeholders = ",".join("?" * len(_COMPLETED_STATUSES))
+    row = conn.execute(
+        f"""
+        SELECT * FROM rebalance_runs
+        WHERE status IN ({placeholders}) AND portfolio_value_at_start IS NOT NULL
+        ORDER BY triggered_at ASC, id ASC LIMIT 1
+        """,
+        _COMPLETED_STATUSES,
+    ).fetchone()
+    conn.close()
+    return row
+
+
+def count_completed_runs() -> int:
+    conn = get_connection()
+    placeholders = ",".join("?" * len(_COMPLETED_STATUSES))
+    count = conn.execute(
+        f"SELECT COUNT(*) FROM rebalance_runs WHERE status IN ({placeholders})",
+        _COMPLETED_STATUSES,
+    ).fetchone()[0]
+    conn.close()
+    return count
