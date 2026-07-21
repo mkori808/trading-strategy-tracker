@@ -36,9 +36,9 @@ run_cross_sectional() reads it off the constructed, param-applied
 instance and passes it through, so a Lab-tab override still flows
 end-to-end through the same apply_params() validation path as
 lookback_trading_days/top_n. Defaults to "monthly" -- the ONLY frequency
-validated against the 26-year history (see LESSONS.md cont'd 9); weekly
-and daily are exposed for experimentation, not because either is
-recommended.
+validated against the 26-year history (see LESSONS.md cont'd 9); weekly,
+daily, semimonthly, and quarterly are exposed for experimentation, not
+because any of them is recommended.
 """
 
 from __future__ import annotations
@@ -65,10 +65,13 @@ class DualMomentum(CrossSectionalStrategy):
         5, label="Positions held", minimum=1, maximum=15, step=1,
     )
     rebalance_frequency: str = param_field(
-        "monthly", label="Rebalance frequency", choices=["monthly", "weekly", "daily"],
+        "monthly", label="Rebalance frequency",
+        choices=["monthly", "semimonthly", "weekly", "daily", "quarterly"],
         help="Only 'monthly' has been validated against the 26-year history "
         "(see LESSONS.md 2026-07-20 cont'd 8/9) -- weekly/daily looked better "
-        "on the 5-year window and then underperformed on the longer one.",
+        "on the 5-year window and then underperformed on the longer one. "
+        "'semimonthly' (twice a month, calendar 1st-half/2nd-half split) and "
+        "'quarterly' are unvalidated experimentation options, not recommended.",
     )
 
     def rebalance(

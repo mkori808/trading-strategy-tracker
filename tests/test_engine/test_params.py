@@ -117,7 +117,7 @@ def test_dual_momentum_rebalance_frequency_defaults_to_monthly():
 
     spec = next(s for s in describe_params(DualMomentum) if s.name == "rebalance_frequency")
     assert spec.default == "monthly"
-    assert spec.choices == ["monthly", "weekly", "daily"]
+    assert spec.choices == ["monthly", "semimonthly", "weekly", "daily", "quarterly"]
     assert spec.kind == "str"
 
 

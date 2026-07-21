@@ -42,7 +42,7 @@ from strategies.cross_sectional import CrossSectionalStrategy
 
 DEFAULT_CASH = 10_000.0
 
-RebalanceFrequency = Literal["monthly", "weekly", "daily"]
+RebalanceFrequency = Literal["monthly", "weekly", "daily", "semimonthly", "quarterly"]
 
 
 @dataclass
@@ -72,13 +72,22 @@ def _rebalance_dates(
     drawdowns come from a rebalance cadence too slow to react -- see
     engine/compare_dual_momentum_robustness.py -- without having to
     special-case the main loop, which already just checks membership in
-    this set)."""
+    this set), each (year, month, half) for 'semimonthly' (calendar day
+    <=15 vs. >15 -- so "twice a month" means the 1st-half/2nd-half split,
+    not a rolling 14-day cadence), and each (year, calendar quarter) for
+    'quarterly'."""
     if frequency == "daily":
         return set(calendar)
     s = pd.Series(calendar, index=calendar)
     if frequency == "weekly":
         iso = calendar.isocalendar()
         return set(s.groupby([iso.year, iso.week]).first())
+    if frequency == "semimonthly":
+        half = pd.Series(calendar.day, index=calendar).le(15).map({True: 1, False: 2})
+        return set(s.groupby([calendar.year, calendar.month, half]).first())
+    if frequency == "quarterly":
+        quarter = (calendar.month - 1) // 3
+        return set(s.groupby([calendar.year, quarter]).first())
     return set(s.groupby([calendar.year, calendar.month]).first())
 
 

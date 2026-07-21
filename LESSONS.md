@@ -7,6 +7,36 @@ Newest entries at the top.
 
 ---
 
+## 2026-07-20 (cont'd 4) — 5-year EDGAR fetch: per-filing crash isolation wasn't enough, needed per-ticker too
+
+The full 5-year Dow-29 fetch died twice. First time: the whole machine went
+to sleep mid-run (already fixed with `caffeinate`, see the earlier EDGAR
+entry). Second time, after resuming: a genuine SEC-side network timeout
+mid-pagination for GS (`RuntimeError: ... The read operation timed out`,
+after `_fetch_url`'s 3 built-in retries were exhausted) propagated all the
+way up through `list_form4_filings` and crashed the entire
+`fetch_form4_for_universe` call -- killing progress on every ticker still
+queued behind GS, not just GS itself.
+
+**The per-filing `try/except` already in the inner loop didn't help here**
+because the failure happened one level up, in the per-TICKER pagination
+call (`list_form4_filings`), which sat outside any try/except entirely.
+Fixed by wrapping the whole per-ticker body (pagination + filing loop) in
+its own `try/except`, committing whatever partial progress that ticker
+already made before moving on to the next ticker rather than aborting the
+run. A failed ticker gets `stats[ticker] = -2` (distinct from `-1`, no CIK
+match) and is simply retried whole on the next resume -- idempotent caching
+means nothing already stored is lost either way.
+
+**Generally: crash-isolating one level of a loop (per-filing) doesn't
+protect the level above it (per-ticker) -- a multi-hour unattended job
+needs the same "one bad unit must not kill the whole batch" discipline
+applied at every nesting level that can independently fail, not just the
+innermost one.** This is the second real robustness gap this exact fetch
+has surfaced in a row (sleep-death, then this) -- worth treating "resumed
+cleanly from a crash" as a property to keep testing for, not something to
+assume once fixed once.
+
 ## 2026-07-20 (cont'd 9) — 189-day lookback promoted to canonical; two follow-up ideas tested and rejected after validation
 
 **Promoted:** `strategies/swing/dual_momentum.py`'s `lookback_trading_days`

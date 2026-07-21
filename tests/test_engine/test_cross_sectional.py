@@ -92,6 +92,24 @@ def test_daily_rebalance_dates_is_every_trading_day():
     assert _rebalance_dates(calendar, "daily") == set(calendar)
 
 
+def test_semimonthly_rebalance_dates_is_two_per_month():
+    calendar = pd.date_range("2024-01-01", "2024-03-31", freq="B")
+    dates = sorted(_rebalance_dates(calendar, "semimonthly"))
+    assert len(dates) == 6  # 2 per month x 3 months
+    # One rebalance in each half of January: 1st-15th and 16th-31st.
+    jan = [d for d in dates if d.month == 1]
+    assert len(jan) == 2
+    assert jan[0].day <= 15
+    assert jan[1].day > 15
+
+
+def test_quarterly_rebalance_dates_is_one_per_quarter():
+    calendar = pd.date_range("2024-01-01", "2024-12-31", freq="B")
+    dates = sorted(_rebalance_dates(calendar, "quarterly"))
+    assert len(dates) == 4
+    assert [d.month for d in dates] == [1, 4, 7, 10]
+
+
 def test_daily_rebalance_trades_more_often_than_monthly(monkeypatch, two_symbol_bars):
     a, b = two_symbol_bars
 

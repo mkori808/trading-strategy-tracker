@@ -559,8 +559,10 @@ def fetch_form4_for_universe(
 ) -> dict[str, int]:
     """Fetch + cache Form 4 purchase transactions for every ticker in
     `tickers` over filing dates in [start, end]. Returns
-    {ticker: n_new_qualifying_transactions_stored}, or -1 for a ticker with
-    no SEC CIK match (excluded, not guessed).
+    {ticker: n_new_qualifying_transactions_stored}, -1 for a ticker with no
+    SEC CIK match (excluded, not guessed), or -2 for a ticker that failed
+    this run (e.g. a transient network timeout) -- re-run to retry it, same
+    as any individual failed filing.
 
     Idempotent: filings already recorded in `fetched_accessions` are skipped,
     so re-running this after an interruption only fetches what's new.
@@ -582,55 +584,71 @@ def fetch_form4_for_universe(
                     print(f"{ticker}: no SEC CIK match -- excluded")
                 continue
 
-            filings = list_form4_filings(cik, start, end)
-            new_count = 0
-            for i, f in enumerate(filings):
-                acc = f["accession_no"]
-                if not force_refresh and _already_fetched(conn, acc):
-                    continue
-                try:
-                    xml_url = _filing_xml_url(cik, acc)
-                    if xml_url is None:
-                        _mark_fetched(conn, acc, cik, f["filing_date"], 0)
+            try:
+                # A transient network failure (e.g. an SEC-side timeout mid-
+                # pagination for a heavy issuer like GS/JPM, which pages
+                # through dozens of dateb-cursor resets) must cost this ONE
+                # ticker's progress this run, not crash the whole multi-hour
+                # universe fetch -- measured directly: an uncaught timeout
+                # here killed a real 5-year run partway through GS a second
+                # time. Idempotent caching means a later re-run picks this
+                # ticker back up from wherever it left off; the per-filing
+                # try/except below already protects individual filings the
+                # same way, this is the same discipline one level up.
+                filings = list_form4_filings(cik, start, end)
+                new_count = 0
+                for i, f in enumerate(filings):
+                    acc = f["accession_no"]
+                    if not force_refresh and _already_fetched(conn, acc):
                         continue
-                    xml_bytes = _fetch_url(xml_url)
-                    filed_at = pd.Timestamp(f["updated"])
-                    txns = parse_form4_xml(
-                        xml_bytes,
-                        accession_no=acc,
-                        filed_at=filed_at,
-                        form_url=xml_url,
-                        trading_days=trading_days,
-                    )
-                    # Second, independent guard against the owner=include-style
-                    # contamination `list_form4_filings` already excludes at the
-                    # source: only store a transaction if the filing's OWN
-                    # issuer really is the ticker we searched for.
-                    txns = [t for t in txns if t.issuer_cik.lstrip("0") == cik.lstrip("0")]
-                    for t in txns:
-                        if not t.issuer_ticker:
-                            t.issuer_ticker = ticker
-                    _insert_transactions(conn, txns)
-                    n_qualifying = len(txns)
-                    new_count += n_qualifying
-                    _mark_fetched(conn, acc, cik, f["filing_date"], n_qualifying)
-                except Exception as exc:  # noqa: BLE001 -- one bad filing must not kill the run
-                    print(f"WARN: {ticker} {acc} failed ({exc}) -- not cached, will retry next run")
-                    continue
+                    try:
+                        xml_url = _filing_xml_url(cik, acc)
+                        if xml_url is None:
+                            _mark_fetched(conn, acc, cik, f["filing_date"], 0)
+                            continue
+                        xml_bytes = _fetch_url(xml_url)
+                        filed_at = pd.Timestamp(f["updated"])
+                        txns = parse_form4_xml(
+                            xml_bytes,
+                            accession_no=acc,
+                            filed_at=filed_at,
+                            form_url=xml_url,
+                            trading_days=trading_days,
+                        )
+                        # Second, independent guard against the owner=include-style
+                        # contamination `list_form4_filings` already excludes at the
+                        # source: only store a transaction if the filing's OWN
+                        # issuer really is the ticker we searched for.
+                        txns = [t for t in txns if t.issuer_cik.lstrip("0") == cik.lstrip("0")]
+                        for t in txns:
+                            if not t.issuer_ticker:
+                                t.issuer_ticker = ticker
+                        _insert_transactions(conn, txns)
+                        n_qualifying = len(txns)
+                        new_count += n_qualifying
+                        _mark_fetched(conn, acc, cik, f["filing_date"], n_qualifying)
+                    except Exception as exc:  # noqa: BLE001 -- one bad filing must not kill the run
+                        print(f"WARN: {ticker} {acc} failed ({exc}) -- not cached, will retry next run")
+                        continue
 
-                # Commit every COMMIT_EVERY_N_FILINGS filings, not just once
-                # per ticker -- a single heavy issuer (GS/JPM) can take hours,
-                # and a mid-ticker crash must lose at most a few hundred
-                # filings' worth of re-fetching, not the whole ticker. See
-                # LESSONS.md: a silent process death during the 1-year fetch
-                # already cost a full re-fetch of one ticker's progress once.
-                if (i + 1) % COMMIT_EVERY_N_FILINGS == 0:
-                    conn.commit()
+                    # Commit every COMMIT_EVERY_N_FILINGS filings, not just once
+                    # per ticker -- a single heavy issuer (GS/JPM) can take hours,
+                    # and a mid-ticker crash must lose at most a few hundred
+                    # filings' worth of re-fetching, not the whole ticker. See
+                    # LESSONS.md: a silent process death during the 1-year fetch
+                    # already cost a full re-fetch of one ticker's progress once.
+                    if (i + 1) % COMMIT_EVERY_N_FILINGS == 0:
+                        conn.commit()
 
-            conn.commit()
-            stats[ticker] = new_count
-            if progress:
-                print(f"{ticker}: {len(filings)} Form 4 filings scanned, {new_count} new qualifying purchases stored")
+                conn.commit()
+                stats[ticker] = new_count
+                if progress:
+                    print(f"{ticker}: {len(filings)} Form 4 filings scanned, {new_count} new qualifying purchases stored")
+            except Exception as exc:  # noqa: BLE001 -- one bad ticker must not kill the whole universe fetch
+                conn.commit()  # keep whatever partial progress this ticker already made
+                stats[ticker] = -2
+                print(f"WARN: {ticker} failed ({exc}) -- skipping for this run, will retry next run")
+                continue
     finally:
         conn.close()
     return stats
