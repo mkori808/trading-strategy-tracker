@@ -26,6 +26,9 @@ from engine import (
     chat_assistant,
     data_edgar,
     digest as digest_module,
+    execution as execution_module,
+    execution_db,
+    kill_switch,
     live_scanner,
     market_overview,
     movers as movers_module,
@@ -54,7 +57,12 @@ from engine.runner import (
 )
 from engine.universe import RESEARCH_UNIVERSE
 from strategies.params import describe_params
-from strategies.registry import ALL_STRATEGY_NAMES, ARCHIVED_STRATEGY_NAMES, DAY_TRADING_STRATEGIES
+from strategies.registry import (
+    ALL_STRATEGY_NAMES,
+    ARCHIVED_STRATEGY_NAMES,
+    CROSS_SECTIONAL_STRATEGY_NAMES,
+    DAY_TRADING_STRATEGIES,
+)
 
 MAX_CUSTOM_SYMBOLS = 60
 
@@ -170,6 +178,23 @@ class BacktestOverrides(BaseModel):
     start: str | None = None
     end: str | None = None
     params: dict[str, Any] | None = None
+
+
+class ExecutionConfigUpdate(BaseModel):
+    """Body for POST /api/live/execution/config -- the explicit,
+    deliberate per-strategy opt-in CLAUDE.md's guardrails call for. Off by
+    default for every strategy; never a global switch."""
+
+    strategyName: str
+    enabled: bool
+
+
+class RebalanceNowRequest(BaseModel):
+    strategyName: str
+
+
+class KillSwitchActivateRequest(BaseModel):
+    flatten: bool = False
 
 
 class ChatMessage(BaseModel):
@@ -905,6 +930,120 @@ def trigger_scan() -> dict:
     without waiting for the background loop or for market hours."""
     new_alerts = live_scanner.scan_once()
     return _clean({"newAlerts": new_alerts})
+
+
+@app.get("/api/live/execution/config")
+def execution_config() -> list[dict]:
+    """Per-strategy automated-paper-rebalancing opt-in state -- see
+    engine/execution_db.py:strategy_automation. Only cross-sectional
+    strategies are listed: engine/execution.py only knows how to execute
+    CrossSectionalStrategy.rebalance()'s target-weight shape, not a
+    per-symbol Strategy's entry_signal. Off by default for every name
+    (never auto-created as enabled) -- a strategy with no row yet reads
+    as enabled=false."""
+    config = execution_db.automation_config()
+    rows = []
+    for name in CROSS_SECTIONAL_STRATEGY_NAMES:
+        row = config.get(name)
+        rows.append({
+            "strategyName": name,
+            "enabled": bool(row["enabled"]) if row else False,
+            "enabledAt": row["enabled_at"] if row else None,
+        })
+    return _clean(rows)
+
+
+@app.post("/api/live/execution/config")
+def set_execution_config(body: ExecutionConfigUpdate) -> dict:
+    """The explicit, deliberate per-strategy opt-in -- CLAUDE.md: 'never a
+    global switch, never the default for a newly added strategy.'"""
+    if body.strategyName not in CROSS_SECTIONAL_STRATEGY_NAMES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"{body.strategyName!r} is not an automatable (cross-sectional) strategy.",
+        )
+    execution_db.set_enabled(body.strategyName, body.enabled, datetime.now().isoformat())
+    return {"strategyName": body.strategyName, "enabled": body.enabled}
+
+
+@app.get("/api/live/execution/runs")
+def execution_runs(limit: int = 50) -> list[dict]:
+    rows = [
+        {
+            "id": row["id"],
+            "strategyName": row["strategy_name"],
+            "rebalanceDate": row["rebalance_date"],
+            "triggerSource": row["trigger_source"],
+            "triggeredAt": row["triggered_at"],
+            "status": row["status"],
+            "strategyParams": json.loads(row["strategy_params"]) if row["strategy_params"] else None,
+            "portfolioValueAtStart": row["portfolio_value_at_start"],
+            "targetWeights": json.loads(row["target_weights"]) if row["target_weights"] else None,
+            "dailyLossPctAtStart": row["daily_loss_pct_at_start"],
+            "errorMessage": row["error_message"],
+        }
+        for row in execution_db.recent_runs(limit)
+    ]
+    return _clean(rows)
+
+
+@app.get("/api/live/execution/orders")
+def execution_orders(runId: int) -> list[dict]:
+    rows = [
+        {
+            "id": row["id"],
+            "symbol": row["symbol"],
+            "side": row["side"],
+            "orderKind": row["order_kind"],
+            "qty": row["qty"],
+            "notional": row["notional"],
+            "stopPrice": row["stop_price"],
+            "targetPrice": row["target_price"],
+            "clientOrderId": row["client_order_id"],
+            "alpacaOrderId": row["alpaca_order_id"],
+            "status": row["status"],
+            "submittedAt": row["submitted_at"],
+            "filledAt": row["filled_at"],
+            "filledQty": row["filled_qty"],
+            "filledAvgPrice": row["filled_avg_price"],
+            "isPaper": bool(row["is_paper"]),
+            "errorMessage": row["error_message"],
+        }
+        for row in execution_db.orders_for_run(runId)
+    ]
+    return _clean(rows)
+
+
+@app.post("/api/live/execution/rebalance-now")
+def rebalance_now(body: RebalanceNowRequest) -> dict:
+    """Manual trigger -- mirrors POST /api/live/scan's pattern. Still
+    subject to every guardrail (not-enabled, kill switch, market hours)
+    and the same one-real-attempt-per-day claim as the scheduled path;
+    `force=True` only skips the "is today actually a rebalance day" check,
+    so this can smoke-test the full pipeline on an off-day."""
+    if body.strategyName not in CROSS_SECTIONAL_STRATEGY_NAMES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"{body.strategyName!r} is not an automatable (cross-sectional) strategy.",
+        )
+    result = execution_module.execute_rebalance(body.strategyName, "manual", force=True)
+    return _clean(result)
+
+
+@app.get("/api/live/execution/kill-switch")
+def kill_switch_status() -> dict:
+    return {"active": kill_switch.is_active()}
+
+
+@app.post("/api/live/execution/kill-switch")
+def activate_kill_switch(body: KillSwitchActivateRequest) -> dict:
+    return _clean(kill_switch.activate(flatten=body.flatten))
+
+
+@app.post("/api/live/execution/kill-switch/deactivate")
+def deactivate_kill_switch() -> dict:
+    kill_switch.deactivate()
+    return {"active": False}
 
 
 @app.get("/api/screener")

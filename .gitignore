@@ -5,6 +5,7 @@ logs/*.db
 logs/*.sqlite
 logs/*.csv
 logs/*.txt
+logs/*.flag
 .env
 __pycache__/
 *.pyc
