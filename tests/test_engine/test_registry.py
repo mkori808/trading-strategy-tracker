@@ -32,6 +32,7 @@ def test_registry_matches_tracker_swing_trading_names():
         PEAD_NAME,
         SECTOR_ROTATION_NAME,
         SWING_TRADING_STRATEGIES_NO_BENCHMARK,
+        USER_DEFINED_STRATEGY_NAMES,
     )
 
     # Not every tracker entry is a strategies.base.Strategy instance run
@@ -48,13 +49,18 @@ def test_registry_matches_tracker_swing_trading_names():
         | set(CROSS_SECTIONAL_STRATEGY_NAMES)
         | set(PAIRS_STRATEGY_NAMES)
         | {PEAD_NAME, OVERNIGHT_NAME, AVWAP_BREAKOUT_NAME}
+        | set(USER_DEFINED_STRATEGY_NAMES)
     )
-    assert registry_names == set(tracker_names)
+    # The tracker remains the source for the established catalogue.  A
+    # user-defined research variant can be UI-runnable before its rules are
+    # promoted into that workbook; keep that small, explicit exception from
+    # silently becoming an untracked strategy bucket.
+    assert registry_names == set(tracker_names) | set(USER_DEFINED_STRATEGY_NAMES)
 
 
-def test_all_strategy_names_has_twenty_four_entries():
-    assert len(ALL_STRATEGY_NAMES) == 24
-    assert len(set(ALL_STRATEGY_NAMES)) == 24
+def test_all_strategy_names_has_twenty_five_entries():
+    assert len(ALL_STRATEGY_NAMES) == 25
+    assert len(set(ALL_STRATEGY_NAMES)) == 25
 
 
 def test_archived_strategy_names_are_a_subset_of_all_strategy_names():

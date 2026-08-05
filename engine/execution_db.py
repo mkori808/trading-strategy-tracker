@@ -26,6 +26,7 @@ _SCHEMA = """
 CREATE TABLE IF NOT EXISTS strategy_automation (
     strategy_name TEXT PRIMARY KEY,
     enabled INTEGER NOT NULL DEFAULT 0,
+    params TEXT NOT NULL DEFAULT '{}',
     enabled_at TEXT,
     updated_at TEXT NOT NULL
 );
@@ -87,6 +88,11 @@ def get_connection() -> sqlite3.Connection:
     LOGS_DIR.mkdir(exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
     conn.executescript(_SCHEMA)
+    # Lightweight migration for databases created before live parameters
+    # were configurable. SQLite cannot add a column conditionally in SQL.
+    columns = {row[1] for row in conn.execute("PRAGMA table_info(strategy_automation)")}
+    if "params" not in columns:
+        conn.execute("ALTER TABLE strategy_automation ADD COLUMN params TEXT NOT NULL DEFAULT '{}'")
     conn.execute(_SCHEMA_INDEX)
     return conn
 
@@ -119,6 +125,35 @@ def set_enabled(strategy_name: str, enabled: bool, now: str) -> None:
             (strategy_name, int(enabled), now if enabled else None, now),
         )
     conn.close()
+
+
+def set_config(strategy_name: str, enabled: bool, params: str, now: str) -> None:
+    """Persist one deliberately chosen paper-execution configuration."""
+    conn = get_connection()
+    with conn:
+        conn.execute(
+            """
+            INSERT INTO strategy_automation (strategy_name, enabled, params, enabled_at, updated_at)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(strategy_name) DO UPDATE SET
+                enabled = excluded.enabled,
+                params = excluded.params,
+                enabled_at = CASE WHEN excluded.enabled = 1 THEN excluded.enabled_at
+                                  ELSE strategy_automation.enabled_at END,
+                updated_at = excluded.updated_at
+            """,
+            (strategy_name, int(enabled), params, now if enabled else None, now),
+        )
+    conn.close()
+
+
+def params_for(strategy_name: str) -> str | None:
+    conn = get_connection()
+    row = conn.execute(
+        "SELECT params FROM strategy_automation WHERE strategy_name = ?", (strategy_name,)
+    ).fetchone()
+    conn.close()
+    return row[0] if row else None
 
 
 def automation_config() -> dict[str, sqlite3.Row]:

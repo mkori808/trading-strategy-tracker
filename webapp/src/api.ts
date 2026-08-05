@@ -390,6 +390,7 @@ export interface ExecutionStrategyConfig {
   strategyName: string;
   enabled: boolean;
   enabledAt: string | null;
+  params: Record<string, number | boolean | string>;
 }
 
 export interface RebalanceRunRow {
@@ -681,11 +682,12 @@ export const api = {
   triggerScan: () =>
     request<{ newAlerts: unknown[] }>("/live/scan", { method: "POST" }),
   executionConfig: () => request<ExecutionStrategyConfig[]>("/live/execution/config"),
-  setExecutionConfig: (strategyName: string, enabled: boolean) =>
-    request<{ strategyName: string; enabled: boolean }>("/live/execution/config", {
+  executionStrategies: () => request<{ strategyName: string }[]>("/live/execution/strategies"),
+  setExecutionConfig: (strategyName: string, enabled: boolean, params: Record<string, number | boolean | string> = {}) =>
+    request<{ strategyName: string; enabled: boolean; params: Record<string, number | boolean | string> }>("/live/execution/config", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ strategyName, enabled }),
+      body: JSON.stringify({ strategyName, enabled, params }),
     }),
   executionRuns: (limit = 50) =>
     request<RebalanceRunRow[]>(`/live/execution/runs?limit=${limit}`),

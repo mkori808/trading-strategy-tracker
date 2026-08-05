@@ -44,6 +44,7 @@ from strategies.registry import (
     AVWAP_BREAKOUT_NAME,
     CROSS_SECTIONAL_STRATEGY_NAMES,
     DAY_TRADING_STRATEGIES,
+    DUAL_MOMENTUM_PULLBACK_NAME,
     OVERNIGHT_NAME,
     PAIRS_STRATEGY_NAMES,
     PEAD_NAME,
@@ -55,6 +56,7 @@ from strategies.registry import (
 )
 from strategies.swing.avwap_breakout import AvwapBreakout
 from strategies.swing.dual_momentum import DualMomentum
+from strategies.swing.dual_momentum_pullback import DualMomentumPullbackSwing
 from strategies.swing.overnight_hold import OvernightHold
 from strategies.swing.pairs_stat_arb import PairsStatArb
 from strategies.swing.pead import PostEarningsDrift
@@ -132,6 +134,8 @@ def strategy_class(strategy_name: str) -> type:
         return DualMomentum
     if strategy_name == "Pairs / Stat Arb":
         return PairsStatArb
+    if strategy_name == DUAL_MOMENTUM_PULLBACK_NAME:
+        return DualMomentumPullbackSwing
     return type(SWING_TRADING_STRATEGIES_NO_BENCHMARK[strategy_name])
 
 
@@ -162,6 +166,8 @@ def run_backtest(
         return _run_overnight(request)
     if strategy_name == AVWAP_BREAKOUT_NAME:
         return _run_avwap_breakout(request)
+    if strategy_name == DUAL_MOMENTUM_PULLBACK_NAME:
+        return _run_dual_momentum_pullback(request)
 
     interval, symbols, start, end = run_config(strategy_name)
     if request:
@@ -214,6 +220,42 @@ def _run_pead(request: RunRequest | None = None) -> StrategyBacktestResult:
         is_canonical=request is None or request.is_default(),
     )
     write_excursion_report(PEAD_NAME, result.excursions)
+    return result
+
+
+def _run_dual_momentum_pullback(request: RunRequest | None = None) -> StrategyBacktestResult:
+    """Run the short-term pullback strategy with the shared SPY regime gate.
+
+    Each candidate receives a fresh instance because the injected benchmark
+    and real risk-free rate are structural inputs.  The trade simulation is
+    still the standard daily swing engine, so stops, targets, and the
+    mean-reversion exit remain discrete per-symbol trades.
+    """
+    start, end = daily_date_range()
+    symbols = EQUITY_UNIVERSE
+    if request:
+        symbols = request.symbols or symbols
+        start = request.start or start
+        end = request.end or end
+    rf = data_module.risk_free_rate(start, end)
+    benchmark_bars = data_module.get_bars(SECTOR_BENCHMARK, "1d", start, end)
+    params = request.params if request else None
+
+    def factory(_symbol: str) -> DualMomentumPullbackSwing:
+        strategy = DualMomentumPullbackSwing(
+            benchmark_bars=benchmark_bars, risk_free_rate=rf,
+        )
+        return apply_params(strategy, params)
+
+    result = run_strategy_backtest_seeded(
+        DUAL_MOMENTUM_PULLBACK_NAME, factory, symbols, "1d", start, end,
+        risk_free_rate=rf,
+    )
+    log_run(
+        result.metrics, symbols, params=params,
+        is_canonical=request is None or request.is_default(),
+    )
+    write_excursion_report(DUAL_MOMENTUM_PULLBACK_NAME, result.excursions)
     return result
 
 

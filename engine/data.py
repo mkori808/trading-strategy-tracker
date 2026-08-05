@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
+import tempfile
 
 import pandas as pd
 import yfinance as yf
@@ -140,18 +141,42 @@ def get_bars(
     path = _cache_path(symbol, interval)
     cached = None
     if path.exists() and not force_refresh:
-        cached = pd.read_parquet(path)
-        covers_start = not cached.empty and cached.index.min().date() <= start
-        covers_end = not cached.empty and cached.index.max().date() >= end
-        if covers_start and covers_end:
-            return cached.loc[str(start):str(end)]
+        try:
+            cached = pd.read_parquet(path)
+        except Exception:  # noqa: BLE001 -- a cache must never take down the API
+            # A previous interrupted write (or manual cache edit) can leave
+            # a non-Parquet/truncated file behind.  Treat it exactly as a
+            # cache miss; the successful fetch below atomically replaces it.
+            cached = None
+        if cached is not None:
+            covers_start = not cached.empty and cached.index.min().date() <= start
+            covers_end = not cached.empty and cached.index.max().date() >= end
+            if covers_start and covers_end:
+                return cached.loc[str(start):str(end)]
 
     fresh = _fetch(symbol, interval, start, end)
-    if fresh.empty and cached is not None:
-        return cached.loc[str(start):str(end)]
+    if fresh.empty:
+        # Never replace a usable cache with an empty provider response (for
+        # example, a transient DNS/provider outage).  If the only cache was
+        # corrupt, return an empty frame for this request but leave the file
+        # untouched so a later successful refresh can replace it atomically.
+        if cached is not None:
+            return cached.loc[str(start):str(end)]
+        return fresh
 
     DATA_DIR.mkdir(exist_ok=True)
-    fresh.to_parquet(path)
+    # Do not write directly to the cache path: another dashboard request can
+    # read it while this request is still writing.  Atomic replacement means
+    # readers see either the previous complete parquet file or the new one.
+    with tempfile.NamedTemporaryFile(
+        dir=DATA_DIR, prefix=f".{path.name}.", suffix=".tmp", delete=False,
+    ) as tmp:
+        tmp_path = Path(tmp.name)
+    try:
+        fresh.to_parquet(tmp_path)
+        tmp_path.replace(path)
+    finally:
+        tmp_path.unlink(missing_ok=True)
     return fresh.loc[str(start):str(end)]
 
 

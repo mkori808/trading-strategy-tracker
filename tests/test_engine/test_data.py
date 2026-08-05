@@ -52,3 +52,39 @@ def test_get_bars_refetches_when_requested_range_extends_beyond_cache(tmp_path, 
     data_module.get_bars("TEST", "1d", date(2024, 1, 2), date(2024, 1, 8))
     data_module.get_bars("TEST", "1d", date(2024, 1, 2), date(2024, 2, 8))
     assert len(calls) == 2
+
+
+def test_get_bars_recovers_from_a_corrupt_cache_file(tmp_path, monkeypatch):
+    monkeypatch.setattr(data_module, "DATA_DIR", tmp_path)
+    cache = tmp_path / "TEST_1d.parquet"
+    cache.write_bytes(b"this is not parquet")
+    calls = []
+
+    def fake_fetch(symbol, interval, start, end):
+        calls.append((symbol, interval, start, end))
+        return _fake_bars()
+
+    monkeypatch.setattr(data_module, "_fetch", fake_fetch)
+
+    bars = data_module.get_bars("TEST", "1d", date(2024, 1, 2), date(2024, 1, 8))
+
+    assert len(calls) == 1
+    pd.testing.assert_frame_equal(bars, _fake_bars())
+    # The corrupt cache was replaced with a readable parquet file.
+    pd.testing.assert_frame_equal(pd.read_parquet(cache), _fake_bars(), check_freq=False)
+
+
+def test_get_bars_does_not_replace_cache_when_refresh_is_empty(tmp_path, monkeypatch):
+    monkeypatch.setattr(data_module, "DATA_DIR", tmp_path)
+    cached = _fake_bars(periods=10)
+    cached.to_parquet(tmp_path / "TEST_1d.parquet")
+    monkeypatch.setattr(
+        data_module, "_fetch", lambda *_args: pd.DataFrame(columns=cached.columns),
+    )
+
+    result = data_module.get_bars("TEST", "1d", date(2024, 1, 2), date(2024, 2, 8))
+
+    # The result only includes the requested date slice, but the underlying
+    # historical cache remains intact for a future successful refresh.
+    assert not result.empty
+    pd.testing.assert_frame_equal(pd.read_parquet(tmp_path / "TEST_1d.parquet"), cached, check_freq=False)

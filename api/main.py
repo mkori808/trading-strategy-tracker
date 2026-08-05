@@ -62,6 +62,7 @@ from strategies.registry import (
     ARCHIVED_STRATEGY_NAMES,
     CROSS_SECTIONAL_STRATEGY_NAMES,
     DAY_TRADING_STRATEGIES,
+    build_cross_sectional_strategy,
 )
 
 MAX_CUSTOM_SYMBOLS = 60
@@ -236,6 +237,7 @@ class ExecutionConfigUpdate(BaseModel):
 
     strategyName: str
     enabled: bool
+    params: dict[str, Any] | None = None
 
 
 class RebalanceNowRequest(BaseModel):
@@ -992,12 +994,14 @@ def execution_config() -> list[dict]:
     as enabled=false."""
     config = execution_db.automation_config()
     rows = []
-    for name in CROSS_SECTIONAL_STRATEGY_NAMES:
-        row = config.get(name)
+    for name, row in config.items():
+        if name not in CROSS_SECTIONAL_STRATEGY_NAMES:
+            continue
         rows.append({
             "strategyName": name,
-            "enabled": bool(row["enabled"]) if row else False,
-            "enabledAt": row["enabled_at"] if row else None,
+            "enabled": bool(row["enabled"]),
+            "enabledAt": row["enabled_at"],
+            "params": json.loads(row["params"] or "{}"),
         })
     return _clean(rows)
 
@@ -1011,8 +1015,24 @@ def set_execution_config(body: ExecutionConfigUpdate) -> dict:
             status_code=400,
             detail=f"{body.strategyName!r} is not an automatable (cross-sectional) strategy.",
         )
-    execution_db.set_enabled(body.strategyName, body.enabled, datetime.now().isoformat())
-    return {"strategyName": body.strategyName, "enabled": body.enabled}
+    try:
+        # Validate before persisting so the live engine can only ever read a
+        # parameter set the same schema accepts in the backtest UI.
+        strategy = build_cross_sectional_strategy(body.strategyName, risk_free_rate=0.0)
+        params = body.params or {}
+        apply_params(strategy, params)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    execution_db.set_config(
+        body.strategyName, body.enabled, json.dumps(params), datetime.now().isoformat(),
+    )
+    return {"strategyName": body.strategyName, "enabled": body.enabled, "params": params}
+
+
+@app.get("/api/live/execution/strategies")
+def execution_strategies() -> list[dict]:
+    """Strategies the paper-order engine can safely execute today."""
+    return [{"strategyName": name} for name in CROSS_SECTIONAL_STRATEGY_NAMES]
 
 
 @app.get("/api/live/execution/runs")

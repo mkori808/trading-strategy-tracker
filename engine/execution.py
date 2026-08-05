@@ -4,14 +4,10 @@ strategy (currently only Dual Momentum) -- the piece that turns
 paper orders, gated by every guardrail in `engine/live_risk.py` and
 `engine/kill_switch.py`, logged via `engine/execution_db.py`.
 
-Scope: uses each enabled strategy's REGISTERED DEFAULT parameters only,
-never a Lab-tab override -- automating live/paper execution on top of an
-arbitrary experiment configuration would break the same canonical/
-experiment firewall CLAUDE.md's Lab tab section establishes for backtests
-("a one-off parameter sweep can never silently replace what a strategy's
-registered configuration shows"). If a strategy's tuned defaults change,
-they change here too, automatically, since this always reads the current
-registered dataclass default -- there's no separate copy to go stale.
+Scope: uses only the explicitly saved paper-execution configuration for an
+enabled strategy. Its values are validated with the same parameter schema as
+the backtest UI before saving, then stored and logged per rebalance; a Lab-tab
+experiment can never silently alter automated execution.
 
 Order-sizing note: BUY orders and PARTIAL-sell orders (a target weight
 that shrank but didn't zero out) both use Alpaca's `notional=` sizing
@@ -46,7 +42,7 @@ from engine.cross_sectional import _rebalance_dates
 from engine.runner import run_config
 from engine.universe import TIMEZONE
 from strategies.cross_sectional import CrossSectionalStrategy
-from strategies.params import describe_params
+from strategies.params import apply_params, describe_params
 from strategies.registry import build_cross_sectional_strategy
 
 RISK_LIMITS = live_risk.RiskLimits()
@@ -202,6 +198,9 @@ def execute_rebalance(
     rf_window_start = today - timedelta(days=90)
     risk_free_rate = data_module.risk_free_rate(rf_window_start, today)
     strategy = build_cross_sectional_strategy(strategy_name, risk_free_rate=risk_free_rate)
+    configured_params = execution_db.params_for(strategy_name)
+    if configured_params:
+        strategy = apply_params(strategy, json.loads(configured_params))
 
     if not force and not is_rebalance_due(strategy, today, client):
         return {"status": "not_due"}

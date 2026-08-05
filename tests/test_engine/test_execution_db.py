@@ -31,6 +31,16 @@ def test_set_enabled_round_trips(db):
     assert db.is_enabled("Dual Momentum") is False
 
 
+def test_set_config_persists_validated_parameter_payload(db):
+    params = '{"top_n": 3, "rebalance_frequency": "weekly"}'
+    db.set_config("Dual Momentum", True, params, NOW)
+
+    assert db.is_enabled("Dual Momentum") is True
+    assert db.params_for("Dual Momentum") == params
+    row = db.automation_config()["Dual Momentum"]
+    assert row["params"] == params
+
+
 def test_claim_run_succeeds_once_then_blocks_a_duplicate(db):
     first = db.claim_run("Dual Momentum", "2026-07-20", "manual", NOW)
     assert first is not None

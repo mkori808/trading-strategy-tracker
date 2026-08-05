@@ -7,6 +7,7 @@ import {
   type KillSwitchStatus,
   type LiveAccountResponse,
   type ParamSchema,
+  type ParamSpec,
   type RebalanceRunRow,
   type SignalAlert,
 } from "../api";
@@ -79,6 +80,20 @@ function fmtTime(iso: string | null): string {
   });
 }
 
+function LiveParamControl({ spec, value, onChange }: {
+  spec: ParamSpec;
+  value: number | boolean | string;
+  onChange: (value: number | boolean | string) => void;
+}) {
+  if (spec.kind === "bool") {
+    return <label className="flex items-center justify-between gap-2 text-xs"><span>{spec.label}</span><input type="checkbox" checked={Boolean(value)} onChange={(e) => onChange(e.target.checked)} /></label>;
+  }
+  if (spec.kind === "str" && spec.choices) {
+    return <label className="flex items-center justify-between gap-2 text-xs"><span>{spec.label}</span><select value={String(value)} onChange={(e) => onChange(e.target.value)} className="rounded border px-1.5 py-1" style={{ borderColor: "var(--border)", background: "var(--page)", color: "var(--text-primary)" }}>{spec.choices.map((choice) => <option key={choice} value={choice}>{choice}</option>)}</select></label>;
+  }
+  return <label className="flex items-center justify-between gap-2 text-xs"><span>{spec.label}</span><input type={spec.kind === "str" ? "text" : "number"} value={String(value)} min={spec.minimum ?? undefined} max={spec.maximum ?? undefined} step={spec.step ?? undefined} onChange={(e) => onChange(spec.kind === "str" ? e.target.value : spec.kind === "int" ? Math.round(e.target.valueAsNumber) : e.target.valueAsNumber)} className="w-20 rounded border px-1.5 py-1 text-right" style={{ borderColor: "var(--border)", background: "var(--page)", color: "var(--text-primary)" }} /></label>;
+}
+
 export function LiveMonitorView() {
   const [account, setAccount] = useState<LiveAccountResponse | null>(null);
   const [signals, setSignals] = useState<SignalAlert[]>([]);
@@ -96,6 +111,10 @@ export function LiveMonitorView() {
   const [runOrders, setRunOrders] = useState<ExecutionOrderRow[]>([]);
   const [summary, setSummary] = useState<ExecutionSummary | null>(null);
   const [paramSchemas, setParamSchemas] = useState<Record<string, ParamSchema>>({});
+  const [availableStrategies, setAvailableStrategies] = useState<{ strategyName: string }[]>([]);
+  const [editingStrategy, setEditingStrategy] = useState<string | null>(null);
+  const [draftParams, setDraftParams] = useState<Record<string, number | boolean | string>>({});
+  const [savingConfig, setSavingConfig] = useState(false);
 
   const refreshExecutionState = () =>
     Promise.all([
@@ -140,6 +159,14 @@ export function LiveMonitorView() {
     };
   }, []);
 
+  useEffect(() => {
+    api.executionStrategies().then(async (strategies) => {
+      setAvailableStrategies(strategies);
+      const schemas = await Promise.all(strategies.map((s) => api.paramSchema(s.strategyName)));
+      setParamSchemas((current) => ({ ...current, ...Object.fromEntries(schemas.map((s) => [s.strategyName, s])) }));
+    }).catch((e) => setLoadError(String(e)));
+  }, []);
+
   const runScanNow = async () => {
     setScanning(true);
     try {
@@ -157,12 +184,35 @@ export function LiveMonitorView() {
   const toggleStrategy = async (strategyName: string, enabled: boolean) => {
     setTogglingConfig(strategyName);
     try {
-      await api.setExecutionConfig(strategyName, enabled);
+      const params = executionConfig.find((c) => c.strategyName === strategyName)?.params ?? {};
+      await api.setExecutionConfig(strategyName, enabled, params);
       await refreshExecutionState();
     } catch (e) {
       setLoadError(String(e));
     } finally {
       setTogglingConfig(null);
+    }
+  };
+
+  const openConfig = (strategyName: string, current: Record<string, number | boolean | string> = {}) => {
+    const schema = paramSchemas[strategyName];
+    if (!schema) return;
+    setEditingStrategy(strategyName);
+    setDraftParams(Object.fromEntries(schema.params.map((p) => [p.name, current[p.name] ?? p.default])));
+  };
+
+  const saveConfig = async () => {
+    if (!editingStrategy) return;
+    setSavingConfig(true);
+    try {
+      const existing = executionConfig.find((c) => c.strategyName === editingStrategy);
+      await api.setExecutionConfig(editingStrategy, existing?.enabled ?? false, draftParams);
+      setEditingStrategy(null);
+      await refreshExecutionState();
+    } catch (e) {
+      setLoadError(String(e));
+    } finally {
+      setSavingConfig(false);
     }
   };
 
@@ -419,6 +469,51 @@ export function LiveMonitorView() {
             )}
 
             <div className="space-y-2">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+                  Add a strategy disabled first, configure it, then explicitly enable paper execution.
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    // Today Dual Momentum is the only safely automatable
+                    // strategy. Once it has been added, keep this action
+                    // useful by reopening its saved configuration instead
+                    // of leaving an unexplained disabled button.
+                    const candidate = availableStrategies.find((s) => !executionConfig.some((c) => c.strategyName === s.strategyName))
+                      ?? availableStrategies[0];
+                    if (!candidate) return;
+                    const current = executionConfig.find((c) => c.strategyName === candidate.strategyName);
+                    openConfig(candidate.strategyName, current?.params);
+                  }}
+                  disabled={availableStrategies.length === 0}
+                  className="rounded-md px-2.5 py-1 text-xs font-medium text-white disabled:opacity-50"
+                  style={{ background: "var(--series-1)" }}
+                >
+                  {availableStrategies.some((s) => !executionConfig.some((c) => c.strategyName === s.strategyName))
+                    ? "Add live strategy"
+                    : "Configure live strategy"}
+                </button>
+              </div>
+              {editingStrategy && paramSchemas[editingStrategy] && (
+                <div className="rounded-md border p-3" style={{ borderColor: "var(--series-1)", background: "var(--surface-1)" }}>
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <strong className="text-sm" style={{ color: "var(--text-primary)" }}>{editingStrategy}</strong>
+                    <button type="button" onClick={() => setEditingStrategy(null)} className="text-xs" style={{ color: "var(--text-muted)" }}>Cancel</button>
+                  </div>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {paramSchemas[editingStrategy].params.map((spec) => (
+                      <LiveParamControl key={spec.name} spec={spec} value={draftParams[spec.name] ?? spec.default} onChange={(value) => setDraftParams((current) => ({ ...current, [spec.name]: value }))} />
+                    ))}
+                  </div>
+                  <div className="mt-3 flex items-center gap-3">
+                    <button type="button" onClick={saveConfig} disabled={savingConfig} className="rounded-md px-2.5 py-1 text-xs font-medium text-white disabled:opacity-50" style={{ background: "var(--series-1)" }}>
+                      {savingConfig ? "Saving…" : "Save paper configuration"}
+                    </button>
+                    <span className="text-xs" style={{ color: "var(--text-muted)" }}>Saving does not enable automated orders.</span>
+                  </div>
+                </div>
+              )}
               {executionConfig.map((cfg) => {
                 const schema = paramSchemas[cfg.strategyName];
                 return (
@@ -450,6 +545,14 @@ export function LiveMonitorView() {
                       </div>
                       <button
                         type="button"
+                        onClick={() => openConfig(cfg.strategyName, cfg.params)}
+                        className="rounded-md border px-2.5 py-1 text-xs font-medium"
+                        style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}
+                      >
+                        Edit parameters
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => rebalanceNow(cfg.strategyName)}
                         disabled={rebalancing === cfg.strategyName}
                         className="rounded-md border px-2.5 py-1 text-xs font-medium disabled:opacity-50"
@@ -464,7 +567,7 @@ export function LiveMonitorView() {
                         {schema.params.map((p, i) => (
                           <span key={p.name}>
                             {i > 0 && ", "}
-                            <span style={{ color: "var(--text-secondary)" }}>{p.name}</span>={String(p.default)}
+                            <span style={{ color: "var(--text-secondary)" }}>{p.name}</span>={String(cfg.params[p.name] ?? p.default)}
                           </span>
                         ))}
                         {schema.params.length === 0 && "no tunable parameters"}

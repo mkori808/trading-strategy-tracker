@@ -72,6 +72,13 @@ SWING_TRADING_STRATEGIES_NO_BENCHMARK: dict[str, Strategy] = {
     ]
 }
 
+# This user-defined variant is intentionally separate from the tracker-backed
+# catalogue above: it combines the existing Dual Momentum regime logic with a
+# short-term pullback entry and is surfaced in the UI for research.  Add it to
+# the tracker only after the user decides its rule definition is final.
+DUAL_MOMENTUM_PULLBACK_NAME = "Dual Momentum Pullback Swing"
+USER_DEFINED_STRATEGY_NAMES: list[str] = [DUAL_MOMENTUM_PULLBACK_NAME]
+
 SECTOR_ROTATION_NAME = "Sector Rotation Play"
 
 
@@ -133,6 +140,7 @@ ALL_STRATEGY_NAMES: list[str] = (
     + CROSS_SECTIONAL_STRATEGY_NAMES
     + PAIRS_STRATEGY_NAMES
     + [PEAD_NAME, OVERNIGHT_NAME, AVWAP_BREAKOUT_NAME]
+    + USER_DEFINED_STRATEGY_NAMES
 )
 
 
