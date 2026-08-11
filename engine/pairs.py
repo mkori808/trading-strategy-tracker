@@ -32,6 +32,7 @@ import pandas as pd
 from statsmodels.tsa.stattools import coint
 
 from engine import data as data_module
+from engine.metrics import TRADING_DAYS_PER_YEAR
 from engine.portfolio import annualized_stats
 from strategies.swing.pairs_stat_arb import PairsStatArb
 
@@ -150,6 +151,15 @@ def run_pairs_backtest(
     close_b = trade_b["Close"].loc[common]
     zscores = _spread_zscore(np.log(close_a), np.log(close_b), strategy.zscore_lookback)
 
+    # Uninvested cash earns rf, applied here because this loop tracks the exact
+    # cash balance. A pairs book sits flat between reversion signals, so without
+    # this the Sharpe numerator subtracts a rate the account was never paid --
+    # the same artifact that made every selective strategy score worst.
+    daily_rf = (
+        (1.0 + risk_free_rate) ** (1.0 / TRADING_DAYS_PER_YEAR) - 1.0
+        if risk_free_rate else 0.0
+    )
+
     cash_balance = cash
     position: str | None = None  # "long_spread" (long A, short B) or "short_spread"
     shares_a = shares_b = 0.0
@@ -158,7 +168,9 @@ def run_pairs_backtest(
     equity_points: list[tuple[pd.Timestamp, float]] = []
     trade_log: list[dict] = []
 
-    for t in common:
+    for step, t in enumerate(common):
+        if step and daily_rf:
+            cash_balance *= 1.0 + daily_rf
         z = zscores.get(t)
         pa, pb = close_a.loc[t], close_b.loc[t]
 
@@ -203,7 +215,9 @@ def run_pairs_backtest(
     return_pct = (final_equity / cash - 1) * 100
     running_max = equity_curve.cummax()
     max_dd = float(((equity_curve - running_max) / running_max).min() * 100) if len(equity_curve) else 0.0
-    cagr, sharpe, sortino = annualized_stats(equity_curve, risk_free_rate)
+    cagr, sharpe, sortino = annualized_stats(
+        equity_curve, risk_free_rate, cash_accrued=True
+    )
 
     return PairsResult(
         strategy_name=strategy_name,

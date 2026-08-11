@@ -74,6 +74,11 @@ class DualMomentum(CrossSectionalStrategy):
         "'quarterly' are unvalidated experimentation options, not recommended.",
     )
 
+    def required_history_days(self) -> int:
+        # +1 because the trailing return reads iloc[-lookback - 1] as its base:
+        # ranking on N days of return needs N+1 closes.
+        return self.lookback_trading_days + 1
+
     def rebalance(
         self, universe_bars: dict[str, pd.DataFrame], as_of: pd.Timestamp
     ) -> dict[str, float]:

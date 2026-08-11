@@ -77,12 +77,52 @@ def _run_symbol(config: OvernightHold, symbol: str, start: date, end: date,
 
     trades = pd.DataFrame(rows)
     equity_curve = pd.DataFrame({"Equity": eq_vals}, index=pd.DatetimeIndex(eq_times))
+    accrued = _accrue_flat_period_cash(equity_curve["Equity"], trades, risk_free_rate)
+    equity_curve = pd.DataFrame({"Equity": accrued.to_numpy()}, index=equity_curve.index)
     stats = _symbol_stats(equity_curve["Equity"], len(trades), len(bars), risk_free_rate)
     return SymbolBacktestResult(symbol, stats, trades, equity_curve)
 
 
+def _accrue_flat_period_cash(
+    equity: pd.Series, trades: pd.DataFrame, risk_free_rate: float
+) -> pd.Series:
+    """Credit rf over the FLAT stretches between overnight holds.
+
+    This engine's equity curve has one point per trade, so it is sparse and the
+    account is 100% cash between an exit and the next entry -- which for a
+    strategy that only ever holds close->open is nearly the whole calendar.
+    Without this, the Sharpe numerator subtracts rf for time the account was in
+    T-bills and was never credited for it.
+
+    Interest is applied over ELAPSED time between ExitTime[i-1] and
+    EntryTime[i] rather than per equity point: the points are irregularly
+    spaced (trades only fire when the setup appears), so a per-point rate would
+    be the same bar-frequency error that over-credited intraday runs ~79x.
+
+    Deliberately does NOT credit the overnight holding window itself, when the
+    capital is actually at risk. Slightly conservative -- a real account earns
+    interest on the uninvested remainder during the hold too, since position
+    size is risk-capped well below full equity -- and understating interest is
+    the safe direction for a metric whose failure mode has been flattery.
+    """
+    if not risk_free_rate or trades.empty or len(equity) < 2:
+        return equity
+
+    entries = pd.to_datetime(trades["EntryTime"]).to_numpy()
+    exits = pd.to_datetime(trades["ExitTime"]).to_numpy()
+    values = equity.to_numpy(dtype=float)
+
+    base = np.concatenate(([0.0], np.diff(values) / values[:-1]))
+    interest = np.zeros(len(values))
+    for i in range(1, min(len(values), len(entries))):
+        idle = (entries[i] - exits[i - 1]) / np.timedelta64(1, "D") / 365.25
+        if idle > 0:
+            interest[i] = (1.0 + risk_free_rate) ** idle - 1.0
+    return pd.Series(values[0] * np.cumprod(1.0 + base + interest), index=equity.index)
+
+
 def _symbol_stats(equity: pd.Series, n_trades: int, n_bars: int, risk_free_rate: float) -> pd.Series:
-    cagr, sharpe, sortino = annualized_stats(equity, risk_free_rate)
+    cagr, sharpe, sortino = annualized_stats(equity, risk_free_rate, cash_accrued=True)
     drawdown = (equity / equity.cummax() - 1).min() * 100  # negative
     ret_pct = (equity.iloc[-1] / equity.iloc[0] - 1) * 100
     # Exposure ~ share of sessions carrying an overnight position. Approximate

@@ -2299,3 +2299,211 @@ fed to the strategy) silently broke the assumption the strategy was written
 against. When a strategy's trade count looks implausibly low (or a metric
 looks implausibly good on a tiny sample), check the machinery around the
 strategy before concluding the strategy itself is bad — or good.
+
+## A fix that improves results needs a consistency check before it's believed
+
+**Date:** 2026-08-10
+
+The Sharpe/alpha overhaul (`metrics_version` 0 → 1) corrected four
+measurement bugs. Four of the five resulting changes moved a number in a
+direction someone would have been happy to accept, and one of them was
+wrong.
+
+**The rule:** when a correction makes results *better*, find a quantity
+whose value you can predict independently and check it. Direction of travel
+is not evidence — a flattering error and a real improvement look identical
+in the headline.
+
+**The case that proves it.** Crediting idle cash with the risk-free rate is
+correct: a strategy holding 95% cash genuinely earns T-bill interest, and
+charging it rf in the Sharpe numerator while paying it nothing was a double
+penalty that made the shortlist tier unreachable (best per-symbol Sharpe in
+the project: -0.16, against a 0.5 bar; SPY buy-and-hold itself scored 0.371).
+But the accrual raised the *strategy's* return without raising the
+fully-invested *benchmark's*, and `backtesting.py`'s Jensen alpha scales the
+benchmark leg by beta — near zero for a mostly-cash strategy. Alpha absorbed
+the interest nearly 1:1:
+
+| strategy | old alpha | new alpha | shift |
+|---|---|---|---|
+| Connors RSI2 | -3.5 | +15.8 | +19.3 |
+| Oversold Bounce | -3.1 | +16.4 | +19.5 |
+| IBS | -3.7 | +15.1 | +18.8 |
+| Pullback 21 EMA | -5.9 | +12.9 | +18.8 |
+
+Cumulative interest over the window: **+19.6pp**. Four strategies flipped
+from "hold" to "shortlist" without a single trade changing.
+
+It was caught only because the +19.6 / ~+19.3 match was suspiciously exact.
+That coincidence is now an assertion
+(`test_accrued_interest_matches_idle_cash_exactly`): accrued interest must
+equal cumulative rf over the *idle fraction*, so a half-invested account
+earns half what an idle one does.
+
+**Corollary — trust the fix that makes things worse.** Of the five changes,
+the warmup preload was the only one that made the headline configurations
+*worse*, and it is the only one nobody was tempted to wave through. It was
+also the most informative: the 273-day lookback had been parking the
+portfolio in cash for the first ~13 months of the window, which for a
+2021-08 start was almost exactly the 2022 bear market. The parameter sweep
+was rewarding the bug in proportion to how much dead time each configuration
+had — a *selection* artifact, not just a measurement one. "Longer lookback is
+better" was a bear-market cash position dressed as a signal.
+
+**What survived.** The eleven positive-expectancy strategies were blocked by
+a gate that nothing could pass — but on a corrected, consistent
+excess-over-cash basis they clear roughly +0.05 to +0.42pp over T-bills while
+SPY clears +9.59pp, and every one still lands on "hold". The old conclusion
+was right for the wrong reason; the corrected derivation reaches the same
+verdict by a wider margin. Do not read "the tool was broken" as "the negative
+result was wrong".
+
+## One defect, six symptoms: the cash position was never modelled
+
+**Date:** 2026-08-11
+
+The headline, because it predicts where the next one comes from. The backtest
+engine tracked what the strategy *held* and never modelled what it *didn't* --
+so every attempt to price the idle fraction went wrong in whichever direction
+the arithmetic happened to point:
+
+| symptom | direction | mechanism |
+|---|---|---|
+| Sharpe -8.09 / -12.13 on selective strategies | punished idleness | cash charged rf it was never credited |
+| Sharpe +7.24, alpha +36.7% on intraday | rewarded idleness | rf accrued per 5-min BAR at a daily rate (~79x) |
+| alpha +18.8 to +19.5pp on four strategies | rewarded idleness | interest credited to strategy, not to the fully-invested benchmark |
+
+These are not three bugs. They are one missing concept surfacing three times,
+and the second and third were introduced *while fixing the first*. Anything
+touching the idle fraction is where the next one will be.
+
+### Invariance is a property; test it by varying the thing
+
+Three fixtures in this suite failed the same way: each was written at the
+granularity the bug lived above, so it exercised the code path correctly and
+was **structurally incapable of varying the dimension that mattered**.
+
+- SPY buy-and-hold: daily, single-asset, ~100% invested -> blind to costs,
+  warmup and idle cash. Went green after fix 1 and stayed green through three
+  more fixes without proving anything about any of them.
+- The accrual test: daily bars only -> blind to bar frequency, which is exactly
+  where the ~79x over-credit lived.
+- `test_accrued_interest_matches_idle_cash_exactly`: written to police that
+  very function, and it encoded `periods/252` -- **the same premise that caused
+  the bug**. A test sharing the implementation's assumption validates
+  arithmetic, not correctness.
+
+**The rule:** for any new metric test, write down what the fixture holds
+constant, then ask whether the code is supposed to be invariant to it. Bar
+frequency, asset count, exposure level, window length, rf regime. The moment
+"the accrual is invariant to bar frequency" is written down, a daily-only
+fixture is visibly insufficient. Invariance properties need a test that *varies
+the thing*; those are the tests that catch this class.
+
+This is also why the differential oracle didn't help: it was differential in
+the return series but shared the period convention.
+
+### Sanity bounds: encode the priors, asymmetrically
+
+Nothing in the codebase knew a Sharpe of 7.24 is impossible for a Dow-universe
+equity strategy. A human reading the row knows instantly. That gap is why every
+implausible result in this sequence was caught by eye rather than by 427 tests
+-- eyeballing is a genuinely different oracle, using knowledge that lived only
+in someone's head. `engine/metrics.py:implausible_metrics` encodes it.
+
+The band is **asymmetric on purpose**: `(-50, +3)`. The upper bound states a
+real economic fact -- steady large excess returns at low volatility do not
+occur in Dow equities. The lower bound states nothing, because losing money
+steadily is trivially achievable. A symmetric `(-3, 3)` was tried first and
+immediately produced a **false positive on a true result**: VWAP Bounce's -8.90
+is a correct measurement of -44.98% CAGR at 5.51% volatility. A floor that
+blocks true results is worse than the bad row it prevents, because the failure
+mode is silent data loss rather than a visible error.
+
+Every near-miss in this sequence was on the upside. The guard has teeth exactly
+where the danger is.
+
+### Three independent reliability facts
+
+`MIN_RELIABLE_TRADES` (<30 trades) was the only one encoded, and it cannot see
+the other two:
+
+1. **Enough trades** -- sample density. Already enforced.
+2. **Enough invested days** -- how much a Sharpe estimate is worth. Connors'
+   1.49 rests on ~137 invested days; Earnings Momentum's on ~20.
+3. **Enough calendar** -- regime diversity. Day-trading strategies measure
+   ~50 days of 5-minute bars regardless of a window label reading 730 days
+   (6.8% coverage), so Scalping's 22,281 trades are one regime sampled densely,
+   not a multi-regime sample.
+
+22,281 trades in one regime and 40 trades across five years fail in opposite
+directions; the current rule catches only the second. None of the three
+substitutes for the others, and this sequence produced a concrete failure for
+each.
+
+### A label that reads as authoritative outranks a caption that is true
+
+The app knew the intraday constraint and wrote it into two components with
+different answers: `StrategiesTab.tsx` captions day-trading rows "~60 days"
+(approximate, and rounded in the flattering direction -- the real figure is 50),
+while the stored window says 730 days. The numeric field is the one that looks
+authoritative and gets read into tables, and it is the one that lost the
+information. Record what was MEASURED, not what was REQUESTED, and have the
+caption read from the data rather than assert a constant -- otherwise it drifts
+again the next time the data tier changes.
+
+Same shape as the provenance bug that nearly shipped the same day: a *correct
+number wearing a wrong label* survives any amount of recomputation, because the
+recomputed value matches. Those bugs attack the audit layer, not the
+computation.
+
+## An absent value in a UI is read as a claim, not as a gap
+
+**Date:** 2026-08-11
+
+Three times in one session, a missing display value led a careful reader to a
+confident and wrong conclusion about the computation underneath:
+
+| what was blank | what it was read as | what was actually true |
+|---|---|---|
+| `metrics_version` NULL | "this row is legacy" | a fully corrected row the migration then stamped as legacy |
+| intraday window label | "measured over two years" | measured over ~50 trading days (6.8% of the label) |
+| portfolio `alpha` column | "this row is gated on returns, everything else on excess" | identical gate; the number was computed and never stored |
+
+The last is the sharpest. `portfolio_status` compares
+`return_pct > benchmark_return_pct`, and per-symbol alpha is
+`(R_s - rf) - (R_b - rf)`, which cancels to `R_s - R_b`. **The same quantity.**
+The two paths never diverged -- only the display did, and a blank cell was
+enough to infer a divergence that did not exist.
+
+**The rule:** a UI that omits a value is not neutral. Readers fill the gap with
+an inference, and the inference is usually about the CODE, not about the data.
+Absence therefore needs to be as deliberately designed as presence -- which is
+why `STATUS_UNVERIFIED`, `STATUS_INSUFFICIENT_EXPOSURE` and
+`STATUS_INVALID_WINDOW` all exist as distinct states rather than as one blank.
+Each says *why* a number is missing, because "missing" alone gets read as a
+claim about the strategy.
+
+Same root as this session's other dominant failure -- see the ratio-denominator
+entry -- in that both are cases of the tool silently asserting something it was
+never asked to assert.
+
+### The ratio-with-a-collapsing-denominator, four appearances
+
+Every one is a ratio computed per-unit whose denominator approaches zero while
+nothing in the code notices, producing a large value that reads as excellence:
+
+1. `-rf/sigma` across whole strategies at low exposure (Sharpe -8.09, -12.13)
+2. accrual over-crediting idleness on 5-minute bars (Sharpe 7.238, +79x rate)
+3. Sharpe converging to entry-quality as exposure -> 0 (Sharpe 51,844.877)
+4. degenerate SLEEVES inside a per-symbol mean (NKE: 3 trades, 0.134% vol,
+   Sharpe 13.05, lifting Turnaround Tuesday's mean-of-ratios to +2.26 against a
+   pooled truth of -0.52)
+
+`MIN_INVESTED_DAYS` catches it at strategy level. Nothing catches it at sleeve
+level, which is why pooling the equity curves was the fix there rather than
+another floor.
+
+**Where a fifth would appear:** anywhere a ratio is computed per-unit and then
+combined across units. Check the denominator's distribution before trusting the
+combination, not just the combination's value.

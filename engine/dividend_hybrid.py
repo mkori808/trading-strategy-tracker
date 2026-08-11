@@ -353,7 +353,12 @@ def _build_result(
     trades, equity_curve, cash, risk_free_rate, screen_log, warnings, max_concurrent,
 ) -> DividendHybridResult:
     equity = equity_curve["Equity"]
-    cagr, sharpe, sortino = annualized_stats(equity, risk_free_rate)
+    # NOT accrued: this engine sizes 10% of equity per position and holds
+    # indefinitely (Version A has no stop), so its idle fraction is large and
+    # varies per position. Declared False rather than guessed -- a wrong accrual
+    # is worse than a refusal, and this engine's results are already reported as
+    # inconclusive on sample-size grounds (see CLAUDE.md).
+    cagr, sharpe, sortino = annualized_stats(equity, risk_free_rate, cash_accrued=False)
     drawdown = float((equity / equity.cummax() - 1).min() * 100) if len(equity) else 0.0
     final_equity = float(equity.iloc[-1]) if len(equity) else cash
     return_pct = (final_equity / cash - 1) * 100

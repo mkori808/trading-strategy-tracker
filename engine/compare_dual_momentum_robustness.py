@@ -133,7 +133,11 @@ def _row_from_slice(label: str, eq: pd.Series, rf: float, benchmark: float | Non
             "cagr_pct": None, "sharpe": None, "max_dd_pct": None,
             "benchmark_pct": benchmark, "status": "Not enough data in window",
         }
-    cagr, sharpe, _sortino = annualized_stats(eq, rf)
+    # NOT accrued -- comparison script; both arms share the same treatment, so
+    # the COMPARISON stays valid even though each arm's absolute Sharpe carries
+    # the idle-cash artifact. Declared explicitly so that is a recorded decision
+    # rather than an oversight.
+    cagr, sharpe, _sortino = annualized_stats(eq, rf, cash_accrued=False)
     dd = float((eq / eq.cummax() - 1).min() * 100)
     ret = float((eq.iloc[-1] / eq.iloc[0] - 1) * 100)
     status = portfolio_status(ret, sharpe, benchmark)

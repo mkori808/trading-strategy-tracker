@@ -68,6 +68,18 @@ from strategies.swing.pead import PostEarningsDrift
 # date overrides still work.
 SYMBOL_OVERRIDE_DISALLOWED_NAMES = {SECTOR_ROTATION_NAME}
 
+# Explicitly zero, not defaulted to zero -- the distinction that let the
+# cross-sectional engine trade free for its whole life. Alpaca charges no
+# commission on US stocks/ETFs (CLAUDE.md, "Broker: Alpaca"), so 0.0 is the
+# CORRECT value here rather than a placeholder, and inventing a non-zero
+# commission would model a broker this project doesn't use.
+#
+# Not modelled: SEC Section 31 fees (~0.3bps, sell side only) and FINRA TAF.
+# Real but an order of magnitude below the 1-3bps spread already charged per
+# symbol, and both are per-notional pass-throughs rather than commissions.
+# Named here so a future reader sees the omission was decided, not missed.
+ALPACA_COMMISSION_BPS = 0.0
+
 
 @dataclass
 class RunRequest:
@@ -189,6 +201,8 @@ def run_backtest(
         result.metrics, symbols,
         params=request.params if request else None,
         is_canonical=request is None or request.is_default(),
+        slippage_bps=mean_spread_bps(symbols, start, end),
+        commission_bps=ALPACA_COMMISSION_BPS,
     )
     write_excursion_report(strategy_name, result.excursions)
     return result
@@ -218,6 +232,8 @@ def _run_pead(request: RunRequest | None = None) -> StrategyBacktestResult:
     log_run(
         result.metrics, symbols, params=params,
         is_canonical=request is None or request.is_default(),
+        slippage_bps=mean_spread_bps(symbols, start, end),
+        commission_bps=ALPACA_COMMISSION_BPS,
     )
     write_excursion_report(PEAD_NAME, result.excursions)
     return result
@@ -254,6 +270,8 @@ def _run_dual_momentum_pullback(request: RunRequest | None = None) -> StrategyBa
     log_run(
         result.metrics, symbols, params=params,
         is_canonical=request is None or request.is_default(),
+        slippage_bps=mean_spread_bps(symbols, start, end),
+        commission_bps=ALPACA_COMMISSION_BPS,
     )
     write_excursion_report(DUAL_MOMENTUM_PULLBACK_NAME, result.excursions)
     return result
@@ -293,6 +311,8 @@ def _run_avwap_breakout(request: RunRequest | None = None) -> StrategyBacktestRe
     log_run(
         result.metrics, symbols, params=params,
         is_canonical=request is None or request.is_default(),
+        slippage_bps=mean_spread_bps(symbols, start, end),
+        commission_bps=ALPACA_COMMISSION_BPS,
     )
     write_excursion_report(AVWAP_BREAKOUT_NAME, result.excursions)
     return result
@@ -316,8 +336,55 @@ def _run_overnight(request: RunRequest | None = None) -> StrategyBacktestResult:
         result.metrics, symbols,
         params=request.params if request else None,
         is_canonical=request is None or request.is_default(),
+        slippage_bps=mean_spread_bps(symbols, start, end),
+        commission_bps=ALPACA_COMMISSION_BPS,
     )
     return result
+
+
+def _measured_window(equity_curve) -> dict:
+    """The window a portfolio result's equity curve actually covers.
+
+    Distinct from the requested start/end for the same reason it is on the
+    per-symbol path: what was asked for and what the data supported are
+    different facts, and only the second describes the numbers.
+    """
+    if equity_curve is None or len(equity_curve) == 0:
+        return {"measured_start": None, "measured_end": None}
+    return {
+        "measured_start": equity_curve.index[0].date(),
+        "measured_end": equity_curve.index[-1].date(),
+    }
+
+
+def mean_spread_bps(symbols: list[str], start: date, end: date) -> float | None:
+    """Universe-mean spread in bps, for the provenance columns on a logged run.
+
+    The per-symbol engine charges engine/data.py:estimate_spread PER SYMBOL
+    inside run_symbol_backtest, so a single stored number is necessarily a
+    summary of a vector.
+
+    DESCRIPTIVE, NOT REPRODUCIBLE. This value says "spread was charged, and
+    roughly this much on average". It is NOT sufficient to recompute a stored
+    run's costs: the real charge weights each symbol's own spread by that
+    symbol's own traded notional, which the mean discards. Anyone reconstructing
+    a historical result from this column will find a small unexplained gap and
+    should not go looking for a bug. Storing the true detail would mean ~29
+    per-symbol values per row; the mean was judged the right trade, and
+    estimate_spread() remains deterministic given a symbol and window if the
+    exact vector is ever needed.
+
+    Recorded because NULL now means UNKNOWN. Leaving these NULL on rows that
+    demonstrably charged spread would assert the same thing about them as
+    about a pre-migration legacy row, which is exactly the ambiguity the
+    provenance columns exist to remove. log_run and log_portfolio_run must
+    populate the SAME non-null provenance set; they diverged once already,
+    when the columns were added to one writer and not the other.
+    """
+    if not symbols:
+        return None
+    spreads = [data_module.estimate_spread(sym, start, end) for sym in symbols]
+    return 10_000.0 * sum(spreads) / len(spreads)
 
 
 def _benchmark_window_return(start: date, end: date) -> float | None:
@@ -364,9 +431,19 @@ def run_cross_sectional(
     # getattr with a "monthly" fallback: a future cross-sectional strategy
     # isn't required to expose this field at all.
     rebalance_frequency = getattr(strategy, "rebalance_frequency", "monthly")
+    # Per-symbol spread, the SAME estimator engine/backtest.py applies to every
+    # per-symbol strategy. Until now this call passed neither slippage nor
+    # commission, so both defaulted to 0.0 and this engine backtested at zero
+    # transaction cost -- while every strategy it was ranked against on the
+    # same leaderboard paid estimate_spread(). Dual Momentum was the only
+    # shortlisted row on that board and also the only cost-free one, on a
+    # daily-rebalance configuration where free trading flatters most.
+    spread_by_symbol = {s: data_module.estimate_spread(s, start, end) for s in symbols}
     result = run_cross_sectional_backtest(
         strategy_name, strategy, symbols, start, end, risk_free_rate=rf,
         rebalance_frequency=rebalance_frequency,
+        spread_by_symbol=spread_by_symbol,
+        commission_bps=ALPACA_COMMISSION_BPS,
     )
     # No verdict for a run that never rebalanced (no data) -- status stays
     # NULL and the UI keeps its old "Backtested" fallback.
@@ -392,6 +469,17 @@ def run_cross_sectional(
         is_canonical=request is None or request.is_default(),
         benchmark_return_pct=benchmark,
         status=status,
+        # Spread is estimated PER SYMBOL, so the row stores the universe mean
+        # -- a single summary number for a vector. Recorded so a stored result
+        # is never again ambiguous about what it charged; the per-symbol detail
+        # is reproducible from estimate_spread() given the symbols and window,
+        # both of which this row already carries.
+        slippage_bps=(
+            10_000.0 * sum(spread_by_symbol.values()) / len(spread_by_symbol)
+            if spread_by_symbol else None
+        ),
+        commission_bps=ALPACA_COMMISSION_BPS,
+        **_measured_window(result.equity_curve),
     )
     return result
 

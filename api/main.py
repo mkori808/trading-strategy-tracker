@@ -39,10 +39,17 @@ from engine import quotes as quotes_module
 from engine.logging_db import (
     best_portfolio_run_per_strategy,
     best_run_per_strategy,
+    strategies_awaiting_remeasurement,
     portfolio_run_history,
     run_history,
 )
-from engine.metrics import compute_metrics, derive_status
+from engine.metrics import (
+    STATUS_AWAITING_REMEASUREMENT,
+    compute_metrics,
+    derive_status,
+    portfolio_alpha_pct,
+    portfolio_status,
+)
 from engine.portfolio import run_portfolio_backtest
 from engine.runner import (
     SYMBOL_OVERRIDE_DISALLOWED_NAMES,
@@ -197,11 +204,27 @@ def _run_config_fields(row: Any) -> dict:
     show what configuration actually produced the displayed score without
     needing to open the run-history table first."""
     if row is None:
-        return {"symbols": [], "startDate": None, "endDate": None, "params": {}}
+        return {
+            "symbols": [], "startDate": None, "endDate": None, "params": {},
+            "measuredStartDate": None, "measuredEndDate": None,
+        }
+    keys = row.keys()
+    measured_start = row["measured_start"] if "measured_start" in keys else None
+    measured_end = row["measured_end"] if "measured_end" in keys else None
     return {
         "symbols": json.loads(row["symbols"]) if row["symbols"] else [],
-        "startDate": row["start_date"],
-        "endDate": row["end_date"],
+        # The window the UI displays is the one the numbers DESCRIBE, falling
+        # back to the requested window only when no measurement was recorded.
+        # A day-trading run requests two years and covers ~50 trading days
+        # (6.8%), so showing the request made 21,108 trades from seven weeks
+        # read as a decade of evidence. The request is still carried, below,
+        # for anyone who needs to know what was asked for.
+        "startDate": measured_start or row["start_date"],
+        "endDate": measured_end or row["end_date"],
+        "requestedStartDate": row["start_date"],
+        "requestedEndDate": row["end_date"],
+        "measuredStartDate": measured_start,
+        "measuredEndDate": measured_end,
         "params": json.loads(row["params"]) if row["params"] else {},
     }
 
@@ -452,10 +475,27 @@ def _portfolio_strategy_row(name: str, row: Any) -> dict:
         # engine/metrics.py:portfolio_status(); older rows (and runs with no
         # meaningful verdict, e.g. Pairs finding no cointegrated pair) keep
         # the pre-verdict "Backtested" label.
-        "status": row["status"] or "Backtested",
+        # Recomputed from the row's stored numbers with CURRENT logic, exactly
+        # as the per-symbol branch does -- portfolio_status gained an
+        # absence-cannot-satisfy rule after these rows were written, and a
+        # stored string would preserve the old verdict.
+        "status": (
+            portfolio_status(
+                row["return_pct"], row["sharpe"], row["benchmark_return_pct"]
+            )
+            if row["return_pct"] is not None
+            else (row["status"] or "Backtested")
+        ),
         "lastRun": row["run_at"],
         "sharpe": row["sharpe"],
-        "alphaPct": None,
+        # Same quantity as the per-symbol alpha column (strategy return minus
+        # benchmark return over the identical window; rf cancels on both sides).
+        # It was always the basis portfolio_status gated on -- it just was not
+        # surfaced, so this column read blank and the board looked like it
+        # judged two rows on returns and twenty-four on excess-over-benchmark.
+        "alphaPct": portfolio_alpha_pct(
+            row["return_pct"], row["benchmark_return_pct"]
+        ),
         "beta": None,
         "cagrPct": row["cagr_pct"],
         "returnPct": row["return_pct"],
@@ -474,6 +514,10 @@ def list_strategies() -> list[dict]:
     # Lab-tab experiment can never surface here).
     latest = best_run_per_strategy()
     latest_portfolio = best_portfolio_run_per_strategy()
+    # Both leaderboard reads are filtered to the CURRENT metrics_version, so a
+    # strategy measured only under a superseded convention has no row here.
+    # It must not be reported as untested -- see STATUS_AWAITING_REMEASUREMENT.
+    awaiting = strategies_awaiting_remeasurement()
     rows = []
     for name in ALL_STRATEGY_NAMES:
         # Cross-sectional (Dual Momentum) and pairs (Pairs / Stat Arb)
@@ -500,7 +544,9 @@ def list_strategies() -> list[dict]:
                 "avgLossR": None,
                 "expectancyR": None,
                 "profitFactor": None,
-                "status": "Not yet tested",
+                "status": (
+                    STATUS_AWAITING_REMEASUREMENT if name in awaiting else "Not yet tested"
+                ),
                 "lastRun": None,
                 "sharpe": None,
                 "alphaPct": None,

@@ -31,14 +31,24 @@ transacts.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, timedelta
 from typing import Literal
 
 import pandas as pd
 
 from engine import data as data_module
+from engine.metrics import TRADING_DAYS_PER_YEAR
 from engine.portfolio import annualized_stats
 from strategies.cross_sectional import CrossSectionalStrategy
+
+class InsufficientHistory(RuntimeError):
+    """A symbol cannot supply the warmup its strategy needs before `start`.
+
+    Its own error type rather than ValueError so the API layer can map it to
+    a 400 with the message intact -- the user needs to know WHICH symbol and
+    by how much, since the fix is a judgement call (move the window, or drop
+    the name on purpose) rather than something the engine should pick."""
+
 
 DEFAULT_CASH = 10_000.0
 
@@ -102,8 +112,37 @@ def run_cross_sectional_backtest(
     rebalance_frequency: RebalanceFrequency = "monthly",
     slippage_bps: float = 0.0,
     commission_bps: float = 0.0,
+    spread_by_symbol: dict[str, float] | None = None,
 ) -> CrossSectionalResult:
-    raw_bars = {s: data_module.get_bars(s, "1d", start, end) for s in symbols}
+    """`spread_by_symbol` maps symbol -> spread as a DECIMAL (0.0002 = 2bps),
+    the shape engine/data.py:estimate_spread returns. When supplied it
+    overrides the flat `slippage_bps` per symbol, matching what the
+    per-symbol engine already does in engine/backtest.py -- a leaderboard
+    where one engine estimates cost per name and another applies a single
+    flat rate (or none) is not comparing like with like. A symbol missing
+    from the map falls back to `slippage_bps`.
+
+    History is fetched from BEFORE `start` when the strategy declares a
+    lookback (see CrossSectionalStrategy.required_history_days), so the first
+    rebalance can rank on day one instead of the portfolio sitting in cash
+    until the traded window itself supplies enough bars. Only [start, end] is
+    traded or reported -- the warmup prefix is ranking input and nothing else.
+
+    Raises InsufficientHistory if any symbol cannot supply that warmup.
+    Deliberately loud: the previous behaviour was a `continue` inside the
+    strategy, which rendered "this symbol did not exist yet" identical to an
+    ordinary all-cash day. It also catches a window extended backwards past
+    what the data provider has -- e.g. a 2018 start over the July-2021 Dow
+    roster, where DOW has no bars before 2019-03-20 because it was spun out
+    of DowDuPont in 2019 and did not exist earlier."""
+    warmup_days = strategy.required_history_days()
+    # 252 trading days per 365.25 calendar -> 1.45, plus a week of slack.
+    # Correct on average and wrong on any window with unusual holiday density
+    # or an early data gap -- which is exactly why the resulting bar count is
+    # ASSERTED below rather than trusted.
+    fetch_start = start - timedelta(days=int(warmup_days * 1.45) + 7) if warmup_days else start
+
+    raw_bars = {s: data_module.get_bars(s, "1d", fetch_start, end) for s in symbols}
     raw_bars = {s: b for s, b in raw_bars.items() if not b.empty}
     if not raw_bars:
         empty_curve = pd.Series([cash], index=[pd.Timestamp(start)])
@@ -112,10 +151,50 @@ def run_cross_sectional_backtest(
             cash, 0.0, None, 0.0, None, None, risk_free_rate, 0.0,
         )
 
+    # Bars carry a tz-aware index (America/New_York); a daily bar for trading
+    # day D is stamped D 20:00 there. `get_bars(start, ...)` therefore returns
+    # `start 20:00` as its first stamp, so a `>= start 00:00` boundary selects
+    # exactly the bars the un-warmed fetch used to return -- the traded window
+    # is unchanged, only the ranking input grew. Timezone is taken FROM the
+    # data rather than assumed, so synthetic tz-naive frames still work.
+    sample_index = next(iter(raw_bars.values())).index
+    window_open = pd.Timestamp(start)
+    if getattr(sample_index, "tz", None) is not None:
+        window_open = window_open.tz_localize(sample_index.tz)
+
+    if warmup_days:
+        short = {
+            symbol: int((bars.index < window_open).sum())
+            for symbol, bars in raw_bars.items()
+            if (bars.index < window_open).sum() < warmup_days
+        }
+        if short:
+            detail = ", ".join(f"{s} has {n}" for s, n in sorted(short.items()))
+            raise InsufficientHistory(
+                f"{strategy_name}: cannot start at {start} -- {len(short)} symbol(s) "
+                f"lack the {warmup_days} trading days of warmup this strategy needs "
+                f"before its first ranking ({detail}). Start the window later, or "
+                "drop the symbol(s) deliberately. Proceeding would rank a partial "
+                "universe while reporting metrics as though the full one was there."
+            )
+
+    # Warmup feeds the ranking only -- never traded, never in the equity curve.
     calendar = pd.DatetimeIndex(sorted(set().union(*(b.index for b in raw_bars.values()))))
+    calendar = calendar[calendar >= window_open]
+    if len(calendar) == 0:
+        empty_curve = pd.Series([cash], index=[window_open])
+        return CrossSectionalResult(
+            strategy_name, symbols, start, end, empty_curve, pd.DataFrame(),
+            cash, 0.0, None, 0.0, None, None, risk_free_rate, 0.0,
+        )
     rebalance_dates = _rebalance_dates(calendar, rebalance_frequency)
     close_df = pd.DataFrame({s: b["Close"] for s, b in raw_bars.items()}).sort_index().ffill()
-    cost_rate = (slippage_bps + commission_bps) / 10_000.0
+    flat_slippage = slippage_bps / 10_000.0
+    commission = commission_bps / 10_000.0
+
+    def cost_rate(symbol: str) -> float:
+        slip = flat_slippage if spread_by_symbol is None else spread_by_symbol.get(symbol, flat_slippage)
+        return slip + commission
 
     shares: dict[str, float] = {}
     cash_balance = cash
@@ -131,7 +210,18 @@ def run_cross_sectional_backtest(
                 total += qty * px
         return total
 
-    for day in calendar:
+    # Uninvested cash earns the risk-free rate, applied here rather than
+    # reconstructed downstream because this loop tracks the exact cash balance.
+    # Without it the engine assumed idle cash earned nothing while the Sharpe
+    # numerator still subtracted rf -- a double penalty that scaled inversely
+    # with exposure and made the shortlist tier unreachable for any selective
+    # strategy. See engine/backtest.py:accrue_idle_cash for the per-symbol
+    # counterpart and tests/test_engine/test_metric_calibration.py.
+    daily_rf = (1.0 + risk_free_rate) ** (1.0 / TRADING_DAYS_PER_YEAR) - 1.0 if risk_free_rate else 0.0
+
+    for position, day in enumerate(calendar):
+        if position and daily_rf:
+            cash_balance *= 1.0 + daily_rf
         if day in rebalance_dates:
             history = {s: b.loc[:day] for s, b in raw_bars.items()}
             target_weights = strategy.rebalance(history, as_of=day)
@@ -146,7 +236,7 @@ def run_cross_sectional_backtest(
                     qty = shares.pop(symbol)
                     if pd.notna(px):
                         proceeds = qty * px
-                        cost = abs(proceeds) * cost_rate
+                        cost = abs(proceeds) * cost_rate(symbol)
                         cash_balance += proceeds - cost
                         total_costs += cost
 
@@ -163,7 +253,7 @@ def run_cross_sectional_backtest(
                 # Slippage/commission apply to the traded delta only -- an
                 # unchanged holding from the prior rebalance doesn't re-pay
                 # a cost it already paid to get established.
-                cost = abs(delta_shares * px) * cost_rate
+                cost = abs(delta_shares * px) * cost_rate(symbol)
                 shares[symbol] = shares.get(symbol, 0.0) + delta_shares
                 cash_balance -= delta_shares * px + cost
                 total_costs += cost
@@ -177,7 +267,9 @@ def run_cross_sectional_backtest(
     return_pct = (final_equity / cash - 1) * 100
     running_max = equity_curve.cummax()
     max_dd = float(((equity_curve - running_max) / running_max).min() * 100)
-    cagr, sharpe, sortino = annualized_stats(equity_curve, risk_free_rate)
+    cagr, sharpe, sortino = annualized_stats(
+        equity_curve, risk_free_rate, cash_accrued=True
+    )
 
     return CrossSectionalResult(
         strategy_name=strategy_name,

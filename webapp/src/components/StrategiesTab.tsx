@@ -18,7 +18,13 @@ import { RunConfigPanel } from "./RunConfigPanel";
 import { RunHistory } from "./RunHistory";
 import { StrategyTable } from "./StrategyTable";
 
-const DAY_TRADING_CAPTION = "Day-trading strategy: backtests the last ~60 days of 5-min bars.";
+// Deliberately does NOT state a day count. The free data tier serves ~50
+// trading days of 5-minute bars, not the ~60 this claimed, and the figure
+// moves whenever the provider changes -- so the window is read from the run
+// itself (the MEASURED window, see api/main.py:_run_config_fields) rather
+// than asserted here and left to drift.
+const DAY_TRADING_CAPTION =
+  "Day-trading strategy: 5-min bars, limited to the window the data provider serves (see Window column).";
 const SWING_TRADING_CAPTION = "Swing-trading strategy: backtests the last 5 years of daily bars.";
 
 function EmptyResultPlaceholder() {
@@ -174,7 +180,12 @@ export function StrategiesTab({
                 <RunHistory rows={history} onReplay={handleReplay} />
               </div>
             ) : (
-              <PortfolioRunHistory rows={portfolioHistory} onReplay={handleReplay} />
+              <PortfolioRunHistory
+                rows={portfolioHistory}
+                onReplay={handleReplay}
+                strategyName={selected ?? ""}
+                automatable={selectedEngine === "cross_sectional"}
+              />
             )}
           </div>
         </section>

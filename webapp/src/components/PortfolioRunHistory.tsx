@@ -1,5 +1,5 @@
 import { Fragment, useState } from "react";
-import type { PortfolioHistoryRow } from "../api";
+import { api, type PortfolioHistoryRow } from "../api";
 import { StatusPill } from "./StatusPill";
 
 function fmtDate(iso: string): string {
@@ -21,11 +21,52 @@ function fmtParamValue(v: number | boolean | string): string {
 export function PortfolioRunHistory({
   rows,
   onReplay,
+  strategyName,
+  automatable,
 }: {
   rows: PortfolioHistoryRow[];
   onReplay: (row: PortfolioHistoryRow) => void;
+  /** Name of the strategy these rows belong to -- needed to target the
+   * per-strategy paper-execution opt-in (POST /api/live/execution/config). */
+  strategyName: string;
+  /** Only strategies engine/execution.py knows how to run (see
+   * strategies/registry.py:CROSS_SECTIONAL_STRATEGY_NAMES) can be promoted --
+   * the API rejects anything else with a 400, so the button is hidden rather
+   * than offered and failing. */
+  automatable: boolean;
 }) {
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
+  const [promoting, setPromoting] = useState<number | null>(null);
+  const [promoteMessage, setPromoteMessage] = useState<{ index: number; text: string; isError: boolean } | null>(null);
+
+  // CANONICAL ROWS ONLY -- see the `isCanonical` guard at the call site.
+  // A Lab-tab run can override the symbol universe, the date window, and
+  // every rule parameter at once, so an exploratory row is exactly the
+  // shape of result CLAUDE.md's survivorship-bias rule warns about:
+  // measured directly on this strategy, holding params fixed and moving
+  // only the start date flipped the verdict between "beats SPY" and
+  // "loses to SPY". Promoting from that set would let a window-shopped
+  // configuration reach an order-placing code path on one click.
+  const promote = async (i: number, row: PortfolioHistoryRow) => {
+    const confirmed = window.confirm(
+      `Enable automated PAPER execution for "${strategyName}"?\n\n` +
+        "This is the strategy's registered (canonical) configuration. It starts placing real " +
+        "orders in Alpaca's paper account (no real money) on the next scheduled or manual " +
+        "rebalance, and replaces any currently enabled configuration for this strategy. " +
+        "You can disable it any time from the Live tab.",
+    );
+    if (!confirmed) return;
+    setPromoting(i);
+    setPromoteMessage(null);
+    try {
+      await api.setExecutionConfig(strategyName, true, row.params);
+      setPromoteMessage({ index: i, text: "Enabled -- see the Live tab's Automated execution panel.", isError: false });
+    } catch (e) {
+      setPromoteMessage({ index: i, text: String(e), isError: true });
+    } finally {
+      setPromoting(null);
+    }
+  };
 
   if (rows.length === 0) {
     return (
@@ -152,6 +193,43 @@ export function PortfolioRunHistory({
                                   .join(",  ")
                               : "registered defaults (no overrides)"}
                           </div>
+                          {automatable && (
+                            <div className="mt-1 flex items-center gap-2">
+                              {r.isCanonical ? (
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      promote(i, r);
+                                    }}
+                                    disabled={promoting === i}
+                                    className="rounded-md px-2.5 py-1 text-xs font-medium text-white disabled:opacity-50"
+                                    style={{ background: "var(--series-1)" }}
+                                  >
+                                    {promoting === i ? "Enabling…" : "Promote to paper execution"}
+                                  </button>
+                                  {promoteMessage?.index === i && (
+                                    <span
+                                      className="text-xs"
+                                      style={{ color: promoteMessage.isError ? "var(--status-critical)" : "var(--status-good)" }}
+                                    >
+                                      {promoteMessage.text}
+                                    </span>
+                                  )}
+                                </>
+                              ) : (
+                                // Explain the absence rather than silently
+                                // omitting the control -- an unexplained
+                                // missing button reads as a bug and invites
+                                // working around it.
+                                <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+                                  Exploratory runs can't be promoted to execution — re-run this
+                                  configuration as the strategy's registered default first.
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </td>
                     </tr>

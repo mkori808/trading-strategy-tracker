@@ -390,8 +390,8 @@ def _alpha_beta(equity_curve: pd.DataFrame, spy_bars: pd.DataFrame, risk_free_ra
         return None, None
 
     beta = float(np.cov(port_ret, bench_ret)[0, 1] / bench_ret.var())
-    port_cagr, _, _ = annualized_stats(port_daily, risk_free_rate)
-    bench_cagr, _, _ = annualized_stats(bench_daily, risk_free_rate)
+    port_cagr, _, _ = annualized_stats(port_daily, risk_free_rate, cash_accrued=False)
+    bench_cagr, _, _ = annualized_stats(bench_daily, risk_free_rate, cash_accrued=False)
     if port_cagr is None or bench_cagr is None:
         return None, beta
     alpha_pct = (port_cagr / 100 - risk_free_rate) - beta * (bench_cagr / 100 - risk_free_rate)
@@ -404,7 +404,12 @@ def _build_result(
     spy_bars,
 ) -> InsiderBuyResult:
     equity = equity_curve["Equity"] if not equity_curve.empty else pd.Series([cash])
-    cagr, sharpe, sortino = annualized_stats(equity, risk_free_rate) if not equity_curve.empty else (None, None, None)
+    # NOT accrued -- research/comparison module, never a leaderboard row.
+    cagr, sharpe, sortino = (
+        annualized_stats(equity, risk_free_rate, cash_accrued=False)
+        if not equity_curve.empty
+        else (None, None, None)
+    )
     drawdown = float((equity / equity.cummax() - 1).min() * 100) if len(equity) else 0.0
     alpha_pct, beta = _alpha_beta(equity_curve, spy_bars, risk_free_rate)
 

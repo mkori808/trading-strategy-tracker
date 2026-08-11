@@ -41,6 +41,24 @@ TIMEZONE = "America/New_York"
 # rather than swapped for a substitute -- picking a replacement now, with
 # hindsight of which stocks are still tradeable, would just reintroduce the
 # bias this universe exists to avoid. 29 names, not 30.
+#
+# Two consequences of this being a JULY 2021 snapshot, both about windows
+# rather than about the list:
+#
+# 1. A backtest starting before mid-2021 is not merely less rigorous, it is
+#    invalid. DOW has no price history before 2019-03-20 (spun out of
+#    DowDuPont, not renamed), and AMGN/HON/CRM only joined the index in
+#    Aug 2020 -- so a 2018 start would rank on membership knowledge from up
+#    to three years in its own future. engine/cross_sectional.py now raises
+#    InsufficientHistory rather than silently ranking a partial universe;
+#    measured, a 2018-08-11 start reports "DOW has 0" of the 274 warmup days
+#    a 273-day lookback needs.
+# 2. A window starting mid-2021 fetches WARMUP history from before the
+#    snapshot date (e.g. back to mid-2020 at a 273-day lookback). That is
+#    accepted deliberately: no position is ever taken during warmup, so it
+#    affects the day-one RANKING only, not tradeable membership, and it
+#    washes out after one lookback. The alternative -- refusing to rank on
+#    day one -- is the very bug the warmup preload exists to fix.
 EQUITY_UNIVERSE: list[str] = [
     "MMM", "GS", "NKE", "AXP", "HD", "PG", "AMGN", "HON", "CRM", "AAPL",
     "INTC", "TRV", "BA", "IBM", "UNH", "CAT", "JNJ", "VZ", "CVX", "JPM",

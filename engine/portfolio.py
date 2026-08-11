@@ -36,7 +36,7 @@ import pandas as pd
 
 from engine.backtest import DEFAULT_CASH, DEFAULT_RISK_PCT, StrategyBacktestResult
 
-TRADING_DAYS_PER_YEAR = 252
+from engine.metrics import TRADING_DAYS_PER_YEAR  # noqa: F401  (re-export)
 
 
 @dataclass
@@ -103,13 +103,57 @@ def _extract_intents(per_symbol_trades: dict[str, pd.DataFrame]) -> list[_Intent
 
 
 def annualized_stats(
-    equity_curve: pd.Series, risk_free_rate: float
+    equity_curve: pd.Series, risk_free_rate: float, *, cash_accrued: bool
 ) -> tuple[float | None, float | None, float | None]:
-    """(CAGR%, Sharpe, Sortino) from a daily-resampled equity curve, mirroring
-    backtesting.py's own methodology (geometric mean day return, compounded)
-    closely enough to be comparable, without forcing a multi-asset portfolio
-    through machinery built for one instrument's OHLC series."""
-    daily = equity_curve.resample("D").last().ffill().dropna()
+    """(CAGR%, Sharpe, Sortino) from an equity curve sampled on TRADING days,
+    mirroring backtesting.py's own methodology (geometric mean day return,
+    compounded) closely enough to be comparable, without forcing a multi-asset
+    portfolio through machinery built for one instrument's OHLC series.
+
+    Collapses to one point per trading DATE rather than resampling onto a
+    calendar. `resample("D").ffill()` invented ~113 flat weekend/holiday bars
+    per year, so the series carried ~365 observations while still being
+    annualized with TRADING_DAYS_PER_YEAR (252). That understated the return
+    by a factor of 252/365 while shrinking volatility by only sqrt(252/365) --
+    the two biases partially cancel, which is why the result looked plausible
+    (~0.7x) instead of obviously broken and survived unnoticed next to a 0.5
+    shortlist threshold. Measured: SPY buy-and-hold 2021-2026 scored 0.371
+    against a true 0.558, i.e. the benchmark itself could not clear the gate.
+    See tests/test_engine/test_metric_calibration.py.
+
+    groupby-normalize rather than a plain `.dropna()` because callers may pass
+    an intraday-indexed curve; collapsing per date keeps that normalization
+    without fabricating bars on days the market was shut.
+
+    `cash_accrued` is REQUIRED and keyword-only: every caller must state whether
+    the curve it passes already credits idle cash with the risk-free rate. It
+    exists to make the omission impossible rather than merely discouraged.
+
+    The Sharpe numerator subtracts rf unconditionally. If the curve does NOT
+    credit uninvested cash, a strategy is charged a drag no real account holding
+    the same cash would experience, and the distortion scales inversely with
+    exposure -- which is why the most selective strategies scored worst
+    (Earnings Momentum -8.09 at 1.6% exposure, Anchored VWAP -12.13 at 0.13%)
+    and why SHARPE_THRESHOLD = 0.5 was unreachable for the entire per-symbol
+    engine. Passing `cash_accrued=False` with a non-zero rf therefore raises:
+    it is not a supported mode, it is the bug.
+
+    This was added because the accrual fix originally landed at 2 of 7 call
+    sites. The five that were missed (overnight, pairs, portfolio,
+    dividend_hybrid, insider_buy) all received the calendar-day fix for free --
+    it lives inside this function -- and silently kept the idle-cash artifact,
+    which lives in the callers. A required argument turns that whole class of
+    omission into a TypeError at the call site."""
+    if not cash_accrued and risk_free_rate:
+        raise ValueError(
+            "annualized_stats requires an equity curve that already credits idle "
+            "cash at the risk-free rate when risk_free_rate is non-zero. Accrue "
+            "first (see engine/backtest.py:accrue_idle_cash, or track the cash "
+            "balance in the engine loop as engine/cross_sectional.py does), then "
+            "pass cash_accrued=True. Passing an un-accrued curve charges the "
+            "strategy rf it was never paid."
+        )
+    daily = equity_curve.groupby(equity_curve.index.normalize()).last().dropna()
     if len(daily) < 3:
         return None, None, None
     day_returns = daily.pct_change().dropna()
@@ -156,6 +200,13 @@ def run_portfolio_backtest(
         events.append((it.exit_time, 0, "exit", it))
     events.sort(key=lambda e: (e[0], e[1]))
 
+    # Idle cash earns rf. This loop is event-driven (entries/exits), not
+    # bar-driven, so interest accrues over ELAPSED time between events rather
+    # than per event -- events are irregularly spaced, and a per-event rate
+    # would repeat the bar-frequency error that over-credited intraday runs.
+    daily_rf = risk_free_rate
+    last_event_time = None
+
     cash_balance = cash
     active: dict[int, dict] = {}  # intent.id -> {size, entry_price, pnl_per_share, symbol}
     skipped = 0
@@ -166,6 +217,11 @@ def run_portfolio_backtest(
         return sum(p["size"] * p["entry_price"] for p in active.values())
 
     for time, _, kind, it in events:
+        if daily_rf and last_event_time is not None:
+            idle_years = (time - last_event_time).total_seconds() / (365.25 * 86400)
+            if idle_years > 0:
+                cash_balance *= (1.0 + daily_rf) ** idle_years
+        last_event_time = time
         if kind == "entry":
             open_slots = max_concurrent_positions - len(active)
             if open_slots <= 0:
@@ -217,7 +273,9 @@ def run_portfolio_backtest(
     return_pct = (final_equity / cash - 1) * 100
     running_max = equity_curve.cummax()
     max_dd = float(((equity_curve - running_max) / running_max).min() * 100)
-    cagr, sharpe, sortino = annualized_stats(equity_curve, risk_free_rate)
+    cagr, sharpe, sortino = annualized_stats(
+        equity_curve, risk_free_rate, cash_accrued=True
+    )
 
     return PortfolioResult(
         strategy_name=result.strategy_name,

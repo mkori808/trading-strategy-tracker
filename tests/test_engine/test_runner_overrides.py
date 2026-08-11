@@ -61,8 +61,13 @@ def stub_engine(monkeypatch):
         )
         return _empty_result(name, symbols, start, end)
 
-    def fake_log_run(metrics, symbols, params=None, is_canonical=True):
-        calls["log_run"].append({"symbols": symbols, "params": params, "is_canonical": is_canonical})
+    def fake_log_run(metrics, symbols, params=None, is_canonical=True, **provenance):
+        # **provenance absorbs slippage_bps/commission_bps/return_basis: this
+        # stub asserts on override plumbing, not on what a run charged.
+        calls["log_run"].append({
+            "symbols": symbols, "params": params, "is_canonical": is_canonical,
+            **provenance,
+        })
         return 1
 
     monkeypatch.setattr(runner, "run_strategy_backtest", fake_strategy_backtest)

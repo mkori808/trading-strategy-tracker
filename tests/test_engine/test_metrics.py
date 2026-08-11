@@ -4,6 +4,7 @@ from engine.metrics import (
     STATUS_NEGATIVE,
     STATUS_NOT_TESTED,
     STATUS_POSITIVE,
+    STATUS_UNVERIFIED,
     STATUS_SAMPLE_TOO_SMALL,
     compute_metrics,
 )
@@ -43,7 +44,12 @@ def test_expectancy_and_profit_factor_match_tracker_definitions():
     assert abs(m.expectancy_r - expected_expectancy) < 1e-9
     expected_pf = (20 * 2) / (10 * 1)
     assert abs(m.profit_factor - expected_pf) < 1e-9
-    assert m.status == STATUS_POSITIVE
+    # Synthetic trades carry no Sharpe and no alpha, so the risk-adjusted gate
+    # cannot be evaluated -- and an unevaluated gate must not award a tier. This
+    # asserted STATUS_POSITIVE until 2026-08-11, which is exactly how Overnight
+    # Hold (28,370 trades, Sharpe None, alpha None) became the board's only
+    # shortlisted row and therefore promotable to paper execution.
+    assert m.status == STATUS_UNVERIFIED
 
 
 def test_negative_expectancy_flagged_to_drop():

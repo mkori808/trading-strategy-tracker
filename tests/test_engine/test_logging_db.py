@@ -10,6 +10,7 @@ file catches that.
 from __future__ import annotations
 
 import sqlite3
+from datetime import date
 
 import pytest
 
@@ -71,7 +72,7 @@ def test_latest_run_per_strategy_picks_the_most_recent_canonical(db):
 
 def test_best_run_per_strategy_ignores_non_canonical_rows(db):
     db.log_run(_metrics(sharpe=0.1), ["AAPL"], is_canonical=True)
-    db.log_run(_metrics(sharpe=99.0), ["MSFT"], params={"tweaked": True}, is_canonical=False)
+    db.log_run(_metrics(sharpe=2.9), ["MSFT"], params={"tweaked": True}, is_canonical=False)
     best = db.best_run_per_strategy()
     assert best["S"]["is_canonical"] == 1
     assert best["S"]["sharpe"] == 0.1
@@ -152,8 +153,18 @@ def test_migration_backfills_pre_existing_rows_as_canonical(db, tmp_path):
 
     # get_connection() runs _migrate() as a side effect of opening -- this
     # is the real migration path, not a re-implementation of it.
-    latest = db.latest_run_per_strategy()
-    assert latest["Legacy"]["is_canonical"] == 1
+    #
+    # Asserted against the ROW, not via latest_run_per_strategy(): that now
+    # filters to the current metrics_version, and this legacy row is correctly
+    # stamped version 0, so it is deliberately excluded from the leaderboard.
+    # Observing it through a view that filters it out would test the filter
+    # rather than the migration.
+    conn = db.get_connection()
+    conn.row_factory = sqlite3.Row
+    row = conn.execute("SELECT * FROM runs WHERE strategy_name = 'Legacy'").fetchone()
+    conn.close()
+    assert row["is_canonical"] == 1
+    assert row["metrics_version"] == 0, "a pre-migration row must read as legacy, not current"
 
 
 def test_migration_is_idempotent(db):
@@ -237,7 +248,7 @@ def test_best_portfolio_run_per_strategy_picks_highest_sharpe(db):
 
 def test_best_portfolio_run_per_strategy_ignores_non_canonical(db):
     db.log_portfolio_run(**_portfolio_kwargs(sharpe=0.1, is_canonical=True))
-    db.log_portfolio_run(**_portfolio_kwargs(sharpe=99.0, is_canonical=False))
+    db.log_portfolio_run(**_portfolio_kwargs(sharpe=2.9, is_canonical=False))
     best = db.best_portfolio_run_per_strategy()
     assert best["Dual Momentum"]["sharpe"] == 0.1
 
@@ -248,3 +259,100 @@ def test_portfolio_run_history_returns_all_runs_newest_first(db):
     rows = db.portfolio_run_history("Dual Momentum")
     assert len(rows) == 2
     assert rows[0]["final_equity"] == 11000.0  # most recent first
+
+
+def test_both_writers_populate_the_same_provenance_set(tmp_path, monkeypatch):
+    """log_run and log_portfolio_run must agree on the provenance columns.
+
+    They diverged once already: the provenance migration added the columns to
+    log_portfolio_run's INSERT and not log_run's, so every per-symbol row was
+    written with metrics_version NULL -- and _migrate's legacy stamp then
+    relabelled those fully-corrected rows "legacy_total_unadjusted" on the very
+    next connection. A correct number wearing a wrong label survives any amount
+    of recomputation, because the recomputed value matches; only the audit
+    layer was wrong. This asserts the shape rather than re-checking the one
+    instance, so adding a sixth provenance column to one writer fails here
+    instead of silently mislabelling half the table.
+    """
+    import sqlite3
+
+    from engine import logging_db
+    from engine.metrics import BacktestMetrics
+
+    monkeypatch.setattr(logging_db, "LOGS_DIR", tmp_path)
+    monkeypatch.setattr(logging_db, "DB_PATH", tmp_path / "runs.db")
+
+    metrics = BacktestMetrics(
+        strategy_name="probe", symbol="ALL", start=None, end=None,
+        trades_taken=1, wins=1, losses=0, win_rate=1.0, avg_win_r=1.0,
+        avg_loss_r=0.0, expectancy_r=1.0, profit_factor=2.0,
+        max_drawdown_pct=1.0, sharpe=1.0, sortino=1.0, status="probe",
+        measured_start=date(2021, 1, 4), measured_end=date(2021, 6, 30),
+    )
+    logging_db.log_run(metrics, ["AAA"], slippage_bps=2.5, commission_bps=0.0)
+    logging_db.log_portfolio_run(
+        strategy_name="probe", symbols=["AAA"], start=None, end=None,
+        final_equity=1.0, return_pct=1.0, cagr_pct=1.0, max_drawdown_pct=1.0,
+        sharpe=1.0, sortino=1.0, risk_free_rate=0.03,
+        slippage_bps=2.5, commission_bps=0.0,
+        return_basis=logging_db.RETURN_BASIS_EXCESS,
+        measured_start=date(2021, 1, 4), measured_end=date(2021, 6, 30),
+    )
+
+    conn = logging_db.get_connection()
+    conn.row_factory = sqlite3.Row
+    populated = {}
+    for table in ("runs", "portfolio_runs"):
+        row = conn.execute(f"SELECT * FROM {table} ORDER BY id DESC LIMIT 1").fetchone()
+        populated[table] = {
+            name for name, _type in logging_db._PROVENANCE_COLUMNS if row[name] is not None
+        }
+    conn.close()
+
+    assert populated["runs"] == populated["portfolio_runs"], (
+        f"writers disagree on provenance: runs populated {sorted(populated['runs'])}, "
+        f"portfolio_runs populated {sorted(populated['portfolio_runs'])} -- a column "
+        "present in one writer and absent from the other produces rows whose "
+        "labels contradict their contents"
+    )
+    assert populated["runs"] == {c for c, _t in logging_db._PROVENANCE_COLUMNS}
+
+
+def test_legacy_stamp_runs_once_not_per_connection(tmp_path, monkeypatch):
+    """A migration that re-runs on every connection is a trap, not a migration.
+
+    The legacy stamp rewrites metrics_version NULL -> 0. Run per connection, it
+    relabels any row a future code path forgets to version -- and merely
+    OPENING the database to inspect it triggers the corruption. Observed: a
+    diagnostic query was the act that mislabelled the row it was checking.
+    """
+    import sqlite3
+
+    from engine import logging_db
+
+    monkeypatch.setattr(logging_db, "LOGS_DIR", tmp_path)
+    monkeypatch.setattr(logging_db, "DB_PATH", tmp_path / "runs.db")
+
+    conn = logging_db.get_connection()
+    with conn:
+        conn.execute(
+            "INSERT INTO portfolio_runs (run_at, strategy_name, symbols, is_canonical) "
+            "VALUES ('2026-01-01', 'unversioned', '[]', 1)"
+        )
+    conn.close()
+
+    # A fresh connection must NOT stamp the deliberately-unversioned row.
+    conn = logging_db.get_connection()
+    conn.row_factory = sqlite3.Row
+    row = conn.execute(
+        "SELECT metrics_version, return_basis FROM portfolio_runs WHERE strategy_name='unversioned'"
+    ).fetchone()
+    markers = conn.execute("SELECT COUNT(*) n FROM schema_meta").fetchone()["n"]
+    conn.close()
+
+    assert row["metrics_version"] is None, (
+        "opening the database relabelled an unversioned row as legacy -- a NULL "
+        "that survives is a visible bug, a NULL silently rewritten is corrupted "
+        "provenance that reads as intentional"
+    )
+    assert markers == 1, "legacy stamp marker written more than once (not committed atomically)"
