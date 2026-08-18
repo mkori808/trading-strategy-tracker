@@ -1,0 +1,194 @@
+{
+  "applicableGates": {
+    "beats_equal_weight": {
+      "applicable": true,
+      "reason": "This is a multi-instrument equity basket."
+    },
+    "beats_spy": {
+      "applicable": true,
+      "reason": "The registered primary benchmark is SPY for this US-equity universe."
+    },
+    "pit_membership": {
+      "applicable": true,
+      "reason": "The registered symbols are a truncated mechanical current-constituent sample, not a complete PIT ledger; PIT remains unresolved."
+    }
+  },
+  "assetClass": "equity",
+  "category": "S&P indexes",
+  "description": "Mechanical 26-stock S&P SmallCap 600 sample; point-in-time membership remains unresolved.",
+  "costModel": {
+    "commissionBps": 0.0,
+    "estimator": "engine.execution_calibration.spread_for",
+    "note": "Per-symbol equity spreads; never valid for futures roll/slippage costs.",
+    "type": "equity_spread"
+  },
+  "dataCoverage": {
+    "AAMI": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "ACIW": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "AEO": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "ALG": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "AROC": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "AWI": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "BCPC": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "BLFS": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "BXMT": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "CBRL": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "CFFN": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "CRC": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2020-10-27",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "CXW": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "DFIN": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "EAT": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "ENPH": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "EVTC": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "FCPT": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "FORM": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "GEO": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "GRBK": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "HCC": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "HOPE": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "HZO": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "INVA": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "JBSS": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    }
+  },
+  "equalWeightBenchmark": "self_equal_weight",
+  "id": "sp600_pit",
+  "label": "S&P SmallCap 600 sample",
+  "membershipLedgerPath": null,
+  "membershipMode": "mechanical_current_constituent_sample",
+  "primaryBenchmark": "SPY",
+  "runnable": true,
+  "selectable": false,
+  "symbols": [
+    "AAMI",
+    "ACIW",
+    "AEO",
+    "ALG",
+    "AROC",
+    "AWI",
+    "BCPC",
+    "BLFS",
+    "BXMT",
+    "CBRL",
+    "CFFN",
+    "CRC",
+    "CXW",
+    "DFIN",
+    "EAT",
+    "ENPH",
+    "EVTC",
+    "FCPT",
+    "FORM",
+    "GEO",
+    "GRBK",
+    "HCC",
+    "HOPE",
+    "HZO",
+    "INVA",
+    "JBSS"
+  ],
+  "unavailableReason": null
+}

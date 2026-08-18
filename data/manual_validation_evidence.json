@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "strategies": {
+    "Dual Momentum": {
+      "sourceDocument": "FROZEN_DUAL_MOMENTUM.md",
+      "recordedAt": "2026-08-11",
+      "historicalStability": {
+        "method": "frozen rule on 14 overlapping three-year windows stepped annually",
+        "windows": 14,
+        "positiveWindows": 12,
+        "fractionPositive": 0.8571428571,
+        "meanContributionPct": 10.5,
+        "medianContributionPct": 9.5,
+        "meanExcludingBestPct": 8.2,
+        "worstContributionPct": -16.3,
+        "bestContributionPct": 40.5,
+        "effectiveIndependentWindowsLow": 5,
+        "effectiveIndependentWindowsHigh": 6,
+        "limitation": "The documented rolling test used the frozen July-2021 roster; PIT integrity is assessed separately."
+      },
+      "pointInTimeMembership": {
+        "testRan": true,
+        "result": "survived",
+        "annualContributionPct": 3.25,
+        "comparisonCaveat": "The PIT and fixed-roster tests cover different periods and are not a controlled comparison.",
+        "reconstructedEjections": 17,
+        "unfetchableEjections": ["KFT", "DWDP", "UTX", "WBA"],
+        "knownFavorableExclusions": ["WBA"],
+        "unknownDirectionExclusions": ["KFT", "DWDP", "UTX"],
+        "priceCoverageComplete": false,
+        "gateConclusion": "warning",
+        "limitation": "WBA was a favorable exclusion and delisted-price coverage is incomplete, so the PIT run is evidence but not a passing integrity gate."
+      }
+    }
+  }
+}

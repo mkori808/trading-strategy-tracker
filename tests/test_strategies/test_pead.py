@@ -1,5 +1,7 @@
 from strategies.swing.pead import PostEarningsDrift
 
+import pandas as pd
+
 
 def test_no_entry_without_earnings(daily_bars_factory):
     bars = daily_bars_factory(closes=[100 + i for i in range(30)])
@@ -12,6 +14,21 @@ def test_entry_after_positive_surprise_drift(daily_bars_factory):
     bars = daily_bars_factory(closes=[100 + i for i in range(30)])
     events = [bars.index[27].date()]
     assert PostEarningsDrift(events).entry_signal(bars)
+
+
+def test_before_open_report_uses_same_day_reaction_session(daily_bars_factory):
+    bars = daily_bars_factory(closes=[100 + i for i in range(30)])
+    event = pd.Timestamp(bars.index[27].date()).tz_localize(bars.index.tz) + pd.Timedelta(hours=8)
+
+    assert PostEarningsDrift([event]).entry_signal(bars)
+
+
+def test_after_close_report_cannot_use_already_completed_session(daily_bars_factory):
+    bars = daily_bars_factory(closes=[100 + i for i in range(30)])
+    event = pd.Timestamp(bars.index[27].date()).tz_localize(bars.index.tz) + pd.Timedelta(hours=16, minutes=5)
+
+    assert not PostEarningsDrift([event]).entry_signal(bars.iloc[:28])
+    assert PostEarningsDrift([event]).entry_signal(bars)
 
 
 def test_no_entry_when_reaction_session_closed_down(daily_bars_factory):

@@ -26,10 +26,12 @@ recomputed bar-by-bar.
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 
 import numpy as np
 import pandas as pd
+
+from engine.event_timing import reaction_session
 
 EARNINGS_GAP_PCT = 0.03
 EARNINGS_GAP_VOLUME_MULTIPLE = 1.5
@@ -88,7 +90,7 @@ def compute_avwap(bars: pd.DataFrame, anchor: pd.Timestamp) -> pd.DataFrame:
 
 def earnings_gap_anchors(
     bars: pd.DataFrame,
-    earnings_dates: list[date],
+    earnings_dates: list[date | datetime | pd.Timestamp],
     gap_pct: float = EARNINGS_GAP_PCT,
     volume_multiple: float = EARNINGS_GAP_VOLUME_MULTIPLE,
     volume_lookback: int = EARNINGS_GAP_VOLUME_LOOKBACK,
@@ -111,18 +113,10 @@ def earnings_gap_anchors(
     qualifies = gap_up_ok & volume_ok
 
     anchors: list[pd.Timestamp] = []
-    index_dates = bars.index.normalize()
     for ed in sorted(set(earnings_dates)):
-        ed_ts = pd.Timestamp(ed)
-        if ed_ts.tz is None and bars.index.tz is not None:
-            ed_ts = ed_ts.tz_localize(bars.index.tz)
-        # First trading bar on/after the announcement date -- the reaction
-        # session (announcements after the close land on the next session;
-        # before-the-open announcements react the same day).
-        candidates = bars.index[index_dates >= ed_ts.normalize()]
-        if len(candidates) == 0:
+        reaction_bar = reaction_session(bars.index, ed)
+        if reaction_bar is None:
             continue
-        reaction_bar = candidates[0]
         if bool(qualifies.get(reaction_bar, False)):
             anchors.append(reaction_bar)
 

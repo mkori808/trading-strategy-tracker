@@ -1,0 +1,65 @@
+Current research-history rows: {"forward_experiments": 0, "forward_observations": 0, "portfolio_runs": 4, "research_equity_curves": 25, "research_experiments": 27, "runs": 23}
+Interrupted attempts removed: {"portfolio_runs": 0, "research_experiments": 0, "runs": 0}
+[1/24] QUEUED Opening Range Breakout (ORB) (standard)
+[2/24] QUEUED VWAP Bounce / Reversion (standard)
+[3/24] QUEUED Momentum / Gap and Go (standard)
+[4/24] QUEUED Scalping (3-5 min) (standard)
+[5/24] QUEUED Mean Reversion Scalp (standard)
+[6/24] QUEUED News Fade (standard)
+[7/24] QUEUED Range Trading (standard)
+[8/24] QUEUED Pivot-Level ETF Reversal (standard)
+[9/24] QUEUED Pullback to 21 EMA (standard)
+[10/24] QUEUED Breakout from Consolidation (standard)
+[11/24] QUEUED 9/21 EMA Crossover (standard)
+[12/24] QUEUED Oversold Bounce (RSI<30) (standard)
+[13/24] QUEUED Fibonacci Retracement Entry (standard)
+[14/24] QUEUED Earnings Momentum / Gap-Hold (standard)
+[15/24] QUEUED Connors Mean Reversion (RSI2) (standard)
+[16/24] QUEUED Internal Bar Strength (IBS) (standard)
+[17/24] QUEUED Gap Fade (daily) (standard)
+[18/24] QUEUED Turnaround Tuesday (standard)
+[19/24] QUEUED Sector Rotation Play (standard)
+[20/24] QUEUED Pairs / Stat Arb (pairs)
+[21/24] QUEUED Post-Earnings Drift (PEAD) (standard)
+[22/24] QUEUED Overnight Hold (standard)
+[23/24] QUEUED Anchored VWAP Breakout (standard)
+[24/24] QUEUED Dual Momentum Pullback Swing (standard)
+  Opening Range Breakout (ORB):   5% Preflighting market-data integrity
+  VWAP Bounce / Reversion:   5% Preflighting market-data integrity
+  Momentum / Gap and Go:   0% Queued
+  Scalping (3-5 min):   0% Queued
+  Mean Reversion Scalp:   0% Queued
+  News Fade:   0% Queued
+  Range Trading:   0% Queued
+  Pivot-Level ETF Reversal:   0% Queued
+  Pullback to 21 EMA:   0% Queued
+  Breakout from Consolidation:   0% Queued
+  9/21 EMA Crossover:   0% Queued
+  Oversold Bounce (RSI<30):   0% Queued
+  Fibonacci Retracement Entry:   0% Queued
+  Earnings Momentum / Gap-Hold:   0% Queued
+  Connors Mean Reversion (RSI2):   0% Queued
+  Internal Bar Strength (IBS):   0% Queued
+  Gap Fade (daily):   0% Queued
+  Turnaround Tuesday:   0% Queued
+  Sector Rotation Play:   0% Queued
+  Pairs / Stat Arb:   0% Queued
+  Post-Earnings Drift (PEAD):   0% Queued
+  Overnight Hold:   0% Queued
+  Anchored VWAP Breakout:   0% Queued
+  Dual Momentum Pullback Swing:   0% Queued
+  Opening Range Breakout (ORB):  10% Running strategy backtest and evidence checks
+  VWAP Bounce / Reversion:  10% Running strategy backtest and evidence checks
+  Opening Range Breakout (ORB):  45% Parameter robustness: range_minutes=10
+  Opening Range Breakout (ORB):  47% Parameter robustness: range_minutes=20
+  Opening Range Breakout (ORB):  50% Parameter robustness: volume_multiple=1.4
+  Opening Range Breakout (ORB):  52% Parameter robustness: volume_multiple=1.6
+  Opening Range Breakout (ORB):  55% Parameter robustness: target_range_multiple=1.5
+  Opening Range Breakout (ORB):  57% Parameter robustness: target_range_multiple=2.5
+  Opening Range Breakout (ORB):  94% Applying lifecycle and promotion gates
+  Opening Range Breakout (ORB): 100% Validation complete
+  Opening Range Breakout (ORB): COMPLETE: Evidence unresolved - design underpowered
+  Momentum / Gap and Go:   5% Preflighting market-data integrity
+  Momentum / Gap and Go:  10% Running strategy backtest and evidence checks
+  VWAP Bounce / Reversion:  45% Parameter robustness: band_atr_multiple=0.75
+  Momentum / Gap and Go:  45% Parameter robustness: gap_threshold=0.015

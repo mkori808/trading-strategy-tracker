@@ -272,6 +272,64 @@ def stub_cross_sectional(monkeypatch):
     return calls
 
 
+def test_canonical_window_resolves_to_the_same_29_symbols_via_pit_schedule(stub_cross_sectional):
+    """The canonical (no-override) window is entirely inside the ledger's
+    static-since-2020-08-31 tail, so wiring require_complete=False into
+    resolve_schedule must be a no-op for it -- same 29 names EQUITY_UNIVERSE
+    already has, not a changed universe for the registered default."""
+    from engine.universe import EQUITY_UNIVERSE
+
+    runner.run_cross_sectional("Dual Momentum")
+    call = stub_cross_sectional["backtest"][0]
+    assert sorted(call["symbols"]) == sorted(EQUITY_UNIVERSE)
+
+
+def test_earlier_start_override_gets_real_pit_membership_not_a_static_snapshot(stub_cross_sectional):
+    """A window starting before EQUITY_UNIVERSE's July-2021 anchor must now
+    resolve real, date-effective Dow membership from the ledger instead of
+    silently falling back to the static snapshot (GE was a member in mid-
+    2015 and WBA was not -- the reverse of the frozen snapshot)."""
+    request = runner.RunRequest(start=date(2015, 1, 1))
+    runner.run_cross_sectional("Dual Momentum", request)
+    call = stub_cross_sectional["backtest"][0]
+    membership_at = call["membership_at"]
+    assert membership_at is not None
+    roster_2015 = membership_at(date(2015, 6, 1))
+    assert "GE" in roster_2015
+    assert "WBA" not in roster_2015
+
+
+def test_sp500_current_has_no_pit_wiring_yet_pending_price_coverage_audit(stub_cross_sectional):
+    """sp500_current has a real, sourced membership ledger
+    (data/universe_membership.json, key "sp500", built by
+    engine/build_sp500_pit_ledger.py) but is deliberately NOT in
+    engine/runner.py:PIT_LEDGER_KEYS yet: engine/audit_sp500_price_coverage.py
+    found priceCoverageComplete=False (637 of 778 fetchable historical
+    tickers don't have price history covering their full claimed membership
+    tenure, and 52 are identity-ambiguous reused tickers) -- membership truth
+    is not price truth, so cross-sectional ranking must not silently apply
+    date-effective membership over price data that can't back it yet."""
+    request = runner.RunRequest(universe_id="sp500_current", start=date(2015, 1, 1))
+    runner.run_cross_sectional("Dual Momentum", request)
+    call = stub_cross_sectional["backtest"][0]
+    assert call["membership_at"] is None
+
+
+def test_sp400_current_has_no_ledger_and_keeps_the_static_roster(stub_cross_sectional):
+    """sp400_current has no PIT_LEDGER_KEYS entry (no comparably sourced free
+    historical S&P MidCap 400 membership dataset exists) -- selecting it must
+    NOT silently claim PIT resolution; membership_at stays None and symbols
+    stay exactly the static roster the universe JSON provides."""
+    from engine.universe_registry import runnable_symbols
+
+    static_roster = runnable_symbols("sp400_current")
+    request = runner.RunRequest(universe_id="sp400_current", symbols=static_roster)
+    runner.run_cross_sectional("Dual Momentum", request)
+    call = stub_cross_sectional["backtest"][0]
+    assert call["membership_at"] is None
+    assert sorted(call["symbols"]) == sorted(static_roster)
+
+
 def test_rebalance_frequency_default_reaches_the_engine_as_monthly(stub_cross_sectional):
     runner.run_cross_sectional("Dual Momentum")
     assert stub_cross_sectional["backtest"][0]["rebalance_frequency"] == "monthly"

@@ -13,8 +13,13 @@ import asyncio
 import json
 import logging
 import math
+from concurrent.futures import ThreadPoolExecutor
+from contextvars import ContextVar
 from datetime import date, datetime, timedelta, timezone
-from typing import Any
+from threading import Lock
+from time import monotonic
+from typing import Any, Literal
+from uuid import uuid4
 
 import pandas as pd
 from fastapi import FastAPI, HTTPException
@@ -24,23 +29,34 @@ from pydantic import BaseModel
 from engine import (
     alpaca_trading,
     chat_assistant,
+    data_quality,
     data_edgar,
     digest as digest_module,
     execution as execution_module,
     execution_db,
+    forward_experiments,
+    forward_tracking,
     kill_switch,
     live_scanner,
+    logging_db,
     market_overview,
     movers as movers_module,
     screener as screener_module,
     signals_db,
 )
 from engine import quotes as quotes_module
+from engine.cross_sectional import InsufficientHistory
+from engine.event_timing import timing_contract_for
 from engine.logging_db import (
-    best_portfolio_run_per_strategy,
-    best_run_per_strategy,
+    attach_standard_benchmark,
+    attach_validation,
+    latest_portfolio_run_per_strategy,
+    latest_portfolio_run_per_strategy_by_universe,
+    latest_run_per_strategy,
+    latest_run_per_strategy_by_universe,
     strategies_awaiting_remeasurement,
     portfolio_run_history,
+    paper_execution_eligibility,
     run_history,
 )
 from engine.metrics import (
@@ -51,6 +67,8 @@ from engine.metrics import (
     portfolio_status,
 )
 from engine.portfolio import run_portfolio_backtest
+from engine.sanity import check_return, check_sharpe
+from engine.research_governance import build_validation_spec, pre_result_power_design
 from engine.runner import (
     SYMBOL_OVERRIDE_DISALLOWED_NAMES,
     RunRequest,
@@ -63,16 +81,74 @@ from engine.runner import (
     strategy_class,
 )
 from engine.universe import RESEARCH_UNIVERSE
-from strategies.params import describe_params
+from engine.universe_ledger import resolve_schedule
+from engine.universe_registry import registered_universe, runnable_symbols, universe_registry
+from engine.validation import (
+    VALIDATION_REPORT_VERSION,
+    validate_cross_sectional,
+    validate_pairs,
+    validate_standard,
+)
+from strategies.params import apply_params, describe_params
 from strategies.registry import (
     ALL_STRATEGY_NAMES,
     ARCHIVED_STRATEGY_NAMES,
     CROSS_SECTIONAL_STRATEGY_NAMES,
     DAY_TRADING_STRATEGIES,
+    FROZEN_EVENT_STRATEGY_NAMES,
+    UNAVAILABLE_RESEARCH_STRATEGIES,
     build_cross_sectional_strategy,
 )
 
 MAX_CUSTOM_SYMBOLS = 60
+
+_CRYPTO_UNSUPPORTED_STRATEGIES = {
+    *DAY_TRADING_STRATEGIES,
+    "Post-Earnings Drift (PEAD)",
+    "Overnight Hold",
+    "Anchored VWAP Breakout",
+    "Dual Momentum Pullback Swing",
+}
+
+
+def _universe_option(strategy_name: str, definition: Any) -> dict[str, Any]:
+    """Return strategy-specific dropdown availability without mutating registry data."""
+    payload = definition.to_dict()
+    # Configuration dropdowns need identity and execution semantics, not a
+    # multi-megabyte copy of every symbol's coverage record. The complete
+    # registry remains available from /api/universes and on disk.
+    payload.pop("dataCoverage", None)
+    payload.pop("applicableGates", None)
+    payload.pop("costModel", None)
+    reason = None
+    if not definition.runnable:
+        reason = definition.unavailable_reason or "This registered universe is not runnable."
+    elif (
+        definition.membership_mode == "dynamic_pit_security_master"
+        and strategy_name != "Dual Momentum"
+    ):
+        reason = "The all-stocks PIT adapter is currently defined only for the frozen Dual Momentum engine."
+    elif strategy_name in FROZEN_EVENT_STRATEGY_NAMES and definition.universe_id != "dow_pit":
+        reason = "Frozen V1 is pre-registered on the point-in-time Dow universe."
+    elif strategy_name in {"52-Week-High Momentum", "Market-Residual Momentum"} and definition.universe_id != "dow_pit":
+        reason = "Frozen V1 is pre-registered on the point-in-time Dow universe."
+    elif definition.asset_class == "crypto" and strategy_name in _CRYPTO_UNSUPPORTED_STRATEGIES:
+        reason = "This strategy depends on US equity sessions, earnings, or an SPY regime input and is not defined for 24/7 crypto."
+    elif (
+        len(definition.symbols) < 2
+        and definition.membership_mode != "dynamic_pit_security_master"
+        and (is_cross_sectional(strategy_name) or is_pairs(strategy_name))
+    ):
+        reason = "This engine requires at least two instruments for ranking or pair selection."
+    elif is_pairs(strategy_name) and len(definition.symbols) > 100:
+        reason = (
+            "Pairs selection tests every symbol pair; this full roster would create an "
+            "unbounded quadratic search. Use a pre-registered pair candidate universe."
+        )
+    if reason:
+        payload["runnable"] = False
+        payload["unavailableReason"] = reason
+    return payload
 
 # Matches the day-trading strategies' own 5-min bar timeframe -- see
 # engine/live_scanner.py's module docstring on why polling faster than that
@@ -98,6 +174,19 @@ _scan_task: asyncio.Task | None = None
 # different strategies (cross-sectional vs. day-trading), different
 # cadence, and one's failure must never affect the other.
 _execution_task: asyncio.Task | None = None
+
+# Validation can take minutes. Jobs make that work observable and keep a
+# dropped browser request from discarding an otherwise valid research run.
+_validation_executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="validation")
+_validation_jobs: dict[str, dict[str, Any]] = {}
+_validation_job_cache: dict[str, str] = {}
+_validation_jobs_lock = Lock()
+_research_context_var: ContextVar[dict[str, Any] | None] = ContextVar(
+    "research_context", default=None,
+)
+_validation_progress_var: ContextVar[Any] = ContextVar(
+    "validation_progress", default=None,
+)
 
 # Same GC-safety reasoning as _scan_task above, for the one-shot insider
 # Form-4 refresh job -- plus a small status dict (not persisted) so the
@@ -251,6 +340,7 @@ class BacktestOverrides(BaseModel):
     start: str | None = None
     end: str | None = None
     params: dict[str, Any] | None = None
+    universeId: str | None = None
 
 
 class ExecutionConfigUpdate(BaseModel):
@@ -261,6 +351,31 @@ class ExecutionConfigUpdate(BaseModel):
     strategyName: str
     enabled: bool
     params: dict[str, Any] | None = None
+    # Exact validation row selected from run history (canonical or custom).
+    # Optional for the Live tab, which resolves the latest canonical report.
+    validationRunId: int | None = None
+    # Explicit, per-call, LOGGED bypass of the forward-test gate (paper
+    # capital only -- production_capital_worthy is untouched and has no
+    # override path). False/omitted reproduces the original strict
+    # behavior exactly; every existing caller is unaffected. See
+    # engine/forward_experiments.py:start's docstring for what gets frozen
+    # into the row when this is used.
+    overridePassedGates: bool = False
+    overrideReason: str | None = None
+    # Required when enabling. "adopt" marks inherited positions to market at
+    # the first real rebalance; "flatten" liquidates them first and records
+    # the baseline only after the account is flat.
+    inceptionPolicy: Literal["adopt", "flatten"] | None = None
+
+
+class ForwardObservationInput(BaseModel):
+    asOf: str
+    strategyReturnPct: float
+    benchmarkReturnPct: float
+    tradeCount: int | None = None
+    realizedSlippageBps: float | None = None
+    expectedSlippageBps: float | None = None
+    turnoverPct: float | None = None
 
 
 class RebalanceNowRequest(BaseModel):
@@ -320,6 +435,42 @@ def _validate_dates(start: str | None, end: str | None) -> tuple[date | None, da
     if parsed_end and parsed_end > date.today():
         raise HTTPException(status_code=400, detail="end cannot be in the future")
     return parsed_start, parsed_end
+
+
+def _request_from_overrides(
+    strategy_name: str, overrides: BacktestOverrides | None,
+) -> RunRequest | None:
+    if overrides is None or not (
+        overrides.symbols or overrides.start or overrides.end
+        or overrides.params or overrides.universeId
+    ):
+        return None
+    if overrides.universeId and overrides.symbols:
+        raise HTTPException(
+            status_code=400,
+            detail="Choose a registered universe or custom symbols, not both.",
+        )
+    if overrides.universeId:
+        if strategy_name in SYMBOL_OVERRIDE_DISALLOWED_NAMES:
+            _validate_symbols(strategy_name, ["REGISTERED_UNIVERSE"])
+        try:
+            definition = registered_universe(overrides.universeId)
+            option = _universe_option(strategy_name, definition)
+            if not option["runnable"]:
+                raise ValueError(option["unavailableReason"] or "Universe is unavailable for this strategy")
+            symbols = runnable_symbols(overrides.universeId)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+    else:
+        symbols = _validate_symbols(strategy_name, overrides.symbols)
+    start, end = _validate_dates(overrides.start, overrides.end)
+    return RunRequest(
+        symbols=symbols,
+        start=start,
+        end=end,
+        params=overrides.params,
+        universe_id=overrides.universeId,
+    )
 
 
 def _sparkline(equity_curve: pd.DataFrame | None, points: int = 40) -> list[float]:
@@ -427,11 +578,79 @@ def _archive_fields(name: str) -> dict:
     }
 
 
+def _validation_fields(row: Any) -> dict:
+    if row is None or "validation_json" not in row.keys() or not row["validation_json"]:
+        return {"edgeVerdict": None, "lifecycleStage": None, "validation": None}
+    try:
+        report = json.loads(row["validation_json"])
+    except (TypeError, json.JSONDecodeError):
+        report = None
+    if not isinstance(report, dict) or report.get("version") != VALIDATION_REPORT_VERSION:
+        return {
+            "edgeVerdict": "Re-evaluation required",
+            "lifecycleStage": None,
+            "validation": None,
+        }
+    return {
+        "edgeVerdict": row["edge_verdict"],
+        "lifecycleStage": (
+            row["lifecycle_stage"] if "lifecycle_stage" in row.keys() else None
+        ),
+        "validation": report,
+    }
+
+
+def _canonical_portfolio_metrics(row: Any) -> dict[str, Any]:
+    """Read current shared-capital metrics archived by validation.
+
+    Standard-engine columns describe an aggregate of per-symbol backtests.
+    Frozen event strategies additionally archive the economically comparable
+    shared-capital portfolio in their validation report.  The strategy list
+    must use that same basis instead of rendering blanks or mixed metrics.
+    """
+    if row is None or "validation_json" not in row.keys() or not row["validation_json"]:
+        return {}
+    try:
+        report = json.loads(row["validation_json"])
+    except (TypeError, json.JSONDecodeError):
+        return {}
+    if not isinstance(report, dict) or report.get("version") != VALIDATION_REPORT_VERSION:
+        return {}
+    metrics = (report.get("research") or {}).get("canonicalPortfolioMetrics")
+    return metrics if isinstance(metrics, dict) else {}
+
+
+def _warmup_ok_from_row(row: Any) -> bool:
+    """Did this portfolio-engine row's warmup_validity check pass?
+
+    Absence (no validation_json, no such check in it, or a stale report
+    version) reads as "unknown, not confirmed broken" -- True -- the same
+    "absent value is not proof of anything" rule this codebase already
+    applies elsewhere (STATUS_AWAITING_REMEASUREMENT, etc.), so this can
+    only ever make a row's status STRICTER (a confirmed failure), never
+    grant unrankable status to a row that simply predates the check.
+    """
+    if row is None or "validation_json" not in row.keys() or not row["validation_json"]:
+        return True
+    try:
+        report = json.loads(row["validation_json"])
+    except (TypeError, json.JSONDecodeError):
+        return True
+    if not isinstance(report, dict):
+        return True
+    for dimension in report.get("dimensions", []):
+        for check in dimension.get("checks", []):
+            if check.get("key") == "warmup_validity":
+                return check.get("status") in ("pass", "not_applicable")
+    return True
+
+
 def _portfolio_strategy_row(name: str, row: Any) -> dict:
     """Row shape for cross-sectional (Dual Momentum) / pairs (Pairs / Stat
     Arb) strategies -- these never had a discrete-trade result, so the
     R-multiple fields (win rate, avg win/loss R, expectancy, profit factor,
-    alpha, beta) are structurally not applicable, always null. Was
+    beta) are structurally not applicable, always null. Benchmark gap is
+    returned separately and must not be confused with factor alpha. Was
     previously always the `row is None` branch below for these two names,
     since engine/runner.py's run_cross_sectional/run_pairs never logged
     anywhere -- "most recent run" could never update no matter how many
@@ -453,12 +672,17 @@ def _portfolio_strategy_row(name: str, row: Any) -> dict:
             "lastRun": None,
             "sharpe": None,
             "alphaPct": None,
+            "benchmarkGapPct": None,
+            "benchmarkName": "SPY",
+            "benchmarkWindowStart": None,
+            "benchmarkWindowEnd": None,
             "beta": None,
             "cagrPct": None,
             "returnPct": None,
             "maxDrawdownPct": None,
             "benchmarkReturnPct": None,
             **_run_config_fields(None),
+            **_validation_fields(None),
             **_archive_fields(name),
         }
     return {
@@ -481,39 +705,61 @@ def _portfolio_strategy_row(name: str, row: Any) -> dict:
         # stored string would preserve the old verdict.
         "status": (
             portfolio_status(
-                row["return_pct"], row["sharpe"], row["benchmark_return_pct"]
+                row["return_pct"], row["sharpe"], row["benchmark_return_pct"],
+                warmup_ok=_warmup_ok_from_row(row),
             )
             if row["return_pct"] is not None
             else (row["status"] or "Backtested")
         ),
         "lastRun": row["run_at"],
         "sharpe": row["sharpe"],
-        # Same quantity as the per-symbol alpha column (strategy return minus
-        # benchmark return over the identical window; rf cancels on both sides).
-        # It was always the basis portfolio_status gated on -- it just was not
-        # surfaced, so this column read blank and the board looked like it
-        # judged two rows on returns and twenty-four on excess-over-benchmark.
+        # Deprecated compatibility alias. The UI uses benchmarkGapPct because
+        # this cumulative return difference is not regression alpha.
         "alphaPct": portfolio_alpha_pct(
             row["return_pct"], row["benchmark_return_pct"]
         ),
+        "benchmarkGapPct": portfolio_alpha_pct(
+            row["return_pct"], row["benchmark_return_pct"]
+        ),
+        "benchmarkName": "SPY",
+        # portfolio_runs has no per-row measured-window columns: the
+        # cross-sectional/pairs engines build a daily-continuous curve over
+        # the full requested range rather than validate_standard's
+        # measured_start/measured_end fallback, so they aren't subject to
+        # the drift these fields exist to pin for the standard engine.
+        "benchmarkWindowStart": None,
+        "benchmarkWindowEnd": None,
         "beta": None,
         "cagrPct": row["cagr_pct"],
         "returnPct": row["return_pct"],
         "maxDrawdownPct": row["max_drawdown_pct"],
         "benchmarkReturnPct": row["benchmark_return_pct"],
+        **_validation_fields(row),
         **_run_config_fields(row),
         **_archive_fields(name),
     }
 
 
 @app.get("/api/strategies")
-def list_strategies() -> list[dict]:
-    # Compare tab leaderboard: best-Sharpe CANONICAL run per strategy, not
-    # merely the most recent one -- see engine/logging_db.py's
-    # best_run_per_strategy() docstring for why (still canonical-only; a
-    # Lab-tab experiment can never surface here).
-    latest = best_run_per_strategy()
-    latest_portfolio = best_portfolio_run_per_strategy()
+def list_strategies(universe_id: str | None = None) -> list[dict]:
+    # Evidence belongs to a specific measurement. Show the latest canonical
+    # default run, never an older result selected after looking at Sharpe --
+    # UNLESS the caller asked to filter by a specific registered universe,
+    # in which case there is no "canonical" row to fall back to (a universe
+    # override always logs as an experiment, never the registered default),
+    # so the latest-per-universe lookup is used instead. This never triggers
+    # a new backtest -- it only changes which already-logged row each
+    # strategy's line comes from.
+    if universe_id is not None:
+        try:
+            registered_universe(universe_id)
+        except ValueError as e:
+            raise HTTPException(status_code=404, detail=str(e)) from e
+        latest = latest_run_per_strategy_by_universe(universe_id)
+        latest_portfolio = latest_portfolio_run_per_strategy_by_universe(universe_id)
+    else:
+        latest = latest_run_per_strategy()
+        latest_portfolio = latest_portfolio_run_per_strategy()
     # Both leaderboard reads are filtered to the CURRENT metrics_version, so a
     # strategy measured only under a superseded convention has no row here.
     # It must not be reported as untested -- see STATUS_AWAITING_REMEASUREMENT.
@@ -545,20 +791,30 @@ def list_strategies() -> list[dict]:
                 "expectancyR": None,
                 "profitFactor": None,
                 "status": (
-                    STATUS_AWAITING_REMEASUREMENT if name in awaiting else "Not yet tested"
+                    "Not applicable to this universe"
+                    if universe_id is not None and name in SYMBOL_OVERRIDE_DISALLOWED_NAMES
+                    else STATUS_AWAITING_REMEASUREMENT if name in awaiting
+                    else "Not yet tested"
                 ),
                 "lastRun": None,
                 "sharpe": None,
                 "alphaPct": None,
+                "benchmarkGapPct": None,
+                "benchmarkName": "SPY",
+                "benchmarkWindowStart": None,
+                "benchmarkWindowEnd": None,
                 "beta": None,
                 "cagrPct": None,
                 "returnPct": None,
                 "maxDrawdownPct": None,
                 "benchmarkReturnPct": None,
                 **_run_config_fields(None),
+                **_validation_fields(None),
                 **_archive_fields(name),
             })
         else:
+            portfolio_metrics = _canonical_portfolio_metrics(row)
+            displayed_sharpe = portfolio_metrics.get("sharpe", row["sharpe"])
             rows.append({
                 "name": name,
                 "kind": _strategy_kind(name),
@@ -575,16 +831,23 @@ def list_strategies() -> list[dict]:
                 # pre-Sharpe-gate 'shortlist' string was surfacing here).
                 "status": derive_status(
                     row["trades_taken"], row["expectancy_r"],
-                    row["sharpe"], row["alpha_pct"],
+                    displayed_sharpe, row["alpha_pct"],
                 ),
                 "lastRun": row["run_at"],
-                "sharpe": row["sharpe"],
+                "sharpe": displayed_sharpe,
                 "alphaPct": row["alpha_pct"],
+                "benchmarkGapPct": row["benchmark_gap_pct"],
+                "benchmarkName": row["benchmark_name"] or "SPY",
+                "benchmarkWindowStart": row["benchmark_window_start"],
+                "benchmarkWindowEnd": row["benchmark_window_end"],
                 "beta": row["beta"],
-                "cagrPct": row["cagr_pct"],
-                "returnPct": None,
-                "maxDrawdownPct": row["max_drawdown_pct"],
+                "cagrPct": portfolio_metrics.get("cagrPct", row["cagr_pct"]),
+                "returnPct": portfolio_metrics.get("returnPct"),
+                "maxDrawdownPct": portfolio_metrics.get(
+                    "maxDrawdownPct", row["max_drawdown_pct"]
+                ),
                 "benchmarkReturnPct": None,
+                **_validation_fields(row),
                 **_run_config_fields(row),
                 **_archive_fields(name),
             })
@@ -607,7 +870,8 @@ def strategy_params(strategy_name: str) -> dict:
         raise HTTPException(status_code=404, detail=f"Unknown strategy {strategy_name!r}")
 
     interval, symbols, start, end = run_config(strategy_name)
-    specs = describe_params(strategy_class(strategy_name))
+    strategy_type = strategy_class(strategy_name)
+    specs = describe_params(strategy_type)
     return _clean({
         "strategyName": strategy_name,
         "interval": interval,
@@ -615,6 +879,19 @@ def strategy_params(strategy_name: str) -> dict:
         "startDefault": start.isoformat(),
         "endDefault": end.isoformat(),
         "symbolOverrideAllowed": strategy_name not in SYMBOL_OVERRIDE_DISALLOWED_NAMES,
+        # Existing defaults predate first-class universe ids and remain
+        # intentionally unlabeled. Selecting one of these ids creates a new,
+        # explicitly registered experiment.
+        "universeDefault": None,
+        "implementationStatus": (
+            "unavailable" if strategy_name in UNAVAILABLE_RESEARCH_STRATEGIES else "implemented"
+        ),
+        "unavailableReason": UNAVAILABLE_RESEARCH_STRATEGIES.get(strategy_name),
+        "timing": timing_contract_for(strategy_type).to_dict(),
+        "universes": [
+            _universe_option(strategy_name, item)
+            for item in universe_registry().values() if item.selectable
+        ],
         "params": [
             {
                 "name": s.name,
@@ -632,8 +909,16 @@ def strategy_params(strategy_name: str) -> dict:
     })
 
 
-@app.post("/api/backtest/cross-sectional/{strategy_name:path}")
-def run_cross_sectional_endpoint(strategy_name: str, overrides: BacktestOverrides | None = None) -> dict:
+@app.get("/api/universes")
+def list_registered_universes() -> list[dict]:
+    return _clean([item.to_dict() for item in universe_registry().values()])
+
+
+def _run_cross_sectional_payload(
+    strategy_name: str,
+    overrides: BacktestOverrides | None = None,
+    progress: Any = None,
+) -> dict:
     """Dual Momentum et al -- accepts the same optional overrides body as
     the standard /api/backtest/{name}, now that engine/runner.py:
     run_cross_sectional takes a RunRequest.
@@ -646,18 +931,51 @@ def run_cross_sectional_endpoint(strategy_name: str, overrides: BacktestOverride
         raise HTTPException(
             status_code=404, detail=f"{strategy_name!r} isn't a cross-sectional strategy"
         )
-    request: RunRequest | None = None
-    if overrides is not None and (
-        overrides.symbols or overrides.start or overrides.end or overrides.params
-    ):
-        symbols = _validate_symbols(strategy_name, overrides.symbols)
-        start, end = _validate_dates(overrides.start, overrides.end)
-        request = RunRequest(symbols=symbols, start=start, end=end, params=overrides.params)
+    request = _request_from_overrides(strategy_name, overrides)
 
+    if progress:
+        progress(8, "Running the registered strategy backtest")
     try:
         result = run_cross_sectional(strategy_name, request)
-    except ValueError as e:
+    except (ValueError, InsufficientHistory) as e:
+        # InsufficientHistory is a RuntimeError, so a bare `except ValueError`
+        # let it escape as a 500. Its own docstring states it exists to be
+        # mapped to a 400 with the message intact -- the user needs to know
+        # WHICH symbol is short and by how much, since the fix is a judgement
+        # call (move the window, or drop the name deliberately).
         raise HTTPException(status_code=400, detail=str(e)) from e
+    if progress:
+        progress(28, "Base backtest complete; starting hostile validation")
+    years = max(0.0, (result.end - result.start).days / 365.25)
+    check_return(result.return_pct, label=strategy_name, years=years)
+    if result.sharpe is not None:
+        check_sharpe(result.sharpe, label=strategy_name)
+    validation = validate_cross_sectional(
+        result,
+        applied_params=request.params if request else None,
+        progress=progress,
+        research_context=_research_context_var.get(),
+    )
+    # Persist against THIS run. Without it the report is returned live and then
+    # discarded, so every row in run history reads "validation required"
+    # regardless of what the validation concluded.
+    attach_validation("portfolio_runs", result.run_id, validation.to_dict())
+    parameter_defaults = {
+        item.name: item.default for item in describe_params(strategy_class(strategy_name))
+    }
+    effective_params = {**parameter_defaults, **(request.params if request and request.params else {})}
+    selected_universe = (
+        registered_universe(request.universe_id) if request and request.universe_id else None
+    )
+    previous_weights: dict[str, float] = {}
+    turnover_fraction = 0.0
+    for _, rebalance_row in result.rebalances.iterrows():
+        current_weights = {str(key): float(value) for key, value in rebalance_row["holdings"].items()}
+        turnover_fraction += 0.5 * sum(
+            abs(current_weights.get(key, 0.0) - previous_weights.get(key, 0.0))
+            for key in set(current_weights) | set(previous_weights)
+        )
+        previous_weights = current_weights
     return _clean({
         "strategyName": result.strategy_name,
         "symbols": result.symbols,
@@ -665,6 +983,14 @@ def run_cross_sectional_endpoint(strategy_name: str, overrides: BacktestOverride
         "end": result.end.isoformat(),
         "appliedSymbols": result.symbols,
         "appliedParams": request.params if request else None,
+        "universeId": request.universe_id if request else None,
+        "universeLabel": selected_universe.label if selected_universe else "Strategy default",
+        "rebalanceFrequency": str(effective_params.get("rebalance_frequency", "monthly")),
+        "targetPositionCount": int(effective_params.get("top_n", 0)),
+        "initialRankableCount": len(result.symbols) - len(result.incomplete_warmup),
+        "incompleteWarmupCount": len(result.incomplete_warmup),
+        "pitDiagnostics": getattr(result, "pit_diagnostics", None) or None,
+        "pitAnalysis": getattr(result, "pit_analysis", None) or None,
         "equityCurve": [
             {"time": ts.isoformat(), "equity": float(v)}
             for ts, v in result.equity_curve.items()
@@ -672,7 +998,10 @@ def run_cross_sectional_endpoint(strategy_name: str, overrides: BacktestOverride
         "rebalances": [
             {
                 "date": row["date"].isoformat(),
-                "holdings": {k: float(v) for k, v in row["holdings"].items()},
+                "holdings": {
+                    getattr(result, "security_labels", {}).get(k, k): float(v)
+                    for k, v in row["holdings"].items()
+                },
             }
             for _, row in result.rebalances.iterrows()
         ],
@@ -683,7 +1012,16 @@ def run_cross_sectional_endpoint(strategy_name: str, overrides: BacktestOverride
         "sharpe": result.sharpe,
         "sortino": result.sortino,
         "riskFreeRate": result.risk_free_rate,
+        "turnoverPct": turnover_fraction * 100.0,
+        "totalCosts": getattr(result, "total_costs", 0.0),
+        "totalTradedNotional": getattr(result, "total_traded_notional", 0.0),
+        "validation": validation.to_dict(),
     })
+
+
+@app.post("/api/backtest/cross-sectional/{strategy_name:path}")
+def run_cross_sectional_endpoint(strategy_name: str, overrides: BacktestOverrides | None = None) -> dict:
+    return _run_cross_sectional_payload(strategy_name, overrides)
 
 
 @app.post("/api/backtest/pairs/{strategy_name:path}")
@@ -696,18 +1034,24 @@ def run_pairs_endpoint(strategy_name: str, overrides: BacktestOverrides | None =
     before the generic route below, for the same route-ordering reason."""
     if not is_pairs(strategy_name):
         raise HTTPException(status_code=404, detail=f"{strategy_name!r} isn't a pairs strategy")
-    request: RunRequest | None = None
-    if overrides is not None and (
-        overrides.symbols or overrides.start or overrides.end or overrides.params
-    ):
-        symbols = _validate_symbols(strategy_name, overrides.symbols)
-        start, end = _validate_dates(overrides.start, overrides.end)
-        request = RunRequest(symbols=symbols, start=start, end=end, params=overrides.params)
+    request = _request_from_overrides(strategy_name, overrides)
 
     try:
         result = run_pairs(strategy_name, request)
-    except ValueError as e:
+    except (ValueError, InsufficientHistory) as e:
+        # InsufficientHistory is a RuntimeError, so a bare `except ValueError`
+        # let it escape as a 500. Its own docstring states it exists to be
+        # mapped to a 400 with the message intact -- the user needs to know
+        # WHICH symbol is short and by how much, since the fix is a judgement
+        # call (move the window, or drop the name deliberately).
         raise HTTPException(status_code=400, detail=str(e)) from e
+    validation = validate_pairs(
+        result,
+        applied_params=request.params if request else None,
+        research_context=_research_context_var.get(),
+        progress=_validation_progress_var.get(),
+    )
+    attach_validation("portfolio_runs", result.run_id, validation.to_dict())
     return _clean({
         "strategyName": result.strategy_name,
         "pair": None if result.pair is None else {
@@ -742,6 +1086,7 @@ def run_pairs_endpoint(strategy_name: str, overrides: BacktestOverrides | None =
         "sharpe": result.sharpe,
         "sortino": result.sortino,
         "riskFreeRate": result.risk_free_rate,
+        "validation": validation.to_dict(),
     })
 
 
@@ -767,17 +1112,16 @@ def run(strategy_name: str, overrides: BacktestOverrides | None = None) -> dict:
             ),
         )
 
-    request: RunRequest | None = None
-    if overrides is not None and (
-        overrides.symbols or overrides.start or overrides.end or overrides.params
-    ):
-        symbols = _validate_symbols(strategy_name, overrides.symbols)
-        start, end = _validate_dates(overrides.start, overrides.end)
-        request = RunRequest(symbols=symbols, start=start, end=end, params=overrides.params)
+    request = _request_from_overrides(strategy_name, overrides)
 
     try:
         result = run_backtest(strategy_name, request)
-    except ValueError as e:
+    except (ValueError, InsufficientHistory) as e:
+        # InsufficientHistory is a RuntimeError, so a bare `except ValueError`
+        # let it escape as a 500. Its own docstring states it exists to be
+        # mapped to a 400 with the message intact -- the user needs to know
+        # WHICH symbol is short and by how much, since the fix is a judgement
+        # call (move the window, or drop the name deliberately).
         raise HTTPException(status_code=400, detail=str(e)) from e
     m = result.metrics
 
@@ -809,6 +1153,18 @@ def run(strategy_name: str, overrides: BacktestOverrides | None = None) -> dict:
                 "tp": None if pd.isna(t["TP"]) else float(t["TP"]),
                 "pnl": float(t["PnL"]),
                 "returnPct": float(t["ReturnPct"]),
+                "tradeReturn": None if pd.isna(t.get("TradeReturn")) else float(t.get("TradeReturn")),
+                "matchedSpyReturn": None if pd.isna(t.get("MatchedSPYReturn")) else float(t.get("MatchedSPYReturn")),
+                "excessVsSpy": None if pd.isna(t.get("ExcessVsSPY")) else float(t.get("ExcessVsSPY")),
+                "matchedSpyEntryTime": (
+                    None if pd.isna(t.get("MatchedSPYEntryTime"))
+                    else pd.Timestamp(t.get("MatchedSPYEntryTime")).isoformat()
+                ),
+                "matchedSpyExitTime": (
+                    None if pd.isna(t.get("MatchedSPYExitTime"))
+                    else pd.Timestamp(t.get("MatchedSPYExitTime")).isoformat()
+                ),
+                "modeledCost": None if pd.isna(t.get("ModeledCost")) else float(t.get("ModeledCost")),
                 "realizedR": _exc_field(exc, "RealizedR"),
                 "mfeR": _exc_field(exc, "MFE_R"),
                 "maeR": _exc_field(exc, "MAE_R"),
@@ -819,6 +1175,42 @@ def run(strategy_name: str, overrides: BacktestOverrides | None = None) -> dict:
     trades.sort(key=lambda t: t["exitTime"])
 
     portfolio = run_portfolio_backtest(result, risk_free_rate=m.risk_free_rate or 0.0)
+    years = max(0.0, (result.end - result.start).days / 365.25)
+    check_return(portfolio.return_pct, label=strategy_name, years=years)
+    check_sharpe(portfolio.sharpe, label=strategy_name)
+    validation = validate_standard(
+        result,
+        portfolio,
+        applied_params=request.params if request else None,
+        research_context=_research_context_var.get(),
+        progress=_validation_progress_var.get(),
+    )
+    validation_payload = validation.to_dict()
+    beats_spy = next(
+        (
+            check
+            for dimension in validation_payload.get("dimensions", [])
+            for check in dimension.get("checks", [])
+            if check.get("key") == "beats_spy"
+        ),
+        None,
+    )
+    beats_spy_details = (beats_spy or {}).get("details", {})
+    spy_return = beats_spy_details.get("spyReturnPct")
+    benchmark_window_start = beats_spy_details.get("measuredStart")
+    benchmark_window_end = beats_spy_details.get("measuredEnd")
+    attach_standard_benchmark(
+        result.run_id,
+        strategy_return_pct=portfolio.return_pct,
+        benchmark_return_pct=spy_return,
+        benchmark_window_start=(
+            date.fromisoformat(benchmark_window_start) if benchmark_window_start else None
+        ),
+        benchmark_window_end=(
+            date.fromisoformat(benchmark_window_end) if benchmark_window_end else None
+        ),
+    )
+    attach_validation("runs", result.run_id, validation_payload)
     portfolio_payload = {
         "maxConcurrentPositions": portfolio.max_concurrent_positions,
         "tradesTaken": len(portfolio.trades),
@@ -853,11 +1245,30 @@ def run(strategy_name: str, overrides: BacktestOverrides | None = None) -> dict:
             "sharpe": m.sharpe,
             "sortino": m.sortino,
             "alphaPct": m.alpha_pct,
+            "benchmarkGapPct": (
+                None if spy_return is None else portfolio.return_pct - spy_return
+            ),
+            "benchmarkName": "SPY",
+            "benchmarkWindowStart": benchmark_window_start,
+            "benchmarkWindowEnd": benchmark_window_end,
             "beta": m.beta,
             "cagrPct": m.cagr_pct,
             "exposurePct": m.exposure_pct,
             "riskFreeRate": m.risk_free_rate,
             "buyHoldReturnPct": m.buy_hold_return_pct,
+            "totalReturnPct": m.total_return_pct,
+            "averageGrossExposurePct": m.average_gross_exposure_pct,
+            "averageNetExposurePct": m.average_net_exposure_pct,
+            "timeInMarketPct": m.time_in_market_pct,
+            "turnoverPct": m.turnover_pct,
+            "modeledCosts": m.modeled_costs,
+            "matchedSpyReturnPct": m.matched_spy_return_pct,
+            "matchedSpyExcessPct": m.matched_spy_excess_pct,
+            "annualizedMatchedExcessPct": m.annualized_matched_excess_pct,
+            "matchedAlphaAnnualPct": m.matched_alpha_annual_pct,
+            "matchedBeta": m.matched_beta,
+            "matchedBenchmarkTrades": m.matched_benchmark_trades,
+            "missingBenchmarkTrades": m.missing_benchmark_trades,
             "status": m.status,
         },
         "isCanonical": request is None or request.is_default(),
@@ -869,8 +1280,337 @@ def run(strategy_name: str, overrides: BacktestOverrides | None = None) -> dict:
         "perSymbol": _per_symbol_rows(result),
         "portfolio": portfolio_payload,
         "excursionSummary": _excursion_summary(result.excursions),
+        "validation": validation_payload,
+        "matchedBenchmark": result.matched_benchmark,
+        "researchMetadata": result.research_metadata,
+        "timing": timing_contract_for(strategy_class(result.strategy_name)).to_dict(),
     }
     return _clean(payload)
+
+
+def _update_validation_job(job_id: str, **fields: Any) -> None:
+    with _validation_jobs_lock:
+        if job_id in _validation_jobs:
+            _validation_jobs[job_id].update(fields)
+
+
+def _validation_job_view(job: dict[str, Any]) -> dict:
+    return _clean({
+        "jobId": job["jobId"],
+        "status": job["status"],
+        "stage": job["stage"],
+        "progressPct": job["progressPct"],
+        "createdAt": job["createdAt"],
+        "completedAt": job.get("completedAt"),
+        "error": job.get("error"),
+        "result": job.get("result") if job["status"] == "completed" else None,
+        "reused": bool(job.get("reused", False)),
+        "experimentId": job.get("experimentId"),
+    })
+
+
+def _execute_validation_job(
+    job_id: str,
+    engine: str,
+    strategy_name: str,
+    overrides: BacktestOverrides | None,
+    research_context: dict[str, Any],
+) -> None:
+    def progress(percent: int, stage: str) -> None:
+        _update_validation_job(
+            job_id,
+            status="running",
+            progressPct=max(1, min(99, int(percent))),
+            stage=stage,
+        )
+
+    research_token = _research_context_var.set(research_context)
+    progress_token = _validation_progress_var.set(progress)
+    progress(3, "Starting validation suite")
+    try:
+        progress(5, "Preflighting market-data integrity")
+        if research_context.get("universeId") == "us_all_stocks_pit":
+            from engine.pit_all_stocks import inspect_dataset
+
+            pit_status = inspect_dataset().to_dict()
+            quality = {
+                "passed": bool(pit_status["ready"]),
+                "criticalIssues": [
+                    *pit_status["missingArtifacts"], *pit_status["invalidReasons"],
+                ],
+                "warnings": [],
+                "symbols": [],
+                "pitDataset": pit_status,
+            }
+        else:
+            quality = data_quality.audit_universe(
+                research_context["symbols"], research_context["interval"],
+                date.fromisoformat(research_context["start"]),
+                date.fromisoformat(research_context["end"]),
+            ).to_dict()
+        research_context["dataQuality"] = quality
+        if not quality["passed"]:
+            raise HTTPException(
+                status_code=422,
+                detail="Market-data preflight failed: " + "; ".join(quality["criticalIssues"]),
+            )
+        if engine == "cross_sectional":
+            result = _run_cross_sectional_payload(strategy_name, overrides, progress)
+        elif engine == "pairs":
+            progress(10, "Running pairs backtest and evidence checks")
+            result = run_pairs_endpoint(strategy_name, overrides)
+        elif engine == "standard":
+            progress(10, "Running strategy backtest and evidence checks")
+            result = run(strategy_name, overrides)
+        else:
+            raise ValueError(f"Unknown backtest engine {engine!r}")
+        _update_validation_job(
+            job_id,
+            status="completed",
+            stage="Validation complete",
+            progressPct=100,
+            completedAt=datetime.now(timezone.utc).isoformat(),
+            result=result,
+            error=None,
+        )
+        validation = result.get("validation") or {}
+        logging_db.complete_experiment(
+            research_context.get("experimentId"),
+            "completed",
+            (validation.get("verdict") or {}).get("headline"),
+        )
+    except HTTPException as exc:
+        _update_validation_job(
+            job_id,
+            status="failed",
+            stage="Validation failed",
+            completedAt=datetime.now(timezone.utc).isoformat(),
+            error=str(exc.detail),
+        )
+        logging_db.complete_experiment(
+            research_context.get("experimentId"), "failed", str(exc.detail),
+        )
+    except Exception as exc:  # pragma: no cover - final worker safety net
+        logger.exception("Validation job %s failed", job_id)
+        _update_validation_job(
+            job_id,
+            status="failed",
+            stage="Validation failed",
+            completedAt=datetime.now(timezone.utc).isoformat(),
+            error=str(exc),
+        )
+        logging_db.complete_experiment(
+            research_context.get("experimentId"), "failed", str(exc),
+        )
+    finally:
+        _research_context_var.reset(research_token)
+        _validation_progress_var.reset(progress_token)
+
+
+@app.post("/api/validation/jobs/{engine}/{strategy_name:path}")
+def start_validation_job(
+    engine: str,
+    strategy_name: str,
+    overrides: BacktestOverrides | None = None,
+) -> dict:
+    if strategy_name not in ALL_STRATEGY_NAMES:
+        raise HTTPException(status_code=404, detail=f"Unknown strategy {strategy_name!r}")
+    expected_engine = (
+        "cross_sectional" if is_cross_sectional(strategy_name)
+        else "pairs" if is_pairs(strategy_name)
+        else "standard"
+    )
+    if engine != expected_engine:
+        raise HTTPException(
+            status_code=400,
+            detail=f"{strategy_name!r} uses the {expected_engine!r} engine, not {engine!r}",
+        )
+
+    override_payload = overrides.dict(exclude_none=True) if overrides else {}
+    cache_key = "|".join((
+        date.today().isoformat(),
+        engine,
+        strategy_name,
+        json.dumps(override_payload, sort_keys=True, default=str),
+    ))
+    with _validation_jobs_lock:
+        cached_id = _validation_job_cache.get(cache_key)
+        cached = _validation_jobs.get(cached_id) if cached_id else None
+        cache_fresh = bool(
+            cached
+            and (
+                cached["status"] in {"queued", "running"}
+                or (
+                    cached["status"] == "completed"
+                    and monotonic() - cached["createdMonotonic"] <= 10 * 60
+                )
+            )
+        )
+        if cache_fresh and cached:
+            cached["reused"] = True
+            return _validation_job_view(cached)
+
+        interval, default_symbols, default_start, default_end = run_config(strategy_name)
+        selected_universe_id = overrides.universeId if overrides else None
+        if selected_universe_id:
+            try:
+                selected_symbols = runnable_symbols(selected_universe_id)
+            except ValueError as exc:
+                raise HTTPException(status_code=400, detail=str(exc)) from exc
+        else:
+            selected_symbols = list(overrides.symbols) if overrides and overrides.symbols else list(default_symbols)
+        selected_start = date.fromisoformat(overrides.start) if overrides and overrides.start else default_start
+        selected_end = date.fromisoformat(overrides.end) if overrides and overrides.end else default_end
+        if selected_universe_id:
+            selected_definition = registered_universe(selected_universe_id)
+            if selected_definition.membership_mode == "dynamic_pit_security_master":
+                if not (overrides and overrides.start) and selected_definition.coverage_start:
+                    selected_start = date.fromisoformat(selected_definition.coverage_start)
+                if not (overrides and overrides.end) and selected_definition.coverage_end:
+                    selected_end = date.fromisoformat(selected_definition.coverage_end)
+        selected_params = dict(overrides.params or {}) if overrides else {}
+        schedule = (
+            resolve_schedule("dow_jones_industrial_average", selected_start, selected_end)
+            if expected_engine == "cross_sectional" and set(selected_symbols) == set(default_symbols)
+            else None
+        )
+        if schedule is not None:
+            selected_symbols = schedule.symbols
+        spec = build_validation_spec(
+            strategy_name, expected_engine, selected_symbols, strategy_class(strategy_name),
+            universe_id=selected_universe_id,
+        )
+        pre_result_power = pre_result_power_design(
+            strategy_name, expected_engine, selected_symbols,
+            strategy_class(strategy_name), selected_start, selected_end,
+        )
+        experiment_id, family_search_number = logging_db.register_experiment(
+            strategy_name=strategy_name,
+            engine=expected_engine,
+            hypothesis=spec.hypothesis,
+            config={
+                "symbols": selected_symbols,
+                "start": selected_start.isoformat(),
+                "end": selected_end.isoformat(),
+                "params": selected_params,
+                "interval": interval,
+                "minimumTradableAlphaPct": spec.minimum_tradable_alpha_pct,
+                "universeId": selected_universe_id,
+                "preResultPower": pre_result_power,
+            },
+            primary_benchmark=spec.primary_benchmark,
+            primary_criterion=spec.primary_criterion,
+            planned_universes=spec.alternative_universes,
+            search_family=spec.search_family,
+            is_preregistered=True,
+            universe_id=selected_universe_id,
+            pre_result_mda_pct=pre_result_power["mdaPct"],
+        )
+        family_search_count = logging_db.family_search_count(spec.search_family)
+        logging_db.set_family_search_count(spec.search_family, family_search_count)
+        research_context = {
+            "experimentId": experiment_id,
+            "familySearchNumber": family_search_number,
+            "familySearchCount": family_search_count,
+            "isPreregistered": True,
+            "symbols": selected_symbols,
+            "interval": interval,
+            "start": selected_start.isoformat(),
+            "end": selected_end.isoformat(),
+            "universeId": selected_universe_id,
+            "preResultPower": pre_result_power,
+            # Canonical frozen-research jobs must persist V1 before any
+            # neighbor is executed. A separate post-V1 sweep owns those
+            # registered diagnostics and increments the same search family.
+            "frozenConfigOnly": strategy_name in (
+                set(FROZEN_EVENT_STRATEGY_NAMES)
+                | {"52-Week-High Momentum", "Market-Residual Momentum"}
+            ),
+        }
+        job_id = uuid4().hex
+        job = {
+            "jobId": job_id,
+            "status": "queued",
+            "stage": "Queued",
+            "progressPct": 0,
+            "createdAt": datetime.now(timezone.utc).isoformat(),
+            "createdMonotonic": monotonic(),
+            "completedAt": None,
+            "error": None,
+            "result": None,
+            "reused": False,
+            "experimentId": experiment_id,
+        }
+        _validation_jobs[job_id] = job
+        _validation_job_cache[cache_key] = job_id
+        view = _validation_job_view(job)
+    _validation_executor.submit(
+        _execute_validation_job, job_id, engine, strategy_name, overrides, research_context,
+    )
+    return view
+
+
+@app.get("/api/validation/jobs/{job_id}")
+def validation_job(job_id: str) -> dict:
+    with _validation_jobs_lock:
+        job = _validation_jobs.get(job_id)
+        if job is None:
+            raise HTTPException(status_code=404, detail="Validation job not found")
+        return _validation_job_view(job)
+
+
+@app.get("/api/research/spec/{strategy_name:path}")
+def research_spec(strategy_name: str) -> dict:
+    if strategy_name not in ALL_STRATEGY_NAMES:
+        raise HTTPException(status_code=404, detail=f"Unknown strategy {strategy_name!r}")
+    engine = (
+        "cross_sectional" if is_cross_sectional(strategy_name)
+        else "pairs" if is_pairs(strategy_name)
+        else "standard"
+    )
+    _, symbols, _, _ = run_config(strategy_name)
+    return build_validation_spec(
+        strategy_name, engine, symbols, strategy_class(strategy_name),
+    ).to_dict()
+
+
+@app.get("/api/research/data-quality/{strategy_name:path}")
+def research_data_quality(strategy_name: str) -> dict:
+    if strategy_name not in ALL_STRATEGY_NAMES:
+        raise HTTPException(status_code=404, detail=f"Unknown strategy {strategy_name!r}")
+    interval, symbols, start, end = run_config(strategy_name)
+    return _clean(data_quality.audit_universe(symbols, interval, start, end).to_dict())
+
+
+@app.get("/api/live/execution/calibration")
+def execution_fill_calibration(symbol: str | None = None) -> dict:
+    return _clean(execution_db.fill_calibration(symbol))
+
+
+@app.get("/api/research/experiments/{strategy_name:path}")
+def research_experiments(strategy_name: str, limit: int = 100) -> list[dict]:
+    if strategy_name not in ALL_STRATEGY_NAMES:
+        raise HTTPException(status_code=404, detail=f"Unknown strategy {strategy_name!r}")
+    return _clean([
+        {
+            "id": row["id"],
+            "createdAt": row["created_at"],
+            "completedAt": row["completed_at"],
+            "strategyName": row["strategy_name"],
+            "engine": row["engine"],
+            "hypothesis": row["hypothesis"],
+            "config": json.loads(row["config_json"]),
+            "primaryBenchmark": row["primary_benchmark"],
+            "primaryCriterion": row["primary_criterion"],
+            "plannedUniverses": json.loads(row["planned_universes_json"]),
+            "searchFamily": row["search_family"],
+            "familySearchNumber": row["family_search_number"],
+            "isPreregistered": bool(row["is_preregistered"]),
+            "status": row["status"],
+            "verdict": row["verdict"],
+        }
+        for row in logging_db.experiment_history(strategy_name, max(1, min(limit, 500)))
+    ])
 
 
 @app.get("/api/symbols")
@@ -922,8 +1662,15 @@ def portfolio_history(strategy_name: str) -> list[dict]:
         raise HTTPException(status_code=404, detail=f"Unknown strategy {strategy_name!r}")
     rows = [
         {
+            "id": row["id"],
             "runAt": row["run_at"],
             "startDate": row["start_date"],
+            # Persisted edge-validation outcome. `edgeVerdict` is the short
+            # label the history table's Validation column renders; `validation`
+            # is the full report so selecting a run shows every dimension and
+            # check without recomputing (the Monte Carlo and rolling-window
+            # arms take minutes).
+            **_validation_fields(row),
             "endDate": row["end_date"],
             "finalEquity": row["final_equity"],
             "returnPct": row["return_pct"],
@@ -932,12 +1679,17 @@ def portfolio_history(strategy_name: str) -> list[dict]:
             "sharpe": row["sharpe"],
             "sortino": row["sortino"],
             "isCanonical": bool(row["is_canonical"]),
+            "universeId": row["universe_id"],
             "symbols": json.loads(row["symbols"]) if row["symbols"] else [],
             "params": json.loads(row["params"]) if row["params"] else {},
             "pairSymbolA": row["pair_symbol_a"],
             "pairSymbolB": row["pair_symbol_b"],
             "pairPValue": row["pair_p_value"],
             "benchmarkReturnPct": row["benchmark_return_pct"],
+            "benchmarkGapPct": portfolio_alpha_pct(
+                row["return_pct"], row["benchmark_return_pct"]
+            ),
+            "benchmarkName": "SPY",
             "status": row["status"],
         }
         for row in portfolio_run_history(strategy_name)
@@ -951,8 +1703,15 @@ def history(strategy_name: str) -> list[dict]:
         raise HTTPException(status_code=404, detail=f"Unknown strategy {strategy_name!r}")
     rows = [
         {
+            "id": row["id"],
             "runAt": row["run_at"],
             "startDate": row["start_date"],
+            # Persisted edge-validation outcome. `edgeVerdict` is the short
+            # label the history table's Validation column renders; `validation`
+            # is the full report so selecting a run shows every dimension and
+            # check without recomputing (the Monte Carlo and rolling-window
+            # arms take minutes).
+            **_validation_fields(row),
             "endDate": row["end_date"],
             "tradesTaken": row["trades_taken"],
             "winRate": row["win_rate"],
@@ -961,8 +1720,13 @@ def history(strategy_name: str) -> list[dict]:
             "maxDrawdownPct": row["max_drawdown_pct"],
             "sharpe": row["sharpe"],
             "alphaPct": row["alpha_pct"],
+            "benchmarkGapPct": row["benchmark_gap_pct"],
+            "benchmarkName": row["benchmark_name"] or "SPY",
+            "benchmarkWindowStart": row["benchmark_window_start"],
+            "benchmarkWindowEnd": row["benchmark_window_end"],
             "status": row["status"],
             "isCanonical": bool(row["is_canonical"]),
+            "universeId": row["universe_id"],
             "symbols": json.loads(row["symbols"]) if row["symbols"] else [],
             "params": json.loads(row["params"]) if row["params"] else {},
         }
@@ -1043,11 +1807,38 @@ def execution_config() -> list[dict]:
     for name, row in config.items():
         if name not in CROSS_SECTIONAL_STRATEGY_NAMES:
             continue
+        override_used = False
+        override_blockers: list = []
+        override_reason = None
+        # Persisted so an override survives a page reload, not just the
+        # session that made the POST call -- looked up by the SAME
+        # (strategy, validationRunId) pair the forward experiment was
+        # started against, never inferred from current live-recomputed status.
+        if row["validation_run_id"] is not None:
+            conn = logging_db.get_connection()
+            fe_row = conn.execute(
+                "SELECT override_used, override_reason, override_blockers_json "
+                "FROM forward_experiments WHERE strategy_name = ? AND validation_run_id = ? "
+                "ORDER BY id DESC LIMIT 1",
+                (name, row["validation_run_id"]),
+            ).fetchone()
+            conn.close()
+            if fe_row is not None:
+                override_used = bool(fe_row[0])
+                override_reason = fe_row[1]
+                override_blockers = json.loads(fe_row[2]) if fe_row[2] else []
         rows.append({
             "strategyName": name,
             "enabled": bool(row["enabled"]),
             "enabledAt": row["enabled_at"],
             "params": json.loads(row["params"] or "{}"),
+            "universeId": row["universe_id"],
+            "symbols": json.loads(row["symbols"] or "[]"),
+            "validationRunId": row["validation_run_id"],
+            "overrideUsed": override_used,
+            "overrideReason": override_reason,
+            "overrideBlockers": override_blockers,
+            "inception": execution_db.inception_for(name),
         })
     return _clean(rows)
 
@@ -1061,18 +1852,116 @@ def set_execution_config(body: ExecutionConfigUpdate) -> dict:
             status_code=400,
             detail=f"{body.strategyName!r} is not an automatable (cross-sectional) strategy.",
         )
-    try:
-        # Validate before persisting so the live engine can only ever read a
-        # parameter set the same schema accepts in the backtest UI.
-        strategy = build_cross_sectional_strategy(body.strategyName, risk_free_rate=0.0)
-        params = body.params or {}
-        apply_params(strategy, params)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e)) from e
+    params = body.params or {}
+    universe_id = None
+    symbols: list[str] | None = None
+    validation_run_id = None
+    forward_experiment = None
+    if body.enabled:
+        if body.inceptionPolicy is None:
+            raise HTTPException(
+                status_code=400,
+                detail="Choose an inception policy: adopt existing positions or flatten first.",
+            )
+        eligible, reason, validation_run_id = paper_execution_eligibility(
+            body.strategyName, body.validationRunId
+        )
+        # overridePassedGates never bypasses the STRUCTURAL requirement --
+        # a real, current persisted validation run must exist to attach a
+        # forward experiment to. There is nothing to override if none does;
+        # this differs from failing the validation GATES on a run that
+        # exists, which the override below is specifically for.
+        if not eligible and (not body.overridePassedGates or validation_run_id is None):
+            raise HTTPException(
+                status_code=409,
+                detail=f"Paper execution blocked by validation: {reason}.",
+            )
+        selected_row, _ = logging_db.canonical_portfolio_validation(
+            body.strategyName, validation_run_id
+        )
+        if selected_row is None:
+            raise HTTPException(status_code=409, detail="The selected run no longer exists.")
+        # Browser fields are display inputs, not authorization. Execute the
+        # exact configuration persisted with the selected run so a custom run
+        # cannot silently turn back into registered defaults after promotion.
+        params = json.loads(selected_row["params"] or "{}")
+        universe_id = selected_row["universe_id"]
+        symbols = json.loads(selected_row["symbols"] or "[]")
+        try:
+            strategy = build_cross_sectional_strategy(body.strategyName, risk_free_rate=0.0)
+            apply_params(strategy, params)
+        except (ValueError, InsufficientHistory) as e:
+            raise HTTPException(status_code=400, detail=str(e)) from e
+        try:
+            forward_experiment = forward_experiments.start(
+                body.strategyName, validation_run_id,
+                override=body.overridePassedGates and not eligible,
+                override_reason=body.overrideReason,
+            )
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=409,
+                detail=f"Paper execution requires a locked forward experiment: {exc}",
+            ) from exc
+    else:
+        try:
+            strategy = build_cross_sectional_strategy(body.strategyName, risk_free_rate=0.0)
+            apply_params(strategy, params)
+        except (ValueError, InsufficientHistory) as e:
+            raise HTTPException(status_code=400, detail=str(e)) from e
     execution_db.set_config(
-        body.strategyName, body.enabled, json.dumps(params), datetime.now().isoformat(),
+        body.strategyName,
+        body.enabled,
+        json.dumps(params),
+        datetime.now().isoformat(),
+        validation_run_id=validation_run_id,
+        universe_id=universe_id,
+        symbols=json.dumps(symbols) if symbols else None,
     )
-    return {"strategyName": body.strategyName, "enabled": body.enabled, "params": params}
+    if body.enabled and validation_run_id is not None:
+        execution_db.configure_inception(
+            body.strategyName, body.inceptionPolicy, validation_run_id,
+            datetime.now().isoformat(),
+        )
+    inception = execution_db.inception_for(body.strategyName)
+    return {
+        "strategyName": body.strategyName,
+        "enabled": body.enabled,
+        "params": params,
+        "universeId": universe_id,
+        "symbols": symbols or [],
+        "validationRunId": validation_run_id,
+        "forwardExperimentId": None if forward_experiment is None else forward_experiment["id"],
+        "overrideUsed": bool(forward_experiment and forward_experiment.get("overrideUsed")),
+        "overrideBlockers": (forward_experiment or {}).get("overrideBlockers") or [],
+        "inception": inception,
+    }
+
+
+@app.get("/api/research/forward/{strategy_name:path}")
+def forward_experiment_status(strategy_name: str) -> list[dict]:
+    if strategy_name not in ALL_STRATEGY_NAMES:
+        raise HTTPException(status_code=404, detail=f"Unknown strategy {strategy_name!r}")
+    return _clean(forward_experiments.for_strategy(strategy_name))
+
+
+@app.post("/api/research/forward/{experiment_id}/observations")
+def append_forward_observation(experiment_id: int, body: ForwardObservationInput) -> dict:
+    try:
+        as_of = date.fromisoformat(body.asOf)
+        result = forward_experiments.record_observation(
+            experiment_id,
+            as_of=as_of,
+            strategy_return_pct=body.strategyReturnPct,
+            benchmark_return_pct=body.benchmarkReturnPct,
+            trade_count=body.tradeCount,
+            realized_slippage_bps=body.realizedSlippageBps,
+            expected_slippage_bps=body.expectedSlippageBps,
+            turnover_pct=body.turnoverPct,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return _clean(result)
 
 
 @app.get("/api/live/execution/strategies")
@@ -1120,10 +2009,62 @@ def execution_summary() -> dict:
     the earliest completed run's starting equity, used as the baseline
     for computing "since this account started automated trading"."""
     earliest = execution_db.earliest_run_with_baseline()
+    active_inception = next(
+        (
+            execution_db.inception_for(name)
+            for name, row in execution_db.automation_config().items()
+            if bool(row["enabled"])
+        ),
+        None,
+    )
+    inception_ready = bool(
+        active_inception
+        and active_inception.get("status") == "initialized"
+        and active_inception.get("equity") is not None
+    )
     return _clean({
-        "startingEquity": earliest["portfolio_value_at_start"] if earliest else None,
-        "firstTradeAt": earliest["triggered_at"] if earliest else None,
+        "startingEquity": (
+            active_inception["equity"] if inception_ready
+            else earliest["portfolio_value_at_start"] if earliest else None
+        ),
+        "firstTradeAt": (
+            active_inception["inceptionAt"] if inception_ready
+            else earliest["triggered_at"] if earliest else None
+        ),
         "completedRebalances": execution_db.count_completed_runs(),
+        "inception": active_inception,
+    })
+
+
+@app.get("/api/live/forward-test")
+def forward_test_status() -> dict:
+    """Read-only state of the append-only frozen forward test.
+
+    This endpoint intentionally cannot start, edit, or delete observations.
+    Starting the test requires the paper strategy and its controls to be
+    operational together; a dashboard click must not silently declare that
+    methodological condition satisfied.
+    """
+    history = forward_tracking.load_history()
+    latest = history[-1] if history else None
+    decision = forward_tracking.evaluate_stop(
+        float(latest["months_elapsed"]) if latest else 0.0,
+        latest.get("vs_ew_pit_dow_pp") if latest else None,
+    )
+    return _clean({
+        "status": "not_started" if not history else decision.verdict,
+        "freezeDate": forward_tracking.FREEZE_DATE.isoformat(),
+        "observationCount": len(history),
+        "latest": latest,
+        "decision": {
+            "triggered": decision.triggered,
+            "verdict": decision.verdict,
+            "reasoning": decision.reasoning,
+        },
+        "stopHorizonMonths": forward_tracking.STOP_HORIZON_MONTHS,
+        "continueHorizonMonths": forward_tracking.CONTINUE_HORIZON_MONTHS,
+        "stopShortfallPp": forward_tracking.STOP_SHORTFALL_PP,
+        "stopBenchmark": "Equal-weight point-in-time Dow",
     })
 
 

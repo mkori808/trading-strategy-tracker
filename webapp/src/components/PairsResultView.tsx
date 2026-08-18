@@ -1,6 +1,7 @@
 import type { PairsResponse } from "../api";
 import { StatTile } from "./StatTile";
 import { EquityChart } from "./EquityChart";
+import { EdgeValidationPanel } from "./EdgeValidationPanel";
 
 function fmtDate(iso: string): string {
   return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
@@ -11,20 +12,24 @@ const money = (v: number) => `$${v.toFixed(2)}`;
 export function PairsResultView({ result }: { result: PairsResponse }) {
   if (!result.pair) {
     return (
-      <div
-        className="rounded-lg border px-4 py-6 text-center text-sm"
-        style={{ borderColor: "var(--border)", background: "var(--surface-1)", color: "var(--text-muted)" }}
-      >
-        No cointegrated pair cleared the significance threshold in the training half of the
-        window ({fmtDate(result.trainingWindow[0])} – {fmtDate(result.trainingWindow[1])}). This
-        run held 100% cash for the entire trading window -- not an error, just no qualifying pair
-        this time.
+      <div className="space-y-6">
+        <EdgeValidationPanel report={result.validation} />
+        <div
+          className="rounded-lg border px-4 py-6 text-center text-sm"
+          style={{ borderColor: "var(--border)", background: "var(--surface-1)", color: "var(--text-muted)" }}
+        >
+          No cointegrated pair cleared the significance threshold in the training half of the
+          window ({fmtDate(result.trainingWindow[0])} – {fmtDate(result.trainingWindow[1])}). This
+          run held 100% cash for the entire trading window -- not an error, just no qualifying pair
+          this time.
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
+      <EdgeValidationPanel report={result.validation} />
       <div
         className="rounded-lg border px-4 py-3 text-sm"
         style={{ borderColor: "var(--border)", background: "var(--surface-1)", color: "var(--text-secondary)" }}

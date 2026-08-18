@@ -3,7 +3,7 @@ from datetime import date
 import pandas as pd
 import pytest
 
-from engine.cross_sectional import _rebalance_dates, run_cross_sectional_backtest
+from engine.cross_sectional import InsufficientHistory, _rebalance_dates, run_cross_sectional_backtest
 from strategies.cross_sectional import CrossSectionalStrategy
 
 
@@ -70,6 +70,34 @@ def test_switching_symbols_liquidates_the_dropped_one(monkeypatch, two_symbol_ba
     assert last_holdings == {"B": 1.0}
 
 
+def test_rebalance_cannot_see_the_execution_days_close(two_symbol_bars):
+    a, b = two_symbol_bars
+
+    class _AuditHistory(CrossSectionalStrategy):
+        name = "Audit"
+        timeframe = "1mo"
+
+        def __init__(self):
+            self.boundaries = []
+
+        def rebalance(self, universe_bars, as_of):
+            observed = [frame.index.max() for frame in universe_bars.values() if not frame.empty]
+            self.boundaries.append((as_of, max(observed) if observed else None))
+            return {"A": 1.0}
+
+    strategy = _AuditHistory()
+    run_cross_sectional_backtest(
+        "Audit", strategy, ["A", "B"], date(2024, 1, 1), date(2024, 4, 1),
+        bars_by_symbol={"A": a, "B": b}, cash=10_000,
+    )
+
+    assert strategy.boundaries
+    assert all(
+        last_information is None or last_information < execution_day
+        for execution_day, last_information in strategy.boundaries
+    )
+
+
 def test_empty_weights_means_flat_cash_equity(monkeypatch, two_symbol_bars):
     a, b = two_symbol_bars
 
@@ -85,6 +113,48 @@ def test_empty_weights_means_flat_cash_equity(monkeypatch, two_symbol_bars):
 
     assert result.final_equity == 10_000
     assert result.return_pct == 0.0
+
+
+def test_current_roster_can_disclose_and_skip_names_without_full_warmup(daily_bars_factory):
+    class _WarmupStrategy(_FixedWeights):
+        def required_history_days(self):
+            return 20
+
+    a = daily_bars_factory(
+        closes=[100 + i for i in range(50)], volumes=[1e6] * 50, start="2023-12-01",
+    )
+    b = daily_bars_factory(
+        closes=[50 + i for i in range(15)], volumes=[1e6] * 15, start="2024-01-10",
+    )
+    kwargs = dict(
+        strategy_name="Warmup", strategy=_WarmupStrategy([{"A": 1.0}]),
+        symbols=["A", "B"], start=date(2024, 1, 15), end=date(2024, 2, 15),
+        bars_by_symbol={"A": a, "B": b}, cash=10_000,
+    )
+
+    with pytest.raises(InsufficientHistory):
+        run_cross_sectional_backtest(**kwargs)
+
+    kwargs["strategy"] = _WarmupStrategy([{"A": 1.0}])
+    result = run_cross_sectional_backtest(**kwargs, allow_incomplete_warmup=True)
+    assert "B" in result.incomplete_warmup
+    assert result.incomplete_warmup["B"] < 20
+
+
+def test_costs_reconcile_to_actual_traded_notional(two_symbol_bars):
+    a, b = two_symbol_bars
+    result = run_cross_sectional_backtest(
+        "Fixed", _FixedWeights([{"A": 1.0}]), ["A", "B"],
+        date(2024, 1, 1), date(2024, 4, 1), cash=10_000,
+        bars_by_symbol={"A": a, "B": b},
+        spread_by_symbol={"A": 0.0010, "B": 0.0010},
+        commission_bps=2.0,
+    )
+
+    assert result.total_traded_notional > 0
+    assert result.commission_bps == 2.0
+    effective_bps = result.total_costs / result.total_traded_notional * 10_000
+    assert effective_bps == pytest.approx(12.0)
 
 
 def test_daily_rebalance_dates_is_every_trading_day():

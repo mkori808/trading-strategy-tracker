@@ -1,5 +1,6 @@
 import { Fragment, useState } from "react";
 import type { HistoryRow } from "../api";
+import { EdgeValidationPanel } from "./EdgeValidationPanel";
 import { StatusPill } from "./StatusPill";
 
 function fmtWhen(iso: string): string {
@@ -57,7 +58,7 @@ export function RunHistory({
         <table className="w-full min-w-[760px] border-collapse text-sm">
           <thead>
             <tr style={{ borderBottom: "1px solid var(--gridline)" }}>
-              {["Run at", "Window", "Trades", "Win Rate", "Expectancy (R)", "Profit Factor", "Sharpe", "Alpha", "Status", "Config"].map(
+              {["Run at", "Window", "Trades", "Win Rate", "Expectancy (R)", "Profit Factor", "Sharpe", "Gap vs SPY", "Edge verdict", "Evidence"].map(
                 (h) => (
                   <th
                     key={h}
@@ -104,10 +105,18 @@ export function RunHistory({
                     {r.sharpe === null ? "—" : r.sharpe.toFixed(2)}
                   </td>
                   <td className="px-3 py-2 tabular-nums" style={{ color: "var(--text-secondary)" }}>
-                    {r.alphaPct === null ? "—" : `${r.alphaPct >= 0 ? "+" : ""}${r.alphaPct.toFixed(1)}%`}
+                    <span
+                      title={
+                        r.benchmarkWindowStart && r.benchmarkWindowEnd
+                          ? `${r.benchmarkName} measured ${r.benchmarkWindowStart} to ${r.benchmarkWindowEnd} -- can differ from the requested window/other runs of this strategy, since a canonical run's end date defaults to "today"`
+                          : `Cumulative return gap vs ${r.benchmarkName} over identical dates`
+                      }
+                    >
+                      {r.benchmarkGapPct === null ? "—" : `${r.benchmarkGapPct >= 0 ? "+" : ""}${r.benchmarkGapPct.toFixed(1)}%`}
+                    </span>
                   </td>
                   <td className="px-3 py-2">
-                    <StatusPill status={r.status} />
+                    <StatusPill status={r.edgeVerdict ?? "Validation not recorded"} />
                   </td>
                   <td className="px-3 py-2 whitespace-nowrap">
                     <button
@@ -119,7 +128,7 @@ export function RunHistory({
                       className="text-xs font-medium underline-offset-2 hover:underline"
                       style={{ color: "var(--series-1)" }}
                     >
-                      {isExpanded ? "Hide" : hasParams ? "Show (custom)" : "Show"}
+                      {isExpanded ? "Hide" : r.validation ? "Inspect" : hasParams ? "Show config" : "Show"}
                     </button>
                   </td>
                   </tr>
@@ -143,6 +152,11 @@ export function RunHistory({
                               : "registered defaults (no overrides)"}
                           </div>
                         </div>
+                        {r.validation && (
+                          <div className="mt-4">
+                            <EdgeValidationPanel report={r.validation} showVerdict={false} />
+                          </div>
+                        )}
                       </td>
                     </tr>
                   )}

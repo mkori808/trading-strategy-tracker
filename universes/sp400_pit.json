@@ -1,0 +1,200 @@
+{
+  "applicableGates": {
+    "beats_equal_weight": {
+      "applicable": true,
+      "reason": "This is a multi-instrument equity basket."
+    },
+    "beats_spy": {
+      "applicable": true,
+      "reason": "The registered primary benchmark is SPY for this US-equity universe."
+    },
+    "pit_membership": {
+      "applicable": true,
+      "reason": "The registered symbols are a mechanical current-constituent sample, not a complete PIT ledger; PIT remains unresolved."
+    }
+  },
+  "assetClass": "equity",
+  "category": "S&P indexes",
+  "description": "Mechanical 27-stock S&P MidCap 400 sample; point-in-time membership remains unresolved.",
+  "costModel": {
+    "commissionBps": 0.0,
+    "estimator": "engine.execution_calibration.spread_for",
+    "note": "Per-symbol equity spreads; never valid for futures roll/slippage costs.",
+    "type": "equity_spread"
+  },
+  "dataCoverage": {
+    "AA": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "AIT": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "AN": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "ATI": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "BC": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "BRX": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "CCK": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "CHRD": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "COLB": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "CVLT": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "DLB": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "ELAN": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "EWBC": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "FHI": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "FOUR": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2020-06-04",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "GLPI": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "HALO": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "HRB": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "ITT": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "KNX": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "LNTH": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "MKSI": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "MTSI": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "NNN": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "OC": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "OPCH": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "PBF": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-08-13",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    }
+  },
+  "equalWeightBenchmark": "self_equal_weight",
+  "id": "sp400_pit",
+  "label": "S&P MidCap 400 sample",
+  "membershipLedgerPath": null,
+  "membershipMode": "mechanical_current_constituent_sample",
+  "primaryBenchmark": "SPY",
+  "runnable": true,
+  "selectable": false,
+  "symbols": [
+    "AA",
+    "AIT",
+    "AN",
+    "ATI",
+    "BC",
+    "BRX",
+    "CCK",
+    "CHRD",
+    "COLB",
+    "CVLT",
+    "DLB",
+    "ELAN",
+    "EWBC",
+    "FHI",
+    "FOUR",
+    "GLPI",
+    "HALO",
+    "HRB",
+    "ITT",
+    "KNX",
+    "LNTH",
+    "MKSI",
+    "MTSI",
+    "NNN",
+    "OC",
+    "OPCH",
+    "PBF"
+  ],
+  "unavailableReason": null
+}

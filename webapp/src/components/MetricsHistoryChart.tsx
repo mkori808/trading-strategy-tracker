@@ -53,9 +53,9 @@ const METRICS: MetricSpec[] = [
     format: (v) => v.toFixed(2),
   },
   {
-    key: "alphaPct",
-    label: "Alpha vs. buy & hold",
-    accessor: (r) => r.alphaPct,
+    key: "benchmarkGapPct",
+    label: "Gap vs SPY",
+    accessor: (r) => r.benchmarkGapPct,
     format: (v) => `${v >= 0 ? "+" : ""}${v.toFixed(1)}%`,
   },
 ];

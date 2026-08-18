@@ -1,0 +1,1114 @@
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=234: Broker canceled the order due to insufficient margin (equity=10092.44, margin_available=10092.44).
+  warnings.warn(
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1248: Broker canceled the order due to insufficient margin (equity=9781.96, margin_available=9781.96).
+  warnings.warn(
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  43%|####3     | 1342/3119 [00:02<00:02, 668.43bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1965: Broker canceled the order due to insufficient margin (equity=10723.92, margin_available=10723.92).
+  warnings.warn(
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:  68%|######8   | 2133/3119 [00:04<00:01, 500.97bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [ABacktest.run:  93%|#########2| 2898/3119 [00:06<00:00, 432.77bar/s]                                                                   C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [ABacktest.run:  22%|##2       | 699/3119 [00:02<00:06, 349.42bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:  44%|####4     | 1376/3119 [00:04<00:05, 341.19bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  68%|######7   | 2111/3119 [00:06<00:02, 352.65bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [A                                                                   C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=473: Broker canceled the order due to insufficient margin (equity=9605.03, margin_available=9605.03).
+  warnings.warn(
+Backtest.run:  18%|#7        | 546/3119 [00:02<00:09, 271.46bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=702: Broker canceled the order due to insufficient margin (equity=9489.68, margin_available=9489.68).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1094: Broker canceled the order due to insufficient margin (equity=9523.56, margin_available=9523.56).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1097: Broker canceled the order due to insufficient margin (equity=9523.56, margin_available=9523.56).
+  warnings.warn(
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1326: Broker canceled the order due to insufficient margin (equity=9474.71, margin_available=9474.71).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1410: Broker canceled the order due to insufficient margin (equity=9361.67, margin_available=9361.67).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1482: Broker canceled the order due to insufficient margin (equity=9255.21, margin_available=9255.21).
+  warnings.warn(
+Backtest.run:  48%|####7     | 1492/3119 [00:04<00:04, 389.70bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1830: Broker canceled the order due to insufficient margin (equity=8950.20, margin_available=8950.20).
+  warnings.warn(
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  64%|######4   | 2004/3119 [00:06<00:03, 324.20bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2282: Broker canceled the order due to insufficient margin (equity=9437.08, margin_available=9437.08).
+  warnings.warn(
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:  89%|########9 | 2787/3119 [00:08<00:00, 337.45bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2919: Broker canceled the order due to insufficient margin (equity=9888.47, margin_available=9888.47).
+  warnings.warn(
+                                                                   C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=558: Broker canceled the order due to insufficient margin (equity=9854.68, margin_available=9854.68).
+  warnings.warn(
+
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=785: Broker canceled the order due to insufficient margin (equity=9957.67, margin_available=9957.67).
+  warnings.warn(
+Backtest.run:  47%|####6     | 1461/3119 [00:02<00:02, 730.23bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:  68%|######8   | 2134/3119 [00:04<00:01, 497.96bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  94%|#########3| 2930/3119 [00:06<00:00, 449.85bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+                                                                   C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:  30%|###       | 937/3119 [00:02<00:04, 467.67bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:  71%|#######   | 2199/3119 [00:04<00:01, 563.37bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:  84%|########4 | 2635/3119 [00:06<00:01, 405.75bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=395: Broker canceled the order due to insufficient margin (equity=10095.59, margin_available=10095.59).
+  warnings.warn(
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  18%|#7        | 549/3119 [00:02<00:09, 272.45bar/s]
+                                                       [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:  56%|#####6    | 1757/3119 [00:04<00:02, 465.92bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2262: Broker canceled the order due to insufficient margin (equity=9617.71, margin_available=9617.71).
+  warnings.warn(
+
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:  80%|#######9  | 2484/3119 [00:06<00:01, 419.23bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run: 100%|##########| 3119/3119 [00:08<00:00, 378.65bar/s]                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [ABacktest.run:  40%|####      | 1256/3119 [00:02<00:02, 627.18bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1638: Broker canceled the order due to insufficient margin (equity=10040.13, margin_available=10040.13).
+  warnings.warn(
+Backtest.run:  72%|#######1  | 2232/3119 [00:04<00:01, 544.62bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:  98%|#########7| 3042/3119 [00:06<00:00, 480.58bar/s]                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=554: Broker canceled the order due to insufficient margin (equity=10117.58, margin_available=10117.58).
+  warnings.warn(
+Backtest.run:  19%|#9        | 594/3119 [00:02<00:08, 290.69bar/s]
+                                                       [AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=684: Broker canceled the order due to insufficient margin (equity=9707.83, margin_available=9707.83).
+  warnings.warn(
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  56%|#####6    | 1752/3119 [00:04<00:02, 458.45bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2108: Broker canceled the order due to insufficient margin (equity=8839.77, margin_available=8839.77).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2397: Broker canceled the order due to insufficient margin (equity=8769.01, margin_available=8769.01).
+  warnings.warn(
+Backtest.run:  79%|#######8  | 2450/3119 [00:06<00:01, 408.65bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2683: Broker canceled the order due to insufficient margin (equity=8693.27, margin_available=8693.27).
+  warnings.warn(
+                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  28%|##7       | 858/3119 [00:02<00:05, 414.92bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  38%|###8      | 1186/3119 [00:04<00:07, 265.97bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  48%|####7     | 1494/3119 [00:06<00:07, 215.13bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:  58%|#####8    | 1810/3119 [00:08<00:06, 192.73bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  64%|######3   | 1984/3119 [00:10<00:07, 153.52bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  75%|#######5  | 2344/3119 [00:12<00:04, 162.21bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  81%|########  | 2511/3119 [00:14<00:04, 133.63bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  88%|########8 | 2757/3119 [00:16<00:02, 127.92bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  93%|#########2| 2892/3119 [00:18<00:02, 109.14bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+                                                                   C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  21%|##1       | 658/3119 [00:02<00:07, 326.92bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  30%|##9       | 921/3119 [00:04<00:10, 211.05bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:  39%|###8      | 1215/3119 [00:06<00:10, 180.64bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  48%|####8     | 1505/3119 [00:08<00:09, 164.95bar/s]
+                                                       [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1719: Broker canceled the order due to insufficient margin (equity=9013.76, margin_available=9013.76).
+  warnings.warn(
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  57%|#####7    | 1779/3119 [00:10<00:08, 153.73bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  65%|######5   | 2037/3119 [00:12<00:07, 145.21bar/s]
+                                                       [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:  73%|#######2  | 2263/3119 [00:14<00:06, 134.46bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  97%|#########6| 3011/3119 [00:16<00:00, 209.91bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+                                                                   C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=468: Broker canceled the order due to insufficient margin (equity=10357.17, margin_available=10357.17).
+  warnings.warn(
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  30%|###       | 949/3119 [00:02<00:04, 445.13bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=950: Broker canceled the order due to insufficient margin (equity=10361.34, margin_available=10361.34).
+  warnings.warn(
+
+                                                       [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  38%|###8      | 1186/3119 [00:04<00:07, 254.27bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:  45%|####5     | 1415/3119 [00:06<00:08, 191.86bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1639: Broker canceled the order due to insufficient margin (equity=10319.46, margin_available=10319.46).
+  warnings.warn(
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  54%|#####4    | 1689/3119 [00:08<00:08, 170.25bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  65%|######5   | 2028/3119 [00:10<00:06, 167.78bar/s]
+                                                       [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  73%|#######3  | 2286/3119 [00:12<00:05, 154.70bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2356: Broker canceled the order due to insufficient margin (equity=8918.24, margin_available=8918.24).
+  warnings.warn(
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  85%|########5 | 2652/3119 [00:14<00:02, 158.23bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  92%|#########1| 2866/3119 [00:16<00:01, 139.64bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  98%|#########7| 3049/3119 [00:18<00:00, 124.73bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+                                                                   C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  25%|##5       | 788/3119 [00:02<00:05, 393.77bar/s]
+                                                       [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1095: Broker canceled the order due to insufficient margin (equity=9330.67, margin_available=9330.67).
+  warnings.warn(
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:  39%|###9      | 1227/3119 [00:04<00:06, 291.05bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [ABacktest.run:  48%|####7     | 1491/3119 [00:06<00:07, 216.74bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  58%|#####7    | 1804/3119 [00:08<00:06, 192.49bar/s]
+                                                       [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  64%|######3   | 1985/3119 [00:10<00:07, 155.31bar/s]
+                                                       [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  76%|#######5  | 2363/3119 [00:12<00:04, 166.45bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:  88%|########8 | 2755/3119 [00:14<00:02, 176.00bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  93%|#########2| 2893/3119 [00:16<00:01, 141.21bar/s]
+                                                       [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  22%|##1       | 686/3119 [00:02<00:07, 337.72bar/s][A                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:  32%|###2      | 1009/3119 [00:04<00:08, 234.68bar/s][ABacktest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:  42%|####1     | 1298/3119 [00:06<00:09, 193.63bar/s][ABacktest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  52%|#####2    | 1627/3119 [00:08<00:08, 178.66bar/s][A                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  62%|######1   | 1930/3119 [00:10<00:07, 165.22bar/s][A                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  71%|#######1  | 2219/3119 [00:12<00:05, 157.48bar/s][A                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  78%|#######7  | 2430/3119 [00:14<00:04, 140.31bar/s][A                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       
+Backtest.run:  85%|########5 | 2652/3119 [00:16<00:03, 130.93bar/s][ABacktest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  93%|#########2| 2895/3119 [00:18<00:01, 121.76bar/s][A                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+                                                                   [A                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=162: Broker canceled the order due to insufficient margin (equity=9904.45, margin_available=9904.45).
+  warnings.warn(
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  28%|##7       | 858/3119 [00:02<00:05, 426.59bar/s]
+                                                       [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  38%|###7      | 1177/3119 [00:04<00:07, 268.94bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:  54%|#####3    | 1673/3119 [00:06<00:05, 258.94bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  62%|######2   | 1938/3119 [00:08<00:06, 194.81bar/s]
+                                                       [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  69%|######8   | 2137/3119 [00:10<00:06, 160.46bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2262: Broker canceled the order due to insufficient margin (equity=6351.84, margin_available=6351.84).
+  warnings.warn(
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  74%|#######3  | 2303/3119 [00:12<00:06, 135.04bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  81%|########1 | 2537/3119 [00:14<00:04, 128.81bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2736: Broker canceled the order due to insufficient margin (equity=6093.60, margin_available=6093.60).
+  warnings.warn(
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  89%|########8 | 2770/3119 [00:16<00:02, 122.18bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  95%|#########5| 2964/3119 [00:18<00:01, 113.19bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A                                                                   C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  25%|##4       | 774/3119 [00:02<00:06, 379.08bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  35%|###5      | 1096/3119 [00:04<00:08, 243.11bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  46%|####5     | 1423/3119 [00:06<00:08, 207.28bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:  53%|#####2    | 1649/3119 [00:08<00:08, 170.57bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  63%|######2   | 1950/3119 [00:10<00:07, 157.77bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  72%|#######2  | 2261/3119 [00:12<00:05, 154.78bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  79%|#######9  | 2466/3119 [00:14<00:04, 136.99bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  87%|########7 | 2723/3119 [00:16<00:02, 132.26bar/s]
+                                                       [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  92%|#########1| 2869/3119 [00:18<00:02, 114.09bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  96%|#########6| 3008/3119 [00:20<00:01, 100.20bar/s]
+                                                       [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [ABacktest.run:  18%|#7        | 548/3119 [00:02<00:09, 272.63bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  30%|###       | 939/3119 [00:04<00:09, 218.19bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  35%|###5      | 1094/3119 [00:06<00:13, 153.03bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  45%|####5     | 1406/3119 [00:08<00:11, 153.74bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:  50%|#####     | 1571/3119 [00:10<00:12, 125.32bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1591: Broker canceled the order due to insufficient margin (equity=9919.77, margin_available=9919.77).
+  warnings.warn(
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:  55%|#####5    | 1720/3119 [00:12<00:13, 106.08bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:  68%|######7   | 2118/3119 [00:14<00:07, 135.42bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [ABacktest.run:  73%|#######2  | 2274/3119 [00:16<00:07, 117.52bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:  81%|########  | 2521/3119 [00:18<00:05, 119.35bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  90%|######### | 2811/3119 [00:20<00:02, 126.49bar/s]
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:  94%|#########4| 2940/3119 [00:23<00:01, 100.50bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=3002: Broker canceled the order due to insufficient margin (equity=10107.92, margin_available=10107.92).
+  warnings.warn(
+
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  99%|#########9| 3101/3119 [00:25<00:00, 94.49bar/s] 
+                                                       [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+                                                                  Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  19%|#8        | 584/3119 [00:02<00:08, 290.25bar/s][A                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       
+Backtest.run:  30%|###       | 939/3119 [00:04<00:09, 224.03bar/s][ABacktest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  40%|###9      | 1241/3119 [00:06<00:10, 186.82bar/s][A                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  47%|####6     | 1460/3119 [00:08<00:10, 155.52bar/s][A                                                       Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  52%|#####1    | 1612/3119 [00:10<00:12, 119.97bar/s][A                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:  63%|######2   | 1960/3119 [00:12<00:08, 137.33bar/s][ABacktest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  73%|#######3  | 2281/3119 [00:14<00:05, 142.96bar/s][A                                                       Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  80%|#######9  | 2492/3119 [00:16<00:04, 128.95bar/s][A                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:  87%|########7 | 2716/3119 [00:18<00:03, 123.82bar/s][ABacktest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  98%|#########7| 3044/3119 [00:20<00:00, 135.83bar/s][A                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+                                                                   [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  80%|#######9  | 2482/3119 [00:02<00:00, 1240.42bar/s]                                                                    C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=397: Broker canceled the order due to insufficient margin (equity=10157.04, margin_available=10157.04).
+  warnings.warn(
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  21%|##        | 650/3119 [00:02<00:08, 303.44bar/s][A                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=780: Broker canceled the order due to insufficient margin (equity=9872.29, margin_available=9872.29).
+  warnings.warn(
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=858: Broker canceled the order due to insufficient margin (equity=9993.57, margin_available=9993.57).
+  warnings.warn(
+                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  33%|###2      | 1016/3119 [00:04<00:09, 232.37bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1022: Broker canceled the order due to insufficient margin (equity=10055.65, margin_available=10055.65).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1031: Broker canceled the order due to insufficient margin (equity=9976.39, margin_available=9976.39).
+  warnings.warn(
+                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1092: Broker canceled the order due to insufficient margin (equity=10095.42, margin_available=10095.42).
+  warnings.warn(
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1404: Broker canceled the order due to insufficient margin (equity=9915.49, margin_available=9915.49).
+  warnings.warn(
+
+Backtest.run:  45%|####5     | 1404/3119 [00:06<00:08, 214.14bar/s][A                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:  53%|#####2    | 1651/3119 [00:08<00:08, 169.91bar/s][ABacktest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:  61%|######    | 1899/3119 [00:10<00:07, 153.53bar/s][ABacktest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  68%|######8   | 2128/3119 [00:12<00:07, 139.69bar/s][A                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:  76%|#######5  | 2359/3119 [00:14<00:05, 128.39bar/s][ABacktest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  86%|########5 | 2677/3119 [00:17<00:03, 131.27bar/s][A                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       
+Backtest.run:  96%|#########6| 3008/3119 [00:19<00:00, 141.34bar/s][ABacktest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]                                                       C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+                                                                   [ABacktest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=936: Broker canceled the order due to insufficient margin (equity=9985.45, margin_available=9985.45).
+  warnings.warn(
+Backtest.run:  56%|#####5    | 1741/3119 [00:02<00:01, 870.18bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2262: Broker canceled the order due to insufficient margin (equity=9889.54, margin_available=9889.54).
+  warnings.warn(
+                                                                   C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]Backtest.run:  63%|######2   | 1952/3119 [00:02<00:01, 971.98bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2107: Broker canceled the order due to insufficient margin (equity=9058.47, margin_available=9058.47).
+  warnings.warn(
+                                                                   C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]Backtest.run:  62%|######1   | 1920/3119 [00:02<00:01, 957.34bar/s]                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]Backtest.run:  54%|#####4    | 1698/3119 [00:02<00:01, 848.89bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2185: Broker canceled the order due to insufficient margin (equity=9868.68, margin_available=9868.68).
+  warnings.warn(
+Backtest.run:  96%|#########5| 2994/3119 [00:04<00:00, 730.61bar/s]                                                                   C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=78: Broker canceled the order due to insufficient margin (equity=10035.07, margin_available=10035.07).
+  warnings.warn(
+Backtest.run:  55%|#####5    | 1721/3119 [00:02<00:01, 859.97bar/s]                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=390: Broker canceled the order due to insufficient margin (equity=10077.87, margin_available=10077.87).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=702: Broker canceled the order due to insufficient margin (equity=10098.69, margin_available=10098.69).
+  warnings.warn(
+Backtest.run:  54%|#####3    | 1670/3119 [00:02<00:01, 834.48bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2808: Broker canceled the order due to insufficient margin (equity=8804.66, margin_available=8804.66).
+  warnings.warn(
+                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=175: Broker canceled the order due to insufficient margin (equity=10148.32, margin_available=10148.32).
+  warnings.warn(
+Backtest.run:  47%|####6     | 1456/3119 [00:02<00:02, 727.88bar/s]Backtest.run:  83%|########3 | 2599/3119 [00:04<00:00, 634.52bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2984: Broker canceled the order due to insufficient margin (equity=9607.19, margin_available=9607.19).
+  warnings.warn(
+                                                                   C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]Backtest.run:  53%|#####3    | 1655/3119 [00:02<00:01, 825.14bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2121: Broker canceled the order due to insufficient margin (equity=8840.20, margin_available=8840.20).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2184: Broker canceled the order due to insufficient margin (equity=8785.59, margin_available=8785.59).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2731: Broker canceled the order due to insufficient margin (equity=7947.05, margin_available=7947.05).
+  warnings.warn(
+                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=153: Broker canceled the order due to insufficient margin (equity=10221.82, margin_available=10221.82).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=218: Broker canceled the order due to insufficient margin (equity=10215.05, margin_available=10215.05).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=235: Broker canceled the order due to insufficient margin (equity=10162.11, margin_available=10162.11).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=308: Broker canceled the order due to insufficient margin (equity=10254.84, margin_available=10254.84).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1308: Broker canceled the order due to insufficient margin (equity=9512.69, margin_available=9512.69).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1326: Broker canceled the order due to insufficient margin (equity=9541.98, margin_available=9541.98).
+  warnings.warn(
+Backtest.run:  48%|####7     | 1490/3119 [00:02<00:02, 744.91bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1575: Broker canceled the order due to insufficient margin (equity=8990.80, margin_available=8990.80).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1748: Broker canceled the order due to insufficient margin (equity=9155.52, margin_available=9155.52).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1920: Broker canceled the order due to insufficient margin (equity=8814.24, margin_available=8814.24).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2028: Broker canceled the order due to insufficient margin (equity=9014.90, margin_available=9014.90).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2730: Broker canceled the order due to insufficient margin (equity=8719.41, margin_available=8719.41).
+  warnings.warn(
+Backtest.run:  90%|######### | 2817/3119 [00:04<00:00, 696.80bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2964: Broker canceled the order due to insufficient margin (equity=8564.19, margin_available=8564.19).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2966: Broker canceled the order due to insufficient margin (equity=8564.19, margin_available=8564.19).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2985: Broker canceled the order due to insufficient margin (equity=8588.27, margin_available=8588.27).
+  warnings.warn(
+                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1326: Broker canceled the order due to insufficient margin (equity=9610.15, margin_available=9610.15).
+  warnings.warn(
+Backtest.run:  58%|#####7    | 1806/3119 [00:02<00:01, 902.67bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2418: Broker canceled the order due to insufficient margin (equity=9863.25, margin_available=9863.25).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2574: Broker canceled the order due to insufficient margin (equity=9769.95, margin_available=9769.95).
+  warnings.warn(
+                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1560: Broker canceled the order due to insufficient margin (equity=9223.85, margin_available=9223.85).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1638: Broker canceled the order due to insufficient margin (equity=9335.97, margin_available=9335.97).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1644: Broker canceled the order due to insufficient margin (equity=9335.97, margin_available=9335.97).
+  warnings.warn(
+Backtest.run:  56%|#####5    | 1738/3119 [00:02<00:01, 867.02bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2262: Broker canceled the order due to insufficient margin (equity=9022.45, margin_available=9022.45).
+  warnings.warn(
+                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]Backtest.run:  96%|#########6| 2999/3119 [00:02<00:00, 1498.92bar/s]                                                                    Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]Backtest.run:  87%|########6 | 2710/3119 [00:02<00:00, 1354.98bar/s]                                                                    Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]Backtest.run:  90%|######### | 2813/3119 [00:02<00:00, 1406.44bar/s]                                                                    Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]Backtest.run:  97%|#########6| 3021/3119 [00:02<00:00, 1509.89bar/s]                                                                    Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]Backtest.run:  47%|####6     | 1457/3119 [00:02<00:02, 721.28bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=234: Broker canceled the order due to insufficient margin (equity=10057.81, margin_available=10057.81).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=312: Broker canceled the order due to insufficient margin (equity=10145.88, margin_available=10145.88).
+  warnings.warn(
+Backtest.run:  90%|########9 | 2799/3119 [00:04<00:00, 691.19bar/s]                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  38%|###7      | 1171/3119 [00:02<00:03, 584.70bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1248: Broker canceled the order due to insufficient margin (equity=9758.02, margin_available=9758.02).
+  warnings.warn(
+Backtest.run:  59%|#####8    | 1834/3119 [00:02<00:01, 916.87bar/s]
+Backtest.run:  60%|######    | 1877/3119 [00:04<00:02, 447.61bar/s][ABacktest.run:  86%|########5 | 2675/3119 [00:04<00:00, 624.83bar/s]
+Backtest.run:  78%|#######7  | 2426/3119 [00:06<00:01, 368.67bar/s][A                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  95%|#########5| 2975/3119 [00:08<00:00, 331.38bar/s][A
+                                                                   [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:  68%|######7   | 2116/3119 [00:02<00:00, 1057.79bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  94%|#########3| 2920/3119 [00:04<00:00, 671.67bar/s] 
+Backtest.run:  30%|###       | 938/3119 [00:02<00:04, 467.11bar/s][A                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  50%|#####     | 1570/3119 [00:04<00:04, 376.15bar/s][ABacktest.run:  65%|######5   | 2034/3119 [00:02<00:01, 1013.50bar/s]
+Backtest.run:  69%|######8   | 2152/3119 [00:06<00:02, 337.39bar/s][ABacktest.run:  96%|#########5| 2994/3119 [00:04<00:00, 699.75bar/s]                                                                    Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  84%|########4 | 2629/3119 [00:08<00:01, 298.05bar/s][ABacktest.run:  51%|#####1    | 1603/3119 [00:02<00:01, 800.71bar/s]
+                                                                   [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=702: Broker canceled the order due to insufficient margin (equity=9441.11, margin_available=9441.11).
+  warnings.warn(
+Backtest.run:  71%|#######1  | 2223/3119 [00:04<00:01, 511.72bar/s]
+Backtest.run:  33%|###2      | 1024/3119 [00:02<00:04, 511.30bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1326: Broker canceled the order due to insufficient margin (equity=9484.94, margin_available=9484.94).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1327: Broker canceled the order due to insufficient margin (equity=9484.94, margin_available=9484.94).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1405: Broker canceled the order due to insufficient margin (equity=9308.50, margin_available=9308.50).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1415: Broker canceled the order due to insufficient margin (equity=9334.22, margin_available=9334.22).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1482: Broker canceled the order due to insufficient margin (equity=9257.77, margin_available=9257.77).
+  warnings.warn(
+Backtest.run:  92%|#########1| 2856/3119 [00:06<00:00, 422.41bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1797: Broker canceled the order due to insufficient margin (equity=8944.40, margin_available=8944.40).
+  warnings.warn(
+
+Backtest.run:  58%|#####7    | 1797/3119 [00:04<00:03, 436.87bar/s][A                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  73%|#######3  | 2287/3119 [00:06<00:02, 349.07bar/s][ABacktest.run:  64%|######4   | 2002/3119 [00:02<00:01, 1000.66bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2522: Broker canceled the order due to insufficient margin (equity=9415.71, margin_available=9415.71).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2574: Broker canceled the order due to insufficient margin (equity=9472.15, margin_available=9472.15).
+  warnings.warn(
+
+Backtest.run:  88%|########7 | 2734/3119 [00:08<00:01, 298.95bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2826: Broker canceled the order due to insufficient margin (equity=9662.40, margin_available=9662.40).
+  warnings.warn(
+Backtest.run:  96%|#########5| 2983/3119 [00:04<00:00, 700.00bar/s]                                                                    Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+                                                                   [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=558: Broker canceled the order due to insufficient margin (equity=9856.33, margin_available=9856.33).
+  warnings.warn(
+Backtest.run:  35%|###5      | 1100/3119 [00:02<00:03, 549.61bar/s]
+Backtest.run:  35%|###5      | 1107/3119 [00:02<00:03, 553.34bar/s][ABacktest.run:  56%|#####5    | 1736/3119 [00:04<00:03, 413.06bar/s]
+Backtest.run:  60%|######    | 1885/3119 [00:04<00:02, 456.52bar/s][ABacktest.run:  79%|#######9  | 2468/3119 [00:06<00:01, 391.54bar/s]
+Backtest.run:  79%|#######8  | 2457/3119 [00:06<00:01, 378.33bar/s][ABacktest.run:  95%|#########4| 2955/3119 [00:08<00:00, 332.66bar/s]                                                                   
+Backtest.run:  96%|#########6| 3003/3119 [00:08<00:00, 335.64bar/s][ABacktest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+                                                                   [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  52%|#####2    | 1636/3119 [00:02<00:01, 816.55bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1062: Broker canceled the order due to insufficient margin (equity=9831.67, margin_available=9831.67).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1064: Broker canceled the order due to insufficient margin (equity=9831.67, margin_available=9831.67).
+  warnings.warn(
+
+Backtest.run:  35%|###4      | 1089/3119 [00:02<00:03, 543.58bar/s][ABacktest.run:  85%|########4 | 2645/3119 [00:04<00:00, 632.57bar/s]
+Backtest.run:  57%|#####7    | 1789/3119 [00:04<00:03, 428.21bar/s][A                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2184: Broker canceled the order due to insufficient margin (equity=8817.27, margin_available=8817.27).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2186: Broker canceled the order due to insufficient margin (equity=8817.27, margin_available=8817.27).
+  warnings.warn(
+
+Backtest.run:  76%|#######5  | 2367/3119 [00:06<00:02, 364.76bar/s][ABacktest.run:  68%|######7   | 2115/3119 [00:02<00:00, 1057.26bar/s]
+Backtest.run:  93%|#########2| 2894/3119 [00:08<00:00, 324.78bar/s][A                                                                    Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+                                                                   [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  47%|####6     | 1453/3119 [00:02<00:02, 725.85bar/s]
+Backtest.run:  30%|###       | 943/3119 [00:02<00:04, 468.29bar/s][ABacktest.run:  74%|#######4  | 2322/3119 [00:04<00:01, 554.38bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1733: Broker canceled the order due to insufficient margin (equity=9598.85, margin_available=9598.85).
+  warnings.warn(
+
+Backtest.run:  60%|######    | 1875/3119 [00:04<00:02, 466.74bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1980: Broker canceled the order due to insufficient margin (equity=9465.61, margin_available=9465.61).
+  warnings.warn(
+Backtest.run:  94%|#########3| 2925/3119 [00:06<00:00, 438.74bar/s]                                                                   C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2262: Broker canceled the order due to insufficient margin (equity=9584.98, margin_available=9584.98).
+  warnings.warn(
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  78%|#######7  | 2427/3119 [00:06<00:01, 379.54bar/s][ABacktest.run:  64%|######3   | 1984/3119 [00:02<00:01, 991.68bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2808: Broker canceled the order due to insufficient margin (equity=9000.33, margin_available=9000.33).
+  warnings.warn(
+
+Backtest.run:  93%|#########2| 2891/3119 [00:08<00:00, 321.25bar/s][A
+                                                                   [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  92%|#########2| 2879/3119 [00:04<00:00, 670.91bar/s]                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  33%|###3      | 1038/3119 [00:02<00:04, 516.60bar/s][ABacktest.run:  47%|####7     | 1469/3119 [00:02<00:02, 734.18bar/s]
+Backtest.run:  54%|#####4    | 1691/3119 [00:04<00:03, 404.72bar/s][ABacktest.run:  76%|#######5  | 2360/3119 [00:04<00:01, 564.20bar/s]
+Backtest.run:  78%|#######8  | 2446/3119 [00:06<00:01, 392.27bar/s][ABacktest.run:  96%|#########6| 2999/3119 [00:06<00:00, 452.30bar/s]                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  98%|#########7| 3045/3119 [00:08<00:00, 349.41bar/s][A
+                                                                   [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=319: Broker canceled the order due to insufficient margin (equity=10156.23, margin_available=10156.23).
+  warnings.warn(
+Backtest.run:  53%|#####3    | 1657/3119 [00:02<00:01, 828.31bar/s]
+Backtest.run:  32%|###1      | 996/3119 [00:02<00:04, 497.79bar/s][ABacktest.run:  85%|########5 | 2664/3119 [00:04<00:00, 637.10bar/s]
+Backtest.run:  58%|#####7    | 1799/3119 [00:04<00:02, 440.52bar/s][A                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2215: Broker canceled the order due to insufficient margin (equity=8748.07, margin_available=8748.07).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2261: Broker canceled the order due to insufficient margin (equity=8820.19, margin_available=8820.19).
+  warnings.warn(
+
+Backtest.run:  73%|#######3  | 2281/3119 [00:06<00:02, 348.01bar/s][ABacktest.run:  67%|######6   | 2086/3119 [00:02<00:00, 1042.76bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2507: Broker canceled the order due to insufficient margin (equity=8641.27, margin_available=8641.27).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2574: Broker canceled the order due to insufficient margin (equity=8551.48, margin_available=8551.48).
+  warnings.warn(
+
+Backtest.run:  88%|########8 | 2747/3119 [00:08<00:01, 302.36bar/s][A                                                                    Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+                                                                   [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=392: Broker canceled the order due to insufficient margin (equity=9453.96, margin_available=9453.96).
+  warnings.warn(
+Backtest.run:  70%|#######   | 2196/3119 [00:02<00:00, 1095.33bar/s]
+Backtest.run:  32%|###2      | 999/3119 [00:02<00:04, 496.75bar/s][ABacktest.run:  91%|######### | 2829/3119 [00:04<00:00, 637.06bar/s]                                                                    Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  54%|#####3    | 1679/3119 [00:04<00:03, 404.71bar/s][ABacktest.run:  70%|#######   | 2194/3119 [00:02<00:00, 1095.71bar/s]
+Backtest.run:  73%|#######2  | 2263/3119 [00:06<00:02, 352.99bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2474: Broker canceled the order due to insufficient margin (equity=8839.78, margin_available=8839.78).
+  warnings.warn(
+                                                                    Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  89%|########9 | 2785/3119 [00:08<00:01, 316.64bar/s][ABacktest.run:  72%|#######2  | 2251/3119 [00:02<00:00, 1125.45bar/s]
+                                                                   [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  96%|#########5| 2993/3119 [00:04<00:00, 681.59bar/s]                                                                    Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  38%|###7      | 1182/3119 [00:02<00:03, 590.18bar/s][ABacktest.run:  71%|#######1  | 2215/3119 [00:02<00:00, 1107.49bar/s]
+Backtest.run:  54%|#####4    | 1687/3119 [00:04<00:03, 391.60bar/s][A                                                                    Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  73%|#######2  | 2262/3119 [00:06<00:02, 342.33bar/s][ABacktest.run:  73%|#######3  | 2288/3119 [00:02<00:00, 1143.54bar/s]
+Backtest.run:  85%|########5 | 2654/3119 [00:08<00:01, 283.57bar/s][A                                                                    Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  99%|#########9| 3100/3119 [00:10<00:00, 261.75bar/s][A
+                                                                   [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=234: Broker canceled the order due to insufficient margin (equity=9395.10, margin_available=9395.10).
+  warnings.warn(
+Backtest.run:  65%|######5   | 2041/3119 [00:02<00:01, 1020.15bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=768: Broker canceled the order due to insufficient margin (equity=10625.28, margin_available=10625.28).
+  warnings.warn(
+
+Backtest.run:  36%|###6      | 1128/3119 [00:02<00:03, 561.51bar/s][ABacktest.run:  94%|#########4| 2941/3119 [00:04<00:00, 684.07bar/s]                                                                    Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  55%|#####5    | 1720/3119 [00:04<00:03, 403.79bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1836: Broker canceled the order due to insufficient margin (equity=9571.19, margin_available=9571.19).
+  warnings.warn(
+Backtest.run:  62%|######1   | 1921/3119 [00:02<00:01, 960.17bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2347: Broker canceled the order due to insufficient margin (equity=8877.61, margin_available=8877.61).
+  warnings.warn(
+
+Backtest.run:  76%|#######5  | 2361/3119 [00:06<00:02, 365.70bar/s][ABacktest.run:  93%|#########3| 2914/3119 [00:04<00:00, 687.15bar/s]
+Backtest.run:  95%|#########5| 2977/3119 [00:08<00:00, 342.88bar/s][A                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+                                                                   [AC:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=402: Broker canceled the order due to insufficient margin (equity=10025.98, margin_available=10025.98).
+  warnings.warn(
+Backtest.run:  49%|####9     | 1538/3119 [00:02<00:02, 768.73bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=977: Broker canceled the order due to insufficient margin (equity=9536.08, margin_available=9536.08).
+  warnings.warn(
+
+Backtest.run:  36%|###6      | 1126/3119 [00:02<00:03, 560.57bar/s][ABacktest.run:  85%|########4 | 2647/3119 [00:04<00:00, 642.17bar/s]
+Backtest.run:  58%|#####7    | 1795/3119 [00:04<00:03, 427.43bar/s][A                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2048: Broker canceled the order due to insufficient margin (equity=8680.20, margin_available=8680.20).
+  warnings.warn(
+
+Backtest.run:  75%|#######4  | 2339/3119 [00:06<00:02, 356.35bar/s][ABacktest.run:  58%|#####7    | 1801/3119 [00:02<00:01, 900.36bar/s]
+Backtest.run:  92%|#########1| 2864/3119 [00:08<00:00, 318.41bar/s][ABacktest.run:  90%|########9 | 2796/3119 [00:04<00:00, 663.38bar/s]                                                                   
+                                                                   [ABacktest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  49%|####9     | 1534/3119 [00:02<00:02, 765.86bar/s]
+Backtest.run:  29%|##9       | 912/3119 [00:02<00:04, 453.47bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1124: Broker canceled the order due to insufficient margin (equity=9570.59, margin_available=9570.59).
+  warnings.warn(
+Backtest.run:  79%|#######8  | 2462/3119 [00:04<00:01, 587.95bar/s]
+Backtest.run:  53%|#####3    | 1661/3119 [00:04<00:03, 406.85bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2184: Broker canceled the order due to insufficient margin (equity=9351.10, margin_available=9351.10).
+  warnings.warn(
+                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  73%|#######3  | 2278/3119 [00:06<00:02, 360.84bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2652: Broker canceled the order due to insufficient margin (equity=8876.71, margin_available=8876.71).
+  warnings.warn(
+Backtest.run:  69%|######9   | 2158/3119 [00:02<00:00, 1077.93bar/s]
+Backtest.run:  88%|########8 | 2749/3119 [00:08<00:01, 311.41bar/s][A
+                                                                   [A                                                                    Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=162: Broker canceled the order due to insufficient margin (equity=9904.45, margin_available=9904.45).
+  warnings.warn(
+Backtest.run:  49%|####9     | 1530/3119 [00:02<00:02, 762.58bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  71%|#######1  | 2218/3119 [00:04<00:01, 513.67bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2397: Broker canceled the order due to insufficient margin (equity=6408.63, margin_available=6408.63).
+  warnings.warn(
+
+Backtest.run:  68%|######7   | 2114/3119 [00:02<00:00, 1056.37bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2574: Broker canceled the order due to insufficient margin (equity=6272.25, margin_available=6272.25).
+  warnings.warn(
+Backtest.run:  85%|########4 | 2637/3119 [00:06<00:01, 374.98bar/s]
+                                                                    [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A                                                                   C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=546: Broker canceled the order due to insufficient margin (equity=10143.25, margin_available=10143.25).
+  warnings.warn(
+
+Backtest.run:  48%|####7     | 1490/3119 [00:02<00:02, 744.57bar/s][ABacktest.run:  33%|###2      | 1027/3119 [00:02<00:04, 513.07bar/s]
+Backtest.run:  77%|#######7  | 2407/3119 [00:04<00:01, 575.89bar/s][ABacktest.run:  58%|#####8    | 1824/3119 [00:04<00:02, 444.69bar/s]
+                                                                   [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  77%|#######7  | 2404/3119 [00:06<00:01, 373.61bar/s]
+Backtest.run:  58%|#####7    | 1801/3119 [00:02<00:01, 900.15bar/s][ABacktest.run:  90%|######### | 2818/3119 [00:08<00:00, 307.71bar/s]
+Backtest.run:  87%|########7 | 2722/3119 [00:04<00:00, 641.45bar/s][A                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+                                                                   [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  28%|##7       | 858/3119 [00:02<00:05, 425.31bar/s]
+Backtest.run:  63%|######2   | 1961/3119 [00:02<00:01, 980.17bar/s][ABacktest.run:  48%|####8     | 1500/3119 [00:04<00:04, 363.59bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1679: Broker canceled the order due to insufficient margin (equity=10541.29, margin_available=10541.29).
+  warnings.warn(
+
+Backtest.run:  94%|#########3| 2930/3119 [00:04<00:00, 688.25bar/s][A
+                                                                   [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  69%|######8   | 2151/3119 [00:06<00:02, 345.89bar/s]
+Backtest.run:  67%|######6   | 2075/3119 [00:02<00:01, 1035.84bar/s][ABacktest.run:  89%|########8 | 2775/3119 [00:08<00:01, 332.41bar/s]
+Backtest.run:  94%|#########4| 2934/3119 [00:04<00:00, 679.37bar/s] [A                                                                   
+                                                                   [ABacktest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=468: Broker canceled the order due to insufficient margin (equity=9825.74, margin_available=9825.74).
+  warnings.warn(
+
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  33%|###2      | 1028/3119 [00:02<00:04, 513.05bar/s]
+Backtest.run:  63%|######2   | 1957/3119 [00:02<00:01, 978.42bar/s][ABacktest.run:  54%|#####3    | 1680/3119 [00:04<00:03, 402.84bar/s]
+Backtest.run:  84%|########4 | 2624/3119 [00:04<00:00, 598.85bar/s][A
+                                                                   [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2262: Broker canceled the order due to insufficient margin (equity=9379.36, margin_available=9379.36).
+  warnings.warn(
+Backtest.run:  73%|#######2  | 2262/3119 [00:06<00:02, 350.32bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2340: Broker canceled the order due to insufficient margin (equity=9339.99, margin_available=9339.99).
+  warnings.warn(
+
+Backtest.run:  66%|######5   | 2057/3119 [00:02<00:01, 1027.70bar/s][ABacktest.run:  86%|########5 | 2667/3119 [00:08<00:01, 292.09bar/s]                                                                   C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  92%|#########1| 2863/3119 [00:04<00:00, 658.03bar/s] [A
+                                                                   [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  32%|###2      | 1008/3119 [00:02<00:04, 503.52bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1092: Broker canceled the order due to insufficient margin (equity=9876.32, margin_available=9876.32).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1404: Broker canceled the order due to insufficient margin (equity=9654.73, margin_available=9654.73).
+  warnings.warn(
+
+Backtest.run:  64%|######3   | 1985/3119 [00:02<00:01, 992.18bar/s][ABacktest.run:  51%|#####     | 1588/3119 [00:04<00:04, 377.79bar/s]
+Backtest.run:  93%|#########3| 2910/3119 [00:04<00:00, 680.26bar/s][A
+                                                                   [ABacktest.run:  70%|#######   | 2191/3119 [00:06<00:02, 342.80bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  88%|########7 | 2731/3119 [00:08<00:01, 313.74bar/s]
+Backtest.run:  45%|####4     | 1396/3119 [00:02<00:02, 697.67bar/s][A                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:  68%|######7   | 2118/3119 [00:04<00:02, 498.13bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=936: Broker canceled the order due to insufficient margin (equity=9910.77, margin_available=9910.77).
+  warnings.warn(
+Backtest.run:  36%|###6      | 1127/3119 [00:02<00:03, 563.30bar/s]
+Backtest.run:  84%|########3 | 2605/3119 [00:06<00:01, 381.81bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1544: Broker canceled the order due to insufficient margin (equity=9814.76, margin_available=9814.76).
+  warnings.warn(
+Backtest.run:  60%|######    | 1873/3119 [00:04<00:02, 450.03bar/s]
+                                                                   [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  73%|#######2  | 2266/3119 [00:06<00:02, 334.29bar/s]
+Backtest.run:  65%|######4   | 2017/3119 [00:02<00:01, 1008.00bar/s][ABacktest.run:  91%|######### | 2837/3119 [00:08<00:00, 314.58bar/s]
+Backtest.run:  96%|#########6| 3003/3119 [00:04<00:00, 704.30bar/s] [A                                                                   C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+                                                                   [ABacktest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  31%|###1      | 982/3119 [00:02<00:04, 489.04bar/s]
+Backtest.run:  33%|###2      | 1025/3119 [00:02<00:04, 512.33bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1185: Broker canceled the order due to insufficient margin (equity=9308.40, margin_available=9308.40).
+  warnings.warn(
+Backtest.run:  56%|#####5    | 1734/3119 [00:04<00:03, 421.54bar/s]
+Backtest.run:  53%|#####2    | 1644/3119 [00:04<00:03, 392.87bar/s][ABacktest.run:  79%|#######8  | 2452/3119 [00:06<00:01, 392.38bar/s]
+Backtest.run:  74%|#######4  | 2311/3119 [00:06<00:02, 365.50bar/s][ABacktest.run:  99%|#########8| 3087/3119 [00:08<00:00, 362.44bar/s]                                                                   C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:  92%|#########1| 2857/3119 [00:08<00:00, 328.84bar/s][ABacktest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+                                                                   [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  38%|###7      | 1182/3119 [00:02<00:03, 589.06bar/s]
+Backtest.run:  68%|######8   | 2125/3119 [00:02<00:00, 1062.24bar/s][ABacktest.run:  55%|#####4    | 1713/3119 [00:04<00:03, 397.42bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2042: Broker canceled the order due to insufficient margin (equity=9431.06, margin_available=9431.06).
+  warnings.warn(
+
+                                                                    [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  73%|#######3  | 2279/3119 [00:06<00:02, 344.96bar/s]
+Backtest.run:  71%|#######1  | 2218/3119 [00:02<00:00, 1108.47bar/s][ABacktest.run:  93%|#########2| 2886/3119 [00:08<00:00, 328.38bar/s]                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]
+                                                                    [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  28%|##8       | 888/3119 [00:02<00:05, 443.12bar/s]
+Backtest.run:  39%|###9      | 1228/3119 [00:02<00:03, 613.76bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=1351: Broker canceled the order due to insufficient margin (equity=10560.36, margin_available=10560.36).
+  warnings.warn(
+Backtest.run:  54%|#####3    | 1674/3119 [00:04<00:03, 413.60bar/s]
+Backtest.run:  65%|######5   | 2042/3119 [00:04<00:02, 492.07bar/s][AC:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2133: Broker canceled the order due to insufficient margin (equity=9954.08, margin_available=9954.08).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=2191: Broker canceled the order due to insufficient margin (equity=9809.50, margin_available=9809.50).
+  warnings.warn(
+Backtest.run:  73%|#######2  | 2275/3119 [00:06<00:02, 361.80bar/s]
+Backtest.run:  90%|######### | 2821/3119 [00:06<00:00, 444.93bar/s][A
+                                                                   [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  89%|########9 | 2790/3119 [00:08<00:01, 319.31bar/s]                                                                   C:\Users\micha\OneDrive\Desktop\Projects\trading-strategy-tracker\engine\backtest.py:140: UserWarning: Some trades remain open at the end of backtest. Use `Backtest(..., finalize_trades=True)` to close them and include them in stats.
+  stats = bt.run()
+
+Backtest.run:  68%|######8   | 2136/3119 [00:02<00:00, 1061.57bar/s][ABacktest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=78: Broker canceled the order due to insufficient margin (equity=10035.07, margin_available=10035.07).
+  warnings.warn(
+
+Backtest.run:  95%|#########5| 2967/3119 [00:04<00:00, 682.33bar/s] [ABacktest.run:  31%|###       | 965/3119 [00:02<00:04, 481.82bar/s]
+                                                                   [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][ABacktest.run:  53%|#####2    | 1638/3119 [00:04<00:03, 396.04bar/s]
+Backtest.run:  49%|####8     | 1514/3119 [00:02<00:02, 755.38bar/s][ABacktest.run:  75%|#######5  | 2342/3119 [00:06<00:02, 374.83bar/s]
+Backtest.run:  76%|#######6  | 2371/3119 [00:04<00:01, 562.84bar/s][ABacktest.run:  92%|#########1| 2863/3119 [00:08<00:00, 329.77bar/s]
+Backtest.run:  99%|#########8| 3085/3119 [00:06<00:00, 468.87bar/s][A
+                                                                   [A
+Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s][A                                                                   Backtest.run:   0%|          | 0/3119 [00:00<?, ?bar/s]C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=390: Broker canceled the order due to insufficient margin (equity=10090.68, margin_available=10090.68).
+  warnings.warn(
+C:\Users\micha\anaconda3\envs\trading\Lib\site-packages\backtesting\backtesting.py:1009: UserWarning: time=702: Broker canceled the order due to insufficient margin (equity=10097.78, margin_available=10097.78).
+  warnings.warn(
+
+Backtest.run:  50%|####9     | 1544/3119 [00:02<00:02, 771.22bar/s][ABacktest.run:  28%|##7       | 866/3119 [00:02<00:05, 432.48bar/s]

@@ -1,0 +1,323 @@
+Current research-history rows: {"forward_experiments": 0, "forward_observations": 0, "portfolio_runs": 0, "research_equity_curves": 1, "research_experiments": 25, "runs": 3}
+Interrupted attempts removed: {"portfolio_runs": 0, "research_experiments": 24, "runs": 2}
+[1/24] QUEUED VWAP Bounce / Reversion (standard)
+[2/24] QUEUED Momentum / Gap and Go (standard)
+[3/24] QUEUED Scalping (3-5 min) (standard)
+[4/24] QUEUED Mean Reversion Scalp (standard)
+[5/24] QUEUED News Fade (standard)
+[6/24] QUEUED Range Trading (standard)
+[7/24] QUEUED Pivot-Level ETF Reversal (standard)
+[8/24] QUEUED Pullback to 21 EMA (standard)
+[9/24] QUEUED Breakout from Consolidation (standard)
+[10/24] QUEUED 9/21 EMA Crossover (standard)
+[11/24] QUEUED Oversold Bounce (RSI<30) (standard)
+[12/24] QUEUED Fibonacci Retracement Entry (standard)
+[13/24] QUEUED Earnings Momentum / Gap-Hold (standard)
+[14/24] QUEUED Connors Mean Reversion (RSI2) (standard)
+[15/24] QUEUED Internal Bar Strength (IBS) (standard)
+[16/24] QUEUED Gap Fade (daily) (standard)
+[17/24] QUEUED Turnaround Tuesday (standard)
+[18/24] QUEUED Sector Rotation Play (standard)
+[19/24] QUEUED Dual Momentum (cross_sectional)
+[20/24] QUEUED Pairs / Stat Arb (pairs)
+[21/24] QUEUED Post-Earnings Drift (PEAD) (standard)
+[22/24] QUEUED Overnight Hold (standard)
+[23/24] QUEUED Anchored VWAP Breakout (standard)
+[24/24] QUEUED Dual Momentum Pullback Swing (standard)
+  VWAP Bounce / Reversion:   5% Preflighting market-data integrity
+  Momentum / Gap and Go:   5% Preflighting market-data integrity
+  Scalping (3-5 min):   0% Queued
+  Mean Reversion Scalp:   0% Queued
+  News Fade:   0% Queued
+  Range Trading:   0% Queued
+  Pivot-Level ETF Reversal:   0% Queued
+  Pullback to 21 EMA:   0% Queued
+  Breakout from Consolidation:   0% Queued
+  9/21 EMA Crossover:   0% Queued
+  Oversold Bounce (RSI<30):   0% Queued
+  Fibonacci Retracement Entry:   0% Queued
+  Earnings Momentum / Gap-Hold:   0% Queued
+  Connors Mean Reversion (RSI2):   0% Queued
+  Internal Bar Strength (IBS):   0% Queued
+  Gap Fade (daily):   0% Queued
+  Turnaround Tuesday:   0% Queued
+  Sector Rotation Play:   0% Queued
+  Dual Momentum:   0% Queued
+  Pairs / Stat Arb:   0% Queued
+  Post-Earnings Drift (PEAD):   0% Queued
+  Overnight Hold:   0% Queued
+  Anchored VWAP Breakout:   0% Queued
+  Dual Momentum Pullback Swing:   0% Queued
+  VWAP Bounce / Reversion:  10% Running strategy backtest and evidence checks
+  Momentum / Gap and Go:  10% Running strategy backtest and evidence checks
+  Momentum / Gap and Go:  45% Parameter robustness: gap_threshold=0.015
+  VWAP Bounce / Reversion:  45% Parameter robustness: band_atr_multiple=0.75
+  Momentum / Gap and Go:  46% Parameter robustness: gap_threshold=0.025
+  Momentum / Gap and Go:  48% Parameter robustness: volume_multiple=1.4
+  VWAP Bounce / Reversion:  47% Parameter robustness: band_atr_multiple=1.25
+  Momentum / Gap and Go:  50% Parameter robustness: volume_multiple=1.6
+  Momentum / Gap and Go:  52% Parameter robustness: min_pullback_atr=0.19999999999999998
+  VWAP Bounce / Reversion:  50% Parameter robustness: atr_period=13
+  Momentum / Gap and Go:  54% Parameter robustness: min_pullback_atr=0.4
+  Momentum / Gap and Go:  56% Parameter robustness: atr_period=13
+  VWAP Bounce / Reversion:  52% Parameter robustness: atr_period=15
+  Momentum / Gap and Go:  58% Parameter robustness: atr_period=15
+  Momentum / Gap and Go: 100% Validation complete
+  Momentum / Gap and Go: COMPLETE: Power unresolved - MDA not computable
+  Scalping (3-5 min):   5% Preflighting market-data integrity
+  Scalping (3-5 min):  10% Running strategy backtest and evidence checks
+  VWAP Bounce / Reversion:  55% Parameter robustness: stop_buffer_pct=0.0009
+  VWAP Bounce / Reversion:  57% Parameter robustness: stop_buffer_pct=0.0011
+  Scalping (3-5 min):  45% Parameter robustness: tight_stop_pct=0.001
+  VWAP Bounce / Reversion: 100% Validation complete
+  VWAP Bounce / Reversion: COMPLETE: Power unresolved - MDA not computable
+  Mean Reversion Scalp:   5% Preflighting market-data integrity
+  Mean Reversion Scalp:  10% Running strategy backtest and evidence checks
+  Mean Reversion Scalp:  45% Parameter robustness: rsi_period=2
+  Mean Reversion Scalp:  46% Parameter robustness: rsi_period=4
+  Scalping (3-5 min):  46% Parameter robustness: tight_stop_pct=0.002
+  Mean Reversion Scalp:  48% Parameter robustness: rsi_low=9
+  Mean Reversion Scalp:  50% Parameter robustness: rsi_low=11
+  Mean Reversion Scalp:  52% Parameter robustness: rsi_high=89
+  Scalping (3-5 min):  48% Parameter robustness: tight_target_pct=0.002
+  Mean Reversion Scalp:  54% Parameter robustness: rsi_high=91
+  Mean Reversion Scalp:  56% Parameter robustness: stop_buffer_pct=0.0009
+  Mean Reversion Scalp:  58% Parameter robustness: stop_buffer_pct=0.0011
+  Scalping (3-5 min):  50% Parameter robustness: tight_target_pct=0.0024999999999999996
+  Mean Reversion Scalp: 100% Validation complete
+  Mean Reversion Scalp: COMPLETE: Power unresolved - MDA not computable
+  News Fade:   5% Preflighting market-data integrity
+  News Fade:  10% Running strategy backtest and evidence checks
+  News Fade:  45% Parameter robustness: range_atr_multiple=1.75
+  News Fade:  46% Parameter robustness: range_atr_multiple=2.25
+  News Fade:  48% Parameter robustness: volume_multiple=1.75
+  News Fade:  50% Parameter robustness: volume_multiple=2.25
+  News Fade:  52% Parameter robustness: fade_retrace_fraction=0.45
+  News Fade:  54% Parameter robustness: fade_retrace_fraction=0.55
+  News Fade:  56% Parameter robustness: atr_period=13
+  News Fade:  58% Parameter robustness: atr_period=15
+  News Fade:  94% Applying lifecycle and promotion gates
+  News Fade: 100% Validation complete
+  News Fade: COMPLETE: Power unresolved - MDA not computable
+  Range Trading:   5% Preflighting market-data integrity
+  Range Trading:  10% Running strategy backtest and evidence checks
+  Range Trading:  45% Parameter robustness: range_lookback_bars=15
+  Range Trading:  47% Parameter robustness: range_lookback_bars=25
+  Range Trading:  50% Parameter robustness: boundary_tolerance=0.0009
+  Range Trading:  52% Parameter robustness: boundary_tolerance=0.0011
+  Range Trading:  55% Parameter robustness: stop_buffer_pct=0.0019
+  Range Trading:  57% Parameter robustness: stop_buffer_pct=0.0021
+  Range Trading: 100% Validation complete
+  Range Trading: COMPLETE: Power unresolved - MDA not computable
+  Pivot-Level ETF Reversal:   5% Preflighting market-data integrity
+  Pivot-Level ETF Reversal:  10% Running strategy backtest and evidence checks
+  Pivot-Level ETF Reversal:  35% Auditing chronological holdout, leakage, and uncertainty
+  Scalping (3-5 min):  52% Parameter robustness: ema_fast_period=8
+  Pivot-Level ETF Reversal: 100% Validation complete
+  Pivot-Level ETF Reversal: COMPLETE: Power unresolved - MDA not computable
+  Pullback to 21 EMA:   5% Preflighting market-data integrity
+  Pullback to 21 EMA:  10% Running strategy backtest and evidence checks
+  Pullback to 21 EMA:  45% Parameter robustness: pullback_atr_tolerance=0.4
+  Pullback to 21 EMA:  46% Parameter robustness: pullback_atr_tolerance=0.6
+  Pullback to 21 EMA:  48% Parameter robustness: trend_lookback=9
+  Pullback to 21 EMA:  50% Parameter robustness: trend_lookback=11
+  Pullback to 21 EMA:  52% Parameter robustness: stop_swing_lookback=15
+  Pullback to 21 EMA:  54% Parameter robustness: stop_swing_lookback=25
+  Pullback to 21 EMA:  56% Parameter robustness: stop_buffer_pct=0.005
+  Pullback to 21 EMA:  58% Parameter robustness: stop_buffer_pct=0.015
+  Pullback to 21 EMA: 100% Validation complete
+  Pullback to 21 EMA: COMPLETE: Underpowered - MDA 14.98%/yr exceeds 2.00%/yr
+  Breakout from Consolidation:   5% Preflighting market-data integrity
+  Breakout from Consolidation:  10% Running strategy backtest and evidence checks
+  Breakout from Consolidation:  45% Parameter robustness: consolidation_lookback=15
+  Breakout from Consolidation:  46% Parameter robustness: consolidation_lookback=25
+  Breakout from Consolidation:  48% Parameter robustness: volume_multiple=1.4
+  Breakout from Consolidation:  50% Parameter robustness: volume_multiple=1.6
+  Breakout from Consolidation:  52% Parameter robustness: stop_range_fraction=0.4
+  Breakout from Consolidation:  54% Parameter robustness: stop_range_fraction=0.6
+  Breakout from Consolidation:  56% Parameter robustness: target_measured_move_multiple=0.75
+  Breakout from Consolidation:  58% Parameter robustness: target_measured_move_multiple=1.25
+  Breakout from Consolidation: 100% Validation complete
+  Breakout from Consolidation: COMPLETE: Underpowered - MDA 35.27%/yr exceeds 2.00%/yr
+  9/21 EMA Crossover:   5% Preflighting market-data integrity
+  9/21 EMA Crossover:  10% Running strategy backtest and evidence checks
+  9/21 EMA Crossover:  45% Parameter robustness: slope_lookback=4
+  9/21 EMA Crossover:  47% Parameter robustness: slope_lookback=6
+  9/21 EMA Crossover:  50% Parameter robustness: stop_swing_lookback=15
+  Scalping (3-5 min):  54% Parameter robustness: ema_fast_period=10
+  9/21 EMA Crossover:  52% Parameter robustness: stop_swing_lookback=25
+  9/21 EMA Crossover:  55% Parameter robustness: stop_buffer_pct=0.005
+  9/21 EMA Crossover:  57% Parameter robustness: stop_buffer_pct=0.015
+  9/21 EMA Crossover: 100% Validation complete
+  9/21 EMA Crossover: COMPLETE: Underpowered - MDA 29.29%/yr exceeds 2.00%/yr
+  Oversold Bounce (RSI<30):   5% Preflighting market-data integrity
+  Oversold Bounce (RSI<30):  10% Running strategy backtest and evidence checks
+  Oversold Bounce (RSI<30):  45% Parameter robustness: rsi_period=13
+  Oversold Bounce (RSI<30):  46% Parameter robustness: rsi_period=15
+  Oversold Bounce (RSI<30):  48% Parameter robustness: rsi_threshold=29
+  Oversold Bounce (RSI<30):  50% Parameter robustness: rsi_threshold=31
+  Oversold Bounce (RSI<30):  52% Parameter robustness: support_lookback=15
+  Oversold Bounce (RSI<30):  54% Parameter robustness: support_lookback=25
+  Oversold Bounce (RSI<30):  56% Parameter robustness: support_tolerance=0.015
+  Oversold Bounce (RSI<30):  58% Parameter robustness: support_tolerance=0.025
+  Oversold Bounce (RSI<30): 100% Validation complete
+  Oversold Bounce (RSI<30): COMPLETE: Power unresolved - MDA not computable
+  Fibonacci Retracement Entry:   5% Preflighting market-data integrity
+  Fibonacci Retracement Entry:  10% Running strategy backtest and evidence checks
+  Fibonacci Retracement Entry:  45% Parameter robustness: lookback=35
+  Fibonacci Retracement Entry:  47% Parameter robustness: lookback=45
+  Fibonacci Retracement Entry:  50% Parameter robustness: min_move_pct=0.07
+  Fibonacci Retracement Entry:  52% Parameter robustness: min_move_pct=0.09
+  Fibonacci Retracement Entry:  55% Parameter robustness: stop_buffer_pct=0.005
+  Scalping (3-5 min):  56% Parameter robustness: ema_slow_period=19
+  Fibonacci Retracement Entry:  57% Parameter robustness: stop_buffer_pct=0.015
+  Fibonacci Retracement Entry: 100% Validation complete
+  Fibonacci Retracement Entry: COMPLETE: Underpowered - MDA 40.91%/yr exceeds 2.00%/yr
+  Earnings Momentum / Gap-Hold:   5% Preflighting market-data integrity
+  Earnings Momentum / Gap-Hold:  10% Running strategy backtest and evidence checks
+  Earnings Momentum / Gap-Hold:  45% Parameter robustness: gap_threshold=0.03
+  Earnings Momentum / Gap-Hold:  46% Parameter robustness: gap_threshold=0.05
+  Earnings Momentum / Gap-Hold:  48% Parameter robustness: volume_multiple=1.75
+  Earnings Momentum / Gap-Hold:  50% Parameter robustness: volume_multiple=2.25
+  Earnings Momentum / Gap-Hold:  52% Parameter robustness: gap_lookback=9
+  Earnings Momentum / Gap-Hold:  54% Parameter robustness: gap_lookback=11
+  Earnings Momentum / Gap-Hold:  56% Parameter robustness: consolidation_min_bars=1
+  Earnings Momentum / Gap-Hold:  58% Parameter robustness: consolidation_min_bars=3
+  Earnings Momentum / Gap-Hold: 100% Validation complete
+  Earnings Momentum / Gap-Hold: COMPLETE: Underpowered - MDA 47.97%/yr exceeds 2.00%/yr
+  Connors Mean Reversion (RSI2):   5% Preflighting market-data integrity
+  Connors Mean Reversion (RSI2):  10% Running strategy backtest and evidence checks
+  Connors Mean Reversion (RSI2):  45% Parameter robustness: trend_sma_period=190
+  Connors Mean Reversion (RSI2):  46% Parameter robustness: trend_sma_period=210
+  Connors Mean Reversion (RSI2):  48% Parameter robustness: rsi_period=3
+  Connors Mean Reversion (RSI2):  50% Parameter robustness: rsi_threshold=9
+  Connors Mean Reversion (RSI2):  52% Parameter robustness: rsi_threshold=11
+  Connors Mean Reversion (RSI2):  54% Parameter robustness: exit_sma_period=4
+  Scalping (3-5 min):  58% Parameter robustness: ema_slow_period=21
+  Connors Mean Reversion (RSI2):  56% Parameter robustness: exit_sma_period=6
+  Connors Mean Reversion (RSI2):  58% Parameter robustness: stop_atr_multiple=2.5
+  Connors Mean Reversion (RSI2): 100% Validation complete
+  Connors Mean Reversion (RSI2): COMPLETE: Underpowered - MDA 12.08%/yr exceeds 2.00%/yr
+  Internal Bar Strength (IBS):   5% Preflighting market-data integrity
+  Internal Bar Strength (IBS):  10% Running strategy backtest and evidence checks
+  Internal Bar Strength (IBS):  45% Parameter robustness: trend_ema_period=242
+  Internal Bar Strength (IBS):  46% Parameter robustness: trend_ema_period=262
+  Internal Bar Strength (IBS):  48% Parameter robustness: ibs_entry_threshold=0.15000000000000002
+  Internal Bar Strength (IBS):  50% Parameter robustness: ibs_entry_threshold=0.25
+  Internal Bar Strength (IBS):  52% Parameter robustness: ibs_exit_threshold=0.85
+  Internal Bar Strength (IBS):  54% Parameter robustness: ibs_exit_threshold=0.9500000000000001
+  Internal Bar Strength (IBS):  56% Parameter robustness: stop_swing_lookback=15
+  Internal Bar Strength (IBS):  58% Parameter robustness: stop_swing_lookback=25
+  Internal Bar Strength (IBS): 100% Validation complete
+  Internal Bar Strength (IBS): COMPLETE: Underpowered - MDA 33.85%/yr exceeds 2.00%/yr
+  Gap Fade (daily):   5% Preflighting market-data integrity
+  Gap Fade (daily):  10% Running strategy backtest and evidence checks
+  Gap Fade (daily):  45% Parameter robustness: gap_atr_multiple=1.25
+  Gap Fade (daily):  47% Parameter robustness: gap_atr_multiple=1.75
+  Gap Fade (daily):  50% Parameter robustness: partial_fill_fraction=0.45
+  Scalping (3-5 min): 100% Validation complete
+  Scalping (3-5 min): COMPLETE: Power unresolved - MDA not computable
+  Turnaround Tuesday:   5% Preflighting market-data integrity
+  Turnaround Tuesday:  10% Running strategy backtest and evidence checks
+  Turnaround Tuesday:  45% Parameter robustness: trend_sma_period=190
+  Turnaround Tuesday:  46% Parameter robustness: trend_sma_period=210
+  Gap Fade (daily):  52% Parameter robustness: partial_fill_fraction=0.55
+  Turnaround Tuesday:  48% Parameter robustness: rsi_period=3
+  Turnaround Tuesday:  50% Parameter robustness: rsi_threshold=9
+  Turnaround Tuesday:  52% Parameter robustness: rsi_threshold=11
+  Turnaround Tuesday:  54% Parameter robustness: stop_atr_multiple=1.5
+  Gap Fade (daily):  55% Parameter robustness: atr_period=13
+  Turnaround Tuesday:  56% Parameter robustness: stop_atr_multiple=2.5
+  Turnaround Tuesday:  58% Parameter robustness: atr_period=13
+  Turnaround Tuesday: 100% Validation complete
+  Turnaround Tuesday: COMPLETE: Underpowered - MDA 11.48%/yr exceeds 2.00%/yr
+  Sector Rotation Play:   5% Preflighting market-data integrity
+  Sector Rotation Play:  10% Running strategy backtest and evidence checks
+  Gap Fade (daily):  57% Parameter robustness: atr_period=15
+  Sector Rotation Play:  45% Parameter robustness: rs_fast=3
+  Gap Fade (daily): 100% Validation complete
+  Gap Fade (daily): COMPLETE: Power unresolved - MDA not computable
+  Dual Momentum:   5% Preflighting market-data integrity
+  Dual Momentum:   8% Running the registered strategy backtest
+  Dual Momentum:  32% Loading benchmark and concentration controls
+  Dual Momentum:  43% Parameter robustness: arm 1 of 11
+  Dual Momentum:  44% Parameter robustness: arm 2 of 11
+  Dual Momentum:  46% Parameter robustness: arm 3 of 11
+  Dual Momentum:  47% Parameter robustness: arm 4 of 11
+  Dual Momentum:  50% Parameter robustness: arm 6 of 11
+  Dual Momentum:  52% Parameter robustness: arm 7 of 11
+  Dual Momentum:  53% Parameter robustness: arm 8 of 11
+  Dual Momentum:  55% Parameter robustness: arm 9 of 11
+  Dual Momentum:  56% Parameter robustness: arm 10 of 11
+  Dual Momentum:  58% Parameter robustness: arm 11 of 11
+  Dual Momentum:  62% Measuring rolling three-year historical stability
+  Dual Momentum:  76% Cross-universe replication: S&P 400 mid-cap sample
+  Dual Momentum:  85% Cross-universe replication: S&P 600 small-cap sample
+  Dual Momentum:  94% Validation failed
+  Dual Momentum: FAILED: Object of type bool is not JSON serializable
+  Pairs / Stat Arb:   5% Preflighting market-data integrity
+  Pairs / Stat Arb:  10% Running pairs backtest and evidence checks
+  Sector Rotation Play:  46% Parameter robustness: rs_fast=5
+  Pairs / Stat Arb:  45% Pairs robustness: entry_zscore=1.75
+  Pairs / Stat Arb:  47% Pairs robustness: entry_zscore=2.25
+  Sector Rotation Play:  48% Parameter robustness: rs_slow=12
+  Pairs / Stat Arb:  50% Pairs robustness: exit_zscore=0.4
+  Pairs / Stat Arb:  52% Pairs robustness: exit_zscore=0.6
+  Sector Rotation Play:  50% Parameter robustness: rs_slow=14
+  Pairs / Stat Arb:  55% Pairs robustness: stop_zscore=3.5
+  Pairs / Stat Arb:  57% Pairs robustness: stop_zscore=4.5
+  Sector Rotation Play:  52% Parameter robustness: support_lookback_weeks=7
+  Pairs / Stat Arb: 100% Validation complete
+  Pairs / Stat Arb: COMPLETE: Underpowered - MDA 13.07%/yr exceeds 2.00%/yr
+  Post-Earnings Drift (PEAD):   5% Preflighting market-data integrity
+  Post-Earnings Drift (PEAD):  10% Running strategy backtest and evidence checks
+  Sector Rotation Play:  54% Parameter robustness: support_lookback_weeks=9
+  Post-Earnings Drift (PEAD):  45% Parameter robustness: entry_window_bars=2
+  Post-Earnings Drift (PEAD):  46% Parameter robustness: entry_window_bars=4
+  Post-Earnings Drift (PEAD):  48% Parameter robustness: ema_period=19
+  Post-Earnings Drift (PEAD):  50% Parameter robustness: ema_period=21
+  Post-Earnings Drift (PEAD):  52% Parameter robustness: stop_atr_multiple=1.5
+  Post-Earnings Drift (PEAD):  54% Parameter robustness: stop_atr_multiple=2.5
+  Post-Earnings Drift (PEAD):  56% Parameter robustness: atr_period=13
+  Post-Earnings Drift (PEAD):  58% Parameter robustness: atr_period=15
+  Post-Earnings Drift (PEAD): 100% Validation complete
+  Post-Earnings Drift (PEAD): COMPLETE: Underpowered - MDA 26.33%/yr exceeds 2.00%/yr
+  Overnight Hold:   5% Preflighting market-data integrity
+  Overnight Hold:  10% Running strategy backtest and evidence checks
+  Overnight Hold:  45% Parameter robustness: trend_sma_period=190
+  Overnight Hold:  48% Parameter robustness: trend_sma_period=210
+  Overnight Hold:  52% Parameter robustness: risk_pct=0.0075
+  Overnight Hold:  56% Parameter robustness: risk_pct=0.0125
+  Sector Rotation Play:  56% Parameter robustness: stop_buffer_pct=0.005
+  Overnight Hold: 100% Validation complete
+  Overnight Hold: COMPLETE: Underpowered - MDA 6.21%/yr exceeds 2.00%/yr
+  Anchored VWAP Breakout:   5% Preflighting market-data integrity
+  Anchored VWAP Breakout:  10% Running strategy backtest and evidence checks
+  Anchored VWAP Breakout:  45% Parameter robustness: min_bars_below_avwap=4
+  Anchored VWAP Breakout:  46% Parameter robustness: min_bars_below_avwap=6
+  Anchored VWAP Breakout:  48% Parameter robustness: volume_confirmation_multiple=1.4
+  Anchored VWAP Breakout:  50% Parameter robustness: volume_confirmation_multiple=1.6
+  Anchored VWAP Breakout:  52% Parameter robustness: volume_avg_lookback=15
+  Sector Rotation Play:  58% Parameter robustness: stop_buffer_pct=0.015
+  Anchored VWAP Breakout:  54% Parameter robustness: volume_avg_lookback=25
+  Anchored VWAP Breakout:  56% Parameter robustness: hard_stop_pct=0.07
+  Anchored VWAP Breakout:  58% Parameter robustness: hard_stop_pct=0.09
+  Anchored VWAP Breakout:  94% Applying lifecycle and promotion gates
+  Anchored VWAP Breakout: 100% Validation complete
+  Anchored VWAP Breakout: COMPLETE: Power unresolved - MDA not computable
+  Dual Momentum Pullback Swing:   5% Preflighting market-data integrity
+  Dual Momentum Pullback Swing:  10% Running strategy backtest and evidence checks
+  Sector Rotation Play: 100% Validation complete
+  Sector Rotation Play: COMPLETE: Underpowered - MDA 36.98%/yr exceeds 2.00%/yr
+  Dual Momentum Pullback Swing:  45% Parameter robustness: momentum_lookback=168
+  Dual Momentum Pullback Swing:  46% Parameter robustness: momentum_lookback=210
+  Dual Momentum Pullback Swing:  48% Parameter robustness: trend_sma_period=40
+  Dual Momentum Pullback Swing:  50% Parameter robustness: trend_sma_period=60
+  Dual Momentum Pullback Swing:  52% Parameter robustness: pullback_ema_period=20
+  Dual Momentum Pullback Swing:  54% Parameter robustness: pullback_ema_period=22
+  Dual Momentum Pullback Swing:  56% Parameter robustness: ema_slope_lookback=9
+  Dual Momentum Pullback Swing:  58% Parameter robustness: ema_slope_lookback=11
+  Dual Momentum Pullback Swing: 100% Validation complete
+  Dual Momentum Pullback Swing: COMPLETE: Power unresolved - MDA not computable
+FINAL_AUDIT={"evaluatedStrategies": ["9/21 EMA Crossover", "Anchored VWAP Breakout", "Breakout from Consolidation", "Connors Mean Reversion (RSI2)", "Dual Momentum Pullback Swing", "Earnings Momentum / Gap-Hold", "Fibonacci Retracement Entry", "Gap Fade (daily)", "Internal Bar Strength (IBS)", "Mean Reversion Scalp", "Momentum / Gap and Go", "News Fade", "Opening Range Breakout (ORB)", "Overnight Hold", "Oversold Bounce (RSI<30)", "Pairs / Stat Arb", "Pivot-Level ETF Reversal", "Post-Earnings Drift (PEAD)", "Pullback to 21 EMA", "Range Trading", "Scalping (3-5 min)", "Sector Rotation Play", "Turnaround Tuesday", "VWAP Bounce / Reversion"], "missingStrategies": ["Dual Momentum"], "portfolioRuns": {"evaluated": 1, "total": 2}, "runs": {"evaluated": 23, "total": 23}, "verdictCounts": {"None": 1, "Power unresolved - MDA not computable": 11, "Underpowered - MDA 11.48%/yr exceeds 2.00%/yr": 1, "Underpowered - MDA 12.08%/yr exceeds 2.00%/yr": 1, "Underpowered - MDA 13.07%/yr exceeds 2.00%/yr": 1, "Underpowered - MDA 14.98%/yr exceeds 2.00%/yr": 1, "Underpowered - MDA 26.33%/yr exceeds 2.00%/yr": 1, "Underpowered - MDA 29.29%/yr exceeds 2.00%/yr": 1, "Underpowered - MDA 33.85%/yr exceeds 2.00%/yr": 1, "Underpowered - MDA 35.27%/yr exceeds 2.00%/yr": 1, "Underpowered - MDA 36.98%/yr exceeds 2.00%/yr": 1, "Underpowered - MDA 40.91%/yr exceeds 2.00%/yr": 1, "Underpowered - MDA 47.97%/yr exceeds 2.00%/yr": 1, "Underpowered - MDA 6.21%/yr exceeds 2.00%/yr": 1, "Underpowered - MDA 68.29%/yr exceeds 2.00%/yr": 1}}
+FAILURES=[{"error": "Object of type bool is not JSON serializable", "strategy": "Dual Momentum"}]

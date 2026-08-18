@@ -1,0 +1,40 @@
+{
+  "id": "us_all_stocks_pit",
+  "label": "U.S. All Stocks — Point-in-Time",
+  "category": "US markets",
+  "description": "Dynamic survivorship-free U.S.-listed common-stock universe. Eligibility is reconstructed at every rebalance from permanent security IDs, historical listings, prices, liquidity, and delisting-inclusive total returns.",
+  "assetClass": "equity",
+  "symbols": [],
+  "membershipLedgerPath": "data/pit_us_all_stocks/security_history.parquet",
+  "membershipMode": "dynamic_pit_security_master",
+  "coverageStart": "1996-01-01",
+  "coverageEnd": "2026-08-12",
+  "approximateSecurityCount": null,
+  "dataCoverage": {},
+  "costModel": {
+    "type": "fixed_conservative_equity_spread",
+    "estimator": "10 bps base all-in spread with 2x/3x stress; historical ADV used separately for capacity",
+    "baseCostStressMultipliers": [1, 2, 3],
+    "maxAdvParticipationPct": 1.0,
+    "note": "Base costs are deliberately conservative and stressed. Capacity uses trailing historical liquidity as of each rebalance; current liquidity is prohibited."
+  },
+  "primaryBenchmark": "SPY",
+  "equalWeightBenchmark": "pit_eligible_equal_weight",
+  "applicableGates": {
+    "beats_spy": {
+      "applicable": true,
+      "reason": "SPY total return over exactly matched dates is the preregistered primary benchmark."
+    },
+    "beats_equal_weight": {
+      "applicable": true,
+      "reason": "Equal weight is reconstructed from the eligible PIT universe at each rebalance."
+    },
+    "pit_membership": {
+      "applicable": true,
+      "reason": "Required: date-effective membership, historical entrants/exits, permanent IDs, and delisting returns must all validate."
+    }
+  },
+  "runnable": false,
+  "selectable": true,
+  "unavailableReason": "Licensed point-in-time security-master and delisted-price data are not installed."
+}

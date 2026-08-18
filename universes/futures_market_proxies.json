@@ -1,0 +1,35 @@
+{
+  "id": "futures_market_proxies",
+  "label": "Futures markets (ETF proxies)",
+  "category": "Futures",
+  "description": "Liquid ETFs proxy equity-index, gold, oil, Treasury, and US-dollar futures markets. No contract margin, expiry, or roll mechanics are claimed.",
+  "assetClass": "equity",
+  "symbols": ["SPY", "QQQ", "IWM", "GLD", "USO", "TLT", "UUP"],
+  "membershipLedgerPath": null,
+  "membershipMode": "fixed_tradable_proxies",
+  "dataCoverage": {
+    "SPY": {"dataSource": "Yahoo Finance adjusted daily bars, fetched on demand", "coverageStart": "2016-01-04", "coverageEnd": "2026-08-12"},
+    "QQQ": {"dataSource": "Yahoo Finance adjusted daily bars, fetched on demand", "coverageStart": "2016-01-04", "coverageEnd": "2026-08-12"},
+    "IWM": {"dataSource": "Yahoo Finance adjusted daily bars, fetched on demand", "coverageStart": "2016-01-04", "coverageEnd": "2026-08-12"},
+    "GLD": {"dataSource": "Yahoo Finance adjusted daily bars, fetched on demand", "coverageStart": "2016-01-04", "coverageEnd": "2026-08-12"},
+    "USO": {"dataSource": "Yahoo Finance adjusted daily bars, fetched on demand", "coverageStart": "2016-01-04", "coverageEnd": "2026-08-12"},
+    "TLT": {"dataSource": "Yahoo Finance adjusted daily bars, fetched on demand", "coverageStart": "2016-01-04", "coverageEnd": "2026-08-12"},
+    "UUP": {"dataSource": "Yahoo Finance adjusted daily bars, fetched on demand", "coverageStart": "2016-01-04", "coverageEnd": "2026-08-12"}
+  },
+  "costModel": {
+    "type": "equity_spread",
+    "estimator": "engine.execution_calibration.spread_for",
+    "commissionBps": 0.0,
+    "note": "Costs are those of the listed ETFs. This does not reuse equity spreads for actual futures contracts."
+  },
+  "primaryBenchmark": "self_equal_weight",
+  "equalWeightBenchmark": "self_equal_weight",
+  "applicableGates": {
+    "pit_membership": {"applicable": false, "reason": "This is a fixed proxy basket, not an index constituent roster."},
+    "beats_equal_weight": {"applicable": true, "reason": "This is a multi-instrument tradable proxy basket."},
+    "beats_spy": {"applicable": false, "reason": "SPY alone is not the benchmark for a multi-asset futures-market proxy basket."}
+  },
+  "runnable": true,
+  "selectable": true,
+  "unavailableReason": null
+}

@@ -1,0 +1,36 @@
+{
+  "applicableGates": {
+    "beats_equal_weight": {
+      "applicable": true,
+      "reason": "This is a multi-instrument equity basket."
+    },
+    "beats_spy": {
+      "applicable": true,
+      "reason": "The registered primary benchmark is SPY for this US-equity universe."
+    },
+    "pit_membership": {
+      "applicable": true,
+      "reason": "Open-source membership replay is installed, but deleted-security price tenure and ticker-identity coverage are incomplete; the PIT gate remains blocked."
+    }
+  },
+  "assetClass": "equity",
+  "category": "Research-only",
+  "description": "Research-only S&P 500 PIT membership reconstruction. Disabled until historical deleted-security prices and reused-ticker identities pass the coverage audit.",
+  "costModel": {
+    "commissionBps": 0.0,
+    "estimator": "engine.execution_calibration.spread_for",
+    "note": "Per-symbol equity spreads; never valid for futures roll/slippage costs.",
+    "type": "equity_spread"
+  },
+  "dataCoverage": {},
+  "equalWeightBenchmark": "self_equal_weight",
+  "id": "sp500_pit",
+  "label": "S&P 500 \u2014 PIT data required",
+  "membershipLedgerPath": "data/universe_membership.json#universes.sp500",
+  "membershipMode": "pit_ledger_required",
+  "primaryBenchmark": "SPY",
+  "runnable": false,
+  "selectable": false,
+  "symbols": [],
+  "unavailableReason": "Membership replay passes, but the all-ticker delisted-price and identity audit does not; a survivor-free S&P 500 run is not yet valid."
+}

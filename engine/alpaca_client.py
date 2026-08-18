@@ -39,6 +39,7 @@ def _credentials() -> tuple[str | None, str | None]:
     )
     secret_key = first_env(
         "ALPACA_SECRET_KEY", "ALPACA_API_SECRET", "ALPACA_PAPER_SECRET_KEY",
+        "ALPACA_PAPER_API_SECRET",
         "APCA_API_SECRET_KEY", "ALPACA_SECRET",
     )
     return api_key, secret_key

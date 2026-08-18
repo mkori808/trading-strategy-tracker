@@ -523,6 +523,18 @@ def test_annualized_stats_refuses_an_unaccrued_curve():
     assert annualized_stats(equity, 0.0, cash_accrued=False)[1] is not None
 
 
+def test_sparse_event_curve_does_not_compress_multiweek_gaps_into_daily_returns():
+    dates = pd.DatetimeIndex(["2021-01-04", "2021-01-05", "2021-02-01", "2021-02-02"])
+    sparse = pd.Series([10_000.0, 10_100.0, 10_100.0, 10_201.0], index=dates)
+    _cagr, sharpe, _sortino = annualized_stats(sparse, 0.0, cash_accrued=True)
+    expanded = sparse.reindex(pd.bdate_range(dates[0], dates[-1]), method="ffill")
+    _cagr, expected_sharpe, _sortino = annualized_stats(expanded, 0.0, cash_accrued=True)
+    # Two 1% event returns separated by cash should not be annualized as if
+    # three consecutive trading days produced the whole move.
+    assert sharpe is not None
+    assert sharpe == pytest.approx(expected_sharpe)
+
+
 def test_every_engine_declares_its_cash_treatment():
     """No call site may omit the declaration -- checked across the codebase.
 

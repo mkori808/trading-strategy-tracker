@@ -28,6 +28,8 @@ from engine.backtest import (
     aggregate_symbol_results,
 )
 from engine.indicators import atr, sma
+from engine.event_timing import ExecutionTiming, timing_contract_for, validate_timing_contract
+from engine.matched_benchmark import annotate_trades, summarize_matches
 from engine.portfolio import annualized_stats
 from strategies.swing.overnight_hold import OvernightHold
 
@@ -36,6 +38,9 @@ def _run_symbol(config: OvernightHold, symbol: str, start: date, end: date,
                 risk_free_rate: float,
                 entry_allowed: Callable[[pd.Timestamp], bool] | None = None,
                 ) -> SymbolBacktestResult:
+    validate_timing_contract(
+        timing_contract_for(config), actual_execution=ExecutionTiming.SAME_CLOSE
+    )
     bars = data_module.get_bars(symbol, "1d", start, end)
     period = config.trend_sma_period
     if bars.empty or len(bars) < period + 2:
@@ -51,12 +56,16 @@ def _run_symbol(config: OvernightHold, symbol: str, start: date, end: date,
     for t in range(period, len(bars) - 1):  # need t+1 for the next open
         if entry_allowed is not None and not entry_allowed(bars.index[t]):
             continue
-        close_t = float(bars["Close"].iloc[t])
-        if not close_t > float(trend.iloc[t]):
+        # A market-on-close decision for session T must exist before T's close.
+        # Form eligibility and risk sizing solely from completed session T-1;
+        # T's close below is an execution price, never signal evidence.
+        signal_close = float(bars["Close"].iloc[t - 1])
+        if not signal_close > float(trend.iloc[t - 1]):
             continue
-        nominal_risk = float(atr14.iloc[t])
+        nominal_risk = float(atr14.iloc[t - 1])
         if not nominal_risk > 0:
             continue
+        close_t = float(bars["Close"].iloc[t])
         open_next = float(bars["Open"].iloc[t + 1])
         size = min(int((equity * config.risk_pct) // nominal_risk), int(equity // close_t))
         if size < 1:
@@ -158,4 +167,39 @@ def run_overnight_backtest(
         symbol: _run_symbol(config, symbol, start, end, risk_free_rate, entry_allowed)
         for symbol in symbols
     }
-    return aggregate_symbol_results(strategy_name, symbols, per_symbol, start, end, risk_free_rate)
+    try:
+        benchmark_bars = data_module.get_bars("SPY", "1d", start, end)
+        benchmark_error = None
+    except Exception as exc:
+        benchmark_bars = pd.DataFrame()
+        benchmark_error = f"{type(exc).__name__}: {exc}"
+    for result in per_symbol.values():
+        result.trades = annotate_trades(
+            result.trades, benchmark_bars, entry_field="Close", exit_field="Open"
+        )
+    output = aggregate_symbol_results(
+        strategy_name, symbols, per_symbol, start, end, risk_free_rate
+    )
+    pooled = pd.concat(
+        [item.trades for item in per_symbol.values() if not item.trades.empty],
+        ignore_index=True,
+    ) if any(not item.trades.empty for item in per_symbol.values()) else pd.DataFrame()
+    capital_base = DEFAULT_CASH * max(1, len(symbols))
+    matched = summarize_matches(
+        pooled,
+        capital_base=capital_base,
+        measured_start=output.metrics.measured_start,
+        measured_end=output.metrics.measured_end,
+        execution_note="benchmark Close at entry session to benchmark Open at exit session",
+    )
+    output.matched_benchmark = matched.to_dict()
+    if benchmark_error:
+        output.matched_benchmark["error"] = benchmark_error
+    output.metrics.matched_spy_return_pct = matched.matched_return_pct
+    output.metrics.matched_spy_excess_pct = matched.matched_excess_pct
+    output.metrics.annualized_matched_excess_pct = matched.annualized_excess_pct
+    output.metrics.matched_alpha_annual_pct = matched.alpha_annual_pct
+    output.metrics.matched_beta = matched.beta
+    output.metrics.matched_benchmark_trades = matched.matched_trades
+    output.metrics.missing_benchmark_trades = matched.missing_trades
+    return output

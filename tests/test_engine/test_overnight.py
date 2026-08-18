@@ -50,3 +50,23 @@ def test_downtrend_blocks_entries(monkeypatch):
         "Overnight Hold", OvernightHold(), ["SPY"], date(2023, 1, 1), date(2024, 1, 1)
     )
     assert result.metrics.trades_taken == 0
+
+
+def test_current_close_cannot_create_its_own_same_close_entry(monkeypatch):
+    # The prior completed bar is below its SMA, while the current bar jumps
+    # above it. A look-ahead implementation would buy the jump's own close;
+    # the causal implementation must wait until a later close auction.
+    n = 204
+    closes = [100.0] * 202 + [80.0, 130.0]
+    opens = [100.0] * n
+    bars = _bars(closes, opens)
+    monkeypatch.setattr("engine.overnight.data_module.get_bars", lambda *a, **k: bars)
+
+    result = run_overnight_backtest(
+        "Overnight Hold",
+        OvernightHold(trend_sma_period=200),
+        ["SPY"],
+        date(2023, 1, 1),
+        date(2024, 1, 1),
+    )
+    assert result.metrics.trades_taken == 0

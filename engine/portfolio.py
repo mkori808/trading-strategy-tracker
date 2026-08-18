@@ -35,6 +35,7 @@ import numpy as np
 import pandas as pd
 
 from engine.backtest import DEFAULT_CASH, DEFAULT_RISK_PCT, StrategyBacktestResult
+from engine.sanity import calendar_daily_series
 
 from engine.metrics import TRADING_DAYS_PER_YEAR  # noqa: F401  (re-export)
 
@@ -153,7 +154,20 @@ def annualized_stats(
             "pass cash_accrued=True. Passing an un-accrued curve charges the "
             "strategy rf it was never paid."
         )
-    daily = equity_curve.groupby(equity_curve.index.normalize()).last().dropna()
+    # Portfolio replays are event-driven and may contain only entry/exit
+    # points. Treating a three-week gap as one "daily" observation inflates
+    # volatility/Sharpe and MDA. Expand onto represented business days so cash
+    # intervals contribute the zero returns they actually earned.
+    collapsed = equity_curve.groupby(equity_curve.index.normalize()).last().dropna()
+    business_calendar = pd.bdate_range(collapsed.index[0], collapsed.index[-1]) if len(collapsed) >= 2 else collapsed.index
+    # Preserve a dense exchange series exactly; injecting federal holidays as
+    # flat bars would slightly under-credit an already-correct cash curve.
+    # Only event-sparse curves need their missing cash intervals restored.
+    daily = (
+        collapsed
+        if len(business_calendar) == 0 or len(collapsed) / len(business_calendar) >= 0.80
+        else calendar_daily_series(collapsed)
+    )
     if len(daily) < 3:
         return None, None, None
     day_returns = daily.pct_change().dropna()

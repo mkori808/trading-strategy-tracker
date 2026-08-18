@@ -18,7 +18,10 @@ from backtesting._stats import compute_stats as _compute_stats
 
 from engine import data as data_module
 from engine.excursion import compute_trade_excursions
+from engine.execution_calibration import spread_for
+from engine.event_timing import ExecutionTiming, timing_contract_for, validate_timing_contract
 from engine.metrics import TRADING_DAYS_PER_YEAR, BacktestMetrics, compute_metrics
+from engine.matched_benchmark import annotate_trades, summarize_matches
 from strategies.base import Strategy
 
 DEFAULT_CASH = 10_000.0
@@ -108,6 +111,13 @@ class StrategyBacktestResult:
     per_symbol: dict[str, SymbolBacktestResult]
     metrics: BacktestMetrics
     excursions: pd.DataFrame = field(default_factory=pd.DataFrame)
+    # logging_db row id, set by engine/runner.py after logging, so a validation
+    # report can be attached to THIS run rather than matched by name+timestamp.
+    run_id: int | None = None
+    # Exact-interval benchmark evidence. Kept separately from the raw full-
+    # window buy-and-hold gap so sparse strategies cannot confuse the two.
+    matched_benchmark: dict = field(default_factory=dict)
+    research_metadata: dict = field(default_factory=dict)
 
 
 def run_symbol_backtest(
@@ -121,6 +131,9 @@ def run_symbol_backtest(
     spread: float | None = None,
     risk_free_rate: float = 0.0,
 ) -> SymbolBacktestResult:
+    validate_timing_contract(
+        timing_contract_for(strategy), actual_execution=ExecutionTiming.NEXT_OPEN
+    )
     bars = data_module.get_bars(symbol, interval, start, end)
     if bars.empty or len(bars) < MIN_BARS_TO_TRADE:
         return SymbolBacktestResult(symbol, None, pd.DataFrame(), None)
@@ -129,7 +142,7 @@ def run_symbol_backtest(
     # names or understates it for thin ones -- estimate per symbol from real
     # dollar volume unless a caller explicitly pins one (e.g. a sensitivity
     # sweep). See engine/data.py:estimate_spread and LESSONS.md.
-    resolved_spread = spread if spread is not None else data_module.estimate_spread(symbol, start, end)
+    resolved_spread = spread if spread is not None else spread_for(symbol, start, end)
 
     adapter_cls = _make_adapter(strategy, risk_pct, resolved_spread)
     bt = Backtest(bars, adapter_cls, cash=cash, spread=resolved_spread, margin=1.0)
@@ -181,7 +194,15 @@ def run_symbol_backtest(
     if "Return [%]" in stats.index and "Buy & Hold Return [%]" in stats.index:
         stats["Alpha [%]"] = stats["Return [%]"] - stats["Buy & Hold Return [%]"]
 
-    trades = stats["_trades"]
+    trades = stats["_trades"].copy()
+    # backtesting.py applies `spread` in fill prices but does not expose a
+    # modeled-cost column. Record a conservative two-way notional estimate so
+    # turnover-heavy hypotheses cannot hide their cost burden.
+    trades["ModeledCost"] = (
+        trades["Size"].abs()
+        * (trades["EntryPrice"].abs() + trades["ExitPrice"].abs())
+        * resolved_spread
+    )
     excursions = compute_trade_excursions(bars, trades) if not trades.empty else None
     return SymbolBacktestResult(symbol, stats, trades, stats["_equity_curve"], excursions)
 
@@ -299,7 +320,20 @@ def run_strategy_backtest_seeded(
         )
         for symbol in symbols
     }
-    return aggregate_symbol_results(strategy_name, symbols, per_symbol, start, end, risk_free_rate)
+    try:
+        benchmark_bars = data_module.get_bars("SPY", interval, start, end)
+        benchmark_error = None
+    except Exception as exc:  # missing benchmark withholds evidence, not the strategy result
+        benchmark_bars = pd.DataFrame()
+        benchmark_error = f"{type(exc).__name__}: {exc}"
+    for result in per_symbol.values():
+        result.trades = annotate_trades(result.trades, benchmark_bars)
+    aggregated = aggregate_symbol_results(
+        strategy_name, symbols, per_symbol, start, end, risk_free_rate
+    )
+    if benchmark_error:
+        aggregated.matched_benchmark["error"] = benchmark_error
+    return aggregated
 
 
 def portfolio_equity_curve(
@@ -422,12 +456,59 @@ def aggregate_symbol_results(
     # stays a per-symbol mean, which is meaningful for those quantities.
     pooled = portfolio_equity_curve(per_symbol)
     pooled_cagr = pooled_sharpe = pooled_sortino = None
+    pooled_total_return = pooled_drawdown = None
     if pooled is not None and len(pooled) > 2:
         from engine.portfolio import annualized_stats
 
         pooled_cagr, pooled_sharpe, pooled_sortino = annualized_stats(
             pooled, risk_free_rate, cash_accrued=True
         )
+        pooled_total_return = float((pooled.iloc[-1] / pooled.iloc[0] - 1.0) * 100.0)
+        pooled_drawdown = float(abs((pooled / pooled.cummax() - 1.0).min() * 100.0))
+
+    capital_base = float(pooled.iloc[0]) if pooled is not None and len(pooled) else DEFAULT_CASH * max(1, len(symbols))
+    turnover_pct = None
+    modeled_costs = None
+    if not pooled_trades.empty:
+        turnover = (
+            pooled_trades["Size"].abs()
+            * (pooled_trades["EntryPrice"].abs() + pooled_trades["ExitPrice"].abs())
+        ).sum()
+        turnover_pct = float(turnover / capital_base * 100.0)
+        if "ModeledCost" in pooled_trades:
+            modeled_costs = float(pd.to_numeric(pooled_trades["ModeledCost"], errors="coerce").sum())
+
+    # Net exposure keeps long and short sides visible instead of allowing a
+    # market-neutral book to look fully uninvested. Gross remains the average
+    # sleeve exposure; time-in-market is the fraction of represented bars on
+    # which at least one sleeve is active.
+    net_sleeve_exposures: list[float] = []
+    for result in per_symbol.values():
+        if result.stats is None or pd.isna(result.stats.get("Exposure Time [%]")):
+            continue
+        exposure = float(result.stats.get("Exposure Time [%]"))
+        if result.trades.empty:
+            net_sleeve_exposures.append(0.0)
+            continue
+        notionals = result.trades["Size"].abs() * result.trades["EntryPrice"].abs()
+        denom = float(notionals.sum())
+        direction = float((notionals * np.sign(result.trades["Size"])).sum() / denom) if denom else 0.0
+        net_sleeve_exposures.append(exposure * direction)
+
+    time_in_market_pct = None
+    if pooled is not None and len(pooled):
+        represented = pd.DatetimeIndex(pooled.index).sort_values()
+        active = np.zeros(len(represented), dtype=bool)
+        for _, trade in pooled_trades.iterrows():
+            active |= (represented >= pd.Timestamp(trade["EntryTime"])) & (represented <= pd.Timestamp(trade["ExitTime"]))
+        time_in_market_pct = float(active.mean() * 100.0)
+
+    matched = summarize_matches(
+        pooled_trades,
+        capital_base=capital_base,
+        measured_start=measured_start,
+        measured_end=measured_end,
+    )
 
     metrics = compute_metrics(
         strategy_name=strategy_name,
@@ -435,7 +516,7 @@ def aggregate_symbol_results(
         trades=pooled_trades,
         start=start,
         end=end,
-        max_drawdown_pct=max(drawdowns) if drawdowns else None,
+        max_drawdown_pct=pooled_drawdown if pooled_drawdown is not None else (max(drawdowns) if drawdowns else None),
         sharpe=pooled_sharpe,
         sortino=pooled_sortino,
         alpha_pct=_mean(alphas),
@@ -447,6 +528,21 @@ def aggregate_symbol_results(
         measured_start=measured_start,
         measured_end=measured_end,
     )
-    return StrategyBacktestResult(
+    metrics.total_return_pct = pooled_total_return
+    metrics.average_gross_exposure_pct = _mean(exposures)
+    metrics.average_net_exposure_pct = _mean(net_sleeve_exposures)
+    metrics.time_in_market_pct = time_in_market_pct
+    metrics.turnover_pct = turnover_pct
+    metrics.modeled_costs = modeled_costs
+    metrics.matched_spy_return_pct = matched.matched_return_pct
+    metrics.matched_spy_excess_pct = matched.matched_excess_pct
+    metrics.annualized_matched_excess_pct = matched.annualized_excess_pct
+    metrics.matched_alpha_annual_pct = matched.alpha_annual_pct
+    metrics.matched_beta = matched.beta
+    metrics.matched_benchmark_trades = matched.matched_trades
+    metrics.missing_benchmark_trades = matched.missing_trades
+    output = StrategyBacktestResult(
         strategy_name, symbols, start, end, per_symbol, metrics, pooled_excursions
     )
+    output.matched_benchmark = matched.to_dict()
+    return output

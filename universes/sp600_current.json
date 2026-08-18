@@ -1,0 +1,3658 @@
+{
+  "applicableGates": {
+    "beats_equal_weight": {
+      "applicable": true,
+      "reason": "This is a multi-instrument equity basket."
+    },
+    "beats_spy": {
+      "applicable": true,
+      "reason": "SPY is the registered benchmark for this US-equity universe."
+    },
+    "pit_membership": {
+      "applicable": true,
+      "reason": "The full current roster is applied statically through history. A date-effective membership ledger plus removed/delisted prices is required to pass this gate."
+    }
+  },
+  "assetClass": "equity",
+  "category": "S&P indexes",
+  "constituentSource": "https://en.wikipedia.org/wiki/List_of_S%26P_600_companies",
+  "constituentsAsOf": "2026-08-13",
+  "costModel": {
+    "commissionBps": 0.0,
+    "estimator": "engine.execution_calibration.spread_for",
+    "note": "Per-symbol US-equity spread model.",
+    "type": "equity_spread"
+  },
+  "dataCoverage": {
+    "AAMI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AAP": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AAT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ABCB": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ABG": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ABM": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ABR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ACA": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ACAD": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ACHC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ACIW": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ACLS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ACMR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ACT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-09-15",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ADAM": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ADEA": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ADIG": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2026-07-29",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ADMA": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ADNT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ADT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ADUS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AEO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AESI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2023-03-08",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AGNT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AGO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AGX": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AGYS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AHCO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AIN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AIR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AKR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ALG": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ALGT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ALHC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-03-25",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ALKS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ALRM": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AMN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AMPH": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AMR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-02-07",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AMRX": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AMSF": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AMTM": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2024-09-23",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ANDE": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ANIP": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AORT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AOSL": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "APAM": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "APLE": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "APOG": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ARCB": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ARLO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AROC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ARR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ASO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2020-10-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ASTE": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ASTH": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ATEN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ATMU": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2023-05-25",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AUB": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AVA": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AWI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AWR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AX": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AZTA": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "AZZ": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "BANC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "BANF": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "BANR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "BBT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "BCC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "BCPC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "BFAM": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "BFH": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "BFS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "BGC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "BHE": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "BJRI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "BKE": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "BKU": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "BL": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "BLFS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "BLKB": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "BMI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "BNL": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2020-09-16",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "BOH": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "BOOT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "BOX": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "BRC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "BTU": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "BXMT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CACC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CAG": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CAKE": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CALM": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CALX": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CALY": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CARG": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CASH": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CATY": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CBRL": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CBU": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CCOI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CCS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CE": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CENT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CENTA": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CENX": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CERT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2020-12-10",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CFFN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CHCO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CHEF": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CLSK": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CNK": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CNMD": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CNR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CNS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CNXC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2020-11-23",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CNXN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "COCO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-10-20",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "COHU": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "COLL": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CON": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2024-07-24",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CORT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "COTY": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CPB": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CPF": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CPK": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CRC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2020-10-27",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CRGY": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-12-07",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CRI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CRK": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CRSR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2020-09-22",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CRVL": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CSR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CSW": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CTS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CUBI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CURB": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2024-09-25",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CVBF": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CVCO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CVI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CVSA": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CWEN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CWK": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CWST": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CWT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CXM": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-06-22",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CXW": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "CZR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "DAN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "DAVE": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-04-25",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "DBD": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2023-08-13",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "DCH": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "DCOM": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "DEA": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "DEI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "DFH": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-01-20",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "DFIN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "DGII": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "DIOD": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "DLX": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "DMC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "DNOW": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "DORM": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "DRH": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "DV": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-04-20",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "DXC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "DXPE": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "EAT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "EBC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2020-10-14",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ECG": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2024-10-27",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ECPG": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "EFC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "EFOR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "EGBN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "EIG": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "EMN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ENOV": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ENPH": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ENR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ENVA": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "EPAC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "EPAM": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "EPC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "EPRT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ESE": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ESI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ETSY": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "EVTC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "EXTR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "EYE": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "EZPW": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "FA": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-06-22",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "FBK": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "FBNC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "FBP": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "FBRT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-10-18",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "FCF": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "FCPT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "FELE": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "FFBC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "FG": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2022-11-21",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "FHB": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "FIBK": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "FIVN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "FIZZ": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "FLO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "FMC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "FORM": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "FOXF": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "FRPT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "FSS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "FTDR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "FTRE": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2023-06-15",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "FUL": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "FULT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "FUN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "GBX": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "GEO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "GFF": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "GIII": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "GKOS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "GNL": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "GNW": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "GO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-06-19",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "GOLF": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "GPI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "GPOR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-05-17",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "GRBK": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "GSHD": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "GT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "GTES": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "GTM": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2020-06-03",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "GTY": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "GVA": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "HAFC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "HASI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "HAYW": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-03-11",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "HCC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "HCI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "HCSG": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "HE": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "HFWA": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "HIW": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "HLIT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "HLX": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "HMN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "HNI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "HOPE": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "HP": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "HRMY": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2020-08-18",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "HSTM": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "HTH": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "HTLD": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "HTO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "HUBG": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "HWKN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "HZO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "IART": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "IBP": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ICHR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ICUI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "IIPR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "INDB": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "INDV": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "INSP": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "INSW": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "INVA": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "INVX": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "IOSP": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "IPAR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "IRDM": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ITGR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ITRI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "IVT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "JBGS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "JBLU": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "JBSS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "JBTM": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "JJSF": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "JOE": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "JXN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-08-31",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "KAI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "KALU": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "KFY": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "KGS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2023-06-28",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "KLIC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "KMPR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "KMT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "KMX": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "KN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "KNTK": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "KOP": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "KRMN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2025-02-12",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "KSS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "KTB": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-05-27",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "KWR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LAUR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LAZ": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LBRT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LCII": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LEG": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LEU": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LFST": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-06-09",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LGIH": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LGND": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LIF": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2024-06-05",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LKFN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LKQ": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LMAT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LNC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LNN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LPG": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LQDA": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LQDT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LRN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LTC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LTH": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-10-06",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LUMN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LW": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LXP": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LYFT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-03-28",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LZ": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-06-29",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "LZB": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MAC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MAN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MARA": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MATW": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MATX": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MBC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2022-12-08",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MBGL": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2026-06-25",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MBIN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MCRI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MCY": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MD": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MDU": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MFP": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2026-06-25",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MGEE": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MGY": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MHK": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MHO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MIR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2020-08-19",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MKTX": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MLKN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MMI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MMSI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MPT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MRCY": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MRP": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2025-02-04",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MRTN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MSEX": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MSGS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MTCH": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MTH": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MTRN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MTUS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MTX": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MWA": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MXL": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "MYRG": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "NABL": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-07-18",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "NATL": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2023-10-10",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "NAVI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "NBHC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "NBTB": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "NE": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-06-08",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "NEO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "NEOG": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "NGVT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "NHC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "NHI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "NIC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "NMIH": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "NOG": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "NPK": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "NPO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "NSIT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "NSP": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "NSSC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "NTCT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "NTST": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2020-08-12",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "NWBI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "NWL": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "NWN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "NX": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "NXRT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "OFG": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "OGN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-05-13",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "OI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "OII": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "OMCL": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "OPLN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "OSIS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "OSW": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "OTTR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "OUT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PAHC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PARR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PATK": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PAYC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PAYO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2020-10-15",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PBH": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PBI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PCRX": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PDFS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PEB": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PECO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-02-24",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PENG": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PENN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PFBC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PFS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PGNY": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-10-24",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PHIN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2023-06-27",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PIPR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PJT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PLAB": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PLMR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-04-16",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PLUS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PLXS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PMT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "POOL": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "POWI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "POWL": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PPLI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PRDO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PRG": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PRGO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PRGS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PRIM": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PRK": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PRKS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PRLB": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PRSU": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PRVA": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-04-27",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PSMT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PTCT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PTEN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PTGX": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PTON": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-09-25",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "PZZA": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "QDEL": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "QNST": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "QRVO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "QTWO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "RAL": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2025-06-24",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "RAMP": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "RCUS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "RDN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "RDNT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "RELY": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-09-22",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "RES": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "REX": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "REYN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2020-01-30",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "REZI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "RHI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "RHP": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "RITM": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "RNG": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "RNST": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ROAD": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ROCK": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ROG": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "RRR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "RSI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2020-04-26",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "RUN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "RUSHA": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "RXO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2022-10-26",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SABR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SAFE": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SAFT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SAH": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SBCF": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SBH": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SBSI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SCHL": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SCL": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SCSC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SDGR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2020-02-05",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SEDG": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SEI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SEZL": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2023-09-12",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SFBS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SFNC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SHAK": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SHEN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SHO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SHOO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SIG": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SKT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SKY": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SKYW": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SLG": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SLVM": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-09-22",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SM": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SMP": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SMPL": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SNDR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SNEX": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SONO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SPHR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2020-04-08",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SPNT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SPSC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SRPT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "STAA": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "STBA": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "STC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "STEP": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2020-09-15",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "STRA": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SUPN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SXI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "SXT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "TALO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "TBBK": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "TDC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "TDS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "TDW": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "TFIN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "TFX": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "TGTX": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "THRM": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "TILE": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "TMDX": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-05-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "TMP": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "TNC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "TNDM": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "TPC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "TR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "TRIP": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "TRMK": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "TRN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "TRNO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "TRST": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "TRUP": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "UA": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "UAA": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "UCB": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "UCTT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "UE": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "UFCS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "UFPT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "UNF": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "UNFI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "UNIT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "UPBD": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "UPWK": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "URBN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "USLM": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "USPH": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "UTI": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "UTL": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "UVV": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "VAC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "VCEL": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "VCTR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "VCYT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "VECO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "VGNT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2026-03-26",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "VIR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-10-10",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "VIRT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "VRRM": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "VRTS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "VSAT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "VSEC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "VSH": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "VSNT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2025-12-14",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "VSTS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2023-09-26",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "VSXY": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-07-20",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "VTOL": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "VVX": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "VYX": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "WABC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "WAFD": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "WAY": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2024-06-06",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "WD": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "WDFC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "WEN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "WERN": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "WGO": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "WHD": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "WINA": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "WKC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "WLY": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "WOR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "WRBY": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-09-28",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "WRLD": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "WS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2023-11-27",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "WSBC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "WSC": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "WSFS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "WT": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "WU": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "WWW": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "XHR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "XNCR": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "XPEL": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-06-30",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "YELP": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "YOU": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2021-06-29",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ZD": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    },
+    "ZWS": {
+      "coverageEnd": "2026-08-11",
+      "coverageStart": "2019-01-01",
+      "dataSource": "Yahoo Finance adjusted daily local cache"
+    }
+  },
+  "description": "Full 602-security current constituent roster as of 2026-08-13. Appropriate for current screening; historical results remain survivorship-biased without a PIT ledger.",
+  "equalWeightBenchmark": "self_equal_weight",
+  "id": "sp600_current",
+  "label": "S&P SmallCap 600 \u2014 all current constituents",
+  "membershipLedgerPath": null,
+  "membershipMode": "full_current_constituents_static_history",
+  "primaryBenchmark": "SPY",
+  "runnable": true,
+  "selectable": true,
+  "sourceAdjustments": {
+    "reason": "CWEN.A trading was suspended on 2026-05-01 when Class A converted to CWEN Class C.",
+    "removedInactiveShareClasses": [
+      "CWEN-A"
+    ]
+  },
+  "symbols": [
+    "AAMI",
+    "AAP",
+    "AAT",
+    "ABCB",
+    "ABG",
+    "ABM",
+    "ABR",
+    "ACA",
+    "ACAD",
+    "ACHC",
+    "ACIW",
+    "ACLS",
+    "ACMR",
+    "ACT",
+    "ADAM",
+    "ADEA",
+    "ADIG",
+    "ADMA",
+    "ADNT",
+    "ADT",
+    "ADUS",
+    "AEO",
+    "AESI",
+    "AGNT",
+    "AGO",
+    "AGX",
+    "AGYS",
+    "AHCO",
+    "AIN",
+    "AIR",
+    "AKR",
+    "ALG",
+    "ALGT",
+    "ALHC",
+    "ALKS",
+    "ALRM",
+    "AMN",
+    "AMPH",
+    "AMR",
+    "AMRX",
+    "AMSF",
+    "AMTM",
+    "ANDE",
+    "ANIP",
+    "AORT",
+    "AOSL",
+    "APAM",
+    "APLE",
+    "APOG",
+    "ARCB",
+    "ARLO",
+    "AROC",
+    "ARR",
+    "ASO",
+    "ASTE",
+    "ASTH",
+    "ATEN",
+    "ATMU",
+    "AUB",
+    "AVA",
+    "AWI",
+    "AWR",
+    "AX",
+    "AZTA",
+    "AZZ",
+    "BANC",
+    "BANF",
+    "BANR",
+    "BBT",
+    "BCC",
+    "BCPC",
+    "BFAM",
+    "BFH",
+    "BFS",
+    "BGC",
+    "BHE",
+    "BJRI",
+    "BKE",
+    "BKU",
+    "BL",
+    "BLFS",
+    "BLKB",
+    "BMI",
+    "BNL",
+    "BOH",
+    "BOOT",
+    "BOX",
+    "BRC",
+    "BTU",
+    "BXMT",
+    "CACC",
+    "CAG",
+    "CAKE",
+    "CALM",
+    "CALX",
+    "CALY",
+    "CARG",
+    "CASH",
+    "CATY",
+    "CBRL",
+    "CBU",
+    "CC",
+    "CCOI",
+    "CCS",
+    "CE",
+    "CENT",
+    "CENTA",
+    "CENX",
+    "CERT",
+    "CFFN",
+    "CHCO",
+    "CHEF",
+    "CLSK",
+    "CNK",
+    "CNMD",
+    "CNR",
+    "CNS",
+    "CNXC",
+    "CNXN",
+    "COCO",
+    "COHU",
+    "COLL",
+    "CON",
+    "CORT",
+    "COTY",
+    "CPB",
+    "CPF",
+    "CPK",
+    "CRC",
+    "CRGY",
+    "CRI",
+    "CRK",
+    "CRSR",
+    "CRVL",
+    "CSR",
+    "CSW",
+    "CTS",
+    "CUBI",
+    "CURB",
+    "CVBF",
+    "CVCO",
+    "CVI",
+    "CVSA",
+    "CWEN",
+    "CWK",
+    "CWST",
+    "CWT",
+    "CXM",
+    "CXW",
+    "CZR",
+    "DAN",
+    "DAVE",
+    "DBD",
+    "DCH",
+    "DCOM",
+    "DEA",
+    "DEI",
+    "DFH",
+    "DFIN",
+    "DGII",
+    "DIOD",
+    "DLX",
+    "DMC",
+    "DNOW",
+    "DORM",
+    "DRH",
+    "DV",
+    "DXC",
+    "DXPE",
+    "EAT",
+    "EBC",
+    "ECG",
+    "ECPG",
+    "EFC",
+    "EFOR",
+    "EGBN",
+    "EIG",
+    "EMN",
+    "ENOV",
+    "ENPH",
+    "ENR",
+    "ENVA",
+    "EPAC",
+    "EPAM",
+    "EPC",
+    "EPRT",
+    "ESE",
+    "ESI",
+    "ETSY",
+    "EVTC",
+    "EXTR",
+    "EYE",
+    "EZPW",
+    "FA",
+    "FBK",
+    "FBNC",
+    "FBP",
+    "FBRT",
+    "FCF",
+    "FCPT",
+    "FELE",
+    "FFBC",
+    "FG",
+    "FHB",
+    "FIBK",
+    "FIVN",
+    "FIZZ",
+    "FLO",
+    "FMC",
+    "FORM",
+    "FOXF",
+    "FRPT",
+    "FSS",
+    "FTDR",
+    "FTRE",
+    "FUL",
+    "FULT",
+    "FUN",
+    "GBX",
+    "GEO",
+    "GFF",
+    "GIII",
+    "GKOS",
+    "GNL",
+    "GNW",
+    "GO",
+    "GOLF",
+    "GPI",
+    "GPOR",
+    "GRBK",
+    "GSHD",
+    "GT",
+    "GTES",
+    "GTM",
+    "GTY",
+    "GVA",
+    "HAFC",
+    "HASI",
+    "HAYW",
+    "HCC",
+    "HCI",
+    "HCSG",
+    "HE",
+    "HFWA",
+    "HIW",
+    "HLIT",
+    "HLX",
+    "HMN",
+    "HNI",
+    "HOPE",
+    "HP",
+    "HRMY",
+    "HSTM",
+    "HTH",
+    "HTLD",
+    "HTO",
+    "HUBG",
+    "HWKN",
+    "HZO",
+    "IART",
+    "IBP",
+    "ICHR",
+    "ICUI",
+    "IIPR",
+    "INDB",
+    "INDV",
+    "INSP",
+    "INSW",
+    "INVA",
+    "INVX",
+    "IOSP",
+    "IPAR",
+    "IRDM",
+    "ITGR",
+    "ITRI",
+    "IVT",
+    "JBGS",
+    "JBLU",
+    "JBSS",
+    "JBTM",
+    "JJSF",
+    "JOE",
+    "JXN",
+    "KAI",
+    "KALU",
+    "KFY",
+    "KGS",
+    "KLIC",
+    "KMPR",
+    "KMT",
+    "KMX",
+    "KN",
+    "KNTK",
+    "KOP",
+    "KRMN",
+    "KSS",
+    "KTB",
+    "KWR",
+    "LAUR",
+    "LAZ",
+    "LBRT",
+    "LCII",
+    "LEG",
+    "LEU",
+    "LFST",
+    "LGIH",
+    "LGND",
+    "LIF",
+    "LKFN",
+    "LKQ",
+    "LMAT",
+    "LNC",
+    "LNN",
+    "LPG",
+    "LQDA",
+    "LQDT",
+    "LRN",
+    "LTC",
+    "LTH",
+    "LUMN",
+    "LW",
+    "LXP",
+    "LYFT",
+    "LZ",
+    "LZB",
+    "MAC",
+    "MAN",
+    "MARA",
+    "MATW",
+    "MATX",
+    "MBC",
+    "MBGL",
+    "MBIN",
+    "MC",
+    "MCRI",
+    "MCY",
+    "MD",
+    "MDU",
+    "MFP",
+    "MGEE",
+    "MGY",
+    "MHK",
+    "MHO",
+    "MIR",
+    "MKTX",
+    "MLKN",
+    "MMI",
+    "MMSI",
+    "MPT",
+    "MRCY",
+    "MRP",
+    "MRTN",
+    "MSEX",
+    "MSGS",
+    "MTCH",
+    "MTH",
+    "MTRN",
+    "MTUS",
+    "MTX",
+    "MWA",
+    "MXL",
+    "MYRG",
+    "NABL",
+    "NATL",
+    "NAVI",
+    "NBHC",
+    "NBTB",
+    "NE",
+    "NEO",
+    "NEOG",
+    "NGVT",
+    "NHC",
+    "NHI",
+    "NIC",
+    "NMIH",
+    "NOG",
+    "NPK",
+    "NPO",
+    "NSIT",
+    "NSP",
+    "NSSC",
+    "NTCT",
+    "NTST",
+    "NWBI",
+    "NWL",
+    "NWN",
+    "NX",
+    "NXRT",
+    "OFG",
+    "OGN",
+    "OI",
+    "OII",
+    "OMCL",
+    "OPLN",
+    "OSIS",
+    "OSW",
+    "OTTR",
+    "OUT",
+    "PAHC",
+    "PARR",
+    "PATK",
+    "PAYC",
+    "PAYO",
+    "PBH",
+    "PBI",
+    "PCRX",
+    "PDFS",
+    "PEB",
+    "PECO",
+    "PENG",
+    "PENN",
+    "PFBC",
+    "PFS",
+    "PGNY",
+    "PHIN",
+    "PI",
+    "PIPR",
+    "PJT",
+    "PLAB",
+    "PLMR",
+    "PLUS",
+    "PLXS",
+    "PMT",
+    "POOL",
+    "POWI",
+    "POWL",
+    "PPLI",
+    "PRDO",
+    "PRG",
+    "PRGO",
+    "PRGS",
+    "PRIM",
+    "PRK",
+    "PRKS",
+    "PRLB",
+    "PRSU",
+    "PRVA",
+    "PSMT",
+    "PTCT",
+    "PTEN",
+    "PTGX",
+    "PTON",
+    "PZZA",
+    "QDEL",
+    "QNST",
+    "QRVO",
+    "QTWO",
+    "RAL",
+    "RAMP",
+    "RCUS",
+    "RDN",
+    "RDNT",
+    "RELY",
+    "RES",
+    "REX",
+    "REYN",
+    "REZI",
+    "RHI",
+    "RHP",
+    "RITM",
+    "RNG",
+    "RNST",
+    "ROAD",
+    "ROCK",
+    "ROG",
+    "RRR",
+    "RSI",
+    "RUN",
+    "RUSHA",
+    "RXO",
+    "SABR",
+    "SAFE",
+    "SAFT",
+    "SAH",
+    "SBCF",
+    "SBH",
+    "SBSI",
+    "SCHL",
+    "SCL",
+    "SCSC",
+    "SDGR",
+    "SEDG",
+    "SEI",
+    "SEZL",
+    "SFBS",
+    "SFNC",
+    "SHAK",
+    "SHEN",
+    "SHO",
+    "SHOO",
+    "SIG",
+    "SKT",
+    "SKY",
+    "SKYW",
+    "SLG",
+    "SLVM",
+    "SM",
+    "SMP",
+    "SMPL",
+    "SNDR",
+    "SNEX",
+    "SONO",
+    "SPHR",
+    "SPNT",
+    "SPSC",
+    "SRPT",
+    "STAA",
+    "STBA",
+    "STC",
+    "STEP",
+    "STRA",
+    "SUPN",
+    "SXI",
+    "SXT",
+    "TALO",
+    "TBBK",
+    "TDC",
+    "TDS",
+    "TDW",
+    "TFIN",
+    "TFX",
+    "TGTX",
+    "THRM",
+    "TILE",
+    "TMDX",
+    "TMP",
+    "TNC",
+    "TNDM",
+    "TPC",
+    "TR",
+    "TRIP",
+    "TRMK",
+    "TRN",
+    "TRNO",
+    "TRST",
+    "TRUP",
+    "UA",
+    "UAA",
+    "UCB",
+    "UCTT",
+    "UE",
+    "UFCS",
+    "UFPT",
+    "UNF",
+    "UNFI",
+    "UNIT",
+    "UPBD",
+    "UPWK",
+    "URBN",
+    "USLM",
+    "USPH",
+    "UTI",
+    "UTL",
+    "UVV",
+    "VAC",
+    "VCEL",
+    "VCTR",
+    "VCYT",
+    "VECO",
+    "VGNT",
+    "VIR",
+    "VIRT",
+    "VRRM",
+    "VRTS",
+    "VSAT",
+    "VSEC",
+    "VSH",
+    "VSNT",
+    "VSTS",
+    "VSXY",
+    "VTOL",
+    "VVX",
+    "VYX",
+    "WABC",
+    "WAFD",
+    "WAY",
+    "WD",
+    "WDFC",
+    "WEN",
+    "WERN",
+    "WGO",
+    "WHD",
+    "WINA",
+    "WKC",
+    "WLY",
+    "WOR",
+    "WRBY",
+    "WRLD",
+    "WS",
+    "WSBC",
+    "WSC",
+    "WSFS",
+    "WT",
+    "WU",
+    "WWW",
+    "XHR",
+    "XNCR",
+    "XPEL",
+    "YELP",
+    "YOU",
+    "ZD",
+    "ZWS"
+  ],
+  "unavailableReason": null
+}

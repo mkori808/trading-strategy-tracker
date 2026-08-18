@@ -17,6 +17,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from engine.event_timing import (
+    ExecutionTiming,
+    InformationAvailability,
+    TimingContract,
+)
 from strategies.params import param_field
 
 
@@ -25,6 +30,19 @@ class OvernightHold:
     name = "Overnight Hold"
     timeframe = "1d"
     direction = "long"
+
+    @classmethod
+    def timing_contract(cls) -> TimingContract:
+        return TimingContract(
+            information_availability=InformationAvailability.PRE_MARKET,
+            execution=ExecutionTiming.SAME_CLOSE,
+            uses_current_close=False,
+            engine="overnight",
+            exception_reason=(
+                "Bespoke close-auction path: eligibility and risk sizing use only "
+                "the prior completed session; the current close is the fill, not evidence."
+            ),
+        )
 
     # Only hold overnight when the trend is up, to avoid catching falling
     # knives with an unstopped position.

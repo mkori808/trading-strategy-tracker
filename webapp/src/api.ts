@@ -6,7 +6,7 @@ export interface StrategySummary {
   // different engines with different result shapes -- see
   // /api/backtest/cross-sectional and /api/backtest/pairs below, and
   // engine/logging_db.py's separate portfolio_runs table for their run
-  // history (win rate/avg win/avg loss/expectancy/profit factor/alpha/beta
+  // history (win rate/avg win/avg loss/expectancy/profit factor/beta
   // are structurally not applicable to these two -- always null; cagrPct/
   // returnPct are the closest equivalents).
   engine: "standard" | "cross_sectional" | "pairs";
@@ -22,9 +22,18 @@ export interface StrategySummary {
   returnPct: number | null;
   maxDrawdownPct: number | null;
   // SPY's buy-and-hold return over the same window -- only set for
-  // cross_sectional/pairs rows, whose status verdict is judged against it
-  // (standard rows carry alphaPct instead).
+  // cross_sectional/pairs rows, whose status verdict is judged against it.
   benchmarkReturnPct: number | null;
+  benchmarkGapPct: number | null;
+  benchmarkName: string;
+  // The exact window benchmarkGapPct was computed over -- only set for
+  // standard-engine rows. Can differ from startDate/endDate (data coverage
+  // vs. requested window) and, for a canonical row, from an earlier run of
+  // the same strategy (a default request's end date is "today," so a
+  // later re-run's window silently extends). Render as a tooltip so a
+  // moved Gap vs SPY figure is traceable instead of looking like drift.
+  benchmarkWindowStart: string | null;
+  benchmarkWindowEnd: string | null;
   status: string;
   lastRun: string | null;
   sharpe: number | null;
@@ -45,6 +54,9 @@ export interface StrategySummary {
   // controls default visibility (see StrategyTable's "Show archived" toggle).
   archived: boolean;
   archivedReason: string | null;
+  edgeVerdict: string | null;
+  lifecycleStage: string | null;
+  validation: ValidationReport | null;
 }
 
 export interface Metrics {
@@ -60,15 +72,134 @@ export interface Metrics {
   sharpe: number | null;
   sortino: number | null;
   alphaPct: number | null;
+  benchmarkGapPct: number | null;
+  benchmarkName: string;
+  benchmarkWindowStart: string | null;
+  benchmarkWindowEnd: string | null;
   beta: number | null;
   cagrPct: number | null;
   exposurePct: number | null;
   riskFreeRate: number | null;
   // What buying and holding the same symbol(s) over the same window alone
-  // would have returned -- alphaPct is the strategy's excess return over
-  // this, shown alongside it rather than only the difference.
+  // would have returned. benchmarkGapPct is the cumulative strategy-minus-
+  // benchmark return difference; it is not factor-regression alpha.
   buyHoldReturnPct: number | null;
+  totalReturnPct: number | null;
+  averageGrossExposurePct: number | null;
+  averageNetExposurePct: number | null;
+  timeInMarketPct: number | null;
+  turnoverPct: number | null;
+  modeledCosts: number | null;
+  matchedSpyReturnPct: number | null;
+  matchedSpyExcessPct: number | null;
+  annualizedMatchedExcessPct: number | null;
+  matchedAlphaAnnualPct: number | null;
+  matchedBeta: number | null;
+  matchedBenchmarkTrades: number;
+  missingBenchmarkTrades: number;
   status: string;
+}
+
+export type ValidationStatus = "pass" | "fail" | "warning" | "unresolved" | "not_applicable";
+
+export interface ValidationCheck {
+  key: string;
+  label: string;
+  status: ValidationStatus;
+  summary: string;
+  required: boolean;
+  value: number | string | boolean | null;
+  details: Record<string, unknown>;
+}
+
+export interface ValidationDimension {
+  key: string;
+  label: string;
+  checks: ValidationCheck[];
+}
+
+export interface EdgeVerdict {
+  identifiedEdge: boolean;
+  headline: string;
+  signalEdge: string;
+  universeSpecific: string;
+  beatsBuyAndHold: string;
+  forwardTestWorthy: boolean;
+  productionCapitalWorthy: boolean;
+  lifecycleStage?: string;
+  blockers: string[];
+  blockingChecks?: Array<{
+    key: string;
+    label: string;
+    status: ValidationStatus;
+    summary: string;
+  }>;
+}
+
+export interface ValidationResearch {
+  experimentId: number | null;
+  familySearchNumber: number;
+  isPreregistered: boolean;
+  lifecycleStage: string;
+  validationSpec: Record<string, unknown>;
+  manifest: Record<string, unknown>;
+  dataQuality?: Record<string, unknown> | null;
+  canonicalPortfolioMetrics?: Record<string, unknown> | null;
+  familySearchCount?: number;
+  multipleTestingBurden?: string;
+}
+
+export interface GovernedForwardExperiment {
+  id: number;
+  strategyName: string;
+  validationRunId: number;
+  startedAt: string;
+  frozenManifestHash: string;
+  frozenConfig: Record<string, unknown>;
+  benchmark: string;
+  primaryCriterion: string;
+  minCalendarDays: number;
+  minObservations: number;
+  maxShortfallPct: number;
+  status: string;
+  conclusion: string | null;
+  locked: boolean;
+  observationCount: number;
+  latest: Record<string, unknown> | null;
+}
+
+export interface FillCalibration {
+  symbol: string | null;
+  fills: number;
+  minimumFills: number;
+  calibrated: boolean;
+  medianAdverseSlippageBps: number | null;
+  p95AdverseSlippageBps: number | null;
+  meanFillRatio: number | null;
+  partialFillRate: number | null;
+}
+
+export interface ValidationReport {
+  version: number;
+  generatedAt: string;
+  dimensions: ValidationDimension[];
+  verdict: EdgeVerdict;
+  research?: ValidationResearch;
+}
+
+export type ValidationJobStatus = "queued" | "running" | "completed" | "failed";
+
+export interface ValidationJob<T = unknown> {
+  jobId: string;
+  status: ValidationJobStatus;
+  stage: string;
+  progressPct: number;
+  createdAt: string;
+  completedAt: string | null;
+  error: string | null;
+  result: T | null;
+  reused: boolean;
+  experimentId: number | null;
 }
 
 export interface EquityPoint {
@@ -87,6 +218,12 @@ export interface Trade {
   tp: number | null;
   pnl: number;
   returnPct: number;
+  tradeReturn: number | null;
+  matchedSpyReturn: number | null;
+  excessVsSpy: number | null;
+  matchedSpyEntryTime: string | null;
+  matchedSpyExitTime: string | null;
+  modeledCost: number | null;
   // MFE/MAE and exit-quality diagnostics -- see engine/excursion.py. null
   // when the trade has no matching excursion row (e.g. dropped by the
   // MFE>=realized_r sanity check, or the strategy's engine doesn't compute
@@ -148,6 +285,33 @@ export interface BacktestResult {
   perSymbol: PerSymbolRow[];
   portfolio: PortfolioResult;
   excursionSummary: ExcursionSummary;
+  validation: ValidationReport;
+  matchedBenchmark: MatchedBenchmark;
+  researchMetadata: Record<string, unknown>;
+  // Optional at the transport boundary so a browser connected to an older
+  // backend renders a fail-closed warning instead of crashing the whole Lab.
+  timing?: TimingContract;
+}
+
+export interface MatchedBenchmark {
+  benchmark: string;
+  matchedReturnPct: number | null;
+  matchedExcessPct: number | null;
+  annualizedExcessPct: number | null;
+  alphaAnnualPct: number | null;
+  beta: number | null;
+  matchedTrades: number;
+  missingTrades: number;
+  executionNote: string;
+  error?: string;
+}
+
+export interface TimingContract {
+  informationAvailability: "PRE_MARKET" | "INTRADAY" | "AT_CLOSE" | "POST_CLOSE";
+  execution: "SAME_OPEN" | "SAME_CLOSE" | "NEXT_OPEN";
+  usesCurrentClose: boolean;
+  engine: string;
+  exceptionReason: string | null;
 }
 
 export type ParamKind = "int" | "float" | "bool" | "str";
@@ -174,7 +338,46 @@ export interface ParamSchema {
   startDefault: string;
   endDefault: string;
   symbolOverrideAllowed: boolean;
+  universeDefault: string | null;
+  implementationStatus: "implemented" | "unavailable";
+  unavailableReason: string | null;
+  universes: RegisteredUniverse[];
+  timing: TimingContract;
   params: ParamSpec[];
+}
+
+export interface RegisteredUniverse {
+  id: string;
+  label: string;
+  category: string;
+  description: string;
+  assetClass: "equity" | "crypto" | "futures" | "single-instrument";
+  symbols: string[];
+  membershipMode: string;
+  primaryBenchmark: string | null;
+  equalWeightBenchmark: string | null;
+  runnable: boolean;
+  selectable: boolean;
+  unavailableReason: string | null;
+  coverageStart: string | null;
+  coverageEnd: string | null;
+  approximateSecurityCount: number | null;
+  pitStatus: {
+    ready: boolean;
+    summary: string;
+    bundlePath: string;
+    missingArtifacts: string[];
+    invalidReasons: string[];
+    source: string | null;
+    snapshotId: string | null;
+    coverageStart: string | null;
+    coverageEnd: string | null;
+    securityCount: number | null;
+    delistedCount: number | null;
+    acquiredCount: number | null;
+    tickerChangeCount: number | null;
+    marketCapAvailable: boolean;
+  } | null;
 }
 
 export interface BacktestOverrides {
@@ -182,6 +385,7 @@ export interface BacktestOverrides {
   start?: string;
   end?: string;
   params?: Record<string, number | boolean | string>;
+  universeId?: string;
 }
 
 export interface SymbolMeta {
@@ -224,6 +428,7 @@ export interface Quote {
 }
 
 export interface HistoryRow {
+  id: number;
   runAt: string;
   startDate: string;
   endDate: string;
@@ -238,10 +443,21 @@ export interface HistoryRow {
   maxDrawdownPct: number | null;
   sharpe: number | null;
   alphaPct: number | null;
+  benchmarkGapPct: number | null;
+  benchmarkName: string;
+  benchmarkWindowStart: string | null;
+  benchmarkWindowEnd: string | null;
   status: string;
   isCanonical: boolean;
+  universeId: string | null;
   symbols: string[];
   params: Record<string, number | boolean | string>;
+  // Persisted edge-validation outcome for THIS run. Null on rows logged before
+  // validation was stored, or on runs made outside the API (e.g. the CLI),
+  // which is honestly "not validated" rather than "failed".
+  edgeVerdict?: string | null;
+  lifecycleStage?: string | null;
+  validation?: ValidationReport | null;
 }
 
 export interface RegimeLogEntry {
@@ -391,6 +607,28 @@ export interface ExecutionStrategyConfig {
   enabled: boolean;
   enabledAt: string | null;
   params: Record<string, number | boolean | string>;
+  universeId: string | null;
+  symbols: string[];
+  validationRunId: number | null;
+  // Set when this strategy was promoted to paper testing despite failing
+  // the forward-test gate -- an explicit, logged bypass (see
+  // engine/forward_experiments.py:start's docstring), not a silent one.
+  // overrideBlockers is frozen at the moment the override was used and can
+  // legitimately differ from the strategy's current, live-recomputed status.
+  overrideUsed: boolean;
+  overrideReason: string | null;
+  overrideBlockers: string[];
+  inception: ExecutionInception;
+}
+
+export interface ExecutionInception {
+  policy: "adopt" | "flatten" | null;
+  status: "policy_required" | "pending" | "flattening" | "initialized";
+  validationRunId: number | null;
+  inceptionAt: string | null;
+  equity: number | null;
+  inheritedPositions: { symbol: string; qty: number; marketValue: number | null }[];
+  legacyDefault: boolean;
 }
 
 export interface RebalanceRunRow {
@@ -439,6 +677,31 @@ export interface ExecutionSummary {
   startingEquity: number | null;
   firstTradeAt: string | null;
   completedRebalances: number;
+  inception: ExecutionInception | null;
+}
+
+export interface ForwardTestPoint {
+  asof: string;
+  months_elapsed: number;
+  strategy_return_pct: number;
+  ew_pit_dow_return_pct: number | null;
+  spy_return_pct: number | null;
+  random_median_return_pct: number | null;
+  vs_ew_pit_dow_pp: number | null;
+  vs_spy_pp: number | null;
+  vs_random_pp: number | null;
+}
+
+export interface ForwardTestStatus {
+  status: string;
+  freezeDate: string;
+  observationCount: number;
+  latest: ForwardTestPoint | null;
+  decision: { triggered: boolean; verdict: string; reasoning: string };
+  stopHorizonMonths: number;
+  continueHorizonMonths: number;
+  stopShortfallPp: number;
+  stopBenchmark: string;
 }
 
 export interface CapTierPools {
@@ -459,6 +722,40 @@ export interface CrossSectionalResponse {
   end: string;
   appliedSymbols: string[];
   appliedParams: Record<string, number | boolean | string> | null;
+  universeId: string | null;
+  universeLabel: string;
+  rebalanceFrequency: string;
+  targetPositionCount: number;
+  initialRankableCount: number;
+  incompleteWarmupCount: number;
+  pitDiagnostics: Record<string, unknown> | null;
+  pitAnalysis: {
+    strategyReturnPct: number | null;
+    strategyCagrPct: number | null;
+    spyReturnPct: number | null;
+    spyCagrPct: number | null;
+    cumulativeGapPct: number | null;
+    annualizedBenchmarkRelativeReturnPct: number | null;
+    annualizedVolatilityPct: number | null;
+    calmarRatio: number | null;
+    mda: Record<string, unknown>;
+    annualReturns: Array<{ year: number; strategyPct: number; spyPct: number; excessPct: number }>;
+    regimes: Array<{ label: string; strategyPct: number; spyPct: number; excessPct: number }>;
+    rollingExcess: Record<string, { observations: number; fractionBeatingSpy: number | null; medianExcessPct: number | null; worstExcessPct: number | null; bestExcessPct: number | null }>;
+    holdout: Record<string, unknown>;
+    costStressReturnPct: Record<string, number>;
+    pitIntegrity: Record<string, unknown>;
+    equalWeightEligibleReturnPct: number | null;
+    rankingContributionPct: number | null;
+    randomControl: Record<string, unknown>;
+    robustness: {
+      primaryPreregisteredConfig: { lookback: number; topN: number; frequency: string };
+      arms: Array<{ lookback: number; topN: number; frequency: string; primary: boolean; returnPct: number; beatsSpy: boolean; beatsPitEqualWeight: boolean }>;
+      fractionBeatingPitEqualWeight: number | null;
+      fractionBeatingSpy: number | null;
+      interpretation: string;
+    };
+  } | null;
   equityCurve: EquityPoint[];
   rebalances: RebalanceRow[];
   finalEquity: number;
@@ -468,6 +765,10 @@ export interface CrossSectionalResponse {
   sharpe: number | null;
   sortino: number | null;
   riskFreeRate: number;
+  turnoverPct: number;
+  totalCosts: number;
+  totalTradedNotional: number;
+  validation: ValidationReport;
 }
 
 export interface PairSelection {
@@ -502,9 +803,11 @@ export interface PairsResponse {
   sharpe: number | null;
   sortino: number | null;
   riskFreeRate: number;
+  validation: ValidationReport;
 }
 
 export interface PortfolioHistoryRow {
+  id: number;
   runAt: string;
   startDate: string | null;
   endDate: string | null;
@@ -515,16 +818,25 @@ export interface PortfolioHistoryRow {
   sharpe: number | null;
   sortino: number | null;
   isCanonical: boolean;
+  universeId: string | null;
   symbols: string[];
   params: Record<string, number | boolean | string>;
   pairSymbolA: string | null;
   pairSymbolB: string | null;
   pairPValue: number | null;
   benchmarkReturnPct: number | null;
+  benchmarkGapPct: number | null;
+  benchmarkName: string;
   // Verdict from engine/metrics.py:portfolio_status(); null on rows logged
   // before it existed, or on runs with no meaningful verdict (e.g. a Pairs
   // run that found no cointegrated pair).
   status: string | null;
+  // Persisted edge-validation outcome for THIS run. Null on rows logged before
+  // validation was stored, or on runs made outside the API (e.g. the CLI),
+  // which is honestly "not validated" rather than "failed".
+  edgeVerdict?: string | null;
+  lifecycleStage?: string | null;
+  validation?: ValidationReport | null;
 }
 
 export interface ScreenerRow {
@@ -611,6 +923,20 @@ export interface DigestPreview {
   text: string;
 }
 
+// Carries the HTTP status code alongside the message so callers can branch
+// on the actual status (e.g. "offer an override retry on any 409") instead
+// of string-matching the FastAPI detail text, which is fragile the moment a
+// backend message wording changes and silently breaks a caller that grep'd
+// for a specific phrase in it.
+export class ApiError extends Error {
+  status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`/api${path}`, init);
   if (!res.ok) {
@@ -626,7 +952,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     } catch {
       // not JSON -- fall back to the raw body
     }
-    throw new Error(message || `${res.status} ${res.statusText}`);
+    throw new ApiError(res.status, message || `${res.status} ${res.statusText}`);
   }
   return res.json() as Promise<T>;
 }
@@ -635,24 +961,54 @@ function hasOverrides(overrides?: BacktestOverrides): boolean {
   if (!overrides) return false;
   return Boolean(
     overrides.symbols?.length ||
+      overrides.universeId ||
       overrides.start ||
       overrides.end ||
       (overrides.params && Object.keys(overrides.params).length > 0),
   );
 }
 
-export const api = {
-  listStrategies: () => request<StrategySummary[]>("/strategies"),
-  paramSchema: (name: string) => request<ParamSchema>(`/params/${encodeURIComponent(name)}`),
-  runBacktest: (name: string, overrides?: BacktestOverrides) =>
-    request<BacktestResult>(`/backtest/${encodeURIComponent(name)}`, {
+async function runValidationSuite<T>(
+  engine: StrategySummary["engine"],
+  name: string,
+  overrides?: BacktestOverrides,
+  onProgress?: (job: ValidationJob<T>) => void,
+): Promise<T> {
+  let job = await request<ValidationJob<T>>(
+    `/validation/jobs/${engine}/${encodeURIComponent(name)}`,
+    {
       method: "POST",
-      // An untouched config sends no body at all -- byte-identical to the
-      // original canonical-only call, so it logs as canonical server-side.
       ...(hasOverrides(overrides)
         ? { headers: { "Content-Type": "application/json" }, body: JSON.stringify(overrides) }
         : {}),
-    }),
+    },
+  );
+  onProgress?.(job);
+  while (job.status === "queued" || job.status === "running") {
+    await new Promise((resolve) => window.setTimeout(resolve, 750));
+    job = await request<ValidationJob<T>>(`/validation/jobs/${job.jobId}`);
+    onProgress?.(job);
+  }
+  if (job.status === "failed") throw new Error(job.error || "Validation failed");
+  if (job.result === null) throw new Error("Validation completed without a result");
+  return job.result;
+}
+
+export const api = {
+  // universeId filters each row to that strategy's latest run AGAINST that
+  // specific registered universe (never triggers a new backtest -- see
+  // api/main.py:list_strategies). Omit for the registered-default leaderboard.
+  listStrategies: (universeId?: string) =>
+    request<StrategySummary[]>(
+      universeId ? `/strategies?universe_id=${encodeURIComponent(universeId)}` : "/strategies",
+    ),
+  listUniverses: () => request<RegisteredUniverse[]>("/universes"),
+  paramSchema: (name: string) => request<ParamSchema>(`/params/${encodeURIComponent(name)}`),
+  runBacktest: (
+    name: string,
+    overrides?: BacktestOverrides,
+    onProgress?: (job: ValidationJob<BacktestResult>) => void,
+  ) => runValidationSuite<BacktestResult>("standard", name, overrides, onProgress),
   history: (name: string) => request<HistoryRow[]>(`/history/${encodeURIComponent(name)}`),
   portfolioHistory: (name: string) =>
     request<PortfolioHistoryRow[]>(`/history/portfolio/${encodeURIComponent(name)}`),
@@ -663,31 +1019,47 @@ export const api = {
     request<Record<string, Quote>>(`/quotes?symbols=${encodeURIComponent(symbols.join(","))}`),
   market: () => request<MarketResponse>("/market"),
   universePools: () => request<CapTierPools>("/universe/pools"),
-  runCrossSectional: (name: string, overrides?: BacktestOverrides) =>
-    request<CrossSectionalResponse>(`/backtest/cross-sectional/${encodeURIComponent(name)}`, {
-      method: "POST",
-      ...(hasOverrides(overrides)
-        ? { headers: { "Content-Type": "application/json" }, body: JSON.stringify(overrides) }
-        : {}),
-    }),
-  runPairs: (name: string, overrides?: BacktestOverrides) =>
-    request<PairsResponse>(`/backtest/pairs/${encodeURIComponent(name)}`, {
-      method: "POST",
-      ...(hasOverrides(overrides)
-        ? { headers: { "Content-Type": "application/json" }, body: JSON.stringify(overrides) }
-        : {}),
-    }),
+  runCrossSectional: (
+    name: string,
+    overrides?: BacktestOverrides,
+    onProgress?: (job: ValidationJob<CrossSectionalResponse>) => void,
+  ) => runValidationSuite<CrossSectionalResponse>("cross_sectional", name, overrides, onProgress),
+  runPairs: (
+    name: string,
+    overrides?: BacktestOverrides,
+    onProgress?: (job: ValidationJob<PairsResponse>) => void,
+  ) => runValidationSuite<PairsResponse>("pairs", name, overrides, onProgress),
   liveAccount: () => request<LiveAccountResponse>("/live/account"),
   liveSignals: (limit = 100) => request<SignalAlert[]>(`/live/signals?limit=${limit}`),
   triggerScan: () =>
     request<{ newAlerts: unknown[] }>("/live/scan", { method: "POST" }),
   executionConfig: () => request<ExecutionStrategyConfig[]>("/live/execution/config"),
   executionStrategies: () => request<{ strategyName: string }[]>("/live/execution/strategies"),
-  setExecutionConfig: (strategyName: string, enabled: boolean, params: Record<string, number | boolean | string> = {}) =>
-    request<{ strategyName: string; enabled: boolean; params: Record<string, number | boolean | string> }>("/live/execution/config", {
+  setExecutionConfig: (
+    strategyName: string,
+    enabled: boolean,
+    params: Record<string, number | boolean | string> = {},
+    validationRunId?: number,
+    inceptionPolicy?: "adopt" | "flatten",
+    // Explicit, per-call, LOGGED bypass of the forward-test gate (paper
+    // capital only) -- see engine/forward_experiments.py:start's docstring.
+    // Omitted/false reproduces the original strict behavior exactly.
+    override?: { reason: string },
+  ) =>
+    request<{
+      strategyName: string; enabled: boolean;
+      params: Record<string, number | boolean | string>; validationRunId: number | null;
+      universeId: string | null; symbols: string[];
+      overrideUsed: boolean; overrideBlockers: string[];
+    }>("/live/execution/config", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ strategyName, enabled, params }),
+      body: JSON.stringify({
+        strategyName, enabled, params, validationRunId,
+        inceptionPolicy: inceptionPolicy ?? null,
+        overridePassedGates: Boolean(override),
+        overrideReason: override?.reason ?? null,
+      }),
     }),
   executionRuns: (limit = 50) =>
     request<RebalanceRunRow[]>(`/live/execution/runs?limit=${limit}`),
@@ -701,6 +1073,11 @@ export const api = {
     }),
   killSwitchStatus: () => request<KillSwitchStatus>("/live/execution/kill-switch"),
   executionSummary: () => request<ExecutionSummary>("/live/execution/summary"),
+  forwardTestStatus: () => request<ForwardTestStatus>("/live/forward-test"),
+  executionCalibration: (symbol?: string) =>
+    request<FillCalibration>(`/live/execution/calibration${symbol ? `?symbol=${encodeURIComponent(symbol)}` : ""}`),
+  forwardExperiments: (strategyName: string) =>
+    request<GovernedForwardExperiment[]>(`/research/forward/${encodeURIComponent(strategyName)}`),
   activateKillSwitch: (flatten: boolean) =>
     request<{ flagSet: boolean; flattened: boolean; error: string | null }>(
       "/live/execution/kill-switch",

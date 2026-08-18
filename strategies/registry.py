@@ -41,6 +41,15 @@ from strategies.swing.pairs_stat_arb import PairsStatArb
 from strategies.swing.pullback_21ema import PullbackTo21Ema
 from strategies.swing.sector_rotation import SectorRotationPlay
 from strategies.swing.turnaround_tuesday import TurnaroundTuesday
+from strategies.swing.frozen_research import (
+    High52WeekMomentum,
+    MarketResidualMomentum,
+    MaxLotteryReversal,
+    NegativeVolumeShockReversal,
+    UnavailableResearchStrategy,
+    VolatilityConditionedPullback,
+    VolumeShockContinuation,
+)
 
 DAY_TRADING_STRATEGIES: dict[str, Strategy] = {
     s.name: s
@@ -96,13 +105,66 @@ def build_swing_strategies(benchmark_bars: pd.DataFrame) -> dict[str, Strategy]:
 # risk-free rate at construction time (for the absolute-momentum filter), so
 # -- like Sector Rotation Play needing benchmark bars -- these are built via
 # a function once the run window is known, not eagerly at import time.
-CROSS_SECTIONAL_STRATEGY_NAMES: list[str] = ["Dual Momentum"]
+CROSS_SECTIONAL_STRATEGY_NAMES: list[str] = [
+    "Dual Momentum", "52-Week-High Momentum", "Market-Residual Momentum",
+]
 
 
-def build_cross_sectional_strategy(name: str, risk_free_rate: float) -> CrossSectionalStrategy:
+def build_cross_sectional_strategy(
+    name: str, risk_free_rate: float, benchmark_bars: pd.DataFrame | None = None,
+) -> CrossSectionalStrategy:
     if name == "Dual Momentum":
         return DualMomentum(risk_free_rate=risk_free_rate)
+    if name == "52-Week-High Momentum":
+        return High52WeekMomentum()
+    if name == "Market-Residual Momentum":
+        return MarketResidualMomentum(benchmark_bars=benchmark_bars)
     raise ValueError(f"Unknown cross-sectional strategy {name!r}")
+
+
+FROZEN_EVENT_STRATEGY_NAMES = [
+    "Negative Return + Volume Shock Reversal",
+    "Volume-Shock Continuation (Long)",
+    "Volume-Shock Continuation (Short)",
+    "MAX Lottery-Return Reversal (Short)",
+    "Volatility-Conditioned Pullback",
+]
+
+
+def build_frozen_event_strategy(name: str):
+    if name == "Negative Return + Volume Shock Reversal":
+        return NegativeVolumeShockReversal()
+    if name == "Volume-Shock Continuation (Long)":
+        return VolumeShockContinuation(direction="long")
+    if name == "Volume-Shock Continuation (Short)":
+        return VolumeShockContinuation(direction="short")
+    if name == "MAX Lottery-Return Reversal (Short)":
+        return MaxLotteryReversal()
+    if name == "Volatility-Conditioned Pullback":
+        return VolatilityConditionedPullback()
+    raise ValueError(f"Unknown frozen event strategy {name!r}")
+
+
+# Clean refusals required by the protocol. These remain registered so the UI
+# explains why no result exists instead of silently omitting the hypothesis.
+UNAVAILABLE_RESEARCH_STRATEGIES: dict[str, str] = {
+    "Earnings Announcement Return Drift (EAR)": (
+        "Unavailable: the installed earnings feed is not a complete point-in-time event ledger "
+        "for historical Dow members, so cross-sectional EAR ranks would have selective event coverage."
+    ),
+    "Sector-Relative Momentum": (
+        "Unavailable: no point-in-time historical sector-classification ledger is installed; "
+        "today's sector labels are prohibited."
+    ),
+    "Overnight Idiosyncratic Shock Reversal (Long)": (
+        "Execution unsupported: observing Open[T] and filling that same Open[T] cannot be modeled "
+        "honestly with daily bars."
+    ),
+    "Overnight Idiosyncratic Shock Reversal (Short)": (
+        "Execution unsupported: observing Open[T] and filling that same Open[T] cannot be modeled "
+        "honestly with daily bars."
+    ),
+}
 
 
 # Pairs strategies (see strategies/swing/pairs_stat_arb.py): run through
@@ -140,6 +202,8 @@ ALL_STRATEGY_NAMES: list[str] = (
     + CROSS_SECTIONAL_STRATEGY_NAMES
     + PAIRS_STRATEGY_NAMES
     + [PEAD_NAME, OVERNIGHT_NAME, AVWAP_BREAKOUT_NAME]
+    + FROZEN_EVENT_STRATEGY_NAMES
+    + list(UNAVAILABLE_RESEARCH_STRATEGIES)
     + USER_DEFINED_STRATEGY_NAMES
 )
 

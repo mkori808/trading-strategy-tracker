@@ -37,7 +37,14 @@ from typing import Any
 
 import pandas as pd
 
-from engine import alpaca_trading, data as data_module, execution_db, kill_switch, live_risk
+from engine import (
+    alpaca_trading,
+    data as data_module,
+    execution_db,
+    kill_switch,
+    live_risk,
+    logging_db,
+)
 from engine.cross_sectional import _rebalance_dates
 from engine.runner import run_config
 from engine.universe import TIMEZONE
@@ -116,7 +123,11 @@ def _plan_orders(
 
     for symbol in by_symbol:
         if symbol not in target_weights:
-            sells.append({"symbol": symbol, "side": "sell", "order_kind": "close"})
+            sells.append({
+                "symbol": symbol, "side": "sell", "order_kind": "close",
+                "qty": float(by_symbol[symbol].get("qty") or 0.0),
+                "reference_price": by_symbol[symbol].get("currentPrice"),
+            })
 
     for symbol, weight in target_weights.items():
         pos = by_symbol.get(symbol)
@@ -133,14 +144,60 @@ def _plan_orders(
             buys.append({
                 "symbol": symbol, "side": "buy", "order_kind": "notional",
                 "notional": round(delta_value, 2),
+                "reference_price": current_price,
             })
         else:
             sells.append({
                 "symbol": symbol, "side": "sell", "order_kind": "notional",
                 "notional": round(abs(delta_value), 2),
+                "reference_price": current_price,
             })
 
     return sells + buys
+
+
+def _submit_orders(
+    run_id: int,
+    planned: list[dict[str, Any]],
+    raw_bars: dict[str, pd.DataFrame] | None = None,
+) -> int:
+    """Log-before-submit one order batch and return its rejection count."""
+    failures = 0
+    raw_bars = raw_bars or {}
+    for order in planned:
+        reference_price = order.get("reference_price")
+        if not reference_price:
+            symbol_bars = raw_bars.get(order["symbol"], pd.DataFrame())
+            if not symbol_bars.empty:
+                reference_price = float(symbol_bars["Close"].iloc[-1])
+        expected_qty = order.get("qty")
+        if expected_qty is None and reference_price and order.get("notional"):
+            expected_qty = float(order["notional"]) / float(reference_price)
+        client_order_id = _client_order_id(run_id, order["symbol"])
+        order_id = execution_db.log_order(
+            run_id,
+            symbol=order["symbol"], side=order["side"], order_kind=order["order_kind"],
+            qty=order.get("qty"), notional=order.get("notional"),
+            stop_price=None, target_price=None,
+            client_order_id=client_order_id, status="pending", is_paper=1,
+            reference_price=reference_price, expected_qty=expected_qty,
+        )
+        try:
+            if order["order_kind"] == "close":
+                result = alpaca_trading.close_symbol_position(order["symbol"], client_order_id)
+            else:
+                result = alpaca_trading.submit_market_order(
+                    order["symbol"], order["side"], notional=order.get("notional"),
+                    client_order_id=client_order_id,
+                )
+            execution_db.update_order(
+                order_id, status="submitted", alpaca_order_id=result["id"],
+                submitted_at=result.get("submittedAt"),
+            )
+        except Exception as exc:  # noqa: BLE001 -- one bad symbol must not kill the batch
+            failures += 1
+            execution_db.update_order(order_id, status="rejected", error_message=str(exc))
+    return failures
 
 
 def reconcile_open_orders() -> None:
@@ -180,11 +237,32 @@ def execute_rebalance(
     if not execution_db.is_enabled(strategy_name):
         return {"status": "blocked_not_enabled"}
 
+    # Re-check the persisted report on every scheduled/manual attempt. An old
+    # enabled flag must never outlive the evidence that authorized it (or a
+    # deleted/corrupt validation row) and continue submitting orders.
+    validation_run_id = execution_db.validation_run_id_for(strategy_name)
+    eligible, validation_reason, _ = logging_db.paper_execution_eligibility(
+        strategy_name, validation_run_id
+    )
+    if not eligible:
+        execution_db.write_blocked(
+            strategy_name, rebalance_date, trigger_source,
+            "blocked_validation", now, error_message=validation_reason,
+        )
+        return {"status": "blocked_validation", "reason": validation_reason}
+
     if kill_switch.is_active():
         execution_db.write_blocked(
             strategy_name, rebalance_date, trigger_source, "blocked_kill_switch", now
         )
         return {"status": "blocked_kill_switch"}
+
+    inception = execution_db.inception_for(strategy_name)
+    if inception["status"] == "policy_required" or inception["policy"] is None:
+        return {
+            "status": "blocked_inception_policy",
+            "reason": "Choose Adopt or Flatten for this forward test before execution.",
+        }
 
     client, reason = alpaca_trading.trading_client()
     if client is None:
@@ -194,7 +272,12 @@ def execute_rebalance(
         # kill-switch/market-closed block is.
         return {"status": "alpaca_not_configured", "reason": reason}
 
-    interval, symbols, _default_start, _default_end = run_config(strategy_name)
+    interval, default_symbols, _default_start, _default_end = run_config(strategy_name)
+    # A promoted exploratory run may use a different universe. The exact
+    # persisted symbol list is authoritative; falling back to registered
+    # defaults is only for legacy automation rows created before this field
+    # existed.
+    symbols = execution_db.selected_symbols_for(strategy_name) or default_symbols
     rf_window_start = today - timedelta(days=90)
     risk_free_rate = data_module.risk_free_rate(rf_window_start, today)
     strategy = build_cross_sectional_strategy(strategy_name, risk_free_rate=risk_free_rate)
@@ -220,12 +303,34 @@ def execute_rebalance(
         )
         return {"status": "blocked_market_closed"}
 
+    cached_acct_positions: dict[str, Any] | None = None
+    if inception["policy"] == "flatten" and inception["status"] == "flattening":
+        # Never race entry orders against liquidation fills. Wait until the
+        # broker confirms the account is flat, then freeze the clean baseline.
+        cached_acct_positions = alpaca_trading.account_and_positions()
+        flatten_account = cached_acct_positions["account"]
+        if not flatten_account.get("available"):
+            return {"status": "failed", "reason": flatten_account.get("reason")}
+        if cached_acct_positions["positions"]:
+            if execution_db.has_open_orders_for_strategy(strategy_name):
+                return {"status": "inception_flattening"}
+            # Every close order is terminal but inventory remains (rejection,
+            # partial fill, or broker cancellation). A later eligible attempt
+            # may safely retry only the remaining inventory.
+            execution_db.set_inception_status(strategy_name, "pending", now)
+            inception["status"] = "pending"
+        else:
+            execution_db.record_inception(
+                strategy_name, flatten_account["equity"], [], now,
+            )
+            inception["status"] = "initialized"
+
     run_id = execution_db.claim_run(strategy_name, rebalance_date, trigger_source, now)
     if run_id is None:
         return {"status": "already_running_or_done_today"}
 
     try:
-        acct_positions = alpaca_trading.account_and_positions()
+        acct_positions = cached_acct_positions or alpaca_trading.account_and_positions()
         account = acct_positions["account"]
         if not account.get("available"):
             execution_db.update_run(run_id, status="failed", error_message=account.get("reason"))
@@ -243,6 +348,35 @@ def execute_rebalance(
             run_id, strategy_params=params_json, portfolio_value_at_start=equity,
             daily_loss_pct_at_start=daily_loss_pct,
         )
+
+        if inception["status"] == "pending":
+            if inception["policy"] == "adopt":
+                # This mark-to-market checkpoint, not Alpaca's historical cost
+                # basis, is time zero for the forward experiment.
+                execution_db.record_inception(
+                    strategy_name, equity, acct_positions["positions"], now,
+                )
+                inception["status"] = "initialized"
+            elif acct_positions["positions"]:
+                # Flatten is deliberately a liquidation-only phase. Entry
+                # orders are deferred until a later scheduler pass confirms
+                # the broker account is actually flat.
+                flatten_orders = _plan_orders(
+                    acct_positions["positions"], {}, equity, buys_halted=True,
+                )
+                failures = _submit_orders(run_id, flatten_orders)
+                if failures == len(flatten_orders):
+                    status = "failed"
+                elif failures:
+                    status = "inception_flatten_partial_failure"
+                else:
+                    status = "inception_flattening"
+                    execution_db.set_inception_status(strategy_name, "flattening", now)
+                execution_db.update_run(run_id, status=status)
+                return {"status": status, "runId": run_id}
+            else:
+                execution_db.record_inception(strategy_name, equity, [], now)
+                inception["status"] = "initialized"
 
         prior_day = _prior_trading_day(client, today)
         if prior_day is None:
@@ -263,31 +397,7 @@ def execute_rebalance(
 
         planned = _plan_orders(acct_positions["positions"], clipped, equity, halted)
 
-        failures = 0
-        for order in planned:
-            client_order_id = _client_order_id(run_id, order["symbol"])
-            order_id = execution_db.log_order(
-                run_id,
-                symbol=order["symbol"], side=order["side"], order_kind=order["order_kind"],
-                qty=order.get("qty"), notional=order.get("notional"),
-                stop_price=None, target_price=None,
-                client_order_id=client_order_id, status="pending", is_paper=1,
-            )
-            try:
-                if order["order_kind"] == "close":
-                    result = alpaca_trading.close_symbol_position(order["symbol"], client_order_id)
-                else:
-                    result = alpaca_trading.submit_market_order(
-                        order["symbol"], order["side"], notional=order.get("notional"),
-                        client_order_id=client_order_id,
-                    )
-                execution_db.update_order(
-                    order_id, status="submitted", alpaca_order_id=result["id"],
-                    submitted_at=result.get("submittedAt"),
-                )
-            except Exception as exc:  # noqa: BLE001 -- one bad symbol must not kill the batch
-                failures += 1
-                execution_db.update_order(order_id, status="rejected", error_message=str(exc))
+        failures = _submit_orders(run_id, planned, raw_bars)
 
         if not planned:
             status = "completed"

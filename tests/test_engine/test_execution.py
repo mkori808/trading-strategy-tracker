@@ -91,7 +91,12 @@ def flag_path(tmp_path, monkeypatch):
 
 @pytest.fixture
 def enabled(db):
-    db.set_enabled(STRATEGY_NAME, True, "2026-07-01T00:00:00")
+    db.set_config(
+        STRATEGY_NAME, True, "{}", "2026-07-01T00:00:00", validation_run_id=101,
+    )
+    db.configure_inception(
+        STRATEGY_NAME, "adopt", 101, "2026-07-01T00:00:00",
+    )
     return db
 
 
@@ -103,6 +108,14 @@ def stub_data_and_strategy(monkeypatch):
     tests/test_strategies/test_dual_momentum.py)."""
     monkeypatch.setattr(execution.data_module, "get_bars", lambda *a, **k: pd.DataFrame())
     monkeypatch.setattr(execution.data_module, "risk_free_rate", lambda *a, **k: 0.04)
+    # Existing orchestration tests exercise guardrails after validation. Keep
+    # them focused on those paths; the explicit validation-block test below
+    # owns the new authorization gate.
+    monkeypatch.setattr(
+        execution.logging_db,
+        "paper_execution_eligibility",
+        lambda *a, **k: (True, "Forward-test gate passed", 101),
+    )
 
 
 def _patch_strategy(monkeypatch, target_weights):
@@ -130,6 +143,26 @@ def _patch_client(monkeypatch, trading_days=None, is_open=True):
 
 
 # --- guardrail short-circuits -------------------------------------------
+
+
+def test_failed_validation_blocks_before_broker_access(enabled, monkeypatch):
+    monkeypatch.setattr(
+        execution.logging_db,
+        "paper_execution_eligibility",
+        lambda *a, **k: (False, "PIT membership unresolved", 101),
+    )
+    broker_calls = []
+    monkeypatch.setattr(
+        alpaca_trading,
+        "trading_client",
+        lambda: broker_calls.append(True),
+    )
+
+    result = execution.execute_rebalance(STRATEGY_NAME, "manual", force=True, today=TODAY)
+
+    assert result == {"status": "blocked_validation", "reason": "PIT membership unresolved"}
+    assert broker_calls == []
+    assert enabled.recent_runs()[0]["status"] == "blocked_validation"
 
 
 def test_not_enabled_is_blocked_with_no_db_row(db, monkeypatch):
@@ -181,6 +214,29 @@ def test_force_skips_the_due_date_check(enabled, monkeypatch):
     assert result["status"] != "not_due"
 
 
+def test_promoted_custom_run_uses_its_persisted_symbol_universe(db, flag_path, monkeypatch):
+    db.set_config(
+        STRATEGY_NAME, True, "{}", "2026-07-01T00:00:00",
+        validation_run_id=77, symbols='["NVDA", "MSFT"]',
+    )
+    db.configure_inception(STRATEGY_NAME, "adopt", 77, "2026-07-01T00:00:00")
+    requested = []
+    monkeypatch.setattr(
+        execution.data_module, "get_bars",
+        lambda symbol, *a, **k: requested.append(symbol) or pd.DataFrame(),
+    )
+    _patch_client(monkeypatch)
+    _patch_strategy(monkeypatch, {})
+    _patch_account(monkeypatch)
+
+    result = execution.execute_rebalance(
+        STRATEGY_NAME, "manual", force=True, today=TODAY,
+    )
+
+    assert result["status"] == "completed"
+    assert set(requested) == {"NVDA", "MSFT"}
+
+
 def test_market_closed_is_blocked_and_logged(enabled, monkeypatch):
     _patch_client(monkeypatch, is_open=False)
     _patch_strategy(monkeypatch, {"AAPL": 1.0})
@@ -225,6 +281,85 @@ def test_completed_run_submits_buy_orders(enabled, monkeypatch):
     orders = enabled.orders_for_run(run_id)
     assert len(orders) == 2
     assert all(o["status"] == "submitted" for o in orders)
+    inception = enabled.inception_for(STRATEGY_NAME)
+    assert inception["status"] == "initialized"
+    assert inception["equity"] == 100_000.0
+
+
+def test_adopt_inception_records_existing_positions_before_reconciliation(db, monkeypatch):
+    db.set_config(STRATEGY_NAME, True, "{}", "2026-07-01T00:00:00", validation_run_id=101)
+    db.configure_inception(STRATEGY_NAME, "adopt", 101, "2026-07-01T00:00:00")
+    _patch_client(monkeypatch)
+    _patch_strategy(monkeypatch, {"AAPL": 1.0})
+    _patch_account(monkeypatch, positions=[
+        {"symbol": "MSFT", "qty": 10.0, "currentPrice": 400.0},
+    ])
+    monkeypatch.setattr(
+        alpaca_trading, "close_symbol_position",
+        lambda *a, **k: {"id": "close-msft", "submittedAt": None},
+    )
+    monkeypatch.setattr(
+        alpaca_trading, "submit_market_order",
+        lambda *a, **k: {"id": "buy-aapl", "submittedAt": None},
+    )
+
+    result = execution.execute_rebalance(STRATEGY_NAME, "manual", force=True, today=TODAY)
+
+    assert result["status"] == "completed"
+    inception = db.inception_for(STRATEGY_NAME)
+    assert inception["status"] == "initialized"
+    assert inception["inheritedPositions"][0]["symbol"] == "MSFT"
+    assert inception["inheritedPositions"][0]["marketValue"] == 4000.0
+
+
+def test_flatten_inception_liquidates_only_then_enters_after_confirmed_flat(db, monkeypatch):
+    db.set_config(STRATEGY_NAME, True, "{}", "2026-07-01T00:00:00", validation_run_id=101)
+    db.configure_inception(STRATEGY_NAME, "flatten", 101, "2026-07-01T00:00:00")
+    _patch_strategy(monkeypatch, {"AAPL": 1.0})
+    _patch_client(monkeypatch)
+    account_state = {"positions": [
+        {"symbol": "MSFT", "qty": 10.0, "currentPrice": 400.0},
+    ]}
+    monkeypatch.setattr(
+        alpaca_trading, "account_and_positions",
+        lambda: {
+            "account": {"available": True, "equity": 100_000.0, "lastEquity": 100_000.0},
+            "positions": list(account_state["positions"]),
+        },
+    )
+    closed = []
+    bought = []
+    monkeypatch.setattr(
+        alpaca_trading, "close_symbol_position",
+        lambda symbol, client_order_id: closed.append(symbol) or {
+            "id": "close-msft", "submittedAt": None,
+        },
+    )
+    monkeypatch.setattr(
+        alpaca_trading, "submit_market_order",
+        lambda symbol, side, **kw: bought.append(symbol) or {
+            "id": "buy-aapl", "submittedAt": None,
+        },
+    )
+
+    first = execution.execute_rebalance(STRATEGY_NAME, "manual", force=True, today=TODAY)
+    assert first["status"] == "inception_flattening"
+    assert closed == ["MSFT"]
+    assert bought == []
+    assert db.inception_for(STRATEGY_NAME)["status"] == "flattening"
+
+    # Broker confirms the liquidation before the next eligible day's entry cycle.
+    account_state["positions"] = []
+    next_day = TODAY + timedelta(days=1)
+    _patch_client(monkeypatch, trading_days=_trading_days_through(next_day))
+    second = execution.execute_rebalance(
+        STRATEGY_NAME, "scheduled", force=True, today=next_day,
+    )
+    assert second["status"] == "completed"
+    assert bought == ["AAPL"]
+    inception = db.inception_for(STRATEGY_NAME)
+    assert inception["status"] == "initialized"
+    assert inception["inheritedPositions"] == []
 
 
 def test_liquidates_a_position_dropped_from_target_weights(enabled, monkeypatch):

@@ -109,7 +109,12 @@ def test_dual_momentum_excludes_risk_free_rate():
 
     names = {s.name for s in describe_params(DualMomentum)}
     assert "risk_free_rate" not in names
-    assert names == {"lookback_trading_days", "top_n", "rebalance_frequency"}
+    assert names == {
+        "lookback_trading_days", "top_n", "rebalance_frequency",
+        "pit_minimum_price", "pit_minimum_average_dollar_volume",
+        "pit_liquidity_lookback_days", "pit_minimum_market_cap",
+        "pit_max_adv_participation_pct",
+    }
 
 
 def test_dual_momentum_rebalance_frequency_defaults_to_monthly():

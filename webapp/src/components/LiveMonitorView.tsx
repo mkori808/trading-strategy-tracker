@@ -1,9 +1,13 @@
 import { Fragment, useEffect, useState } from "react";
 import {
   api,
+  ApiError,
   type ExecutionOrderRow,
   type ExecutionStrategyConfig,
   type ExecutionSummary,
+  type ForwardTestStatus,
+  type FillCalibration,
+  type GovernedForwardExperiment,
   type KillSwitchStatus,
   type LiveAccountResponse,
   type ParamSchema,
@@ -23,7 +27,36 @@ const RUN_STATUS_STYLE: Record<string, { color: string; bg: string }> = {
   blocked_kill_switch: { color: "var(--status-critical)", bg: "var(--status-critical-bg)" },
   blocked_not_enabled: { color: "var(--text-muted)", bg: "var(--gridline)" },
   blocked_market_closed: { color: "var(--text-muted)", bg: "var(--gridline)" },
+  blocked_validation: { color: "var(--status-critical)", bg: "var(--status-critical-bg)" },
+  blocked_inception_policy: { color: "var(--status-critical)", bg: "var(--status-critical-bg)" },
+  inception_flattening: { color: "var(--status-warning)", bg: "var(--status-warning-bg)" },
+  inception_flatten_partial_failure: { color: "var(--status-critical)", bg: "var(--status-critical-bg)" },
   running: { color: "var(--series-1)", bg: "var(--series-1-wash)" },
+};
+
+// engine/execution.py:execute_rebalance's full return-status vocabulary.
+// "Rebalance now" is force=True (skips the is-due check but nothing else),
+// so any of these can come back as a well-formed 200 response with no
+// exception thrown -- there is nothing for the frontend's error handling to
+// catch. Discarding that response silently is indistinguishable from a
+// hang: the button visibly does nothing on every genuinely-blocked outcome
+// (market closed, kill switch active, already ran today, ...), which is
+// the normal case outside trading hours, not an edge case worth ignoring.
+const REBALANCE_RESULT_LABEL: Record<string, string> = {
+  completed: "Rebalance completed.",
+  completed_with_daily_loss_halt: "Rebalance completed, but new entries were halted (daily loss limit hit).",
+  partial_failure: "Rebalance completed with some order failures.",
+  failed: "Rebalance failed.",
+  not_due: "Not due — this strategy already had its rebalance for the current cycle.",
+  blocked_not_enabled: "Blocked — this strategy isn't enabled for execution.",
+  blocked_validation: "Blocked by validation gates.",
+  blocked_kill_switch: "Blocked — the kill switch is active.",
+  blocked_inception_policy: "Blocked — choose Adopt or Flatten for this forward test first.",
+  blocked_market_closed: "Blocked — the market is closed.",
+  alpaca_not_configured: "Blocked — Alpaca isn't configured.",
+  already_running_or_done_today: "A rebalance for this strategy already ran or is running today.",
+  inception_flattening: "Waiting for the broker to confirm the account is flat before entering positions.",
+  inception_flatten_partial_failure: "Some liquidation orders failed during inception flattening — see order history.",
 };
 
 function RunStatusBadge({ status }: { status: string }) {
@@ -110,6 +143,9 @@ export function LiveMonitorView() {
   const [expandedRunId, setExpandedRunId] = useState<number | null>(null);
   const [runOrders, setRunOrders] = useState<ExecutionOrderRow[]>([]);
   const [summary, setSummary] = useState<ExecutionSummary | null>(null);
+  const [forwardTest, setForwardTest] = useState<ForwardTestStatus | null>(null);
+  const [governedForward, setGovernedForward] = useState<GovernedForwardExperiment[]>([]);
+  const [fillCalibration, setFillCalibration] = useState<FillCalibration | null>(null);
   const [paramSchemas, setParamSchemas] = useState<Record<string, ParamSchema>>({});
   const [availableStrategies, setAvailableStrategies] = useState<{ strategyName: string }[]>([]);
   const [editingStrategy, setEditingStrategy] = useState<string | null>(null);
@@ -122,11 +158,15 @@ export function LiveMonitorView() {
       api.executionRuns(20),
       api.killSwitchStatus(),
       api.executionSummary(),
-    ]).then(([config, runRows, kill, execSummary]) => {
+      api.forwardTestStatus(),
+      api.executionCalibration(),
+    ]).then(([config, runRows, kill, execSummary, forward, calibration]) => {
       setExecutionConfig(config);
       setRuns(runRows);
       setKillSwitch(kill);
       setSummary(execSummary);
+      setForwardTest(forward);
+      setFillCalibration(calibration);
       // The registered-default config each ENABLED strategy is actually
       // running -- automated execution never applies a Lab-tab override
       // (see engine/execution.py's module docstring), so this schema's
@@ -134,6 +174,9 @@ export function LiveMonitorView() {
       // point. Reuses the same endpoint the Lab tab's param sliders read.
       Promise.all(config.map((c) => api.paramSchema(c.strategyName))).then((schemas) => {
         setParamSchemas(Object.fromEntries(schemas.map((s) => [s.strategyName, s])));
+      });
+      Promise.all(config.map((c) => api.forwardExperiments(c.strategyName))).then((groups) => {
+        setGovernedForward(groups.flat());
       });
     });
 
@@ -183,12 +226,71 @@ export function LiveMonitorView() {
 
   const toggleStrategy = async (strategyName: string, enabled: boolean) => {
     setTogglingConfig(strategyName);
+    const selectedConfig = executionConfig.find((c) => c.strategyName === strategyName);
+    const params = selectedConfig?.params ?? {};
+    const validationRunId = selectedConfig?.validationRunId ?? undefined;
+    let inceptionPolicy: "adopt" | "flatten" | undefined;
+    if (enabled) {
+      if (selectedConfig?.inception.status === "initialized") {
+        inceptionPolicy = selectedConfig.inception.policy ?? undefined;
+      } else {
+        const choice = window.prompt(
+          "Forward-test inception policy:\n\n" +
+            "ADOPT marks current positions to market before reconciliation.\n" +
+            "FLATTEN liquidates them first and waits for a confirmed flat account.\n\n" +
+            "Type ADOPT or FLATTEN:",
+          selectedConfig?.inception.policy === "flatten" ? "FLATTEN" : "ADOPT",
+        );
+        if (choice === null) {
+          setTogglingConfig(null);
+          return;
+        }
+        const normalized = choice.trim().toLowerCase();
+        if (normalized !== "adopt" && normalized !== "flatten") {
+          setLoadError("Enable canceled: enter exactly ADOPT or FLATTEN.");
+          setTogglingConfig(null);
+          return;
+        }
+        inceptionPolicy = normalized;
+      }
+    }
     try {
-      const params = executionConfig.find((c) => c.strategyName === strategyName)?.params ?? {};
-      await api.setExecutionConfig(strategyName, enabled, params);
+      await api.setExecutionConfig(
+        strategyName, enabled, params, validationRunId, inceptionPolicy,
+      );
       await refreshExecutionState();
     } catch (e) {
-      setLoadError(String(e));
+      const message = e instanceof Error ? e.message : String(e);
+      // Only offer the override when ENABLING and the backend rejected with
+      // 409 (a gate/state block on this endpoint, not e.g. a network error
+      // or a 400 param-validation failure) -- branching on the actual HTTP
+      // status rather than string-matching the detail text, since the
+      // backend has more than one 409 source (paper_execution_eligibility's
+      // gate check AND forward_experiments.start's own independent
+      // forward-test-worthy check) and their wording can diverge -- a text
+      // match tied to only one of them silently dead-ends the other with no
+      // way to invoke the override this flow exists to offer. This is an
+      // explicit, logged bypass (paper capital only, never production; see
+      // engine/forward_experiments.py:start's docstring), never a silent retry.
+      if (enabled && e instanceof ApiError && e.status === 409) {
+        const reason = window.prompt(
+          `${message}\n\nPromote to paper testing anyway? This is a logged override -- ` +
+          "paper capital only, never live/production. State why:",
+        );
+        if (reason && reason.trim()) {
+          try {
+            await api.setExecutionConfig(
+              strategyName, enabled, params, validationRunId, inceptionPolicy,
+              { reason: reason.trim() },
+            );
+            await refreshExecutionState();
+          } catch (e2) {
+            setLoadError(String(e2));
+          }
+        }
+      } else {
+        setLoadError(message);
+      }
     } finally {
       setTogglingConfig(null);
     }
@@ -218,9 +320,14 @@ export function LiveMonitorView() {
 
   const rebalanceNow = async (strategyName: string) => {
     setRebalancing(strategyName);
+    setLoadError(null);
     try {
-      await api.rebalanceNow(strategyName);
+      const result = await api.rebalanceNow(strategyName);
       await refreshExecutionState();
+      const label = result.status ? REBALANCE_RESULT_LABEL[result.status] ?? `Rebalance status: ${result.status}` : null;
+      if (label && result.status !== "completed") {
+        setLoadError(result.reason ? `${label} ${result.reason}` : label);
+      }
     } catch (e) {
       setLoadError(String(e));
     } finally {
@@ -308,6 +415,21 @@ export function LiveMonitorView() {
 
   return (
     <div className="space-y-6">
+      {loadError && (
+        <div
+          className="flex items-start justify-between gap-3 rounded-lg border px-4 py-3 text-sm"
+          style={{ borderColor: "var(--status-critical)", background: "var(--status-critical-bg)", color: "var(--status-critical)" }}
+        >
+          <span>{loadError}</span>
+          <button
+            type="button"
+            onClick={() => setLoadError(null)}
+            className="shrink-0 text-xs font-medium underline"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
       <div
         className="rounded-lg border px-4 py-3 text-sm"
         style={{ borderColor: "var(--status-warning)", background: "var(--status-warning-bg)", color: "var(--text-primary)" }}
@@ -342,6 +464,92 @@ export function LiveMonitorView() {
         >
           Alpaca isn't configured: {acct.reason} Add paper keys to <code>.env</code> and restart
           the API to enable live monitoring.
+        </div>
+      )}
+
+      {forwardTest && (
+        <div
+          className="rounded-lg border p-4"
+          style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}
+        >
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+                Frozen forward test · Dual Momentum
+              </h2>
+              <p className="mt-1 text-xs" style={{ color: "var(--text-secondary)" }}>
+                Stop benchmark: {forwardTest.stopBenchmark}. SPY remains an allocation comparison and does not drive the stop.
+              </p>
+            </div>
+            <RunStatusBadge status={forwardTest.status} />
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-3 text-xs sm:grid-cols-4">
+            <div><span style={{ color: "var(--text-muted)" }}>Frozen</span><div>{forwardTest.freezeDate}</div></div>
+            <div><span style={{ color: "var(--text-muted)" }}>Observations</span><div>{forwardTest.observationCount}</div></div>
+            <div><span style={{ color: "var(--text-muted)" }}>Stop review</span><div>{forwardTest.stopHorizonMonths} months</div></div>
+            <div><span style={{ color: "var(--text-muted)" }}>Stop threshold</span><div>trails by &gt; {forwardTest.stopShortfallPp.toFixed(0)}pp</div></div>
+          </div>
+          {forwardTest.latest ? (
+            <div className="mt-3 grid grid-cols-1 gap-2 text-xs sm:grid-cols-3">
+              <div>vs EW PIT Dow: <strong>{fmtPct(forwardTest.latest.vs_ew_pit_dow_pp)}</strong></div>
+              <div>vs SPY: <strong>{fmtPct(forwardTest.latest.vs_spy_pp)}</strong></div>
+              <div>vs random median: <strong>{fmtPct(forwardTest.latest.vs_random_pp)}</strong></div>
+            </div>
+          ) : (
+            <p className="mt-3 text-xs" style={{ color: "var(--status-warning)" }}>
+              Not started. No forward observation has been recorded; backtest evidence must not be presented as forward evidence.
+            </p>
+          )}
+          <p className="mt-2 text-xs" style={{ color: "var(--text-muted)" }}>
+            {forwardTest.decision.reasoning}
+          </p>
+        </div>
+      )}
+
+      {governedForward.length > 0 && (
+        <div className="rounded-lg border p-4" style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}>
+          <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Locked strategy forward experiments</h2>
+          <p className="mt-1 text-xs" style={{ color: "var(--text-secondary)" }}>
+            These configurations cannot inherit observations after an edit. A falsified experiment automatically disables paper automation and demotes its lifecycle.
+          </p>
+          <div className="mt-3 space-y-2">
+            {governedForward.map((experiment) => (
+              <div key={experiment.id} className="rounded-md border p-3 text-xs" style={{ borderColor: "var(--gridline)" }}>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <strong>{experiment.strategyName} · experiment #{experiment.id}</strong>
+                  <RunStatusBadge status={experiment.status} />
+                </div>
+                <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  <div><span style={{ color: "var(--text-muted)" }}>Locked</span><div>{experiment.locked ? "Yes" : "No"}</div></div>
+                  <div><span style={{ color: "var(--text-muted)" }}>Observations</span><div>{experiment.observationCount}/{experiment.minObservations}</div></div>
+                  <div><span style={{ color: "var(--text-muted)" }}>Minimum horizon</span><div>{experiment.minCalendarDays} days</div></div>
+                  <div><span style={{ color: "var(--text-muted)" }}>Stop threshold</span><div>{experiment.maxShortfallPct.toFixed(1)}pp</div></div>
+                </div>
+                <p className="mt-2" style={{ color: "var(--text-muted)" }}>{experiment.conclusion ?? "Waiting for the first forward observation."}</p>
+                <details className="mt-2"><summary className="cursor-pointer">Frozen manifest</summary><code className="mt-1 block break-all">{experiment.frozenManifestHash}</code></details>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {fillCalibration && (
+        <div className="rounded-lg border p-4" style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}>
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Observed execution calibration</h2>
+              <p className="mt-1 text-xs" style={{ color: "var(--text-secondary)" }}>
+                Reconciled paper fills calibrate future simulations after {fillCalibration.minimumFills} observations. Prior manifests remain unchanged.
+              </p>
+            </div>
+            <RunStatusBadge status={fillCalibration.calibrated ? "calibrated" : "collecting"} />
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-3 text-xs sm:grid-cols-4">
+            <div><span style={{ color: "var(--text-muted)" }}>Fills</span><div>{fillCalibration.fills}</div></div>
+            <div><span style={{ color: "var(--text-muted)" }}>Median adverse slippage</span><div>{fillCalibration.medianAdverseSlippageBps?.toFixed(1) ?? "—"} bps</div></div>
+            <div><span style={{ color: "var(--text-muted)" }}>P95 adverse slippage</span><div>{fillCalibration.p95AdverseSlippageBps?.toFixed(1) ?? "—"} bps</div></div>
+            <div><span style={{ color: "var(--text-muted)" }}>Partial-fill rate</span><div>{fillCalibration.partialFillRate === null ? "—" : `${(fillCalibration.partialFillRate * 100).toFixed(1)}%`}</div></div>
+          </div>
         </div>
       )}
 
@@ -542,14 +750,39 @@ export function LiveMonitorView() {
                         >
                           {cfg.enabled ? "Automated" : "Off"}
                         </span>
+                        {cfg.overrideUsed && (
+                          <span
+                            className="rounded-full px-2 py-0.5 text-xs font-medium"
+                            style={{ color: "var(--status-warning)", background: "var(--status-warning-bg, transparent)" }}
+                            title={`Promoted despite failing: ${cfg.overrideBlockers.join(", ") || "validation gates"}`}
+                          >
+                            Promoted via override
+                          </span>
+                        )}
+                        <span
+                          className="rounded-full px-2 py-0.5 text-xs font-medium"
+                          style={{
+                            color: cfg.inception.status === "initialized" ? "var(--status-good)" : "var(--status-warning)",
+                            background: cfg.inception.status === "initialized" ? "var(--status-good-bg)" : "var(--status-warning-bg)",
+                          }}
+                        >
+                          {cfg.inception.policy === "adopt"
+                            ? "Adopt at inception"
+                            : cfg.inception.policy === "flatten"
+                              ? "Flatten at inception"
+                              : "Inception choice required"}
+                          {` · ${cfg.inception.status}`}
+                        </span>
                       </div>
                       <button
                         type="button"
                         onClick={() => openConfig(cfg.strategyName, cfg.params)}
+                        disabled={cfg.enabled}
                         className="rounded-md border px-2.5 py-1 text-xs font-medium"
                         style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}
+                        title={cfg.enabled ? "Backtest and promote a new run to change an active configuration" : undefined}
                       >
-                        Edit parameters
+                        {cfg.enabled ? "Configuration locked" : "Edit parameters"}
                       </button>
                       <button
                         type="button"
@@ -571,6 +804,43 @@ export function LiveMonitorView() {
                           </span>
                         ))}
                         {schema.params.length === 0 && "no tunable parameters"}
+                      </p>
+                    )}
+                    <p className="mt-1.5 text-xs" style={{ color: "var(--text-muted)" }}>
+                      Promoted run #{cfg.validationRunId ?? "—"}
+                      {cfg.universeId ? ` · universe ${cfg.universeId}` : ""}
+                      {cfg.symbols.length ? ` · ${cfg.symbols.length} symbols` : ""}
+                    </p>
+                    <p
+                      className="mt-1.5 text-xs"
+                      style={{ color: cfg.inception.status === "initialized" ? "var(--text-muted)" : "var(--status-warning)" }}
+                    >
+                      {cfg.inception.status === "initialized"
+                        ? `Forward baseline ${fmtMoney(cfg.inception.equity)} at ${fmtTime(cfg.inception.inceptionAt)}; ` +
+                          `${cfg.inception.inheritedPositions.length} inherited position${cfg.inception.inheritedPositions.length === 1 ? "" : "s"} recorded.`
+                        : cfg.inception.status === "policy_required"
+                          ? "Execution is blocked until Adopt or Flatten is explicitly selected."
+                        : cfg.inception.policy === "flatten" && cfg.inception.status === "flattening"
+                          ? "Liquidation orders are being reconciled. Target entries remain blocked until Alpaca confirms the account is flat."
+                          : cfg.inception.policy === "flatten"
+                            ? "Pending first market-open cycle: inherited positions will be liquidated before the forward baseline is recorded."
+                            : "Pending first market-open cycle: current holdings will be marked to market as inherited inventory before reconciliation."}
+                    </p>
+                    {cfg.inception.status === "policy_required" && (
+                      <button
+                        type="button"
+                        onClick={() => toggleStrategy(cfg.strategyName, true)}
+                        disabled={togglingConfig === cfg.strategyName}
+                        className="mt-2 rounded-md px-2.5 py-1 text-xs font-medium text-white disabled:opacity-50"
+                        style={{ background: "var(--status-warning)" }}
+                      >
+                        Choose Adopt or Flatten
+                      </button>
+                    )}
+                    {cfg.overrideUsed && (
+                      <p className="mt-1.5 text-xs" style={{ color: "var(--status-warning)" }}>
+                        Promoted despite failing: {cfg.overrideBlockers.join(", ") || "validation gates"}
+                        {cfg.overrideReason && ` — reason given: "${cfg.overrideReason}"`}
                       </p>
                     )}
                   </div>

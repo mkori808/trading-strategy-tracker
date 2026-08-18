@@ -1,0 +1,52 @@
+{
+  "id": "crypto_majors",
+  "label": "Crypto majors",
+  "category": "Crypto",
+  "description": "BTC, ETH, and SOL quoted in US dollars. Daily strategies only; crypto trades continuously rather than in US equity sessions.",
+  "assetClass": "crypto",
+  "symbols": ["BTC-USD", "ETH-USD", "SOL-USD"],
+  "membershipLedgerPath": null,
+  "membershipMode": "fixed_liquid_assets",
+  "dataCoverage": {
+    "BTC-USD": {
+      "dataSource": "Yahoo Finance crypto daily bars, fetched on demand",
+      "coverageStart": "2016-01-01",
+      "coverageEnd": "2026-08-13"
+    },
+    "ETH-USD": {
+      "dataSource": "Yahoo Finance crypto daily bars, fetched on demand",
+      "coverageStart": "2017-11-09",
+      "coverageEnd": "2026-08-13"
+    },
+    "SOL-USD": {
+      "dataSource": "Yahoo Finance crypto daily bars, fetched on demand",
+      "coverageStart": "2020-04-10",
+      "coverageEnd": "2026-08-13"
+    }
+  },
+  "costModel": {
+    "type": "fixed_all_in_spread",
+    "spreadBps": 15.0,
+    "commissionBps": 0.0,
+    "note": "Conservative all-in spread/fee proxy. It deliberately does not reuse the equity volume-tier estimator."
+  },
+  "primaryBenchmark": "BTC-USD",
+  "equalWeightBenchmark": "self_equal_weight",
+  "applicableGates": {
+    "pit_membership": {
+      "applicable": false,
+      "reason": "These are fixed crypto instruments, not an index constituent roster."
+    },
+    "beats_equal_weight": {
+      "applicable": true,
+      "reason": "This is a multi-instrument crypto basket."
+    },
+    "beats_spy": {
+      "applicable": false,
+      "reason": "SPY is not the registered benchmark for a crypto universe; BTC-USD is primary."
+    }
+  },
+  "runnable": true,
+  "selectable": true,
+  "unavailableReason": null
+}

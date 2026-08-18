@@ -62,7 +62,7 @@ class DualMomentum(CrossSectionalStrategy):
         189, label="Momentum lookback (trading days)", minimum=63, maximum=378, step=21,
     )
     top_n: int = param_field(
-        5, label="Positions held", minimum=1, maximum=15, step=1,
+        5, label="Positions held", minimum=1, maximum=20, step=1,
     )
     rebalance_frequency: str = param_field(
         "monthly", label="Rebalance frequency",
@@ -72,6 +72,29 @@ class DualMomentum(CrossSectionalStrategy):
         "on the 5-year window and then underperformed on the longer one. "
         "'semimonthly' (twice a month, calendar 1st-half/2nd-half split) and "
         "'quarterly' are unvalidated experimentation options, not recommended.",
+    )
+    pit_minimum_price: float = param_field(
+        5.0, label="PIT minimum price ($)", minimum=1.0, maximum=100.0, step=1.0,
+        help="Used only by U.S. All Stocks — Point-in-Time, using the last historical close known before each rebalance.",
+    )
+    pit_minimum_average_dollar_volume: float = param_field(
+        1_000_000.0, label="PIT minimum average daily dollar volume ($)",
+        minimum=0.0, maximum=100_000_000.0, step=500_000.0,
+        help="Used only by the PIT all-stocks universe; computed from trailing historical price and volume.",
+    )
+    pit_liquidity_lookback_days: int = param_field(
+        60, label="PIT liquidity lookback (trading days)", minimum=20, maximum=252, step=20,
+        help="Trailing window used for the point-in-time average-dollar-volume eligibility filter.",
+    )
+    pit_minimum_market_cap: float = param_field(
+        0.0, label="PIT minimum market cap ($; 0 disables)",
+        minimum=0.0, maximum=10_000_000_000.0, step=100_000_000.0,
+        help="Optional and accepted only when reliable historical MarketCap exists in the installed PIT bundle.",
+    )
+    pit_max_adv_participation_pct: float = param_field(
+        1.0, label="Maximum position as % of historical ADV",
+        minimum=0.1, maximum=10.0, step=0.1,
+        help="PIT implementability limit. Allocations above this historical-liquidity share are flagged.",
     )
 
     def required_history_days(self) -> int:

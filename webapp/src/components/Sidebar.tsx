@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { api, type MarketClock, type MarketResponse } from "../api";
 import { GaugeDial } from "./GaugeDial";
 import { sectorName } from "../sectorNames";
-import { TABS, type Tab } from "../tabs";
+import { TAB_GROUPS, TABS, type Tab } from "../tabs";
 
 function fmtRelative(date: Date | null): string {
   if (!date) return "never";
@@ -32,6 +32,9 @@ function ChangeValue({ v }: { v: number | null }) {
  * the App level and shared with MarketView -- see App.tsx -- since a cold
  * /api/market call scans the full 94-symbol research universe and can take
  * up to ~40s; this sidebar must never trigger that scan itself. */
+/** DOM id of the sidebar slot that hosts the Strategies tab config panel. */
+export const STRATEGY_CONFIG_SLOT = "strategy-config-slot";
+
 export function Sidebar({
   marketData,
   marketLoading,
@@ -76,20 +79,32 @@ export function Sidebar({
         </div>
       </div>
 
-      <nav className="flex flex-col gap-0.5">
-        {TABS.map((t) => (
-          <button
-            key={t.key}
-            type="button"
-            onClick={() => onSelectTab(t.key)}
-            className="rounded-md px-3 py-2 text-left text-sm font-medium transition-colors"
-            style={{
-              background: activeTab === t.key ? "var(--pill-bg-active)" : "transparent",
-              color: activeTab === t.key ? "#ffffff" : "var(--text-secondary)",
-            }}
-          >
-            {t.label}
-          </button>
+      <nav className="flex flex-col gap-3">
+        {TAB_GROUPS.map((group) => (
+          <div key={group}>
+            <div
+              className="mb-1 px-3 text-[10px] font-semibold tracking-wide"
+              style={{ color: "var(--text-muted)" }}
+            >
+              {group.toUpperCase()}
+            </div>
+            <div className="flex flex-col gap-0.5">
+              {TABS.filter((t) => t.group === group).map((t) => (
+                <button
+                  key={t.key}
+                  type="button"
+                  onClick={() => onSelectTab(t.key)}
+                  className="rounded-md px-3 py-2 text-left text-sm font-medium transition-colors"
+                  style={{
+                    background: activeTab === t.key ? "var(--pill-bg-active)" : "transparent",
+                    color: activeTab === t.key ? "#ffffff" : "var(--text-secondary)",
+                  }}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
         ))}
       </nav>
 
@@ -138,6 +153,14 @@ export function Sidebar({
           size="mini"
         />
       </div>
+
+      {/* Slot for the Strategies tab's run configuration. Filled by a PORTAL
+        * from StrategiesTab rather than by lifting its state up here: the
+        * config owns selected strategy, override draft, running/error state and
+        * the run handler, all of which are meaningless to the sidebar. A portal
+        * moves only the rendered output, so ownership stays where the logic is.
+        * Empty (and zero-height) on every other tab. */}
+      <div id={STRATEGY_CONFIG_SLOT} className="empty:hidden" />
 
       <div className="mt-auto text-xs" style={{ color: "var(--text-muted)" }}>
         {marketLoading ? "Scanning research universe…" : `Updated ${fmtRelative(lastUpdated)}`}

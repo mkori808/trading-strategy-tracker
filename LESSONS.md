@@ -7,6 +7,165 @@ Newest entries at the top.
 
 ---
 
+## 2026-08-12 — Six validation-pipeline bugs from a single external review: sampling-frequency regression, an exposure-denominator collapse (again), a silently drifting benchmark window, two conflated p-values, an undocumented gate, and a threshold with no recorded reasoning
+
+A precise six-item bug report against `engine/validation.py`'s evidence
+pipeline, all found by inspecting the numbers the pipeline itself produced
+rather than the code. Fixed together because the first three shared one root
+cause and the instruction was explicit: no strategy config changes while
+fixing, one re-record pass at the end, not six.
+
+### 1 & 2: regressing at sampling frequency, not decision frequency -- the exposure-denominator bug's third appearance
+
+`factor_attribution_evidence`/`statistical_power_evidence` regressed and
+annualized on RAW DAILY BARS regardless of how often the strategy actually
+made a decision. Two symptoms, one mechanism:
+
+- **Dual Momentum** (rebalances monthly) regressed on 1250 daily observations
+  instead of ~61 monthly ones. Daily returns inside a ~21-day holding period
+  are serially dependent by construction (same five positions all month) --
+  the correct n is decisions, not bars. This alone doesn't bias the point
+  estimate but understates its standard error, inflating the apparent
+  t-stat (measured: 1.043 at daily frequency vs the true monthly-cadence
+  figure, expected in the 0.7-1.0 range once corrected).
+- **Earnings Momentum, Sector Rotation Play, Breakout from Consolidation**
+  (low-exposure, per-symbol, sparse event-driven equity curves --
+  `engine/portfolio.py:run_portfolio_backtest` appends one equity point per
+  trade ENTRY/EXIT, not per calendar day) reported implied annual
+  volatilities of 80-100% and minimum-detectable-alphas of 35-48%/yr on
+  long-only Dow equities. Not credible. Root cause: two independent "collapse
+  to daily" helpers (`advanced_validation.py:_daily_returns`,
+  `research_governance.py:_daily_equity`) both did
+  `series.groupby(index.normalize()).last()` with no calendar reindex -- a
+  no-op on an already-daily curve, silently wrong on a sparse one. A
+  three-week gap between trades became a single "daily" return, then got
+  annualized as if it were one trading day, compounding 252 times a year.
+  This is the exact same shape as the `-rf/sigma` bug from earlier this
+  project (see "One defect, six symptoms" below) and the mean-of-ratios bug
+  after it: **a ratio whose sample size quietly shrank.** Three appearances
+  of the same defect class in one project should have made it a checklist
+  item sooner than it did.
+
+**Fix:** a single shared helper, `engine/sanity.py:calendar_daily_series()`,
+forward-fills any series onto its own real business-day span before anything
+downstream touches it -- both broken helpers now call it. Separately,
+`engine/advanced_validation.py:_decision_periodicity()` resamples to the
+strategy's own decision cadence (rebalance frequency for cross-sectional;
+`len(trades)/years` for standard/pairs) when enough buckets exist (>=24),
+falling back to daily bars with the HAC lag widened to span the holding
+period (`period_days * 5/7` trading days, capped at 60) when it doesn't.
+`observations`, `decisionFrequency`, and `hacLag` are now reported in the
+evidence blob so the basis is visible instead of assumed.
+
+**Verified numerically against real data, not just synthetically** (the
+motivation for this line: a first pass verified the calendar fix against a
+synthetic naive-index curve and looked done: `years=0.15/ann_vol=51.2%` before,
+`years=4.94/ann_vol=10.2%` after. Running it against a REAL equity curve then
+crashed with `TypeError: Already tz-aware, use tz_convert to convert.` --
+`pd.bdate_range` infers tz from tz-aware start/end Timestamps in the pandas
+version this project uses and returns an already-localized index, so the
+unconditional `tz_localize()` call after it raised on every real curve, since
+every equity curve in this project carries an America/New_York tz per
+CLAUDE.md's timezone convention. A synthetic check with a naive index cannot
+catch a bug that only exists on tz-aware data. Fixed by localizing only when
+`calendar.tz is None`; regression test in `tests/test_engine/test_sanity.py`.
+Post-fix, against real backtests:
+
+| strategy | minimum detectable alpha, before | after |
+|---|---|---|
+| Dual Momentum | 10.55%/yr (daily) | **11.15%/yr** (monthly, 60 obs) |
+| Earnings Momentum / Gap-Hold | 47.97%/yr | **3.37%/yr** |
+| Sector Rotation Play | 36.98%/yr | **5.80%/yr** |
+| Breakout from Consolidation | 35.27%/yr | **3.77%/yr** |
+
+Annualized volatility for the three per-symbol strategies dropped from the
+implied 80-100%/yr range to 3.9%/6.2%/4.5% -- plausible for long-only Dow
+equities, which is what a low-exposure strategy's TRUE volatility should look
+like once idle stretches are counted as flat (zero-return) days instead of
+silently omitted.
+
+### 3: "Gap vs SPY" changed basis between runs, silently
+
+Two canonical re-runs of the same strategy, identical trades, identical
+Sharpe, different Gap vs SPY (Breakout -52.7% -> -86.2%; similar moves on IBS,
+Connors). Root cause: `validate_standard()`'s SPY benchmark window is
+`measured_start`/`measured_end` (falls back to `result.start`/`result.end`
+only when unset) -- and a canonical run's requested end date defaults to
+"today," so a later re-run silently extends the comparison window even when
+the strategy generated no new trades in the gap. SPY itself kept moving during
+that extension; the strategy didn't. This is arguably correct behavior (the
+benchmark should track real measured coverage) but it was invisible.
+
+**Fix:** two new columns, `benchmark_window_start`/`benchmark_window_end` on
+`runs`, populated with the EXACT window that produced `benchmark_return_pct`
+on that row (`engine/logging_db.py:attach_standard_benchmark`,
+`engine/validation.py`'s `beats_spy` check now carries `measuredStart`/
+`measuredEnd` in its details so the two call sites agree by construction, not
+by convention). Surfaced through the API and as a tooltip on the Gap vs SPY
+cell in `RunHistory.tsx`/`StrategyTable.tsx`. Doesn't stop the window from
+moving -- stops it from moving *silently*.
+
+### 4: two different p-values were reading as duplicates of each other
+
+`beats_random`'s `empiricalP` (concentration-matched random top-N portfolio
+selection null) and `multiple_testing`'s `naiveBootstrapP` (block-bootstrap
+resample of the strategy's OWN realized returns) are genuinely different
+nulls answering different questions, but both were named `naive_p` as local
+variables in two different functions and neither carried a definition in its
+details blob. Fixed by renaming the locals distinctly
+(`naive_bootstrap_p`/`naive_concentration_p`) and adding an explicit
+`nullDefinition` field plus a same-file cross-reference in each check's
+summary text, so reading one check's output now points at the other rather
+than inviting them to be averaged or reconciled into one number.
+
+### 5: which factor regression drives the gate was never written down
+
+Three alpha t-stats existed for Dual Momentum (engine's own daily-frequency
+4-proxy check: t=1.043; a manual monthly 4-proxy script: t=0.69; a manual
+six-ETF monthly script: t=1.59) and nothing recorded which one the automated
+`forward_test_worthy`/`identified_edge` gate actually used. Recorded in
+`FROZEN_DUAL_MOMENTUM.md`'s 2026-08-12 amendment: the engine's own check is
+canonical because it's the only one of the three that's recomputed on every
+run, manifest-fingerprinted, and actually wired to a gate -- not because its
+number is more favorable.
+
+### 6: a gate flipped Fail -> Pass on unchanged evidence, with the reasoning nowhere in the code
+
+Dual Momentum's rolling-stability evidence (12/14 windows positive, mean
+10.5pp, median 9.5pp) is unchanged data that reportedly scored differently
+under an earlier version of the gate. The current threshold
+(`fractionPositive >= 0.70` and positive median and positive
+mean-excluding-best) does correctly PASS the stored numbers, and the 70%
+figure is not arbitrary -- `data/manual_validation_evidence.json` already
+recorded that 14 overlapping 3-year windows stepped annually are only
+5-6 EFFECTIVELY INDEPENDENT samples, so 70% of the raw windows is close to
+requiring 4 of 5-6 independent draws positive. That reasoning existed only in
+prose (`FROZEN_DUAL_MOMENTUM.md`), not in the code that enforces it, and nothing
+pinned the current numeric behavior against a test. The exact prior threshold
+value that produced a different verdict could not be reconstructed with
+confidence from available history -- recorded honestly as unresolved rather
+than guessed. Fixed forward: `STABILITY_MIN_FRACTION_POSITIVE` is now a named
+constant with the reasoning as a comment, `_stability_gate_passes()` is a
+standalone testable function, and
+`test_rolling_stability_gate_matches_recorded_dual_momentum_evidence` pins
+today's behavior against the exact recorded numbers so a future threshold
+change shows up as a diff instead of a silent verdict flip -- the same
+provenance-failure class this project has now closed twice (see "An absent
+value in a UI is read as a claim, not as a gap" below).
+
+### The general pattern, again
+
+Every one of the first three issues is the same shape: a number computed
+correctly in isolation but READ against the wrong denominator, window, or
+sample-size assumption. None of them were caught by the test suite, because
+the test suite validated the arithmetic, not the real-data shape (tz-aware
+indices, actual holding periods, actual measured windows) the arithmetic runs
+against. "Run it against a real backtest, not just a synthetic fixture, before
+calling a numerical fix verified" is now the standing rule -- see the
+`bdate_range` tz bug this exact discipline caught above.
+
+---
+
 ## 2026-07-21 — Semimonthly rebalancing validated as a genuine, modest improvement over monthly; quarterly is worse
 
 **Context:** the webapp's own experiment history (Compare tab, Lab-tab runs) showed semimonthly at Sharpe 0.63 and weekly at 0.72 on the standard 5-year window, both above monthly's canonical 0.58 -- the exact same shape of result that already burned weekly/daily once (cont'd 8/9: both looked better on the 5-year window, then fell to 0.35/0.33 on the 26-year validation, worse than monthly's 0.45). Ran the same validation discipline on semimonthly and quarterly before trusting either.
@@ -2507,3 +2666,176 @@ another floor.
 **Where a fifth would appear:** anywhere a ratio is computed per-unit and then
 combined across units. Check the denominator's distribution before trusting the
 combination, not just the combination's value.
+
+## Research closed: Dual Momentum is momentum, not an edge
+
+**Date:** 2026-08-11. **Status: CLOSED.** Pre-registered stop condition met.
+
+A four-factor regression of the frozen config's monthly excess returns against
+Fama-French MKT/SMB/HML plus momentum (UMD), 58 months, Ken French's data:
+
+| | value | t |
+|---|---|---|
+| **alpha** | **+3.99%/yr** | **+0.69** (p = 0.49) |
+| MKT | +0.955 | +9.42 |
+| SMB | +0.357 | +2.05 |
+| HML | +0.352 | +3.00 |
+| **UMD** | **+0.598** | **+4.75** |
+
+R^2 = 0.688.
+
+**The strategy is momentum exposure.** UMD loading of 0.60 at t = 4.75 is the
+most significant thing in the model after market beta.
+
+**CORRECTED 2026-08-11 -- the original wording of this entry was wrong.** It
+said residual alpha was "statistically indistinguishable from zero", which
+implies zero was SHOWN. It was not. SE(alpha) is **5.85%/yr**, giving a 95%
+interval of **[-7.01%/yr, +16.17%/yr]**, and the **minimum detectable alpha at
+t = 2 is 12.00%/yr**.
+
+The design cannot resolve an alpha worth having in EITHER direction. It cannot
+establish +4%/yr and it cannot rule out -7%/yr. t = 0.69 is not evidence of no
+edge; it is evidence that this test could not have found one. That is a
+structural property of the design -- 5 positions, monthly, 58 months, 29
+co-moving mega-caps -- not a verdict on the idea.
+
+This was pre-registered before the regression ran, in three bands: alpha
+surviving at t > 2 strengthens the claim; alpha collapsing ends the research;
+alpha positive with t < 2 is "consistent with the small effective sample already
+documented, NOT a rescue." The result landed in the third band. The +3.99%/yr
+point estimate is not evidence -- it is a number with an interval straddling
+zero, and treating it as a finding is exactly the rationalization the
+pre-registration existed to prevent.
+
+### It also explains the cross-universe failure without a new hypothesis
+
+The frozen rule beat its own universe in the Dow (+70.1pp) and failed in S&P 400
+(-63.9pp) and S&P 600 (-10.2pp). "A large-cap-specific relative-strength effect"
+was the surviving explanation. **UMD loading differing by universe explains the
+same facts with no universe-specific mechanism** -- a rule capturing momentum
+exposure in one universe need not capture it in another. The simpler account
+wins.
+
+### The Sharpe was never distinguishable from the benchmark either
+
+Sharpe 0.807 over 5 years. Standard error (Lo 2002, `sqrt((1 + S^2/2)/T)`) is
+**+/- 0.515**, giving a 95% interval of **[-0.20, +1.82]**. SPY's ~0.55 sits
+comfortably inside it. The point estimate was never separable from the index --
+a cleaner statement of the sample limitation than any of the robustness tests
+that preceded it, and one that could have been computed on day one.
+
+### Concentration, independent of all the above
+
+Across 61 rebalances holding 27 of 29 names, the top TWO positions produced
+**48.5%** of total weighted contribution (INTC 31.1% over 18 rebalances, CAT
+17.4% over 24); the top three, **59.0%**. Roughly half the result came from two
+names. That constrains the thesis regardless of the regression.
+
+### The answer
+
+**This is momentum exposure, and the test was underpowered.** Two separate
+statements, and only the first is established:
+
+1. The strategy loads +0.60 on UMD (t = 4.75) and +0.40 on MTUM (t = 2.42).
+   That exposure is real, significant, and purchasable in ETF form with more
+   names, more capacity and no single-name risk.
+2. Whether anything exists BEYOND that exposure is **unresolved and
+   unresolvable at this sample size.** Minimum detectable alpha is 12.00%/yr
+   against factors and 13.16%/yr against tradable replicators. No plausible
+   real edge is that large, so the test was never capable of detecting one.
+
+The research is closed because the DESIGN cannot answer the question, not
+because the answer came back negative. **Do not search for a variant to rescue it**;
+that restarts the loop that produced the original false positive.
+
+### What the funnel did
+
++144% backtest -> +58.6pp vs SPY -> +70.1pp vs own universe -> failed
+cross-universe replication -> ~+3.4%/yr across history -> ~+3.25%/yr
+point-in-time -> **alpha t = 0.69 against UMD**.
+
+Every added control narrowed the claim. None of the narrowing came from a number
+that disappointed -- each came from a control not yet applied. The decisive test
+was also the cheapest, and it was run last. **Run the factor regression first
+next time:** if a strategy is a known factor in disguise, no amount of
+robustness testing on the strategy itself will reveal it, because every one of
+those tests asks "is this real?" and the answer is yes -- it is a real,
+documented, purchasable risk premium.
+
+## Ask the three questions in this order: detectable? · mine? · real?
+
+**Date:** 2026-08-11
+
+Cheapest and most decisive first. **This project ran them in reverse**, and
+spent an entire research programme on the most expensive, least decisive one.
+
+| # | question | cost | what answered it here |
+|---|---|---|---|
+| 1 | **Could my design detect it?** | minutes | MDA 12.00%/yr against a claimed 2%/yr effect |
+| 2 | **Is it mine, or a known factor?** | minutes | UMD loading +0.60 (t=4.75); MTUM +0.40 (t=2.42) |
+| 3 | **Is it real?** | weeks | randomization, rolling windows, point-in-time rosters, cross-universe |
+
+Question 3 was answered exhaustively and correctly. It was also the wrong
+question to start with, because **no answer to it could have been informative
+while question 1 was unresolved.**
+
+### Power: what the synthetic-alpha harness showed
+
+`engine/power_curve.py` injects a known alpha into synthetic panels carrying a
+common market factor (so cross-correlation is present rather than assumed away)
+and runs the pipeline on them. 29 symbols, top 5, monthly, averaged over 12
+seeds:
+
+| injected | 2y | 5y | 10y |
+|---|---|---|---|
+| 1%/yr | not detected | not detected | not detected |
+| 2%/yr | not detected | not detected | not detected |
+| 4%/yr | not detected | not detected | not detected |
+| 8%/yr | not detected | not detected | not detected |
+
+**Nothing was detectable at any tested alpha or sample length.**
+
+### The engine is NOT attenuating -- this was checked, not assumed
+
+Recovered-vs-injected slope was **0.27**, which tripped the pre-registered
+correctness flag ("slope far below 1 means attenuation"). Before reporting a
+bug, an ORACLE variant held the known alpha names directly:
+
+| injected | oracle recovers | momentum recovers |
+|---|---|---|
+| 1% | 2.07% | 0.00% |
+| 4% | 5.21% | 1.17% |
+| 8% | 9.40% (t=2.66) | 2.55% (t=0.74) |
+
+**Oracle slope 1.05.** The engine recovers injected alpha without bias. The 0.27
+is **SELECTION DILUTION** -- a 9-month momentum rank cannot reliably find a
+1-8%/yr alpha buried in 22% idiosyncratic volatility, so the strategy holds the
+alpha names only part of the time and captures ~30% of what is there.
+
+That distinction matters enormously and cost one extra script to establish:
+a biased engine is a bug to fix; a diluting selection rule is a property of the
+design, and no amount of engine work improves it.
+
+### Breadth is the binding constraint, and it is knowable in advance
+
+`engine/power_curve.py:screen_design` estimates independent bets per year
+(positions x rebalances, haircut for cross-correlation) and reports the minimum
+detectable alpha before anything runs:
+
+| design | ind. bets/yr | MDA | detects 2%/yr? |
+|---|---|---|---|
+| Dual Momentum, 5y | 34.6 | 12.00%/yr | **no** |
+| Dual Momentum, 10y | 34.6 | 8.34%/yr | **no** |
+| S&P 500, 86 positions, monthly, 10y | 156.5 | 3.93%/yr | **no** |
+
+Even 86 positions across the S&P 500 over a decade cannot resolve a 2%/yr
+alpha. **The constraint is not this strategy, this universe, or this data
+vendor. It is breadth**, and at retail scale it may not be surmountable for
+effects of the size actually on offer.
+
+### The rule
+
+**Run the breadth screen before the backtest.** If minimum detectable alpha
+exceeds what you would act on, the run cannot produce an interpretable result in
+either direction -- and a number that cannot be interpreted is worse than no
+number, because it will be interpreted anyway.

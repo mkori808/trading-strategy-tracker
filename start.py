@@ -16,7 +16,7 @@ IS_WINDOWS = sys.platform == "win32"
 
 def main() -> int:
     api = subprocess.Popen(
-        [sys.executable, "-m", "uvicorn", "api.main:app", "--port", "8791", "--reload"],
+        [sys.executable, "-m", "uvicorn", "api.main:app", "--port", "8794"],
         cwd=ROOT,
     )
     webapp = subprocess.Popen(
@@ -25,7 +25,7 @@ def main() -> int:
         shell=IS_WINDOWS,
     )
 
-    print("API running on http://localhost:8791 (PID %d)" % api.pid)
+    print("API running on http://localhost:8794 (PID %d)" % api.pid)
     print("Webapp dev server starting (PID %d) — see its output above for the URL" % webapp.pid)
     print("Press Ctrl+C to stop both.")
 

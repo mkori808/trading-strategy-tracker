@@ -53,7 +53,7 @@ export function TradesTable({ trades }: { trades: Trade[] }) {
           <tr style={{ borderBottom: "1px solid var(--gridline)" }}>
             {[
               "Symbol", "Entry", "Exit", "Size", "Entry $", "Exit $", "P&L", "Return",
-              "MFE (R)", "MAE (R)", "Exit Quality",
+              "SPY matched", "Excess vs SPY", "Modeled cost", "MFE (R)", "MAE (R)", "Exit Quality",
             ].map((h) => (
               <th
                 key={h}
@@ -99,6 +99,26 @@ export function TradesTable({ trades }: { trades: Trade[] }) {
               >
                 {t.returnPct >= 0 ? "+" : ""}
                 {(t.returnPct * 100).toFixed(2)}%
+              </td>
+              <td className="px-3 py-2 tabular-nums" style={{ color: "var(--text-secondary)" }}>
+                {t.matchedSpyReturn !== null
+                  ? `${t.matchedSpyReturn >= 0 ? "+" : ""}${(t.matchedSpyReturn * 100).toFixed(2)}%`
+                  : "—"}
+              </td>
+              <td
+                className="px-3 py-2 tabular-nums font-medium"
+                style={{
+                  color: t.excessVsSpy === null
+                    ? "var(--text-muted)"
+                    : t.excessVsSpy >= 0 ? "var(--status-good)" : "var(--status-critical)",
+                }}
+              >
+                {t.excessVsSpy !== null
+                  ? `${t.excessVsSpy >= 0 ? "+" : ""}${(t.excessVsSpy * 100).toFixed(2)}%`
+                  : "—"}
+              </td>
+              <td className="px-3 py-2 tabular-nums" style={{ color: "var(--text-secondary)" }}>
+                {t.modeledCost !== null ? money(t.modeledCost) : "—"}
               </td>
               <td className="px-3 py-2 tabular-nums" style={{ color: "var(--text-secondary)" }}>
                 {t.mfeR !== null ? t.mfeR.toFixed(2) : "—"}

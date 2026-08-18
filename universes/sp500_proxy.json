@@ -1,0 +1,42 @@
+{
+  "id": "sp500_proxy",
+  "label": "S&P 500 (SPY)",
+  "category": "S&P indexes",
+  "description": "Single-instrument S&P 500 index proxy. This tests market timing on SPY, not stock selection among 500 constituents.",
+  "assetClass": "single-instrument",
+  "symbols": ["SPY"],
+  "membershipLedgerPath": null,
+  "membershipMode": "fixed_index_proxy",
+  "dataCoverage": {
+    "SPY": {
+      "dataSource": "Yahoo Finance adjusted daily bars, fetched on demand",
+      "coverageStart": "2016-01-04",
+      "coverageEnd": "2026-08-12"
+    }
+  },
+  "costModel": {
+    "type": "equity_spread",
+    "estimator": "engine.execution_calibration.spread_for",
+    "commissionBps": 0.0,
+    "note": "Liquid US-listed ETF proxy; this is not a futures-contract simulation."
+  },
+  "primaryBenchmark": "SPY",
+  "equalWeightBenchmark": null,
+  "applicableGates": {
+    "pit_membership": {
+      "applicable": false,
+      "reason": "A fixed index ETF has no constituent-selection decision in this backtest."
+    },
+    "beats_equal_weight": {
+      "applicable": false,
+      "reason": "Equal-weight universe comparison is undefined for one instrument."
+    },
+    "beats_spy": {
+      "applicable": true,
+      "reason": "The strategy must beat buy-and-hold SPY over identical dates."
+    }
+  },
+  "runnable": true,
+  "selectable": false,
+  "unavailableReason": null
+}

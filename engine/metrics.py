@@ -19,6 +19,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date
+import math
 
 import pandas as pd
 
@@ -118,51 +119,156 @@ STATUS_INSUFFICIENT_EXPOSURE = "Too little time in market to measure risk-adjust
 # AND alpha > 0".
 STATUS_UNVERIFIED = "Positive expectancy - risk-adjusted verdict unavailable"
 
+# The measured effect is smaller than what this DESIGN could resolve. Same
+# principle as MIN_INVESTED_DAYS and coverage_is_measurable(): a metric that
+# cannot be resolved must not be dressed as a verdict.
+#
+# Measured on Dual Momentum: minimum detectable alpha 12.00%/yr against a
+# claimed effect of ~2%/yr. The run could not have produced an interpretable
+# result in EITHER direction -- it could neither establish +4%/yr nor rule out
+# -7%/yr -- yet it carried a "shortlist" tier for months.
+#
+# EXPECT THIS TO APPLY TO NEARLY EVERY ROW. Excess CAGRs on this board run
+# +0.04% to +0.50% against MDAs in the single-to-double-digit percent range. A
+# board that goes almost entirely unrankable is the HONEST output of an
+# instrument that cannot resolve what is being asked of it. Do not widen the
+# band or add exceptions when it looks blank -- that is the same loop that
+# produced the original false positive, one level up.
+STATUS_UNDERPOWERED = "Effect smaller than this design can detect"
+
+# A portfolio-engine gate specifically for the "constituent has zero bars
+# during the required lookback" case (the DOW zero-bar bug engine/cross_
+# sectional.py:allow_incomplete_warmup / result.incomplete_warmup exists to
+# track). Measured directly: two runs (Dual Momentum x sp500_current, x
+# sp600_current) reported "holdout passed" and a graded return-based verdict
+# ("Positive return - shortlist") while warmup_validity had already failed
+# in the SAME validation report -- the status string never knew about it,
+# because portfolio_status() was computed from return/Sharpe/benchmark alone.
+# A run built on incomplete required history is not measuring the strategy
+# on the labeled universe; it must never carry a graded verdict, positive OR
+# negative, regardless of how the numbers otherwise look.
+STATUS_INCOMPLETE_WARMUP = "Incomplete warmup -- some constituents lack required lookback"
+
 #: Statuses carrying no measured numbers. Rank/sort must skip these outright.
 UNRANKABLE_STATUSES = frozenset({
     STATUS_INVALID_WINDOW,
     STATUS_AWAITING_REMEASUREMENT,
     STATUS_INSUFFICIENT_EXPOSURE,
     STATUS_UNVERIFIED,
+    STATUS_INCOMPLETE_WARMUP,
+    STATUS_UNDERPOWERED,
 })
+
+# Average pairwise correlation assumed when converting nominal bets into
+# INDEPENDENT ones. Named, not buried, because it is the softest number in the
+# whole calculation and it does most of the work: five Dow mega-caps held in the
+# same month are far from independent. If the true correlation is HIGHER than
+# this, every MDA on the board is optimistic and every design looks better than
+# it is. Exposed in the API response so it reads as an assumption rather than a
+# measurement.
+ASSUMED_PAIRWISE_CORRELATION = 0.5
+
+
+def minimum_detectable_alpha_pct(
+    cagr_pct: float | None,
+    sharpe: float | None,
+    risk_free_rate: float | None,
+    years: float | None,
+) -> float | None:
+    """Smallest annual alpha this run could have resolved at t=2.
+
+    Derived from ALREADY-STORED fields, so it costs nothing per run:
+
+        annual vol = (CAGR - rf) / Sharpe          (inverting the Sharpe ratio)
+        SE(alpha)  = vol / sqrt(years)
+        MDA        = 2 * SE(alpha)
+
+    Uses TOTAL volatility rather than residual-from-a-factor-model, which makes
+    this CONSERVATIVE: residual vol is strictly lower, so a factor regression
+    would report a smaller MDA. Measured on Dual Momentum -- total-vol MDA
+    17.7%/yr against the 4-factor regression's 12.00%/yr. Erring toward "harder
+    to detect" is the safe direction for a gate whose failure mode is awarding
+    tiers to noise.
+
+    Requires no network access, so it can run on every backtest.
+    """
+    if None in (cagr_pct, sharpe, risk_free_rate, years) or not sharpe or years <= 0:
+        return None
+    annual_vol = (cagr_pct / 100.0 - risk_free_rate) / sharpe
+    if annual_vol <= 0:
+        return None
+    return 2.0 * (annual_vol / (years ** 0.5)) * 100.0
+
+
+def independent_bets_per_year(
+    positions: int | None,
+    rebalances_per_year: float | None,
+    pairwise_corr: float = ASSUMED_PAIRWISE_CORRELATION,
+) -> float | None:
+    """Effective independent bets per year, after a cross-correlation haircut.
+
+    Nominal breadth (positions x rebalances) badly overstates a co-moving
+    universe. The haircut sqrt(1 / (1 + (n-1) * rho)) is the standard correction
+    for averaging correlated signals.
+
+    `pairwise_corr` is a parameter, not a constant folded into the formula, so a
+    caller can show what was assumed and vary it. See
+    ASSUMED_PAIRWISE_CORRELATION.
+    """
+    if not positions or not rebalances_per_year or positions < 1:
+        return None
+    haircut = (1.0 / (1.0 + (positions - 1) * pairwise_corr)) ** 0.5
+    return positions * rebalances_per_year * haircut
 
 
 # --- Plausibility floor -----------------------------------------------------
 #
-# NOT precision tests. These are priors a human reader carries and the codebase
-# never encoded: nothing here knew that a Sharpe of 7.24 is impossible for a
-# Dow-universe equity strategy, but a person reading the row knows instantly.
-# That gap is why implausible results kept being caught by eye rather than by
-# the suite -- eyeballing is a genuinely different oracle, using knowledge that
-# lived only in someone's head. This encodes it.
-#
-# Every bug this exists to catch produced a number that was wrong by an ORDER
-# OF MAGNITUDE, not by a subtle margin, so the bands are deliberately wide.
-# A result that trips one is a bug report, not a remarkable strategy:
-#   * Sharpe 7.238 / alpha +36.7% -- risk-free interest accrued at a daily rate
-#     once per 5-MINUTE bar (~79x over-credit). Its phantom return scaled with
-#     IDLENESS, so the intraday strategies flattered most would have been the
-#     ones trading least -- the exact mirror of the original -rf/sigma bug,
-#     which punished idleness at the wrong rate instead of rewarding it.
-#   * Sharpe -43.48 -- calendar-day returns annualized with a 252-day constant.
-# DELIBERATELY ASYMMETRIC, and the asymmetry is the whole point. A Sharpe above
-# +3 on a Dow-universe equity strategy is not a remarkable result, it is a bug:
-# steady large gains at low volatility do not occur here. A deeply NEGATIVE
-# Sharpe is merely terrible, not impossible -- losing money steadily is easy.
-#
-# A symmetric (-3, 3) band was tried first and immediately produced a false
-# positive on real data: VWAP Bounce / Reversion scores -8.90 from a genuine
-# -44.98% CAGR at 5.51% implied volatility, 67% exposed and 7,372 trades. The
-# idle-cash artifact cannot explain it at that exposure -- it is simply a
-# strategy that bleeds consistently, and a tight lower bound would have refused
-# to record a true result. Scalping's -43.48 is the same shape: -66.84% CAGR at
-# ~1.6% volatility, death by a thousand spreads over 22,281 trades.
-#
-# So the lower bound is loose enough never to block a real loser, and does
-# little work; the CAGR band below carries the downside. This is honest about
-# where the guard has teeth rather than pretending to symmetry it cannot have.
-PLAUSIBLE_SHARPE = (-50.0, 3.0)
+# These guards still reject impossible return, exposure, and win-rate values.
+# Sharpe no longer has a finite plausibility band: extreme ratios can arise
+# from small denominators and sparse exposure, and those weaknesses belong in
+# the visible sample-coverage, power, stability, and MDA evidence rather than a
+# hard refusal that prevents the run from being stored and inspected.
 PLAUSIBLE_CAGR_PCT = (-100.0, 200.0)
+
+# PLAUSIBLE_CAGR_PCT bounds a single ANNUALIZED rate. It does not, by itself,
+# bound what a MULTI-YEAR run can cumulatively report: compounding its own
+# 200%/yr ceiling over 5 years allows +24,200% cumulative, which is not a
+# bound in any practical sense. Measured directly: a Dual Momentum run
+# against the S&P 500 "current" universe (unscaled top_n=5 -- see
+# FROZEN_DUAL_MOMENTUM.md's scaling-rule section on why that is a different,
+# far more concentrated rule than the frozen one) reported 92.27%/yr CAGR
+# and a mutually-consistent +2477.8% cumulative return over ~5 years. Both
+# numbers individually pass the flat single-period guard because a
+# smoothly-compounding curve has no single implausible data point to catch
+# -- only the CUMULATIVE effect of sustaining a very high rate for years is
+# implausible. 50%/yr is deliberately generous relative to real, audited,
+# multi-year fund track records (few in financial history have sustained
+# more, before fees) -- used only for the COMPOUNDING check on windows long
+# enough for sustained-rate implausibility to matter; a single wild year up
+# to PLAUSIBLE_CAGR_PCT's own ceiling is left alone, since compounding
+# doesn't apply within one year and a genuine outlier year is not the same
+# claim as sustaining one for half a decade.
+PLAUSIBLE_SUSTAINED_ANNUAL_PCT = 50.0
+
+
+def plausible_return_bounds(years: float | None) -> tuple[float, float]:
+    """Cumulative-return band for a run spanning `years`.
+
+    <= 1 year: PLAUSIBLE_CAGR_PCT applied directly (uncompounded -- a single
+    period's return and its annualized rate are the same order of magnitude).
+    > 1 year: PLAUSIBLE_SUSTAINED_ANNUAL_PCT compounded over the actual span,
+    since sustaining a rate for multiple years running is a categorically
+    different, far less plausible claim than posting it once.
+    """
+    if years is None or years <= 0:
+        return PLAUSIBLE_CAGR_PCT
+    if years <= 1.0:
+        return PLAUSIBLE_CAGR_PCT
+    lo, hi = -100.0, PLAUSIBLE_SUSTAINED_ANNUAL_PCT
+    return (
+        ((1 + lo / 100) ** years - 1) * 100,
+        ((1 + hi / 100) ** years - 1) * 100,
+    )
 
 
 def invested_days(
@@ -208,6 +314,8 @@ def implausible_metrics(
     cagr_pct: float | None = None,
     win_rate: float | None = None,
     exposure_pct: float | None = None,
+    return_pct: float | None = None,
+    years: float | None = None,
 ) -> list[str]:
     """Bounds violations, empty when everything is within the plausible band.
 
@@ -216,16 +324,56 @@ def implausible_metrics(
     number from an impossible one. That is precisely the class that repeatedly
     survived a green suite, because a fixture that shares the implementation's
     premise validates arithmetic rather than correctness.
+
+    `years` unlocks two ADDITIONAL checks, both additive to the flat
+    `cagr_pct` check above, never a replacement for it:
+
+    1. `cagr_pct` itself, re-checked against the tighter
+       PLAUSIBLE_SUSTAINED_ANNUAL_PCT ceiling once `years` > 1 -- this is
+       the symmetric check both writers can run, since both log_run
+       (BacktestMetrics.start/end) and log_portfolio_run (its own start/end
+       params) always have a window to derive `years` from, even though
+       only log_portfolio_run also has a raw `return_pct` to check directly.
+    2. `return_pct`, when the caller has one, against the CUMULATIVE band
+       plausible_return_bounds(years) compounds from the same ceiling --
+       belt-and-suspenders for the case where return_pct and cagr_pct were
+       computed inconsistently (a different bug than the one either check
+       alone catches).
+
+    Pass whichever of `return_pct`/`years` the caller has; each check is
+    skipped, not guessed, when its inputs are missing.
     """
     problems: list[str] = []
-    if sharpe is not None and not (PLAUSIBLE_SHARPE[0] <= sharpe <= PLAUSIBLE_SHARPE[1]):
-        problems.append(f"Sharpe {sharpe:.3f} outside plausible {PLAUSIBLE_SHARPE}")
+    # Sharpe is diagnostic evidence, not an authorization bound. Extreme
+    # finite values remain visible so the validation suite can explain them
+    # through exposure, sample coverage, stability, and MDA instead of
+    # refusing to store the run. Only non-finite arithmetic is invalid data.
+    if sharpe is not None and not math.isfinite(float(sharpe)):
+        problems.append(f"Sharpe {sharpe} is not finite")
     if cagr_pct is not None and not (PLAUSIBLE_CAGR_PCT[0] <= cagr_pct <= PLAUSIBLE_CAGR_PCT[1]):
         problems.append(f"CAGR {cagr_pct:.2f}% outside plausible {PLAUSIBLE_CAGR_PCT}")
+    elif (
+        cagr_pct is not None and years is not None and years > 1.0
+        and not (-100.0 <= cagr_pct <= PLAUSIBLE_SUSTAINED_ANNUAL_PCT)
+    ):
+        problems.append(
+            f"CAGR {cagr_pct:.2f}% sustained over {years:.2f}y outside the "
+            f"multi-year plausible ceiling of {PLAUSIBLE_SUSTAINED_ANNUAL_PCT}%/yr "
+            "-- passes the single-period band but sustaining this rate for this "
+            "long is a bug report, not a result"
+        )
     if win_rate is not None and not (0.0 <= win_rate <= 1.0):
         problems.append(f"win rate {win_rate} outside [0, 1]")
     if exposure_pct is not None and not (0.0 <= exposure_pct <= 100.0):
         problems.append(f"exposure {exposure_pct}% outside [0, 100]")
+    if return_pct is not None and years is not None:
+        lo, hi = plausible_return_bounds(years)
+        if not (lo <= return_pct <= hi):
+            problems.append(
+                f"cumulative return {return_pct:.1f}% over {years:.2f}y outside "
+                f"plausible ({lo:.0f}%, {hi:.0f}%) -- a sustained rate this "
+                "high for this long is a bug report, not a result"
+            )
     return problems
 
 
@@ -267,6 +415,19 @@ class BacktestMetrics:
     # stay distinguishable -- same principle as slippage_bps being descriptive.
     measured_start: date | None = None
     measured_end: date | None = None
+    total_return_pct: float | None = None
+    average_gross_exposure_pct: float | None = None
+    average_net_exposure_pct: float | None = None
+    time_in_market_pct: float | None = None
+    turnover_pct: float | None = None
+    modeled_costs: float | None = None
+    matched_spy_return_pct: float | None = None
+    matched_spy_excess_pct: float | None = None
+    annualized_matched_excess_pct: float | None = None
+    matched_alpha_annual_pct: float | None = None
+    matched_beta: float | None = None
+    matched_benchmark_trades: int = 0
+    missing_benchmark_trades: int = 0
 
 
 def derive_status(
@@ -275,6 +436,7 @@ def derive_status(
     sharpe: float | None = None,
     alpha_pct: float | None = None,
     invested_days_count: float | None = None,
+    mda_pct: float | None = None,
 ) -> str:
     """Verdict from a run's computed numbers. Public because the API's
     leaderboard recomputes status from each stored row's numbers with
@@ -300,6 +462,16 @@ def derive_status(
     # risk-adjusted number -- a losing strategy is droppable on its own terms.
     if invested_days_count is not None and invested_days_count < MIN_INVESTED_DAYS:
         return STATUS_INSUFFICIENT_EXPOSURE
+    # The effect is smaller than this design could resolve, so no tier is
+    # awarded in EITHER direction. Checked before the Sharpe/alpha gate because
+    # passing that gate on an unresolvable effect is precisely the failure --
+    # the measured value is inside the noise band, so its sign is not evidence.
+    if (
+        mda_pct is not None
+        and alpha_pct is not None
+        and abs(alpha_pct) < mda_pct
+    ):
+        return STATUS_UNDERPOWERED
     # Apply the Sharpe/alpha bar against whichever of the two is actually
     # available, rather than requiring both -- some engines never compute
     # alpha (e.g. engine/overnight.py has no benchmark to compare against,
@@ -335,6 +507,9 @@ def portfolio_status(
     return_pct: float,
     sharpe: float | None,
     benchmark_return_pct: float | None,
+    mda_pct: float | None = None,
+    alpha_annual_pct: float | None = None,
+    warmup_ok: bool = True,
 ) -> str:
     """Verdict for a portfolio-engine run (cross-sectional/pairs), mirroring
     derive_status()'s tiers with return-based language.
@@ -354,11 +529,34 @@ def portfolio_status(
     and a shortlisted canonical row is exactly what the promote-to-paper-execution
     button acts on. Not reachable with today's data (both v2 rows are complete),
     which is precisely why it survived the sweep that fixed the per-symbol side.
+
+    `warmup_ok=False` (some constituents lacked the required lookback --
+    engine/cross_sectional.py's result.incomplete_warmup) short-circuits
+    everything below to STATUS_INCOMPLETE_WARMUP, checked BEFORE return sign
+    or any other gate: a run built on incomplete required history is not a
+    measurement of the strategy on the labeled universe, so it must never
+    carry a graded verdict either way. Measured directly: two runs read
+    "Positive return - shortlist" with a failed warmup_validity check sitting
+    in the SAME validation report, because this function had no way to know.
     """
+    if not warmup_ok:
+        return STATUS_INCOMPLETE_WARMUP
     if return_pct <= 0:
         return STATUS_PORTFOLIO_NEGATIVE
     if sharpe is None and benchmark_return_pct is None:
         return STATUS_UNVERIFIED
+    # Same underpowered gate as derive_status(), but the comparison MUST be in
+    # matching units. `return_pct` and `benchmark_return_pct` are CUMULATIVE
+    # over the window while MDA is ANNUAL: on Dual Momentum that is 58.6pp
+    # cumulative against a 17.7%/yr MDA, which passes the gate for a purely
+    # dimensional reason. Annualized, the same run is +6.4%/yr against 17.7%/yr
+    # and is correctly underpowered.
+    #
+    # So the caller must supply `alpha_annual_pct`; a cumulative difference is
+    # never substituted for it.
+    if mda_pct is not None and alpha_annual_pct is not None:
+        if abs(alpha_annual_pct) < mda_pct:
+            return STATUS_UNDERPOWERED
     beats_cash = sharpe is None or sharpe > SHARPE_THRESHOLD
     beats_benchmark = (
         benchmark_return_pct is None or return_pct > benchmark_return_pct
@@ -414,6 +612,12 @@ def compute_metrics(
 ) -> BacktestMetrics:
     trades_taken = len(trades)
     if trades_taken == 0:
+        # A no-trade strategy is cash, not a sample with a measurable Sharpe.
+        # Risk-free accrual can differ from its analytical rate by machine
+        # epsilon; dividing that epsilon by near-zero volatility produced
+        # ratios in the billions. Withhold both ratios: they are undefined.
+        sharpe = None
+        sortino = None
         return BacktestMetrics(
             strategy_name, symbol, start, end, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0,
             max_drawdown_pct, sharpe, sortino, STATUS_NOT_TESTED,

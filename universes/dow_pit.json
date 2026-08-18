@@ -1,0 +1,212 @@
+{
+  "applicableGates": {
+    "beats_equal_weight": {
+      "applicable": true,
+      "reason": "This is a multi-instrument equity basket."
+    },
+    "beats_spy": {
+      "applicable": true,
+      "reason": "The registered primary benchmark is SPY for this US-equity universe."
+    },
+    "pit_membership": {
+      "applicable": true,
+      "reason": "A real, sourced, date-effective membership ledger (data/universe_membership.json, key dow_jones_industrial_average) exists and is applied for cross-sectional (Dual Momentum-style) runs through this universe id -- see engine/runner.py:PIT_LEDGER_KEYS. require_complete=False tolerates 7 disclosed historically-unfetchable members (EK, old-GM, SBC pre-rename, UTX, KFT, DWDP, WBA). This universe's static 29-name `symbols` list is still used unchanged by any other engine (individual-stock backtests), where no date-effective membership filtering is applied."
+    }
+  },
+  "assetClass": "equity",
+  "category": "US markets",
+  "description": "Dow large-cap stock universe. Uses the existing 29-symbol executable roster.",
+  "costModel": {
+    "commissionBps": 0.0,
+    "estimator": "engine.execution_calibration.spread_for",
+    "note": "Per-symbol equity spreads; never valid for futures roll/slippage costs.",
+    "type": "equity_spread"
+  },
+  "dataCoverage": {
+    "AAPL": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "AMGN": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "AXP": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "BA": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "CAT": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "CRM": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "CSCO": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "CVX": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "DIS": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "DOW": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2019-03-19",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "GS": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "HD": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "HON": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "IBM": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "INTC": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "JNJ": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "JPM": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "KO": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "MCD": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "MMM": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "MRK": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "MSFT": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "NKE": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "PG": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "TRV": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "UNH": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "V": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "VZ": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    },
+    "WMT": {
+      "coverageEnd": "2026-08-10",
+      "coverageStart": "2009-03-24",
+      "dataSource": "local adjusted daily cache (provider recorded in run manifest)"
+    }
+  },
+  "equalWeightBenchmark": "self_equal_weight",
+  "id": "dow_pit",
+  "label": "Dow 30",
+  "membershipLedgerPath": null,
+  "membershipMode": "partial_reconstruction_static_execution_roster",
+  "primaryBenchmark": "SPY",
+  "runnable": true,
+  "selectable": true,
+  "symbols": [
+    "MMM",
+    "GS",
+    "NKE",
+    "AXP",
+    "HD",
+    "PG",
+    "AMGN",
+    "HON",
+    "CRM",
+    "AAPL",
+    "INTC",
+    "TRV",
+    "BA",
+    "IBM",
+    "UNH",
+    "CAT",
+    "JNJ",
+    "VZ",
+    "CVX",
+    "JPM",
+    "V",
+    "CSCO",
+    "MCD",
+    "KO",
+    "MRK",
+    "WMT",
+    "DOW",
+    "MSFT",
+    "DIS"
+  ],
+  "unavailableReason": null
+}

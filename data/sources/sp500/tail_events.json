@@ -1,0 +1,15 @@
+{
+  "events": [
+    {
+      "effectiveDate": "2026-08-05",
+      "additions": [
+        "FERG"
+      ],
+      "deletions": [
+        "EA"
+      ],
+      "source": "S&P Dow Jones Indices announcement distributed by PR Newswire on 2026-07-31: https://finance.yahoo.com/markets/stocks/articles/ferguson-enterprises-set-join-p-215100514.html",
+      "timing": "effective prior to the opening of trading"
+    }
+  ]
+}

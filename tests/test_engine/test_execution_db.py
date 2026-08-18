@@ -41,6 +41,51 @@ def test_set_config_persists_validated_parameter_payload(db):
     assert row["params"] == params
 
 
+def test_set_config_persists_selected_run_universe_and_symbols(db):
+    db.set_config(
+        "Dual Momentum", True, '{"top_n": 3}', NOW,
+        validation_run_id=42, universe_id="dow_pit", symbols='["AAPL", "MSFT", "NVDA"]',
+    )
+
+    row = db.automation_config()["Dual Momentum"]
+    assert row["validation_run_id"] == 42
+    assert row["universe_id"] == "dow_pit"
+    assert db.selected_symbols_for("Dual Momentum") == ["AAPL", "MSFT", "NVDA"]
+
+    # Turning automation off must not forget which custom run was selected.
+    db.set_config("Dual Momentum", False, '{"top_n": 3}', NOW)
+    preserved = db.automation_config()["Dual Momentum"]
+    assert preserved["validation_run_id"] == 42
+    assert preserved["universe_id"] == "dow_pit"
+    assert db.selected_symbols_for("Dual Momentum") == ["AAPL", "MSFT", "NVDA"]
+
+
+def test_inception_policy_records_mark_to_market_snapshot_and_resets_for_new_run(db):
+    db.set_config("Dual Momentum", True, "{}", NOW, validation_run_id=42)
+    db.configure_inception("Dual Momentum", "adopt", 42, NOW)
+    pending = db.inception_for("Dual Momentum")
+    assert pending["policy"] == "adopt"
+    assert pending["status"] == "pending"
+
+    db.record_inception(
+        "Dual Momentum", 100_000.0,
+        [{"symbol": "AAPL", "qty": 10, "currentPrice": 200.0}], NOW,
+    )
+    initialized = db.inception_for("Dual Momentum")
+    assert initialized["status"] == "initialized"
+    assert initialized["equity"] == 100_000.0
+    assert initialized["inheritedPositions"] == [
+        {"symbol": "AAPL", "qty": 10.0, "marketValue": 2000.0}
+    ]
+
+    db.set_config("Dual Momentum", True, "{}", NOW, validation_run_id=43)
+    db.configure_inception("Dual Momentum", "flatten", 43, NOW)
+    reset = db.inception_for("Dual Momentum")
+    assert reset["policy"] == "flatten"
+    assert reset["status"] == "pending"
+    assert reset["equity"] is None
+    assert reset["inheritedPositions"] == []
+
 def test_claim_run_succeeds_once_then_blocks_a_duplicate(db):
     first = db.claim_run("Dual Momentum", "2026-07-20", "manual", NOW)
     assert first is not None

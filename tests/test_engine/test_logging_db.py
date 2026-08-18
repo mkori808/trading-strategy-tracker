@@ -28,8 +28,11 @@ def db(tmp_path, monkeypatch):
 
 
 def _metrics(name="S", sharpe=None, alpha_pct=None):
+    # The query tests need a real stored Sharpe. A zero-trade result correctly
+    # withholds Sharpe in current metrics semantics, so use one minimal trade.
+    trades = pd.DataFrame([{"EntryPrice": 100.0, "SL": 99.0, "Size": 1, "PnL": 1.0}])
     return compute_metrics(
-        name, "ALL", pd.DataFrame(columns=["EntryPrice", "SL", "Size", "PnL"]),
+        name, "ALL", trades,
         sharpe=sharpe, alpha_pct=alpha_pct,
     )
 
@@ -45,6 +48,57 @@ def test_log_run_records_non_canonical_explicitly(db):
     row = db.run_history("S")[0]
     assert row["is_canonical"] == 0
     assert row["params"] == '{"x": 1}'
+
+
+def test_standard_benchmark_uses_explicit_shared_capital_fields(db):
+    run_id = db.log_run(_metrics(alpha_pct=-53.0), ["AAPL"])
+    db.attach_standard_benchmark(
+        run_id,
+        strategy_return_pct=6.0,
+        benchmark_return_pct=80.0,
+    )
+
+    row = db.run_history("S")[0]
+    assert row["alpha_pct"] == -53.0  # legacy diagnostic remains distinct
+    assert row["strategy_return_pct"] == 6.0
+    assert row["benchmark_return_pct"] == 80.0
+    assert row["benchmark_gap_pct"] == -74.0
+    assert row["benchmark_name"] == "SPY"
+    # No window passed -- must record absence, not a guessed window.
+    assert row["benchmark_window_start"] is None
+    assert row["benchmark_window_end"] is None
+
+
+def test_standard_benchmark_pins_the_exact_measured_window(db):
+    # Two canonical re-runs of the SAME strategy on different calendar days
+    # (i.e. different measured_end, since a default request window ends
+    # "today") must record their OWN window on their OWN row, so a reader
+    # can see the gap moved because the window moved -- not guess it.
+    run_id = db.log_run(_metrics(), ["AAPL"])
+    db.attach_standard_benchmark(
+        run_id,
+        strategy_return_pct=6.0,
+        benchmark_return_pct=58.6,
+        benchmark_window_start=date(2021, 1, 1),
+        benchmark_window_end=date(2026, 1, 1),
+    )
+    row = db.run_history("S")[0]
+    assert row["benchmark_window_start"] == "2021-01-01"
+    assert row["benchmark_window_end"] == "2026-01-01"
+    assert row["benchmark_gap_pct"] == pytest.approx(6.0 - 58.6)
+
+    run_id_2 = db.log_run(_metrics(), ["AAPL"])
+    db.attach_standard_benchmark(
+        run_id_2,
+        strategy_return_pct=6.0,
+        benchmark_return_pct=92.1,
+        benchmark_window_start=date(2021, 1, 1),
+        benchmark_window_end=date(2026, 8, 12),
+    )
+    rows = db.run_history("S")
+    latest = next(r for r in rows if r["id"] == run_id_2)
+    assert latest["benchmark_window_end"] == "2026-08-12"
+    assert latest["benchmark_gap_pct"] != row["benchmark_gap_pct"]
 
 
 def test_latest_run_per_strategy_ignores_non_canonical_rows(db):
@@ -104,6 +158,17 @@ def test_best_run_per_strategy_breaks_ties_on_most_recent(db):
     db.log_run(_metrics(sharpe=0.5), ["MSFT"], is_canonical=True)
     best = db.best_run_per_strategy()
     assert best["S"]["symbols"] == '["MSFT"]'
+
+
+def test_best_run_prefers_validated_row_over_unvalidated_higher_sharpe(db):
+    db.log_run(_metrics(sharpe=2.0, alpha_pct=5.0), ["AAPL"], is_canonical=True)
+    validated_id = db.log_run(_metrics(sharpe=0.4, alpha_pct=1.0), ["MSFT"], is_canonical=True)
+    db.attach_validation("runs", validated_id, _validation_report(forward_test_worthy=True))
+
+    best = db.best_run_per_strategy()
+
+    assert best["S"]["symbols"] == '["MSFT"]'
+    assert best["S"]["edge_verdict"] == "Identified edge"
 
 
 def test_best_run_per_strategy_prefers_runs_with_alpha_over_higher_sharpe_without(db):
@@ -197,6 +262,29 @@ def _portfolio_kwargs(**overrides):
     return kwargs
 
 
+def test_log_portfolio_run_refuses_implausible_cumulative_return(db):
+    # Regression test for the exact run this check was added for: Dual
+    # Momentum x sp500_current, unscaled top_n=5 on a 503-symbol universe,
+    # reported 92.27%/yr CAGR (inside PLAUSIBLE_CAGR_PCT alone) and a
+    # mutually-consistent +2477.8% cumulative return over ~5 years. The flat
+    # CAGR check alone let it through; the cumulative check must not.
+    with pytest.raises(logging_db.ImplausibleMetrics):
+        db.log_portfolio_run(**_portfolio_kwargs(
+            start=date(2021, 8, 14), end=date(2026, 8, 13),
+            return_pct=2477.8, cagr_pct=92.27, sharpe=1.77,
+        ))
+
+
+def test_log_portfolio_run_allows_a_genuinely_strong_multi_year_return(db):
+    # A real, if excellent, multi-year run (roughly doubling every ~2 years)
+    # must not be caught by the same guard that rejects the case above.
+    run_id = db.log_portfolio_run(**_portfolio_kwargs(
+        start=date(2021, 8, 14), end=date(2026, 8, 13),
+        return_pct=400.0, cagr_pct=37.0, sharpe=1.2,
+    ))
+    assert run_id is not None
+
+
 def test_log_portfolio_run_defaults_to_canonical(db):
     db.log_portfolio_run(**_portfolio_kwargs())
     row = db.portfolio_run_history("Dual Momentum")[0]
@@ -239,6 +327,18 @@ def test_latest_portfolio_run_per_strategy_absent_when_only_experiments_exist(db
     assert "Dual Momentum" not in db.latest_portfolio_run_per_strategy()
 
 
+def test_latest_portfolio_run_breaks_same_second_tie_by_id(db):
+    db.log_portfolio_run(**_portfolio_kwargs(sharpe=2.0, final_equity=15000.0))
+    latest_id = db.log_portfolio_run(
+        **_portfolio_kwargs(sharpe=0.4, final_equity=11000.0)
+    )
+
+    latest = db.latest_portfolio_run_per_strategy()["Dual Momentum"]
+
+    assert latest["id"] == latest_id
+    assert latest["final_equity"] == 11000.0
+
+
 def test_best_portfolio_run_per_strategy_picks_highest_sharpe(db):
     db.log_portfolio_run(**_portfolio_kwargs(sharpe=0.3, final_equity=10500.0))
     db.log_portfolio_run(**_portfolio_kwargs(sharpe=1.2, final_equity=10800.0))  # older, better
@@ -253,12 +353,180 @@ def test_best_portfolio_run_per_strategy_ignores_non_canonical(db):
     assert best["Dual Momentum"]["sharpe"] == 0.1
 
 
+def test_best_portfolio_run_prefers_validated_evidence_row(db):
+    db.log_portfolio_run(**_portfolio_kwargs(sharpe=2.0, final_equity=15000.0))
+    validated_id = db.log_portfolio_run(
+        **_portfolio_kwargs(sharpe=0.4, final_equity=11000.0)
+    )
+    db.attach_validation(
+        "portfolio_runs", validated_id, _validation_report(forward_test_worthy=True),
+    )
+
+    best = db.best_portfolio_run_per_strategy()
+
+    assert best["Dual Momentum"]["final_equity"] == 11000.0
+    assert best["Dual Momentum"]["edge_verdict"] == "Identified edge"
+
+
 def test_portfolio_run_history_returns_all_runs_newest_first(db):
     db.log_portfolio_run(**_portfolio_kwargs(final_equity=10500.0))
     db.log_portfolio_run(**_portfolio_kwargs(final_equity=11000.0))
     rows = db.portfolio_run_history("Dual Momentum")
     assert len(rows) == 2
     assert rows[0]["final_equity"] == 11000.0  # most recent first
+
+
+def _validation_report(*, forward_test_worthy: bool) -> dict:
+    return {
+        "version": 5,
+        "generatedAt": "2026-08-12T00:00:00+00:00",
+        "dimensions": [],
+        "verdict": {
+            "headline": "Identified edge" if forward_test_worthy else "Edge not established",
+            "forwardTestWorthy": forward_test_worthy,
+            "lifecycleStage": "paper_eligible" if forward_test_worthy else "edge_not_established",
+            "blockers": [] if forward_test_worthy else ["Historical stability"],
+        },
+    }
+
+
+def test_attach_validation_persists_full_report_and_short_verdict(db):
+    run_id = db.log_portfolio_run(**_portfolio_kwargs())
+    report = _validation_report(forward_test_worthy=True)
+
+    db.attach_validation("portfolio_runs", run_id, report)
+
+    row = db.portfolio_run_history("Dual Momentum")[0]
+    assert row["edge_verdict"] == "Identified edge"
+    assert db.json.loads(row["validation_json"]) == report
+
+
+def test_paper_execution_requires_forward_worthy_current_canonical_report(db):
+    run_id = db.log_portfolio_run(**_portfolio_kwargs())
+    db.attach_validation(
+        "portfolio_runs", run_id, _validation_report(forward_test_worthy=False),
+    )
+
+    eligible, reason, selected_id = db.paper_execution_eligibility(
+        "Dual Momentum", run_id,
+    )
+
+    assert eligible is False
+    assert "Historical stability" in reason
+    assert selected_id == run_id
+
+
+def test_paper_execution_accepts_exact_passing_experiment_report(db):
+    run_id = db.log_portfolio_run(**_portfolio_kwargs(is_canonical=False))
+    db.attach_validation(
+        "portfolio_runs", run_id, _validation_report(forward_test_worthy=True),
+    )
+
+    eligible, reason, selected_id = db.paper_execution_eligibility(
+        "Dual Momentum", run_id,
+    )
+
+    assert eligible is True
+    assert reason == "Forward-test gate passed"
+    assert selected_id == run_id
+
+
+def test_paper_execution_accepts_exact_passing_canonical_report(db):
+    run_id = db.log_portfolio_run(**_portfolio_kwargs())
+    db.attach_validation(
+        "portfolio_runs", run_id, _validation_report(forward_test_worthy=True),
+    )
+
+    eligible, reason, selected_id = db.paper_execution_eligibility(
+        "Dual Momentum", run_id,
+    )
+
+    assert eligible is True
+    assert reason == "Forward-test gate passed"
+    assert selected_id == run_id
+
+
+def test_paper_execution_rejects_stale_validation_contract(db):
+    run_id = db.log_portfolio_run(**_portfolio_kwargs())
+    report = _validation_report(forward_test_worthy=True)
+    report["version"] = 2
+    db.attach_validation("portfolio_runs", run_id, report)
+
+    eligible, reason, selected_id = db.paper_execution_eligibility(
+        "Dual Momentum", run_id,
+    )
+
+    assert eligible is False
+    assert "current validation suite" in reason
+    assert selected_id == run_id
+
+
+def test_experiment_registry_counts_the_actual_search_family(db):
+    kwargs = dict(
+        strategy_name="Dual Momentum",
+        engine="cross_sectional",
+        hypothesis="Frozen rule beats equal weight out of sample",
+        config={"symbols": ["A", "B"], "params": {"lookback": 252}},
+        primary_benchmark="Equal-weight selected universe",
+        primary_criterion="positive holdout contribution",
+        planned_universes=["primary", "mid-cap"],
+        search_family="Dual Momentum:cross_sectional",
+        is_preregistered=True,
+    )
+
+    first_id, first_number = db.register_experiment(**kwargs)
+    second_id, second_number = db.register_experiment(**kwargs)
+    db.complete_experiment(second_id, "completed", "Edge not established")
+
+    assert first_number == 1
+    assert second_number == 2
+    assert first_id != second_id
+    row = db.experiment(second_id)
+    assert row["family_search_number"] == 2
+    assert row["status"] == "completed"
+    assert row["verdict"] == "Edge not established"
+
+
+def test_search_family_number_increments_across_registered_universes(db):
+    numbers = []
+    family = "Frozen Strategy:standard"
+    for universe_id in ("dow_pit", "sp500_pit", "sp400_pit", "sp600_pit"):
+        _, number = db.register_experiment(
+            strategy_name="Frozen Strategy", engine="standard", hypothesis="h",
+            config={"universeId": universe_id, "params": {}},
+            primary_benchmark="SPY", primary_criterion="positive gap",
+            planned_universes=["dow_pit", "sp500_pit", "sp400_pit", "sp600_pit"],
+            search_family=family, is_preregistered=True, universe_id=universe_id,
+        )
+        numbers.append(number)
+    db.set_family_search_count(family, 4)
+
+    assert numbers == [1, 2, 3, 4]
+    rows = [db.experiment(i) for i in range(1, 5)]
+    assert {row["search_family"] for row in rows if row} == {family}
+    assert {row["family_search_count"] for row in rows if row} == {4}
+
+
+def test_attach_validation_persists_experiment_manifest_and_lifecycle(db):
+    experiment_id, _ = db.register_experiment(
+        strategy_name="Dual Momentum", engine="cross_sectional", hypothesis="h",
+        config={}, primary_benchmark="EW", primary_criterion="positive",
+        planned_universes=[], search_family="family", is_preregistered=True,
+    )
+    run_id = db.log_portfolio_run(**_portfolio_kwargs())
+    report = _validation_report(forward_test_worthy=True)
+    report["research"] = {
+        "experimentId": experiment_id,
+        "manifest": {"runFingerprint": "abc123"},
+        "lifecycleStage": "paper_eligible",
+    }
+
+    db.attach_validation("portfolio_runs", run_id, report)
+
+    row = db.portfolio_run_history("Dual Momentum")[0]
+    assert row["experiment_id"] == experiment_id
+    assert db.json.loads(row["manifest_json"])["runFingerprint"] == "abc123"
+    assert row["lifecycle_stage"] == "paper_eligible"
 
 
 def test_both_writers_populate_the_same_provenance_set(tmp_path, monkeypatch):
@@ -318,6 +586,40 @@ def test_both_writers_populate_the_same_provenance_set(tmp_path, monkeypatch):
     assert populated["runs"] == {c for c, _t in logging_db._PROVENANCE_COLUMNS}
 
 
+def test_both_writers_reject_implausible_sustained_cagr(db):
+    """log_run and log_portfolio_run must agree on rejecting the same class
+    of out-of-band value, mirroring
+    test_both_writers_populate_the_same_provenance_set above.
+
+    Regression test for the real run this closes: Dual Momentum x
+    sp500_current reported 92.27%/yr CAGR over ~5 years (+2477.8%
+    cumulative) -- individually inside the flat single-period plausibility checks,
+    caught only by the years-aware sustained-rate check. Only
+    log_portfolio_run enforced it at first (it alone had a raw return_pct to
+    check); this asserts the SHAPE -- both writers, given the same
+    measured-window span and the same implausible CAGR, must both refuse --
+    so a writer that regains this gap fails here instead of silently
+    accepting an impossible number again.
+    """
+    span_start, span_end = date(2021, 8, 14), date(2026, 8, 13)  # ~5 years
+    implausible_cagr = 92.27  # inside PLAUSIBLE_CAGR_PCT alone; not sustained
+
+    metrics = compute_metrics(
+        "probe", "ALL",
+        pd.DataFrame([{"EntryPrice": 100.0, "SL": 99.0, "Size": 1, "PnL": 1.0}]),
+        sharpe=1.77, cagr_pct=implausible_cagr,
+        measured_start=span_start, measured_end=span_end,
+    )
+    with pytest.raises(logging_db.ImplausibleMetrics):
+        db.log_run(metrics, ["AAA"])
+
+    with pytest.raises(logging_db.ImplausibleMetrics):
+        db.log_portfolio_run(**_portfolio_kwargs(
+            start=span_start, end=span_end,
+            return_pct=2477.8, cagr_pct=implausible_cagr, sharpe=1.77,
+        ))
+
+
 def test_legacy_stamp_runs_once_not_per_connection(tmp_path, monkeypatch):
     """A migration that re-runs on every connection is a trap, not a migration.
 
@@ -356,3 +658,25 @@ def test_legacy_stamp_runs_once_not_per_connection(tmp_path, monkeypatch):
         "provenance that reads as intentional"
     )
     assert markers == 1, "legacy stamp marker written more than once (not committed atomically)"
+
+
+def test_frozen_neighbor_result_persists_diagnostics_without_run_history_row(db):
+    experiment_id, _ = db.register_experiment(
+        strategy_name="Frozen probe", engine="standard", hypothesis="h",
+        config={"threshold": 2}, primary_benchmark="matched SPY",
+        primary_criterion="positive excess", planned_universes=["dow_pit"],
+        search_family="frozen-probe:standard", is_preregistered=True,
+    )
+    db.record_frozen_neighbor_result(
+        experiment_id=experiment_id, strategy_name="Frozen probe",
+        search_family="frozen-probe:standard", config={"threshold": 2},
+        status="completed", result={
+            "returnPct": 1.25, "trades": 17, "expectancyR": 0.1,
+            "benchmarkExcessPct": 0.4, "supportsHypothesis": True,
+        },
+    )
+    row = db.frozen_neighbor_results("frozen-probe:standard")[0]
+    assert row["experiment_id"] == experiment_id
+    assert row["trades"] == 17
+    assert row["supports_hypothesis"] == 1
+    assert db.run_history("Frozen probe") == []

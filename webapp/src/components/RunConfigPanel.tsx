@@ -16,6 +16,7 @@ const CAP_TIERS = [
 type CapTier = (typeof CAP_TIERS)[number]["key"];
 
 const DEFAULT_SAMPLE_SIZE = 15;
+const UNIVERSE_CATEGORY_ORDER = ["US markets", "S&P indexes", "Crypto", "Futures", "International"];
 
 function randomSample(pool: string[], n: number): string[] {
   const shuffled = [...pool];
@@ -44,10 +45,10 @@ function CapTierSampler({
     >
       <div className="flex items-center justify-between gap-2">
         <span className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>
-          Random sample by market cap
+          Experimental sampling source
         </span>
         <span className="text-xs" style={{ color: "var(--text-muted)" }}>
-          pool: {poolSize}
+          {CAP_TIERS.find((item) => item.key === tier)?.label} pool: {poolSize}
         </span>
       </div>
       <div className="flex flex-wrap items-center gap-2">
@@ -274,6 +275,7 @@ export function RunConfigPanel({
   const [schema, setSchema] = useState<ParamSchema | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [symbols, setSymbols] = useState<string[]>([]);
+  const [universeId, setUniverseId] = useState("");
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [params, setParams] = useState<Record<string, number | boolean | string>>({});
@@ -285,6 +287,7 @@ export function RunConfigPanel({
 
   const resetToDefaults = (s: ParamSchema) => {
     setSymbols(s.symbolsDefault);
+    setUniverseId(s.universeDefault ?? "");
     setStart(s.startDefault);
     setEnd(s.endDefault);
     setParams(Object.fromEntries(s.params.map((p) => [p.name, p.default])));
@@ -309,6 +312,11 @@ export function RunConfigPanel({
         resetToDefaults(s);
         if (initialOverrides) {
           if (initialOverrides.symbols?.length) setSymbols(initialOverrides.symbols);
+          if (initialOverrides.universeId) {
+            setUniverseId(initialOverrides.universeId);
+            const universe = s.universes.find((item) => item.id === initialOverrides.universeId);
+            if (universe?.symbols.length) setSymbols(universe.symbols);
+          }
           if (initialOverrides.start) setStart(initialOverrides.start);
           if (initialOverrides.end) setEnd(initialOverrides.end);
           if (initialOverrides.params) {
@@ -342,11 +350,30 @@ export function RunConfigPanel({
   const symbolsChanged = JSON.stringify([...symbols].sort()) !== JSON.stringify([...schema.symbolsDefault].sort());
   const datesChanged = start !== schema.startDefault || end !== schema.endDefault;
   const paramsChanged = schema.params.some((p) => params[p.name] !== p.default);
-  const isCustom = symbolsChanged || datesChanged || paramsChanged;
+  const universeChanged = universeId !== (schema.universeDefault ?? "");
+  const isCustom = symbolsChanged || datesChanged || paramsChanged || universeChanged;
+  const universeGroups = schema.universes.reduce<Record<string, typeof schema.universes>>(
+    (groups, universe) => {
+      (groups[universe.category] ??= []).push(universe);
+      return groups;
+    },
+    {},
+  );
+  const selectedUniverse = schema.universes.find((item) => item.id === universeId);
+  const universeRunBlocked = Boolean(selectedUniverse && !selectedUniverse.runnable);
+  const visibleParams = schema.params.filter((spec) => (
+    !spec.name.startsWith("pit_") || selectedUniverse?.membershipMode === "dynamic_pit_security_master"
+  ));
+  const pitDatesOutsideCoverage = Boolean(
+    selectedUniverse?.membershipMode === "dynamic_pit_security_master"
+    && ((selectedUniverse.coverageStart && start < selectedUniverse.coverageStart)
+      || (selectedUniverse.coverageEnd && end > selectedUniverse.coverageEnd))
+  );
 
   const handleRun = () => {
     const overrides: BacktestOverrides = {};
-    if (symbolsChanged) overrides.symbols = symbols;
+    if (universeId) overrides.universeId = universeId;
+    else if (symbolsChanged) overrides.symbols = symbols;
     if (start !== schema.startDefault) overrides.start = start;
     if (end !== schema.endDefault) overrides.end = end;
     if (paramsChanged) {
@@ -362,7 +389,7 @@ export function RunConfigPanel({
       <div>
         <div className="mb-1.5 flex items-center justify-between">
           <span className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>
-            Symbols
+            Market universe
           </span>
           {isCustom && (
             <button
@@ -375,10 +402,121 @@ export function RunConfigPanel({
             </button>
           )}
         </div>
+        <select
+          value={universeId}
+          disabled={!schema.symbolOverrideAllowed}
+          onChange={(event) => {
+            const next = event.target.value;
+            setUniverseId(next);
+            if (!next) {
+              setSymbols(schema.symbolsDefault);
+              return;
+            }
+            const universe = schema.universes.find((item) => item.id === next);
+            if (universe?.symbols.length) setSymbols(universe.symbols);
+            else if (universe?.membershipMode === "dynamic_pit_security_master") setSymbols([]);
+            if (universe?.membershipMode === "dynamic_pit_security_master") {
+              if (universe.coverageStart) setStart(universe.coverageStart);
+              if (universe.coverageEnd) setEnd(universe.coverageEnd);
+            }
+          }}
+          className="mb-2 w-full rounded-md border px-2 py-1.5 text-sm"
+          style={{ borderColor: "var(--border)", background: "var(--page)", color: "var(--text-primary)" }}
+        >
+          <option value="">Strategy default</option>
+          {Object.entries(universeGroups)
+            .sort(([a], [b]) => {
+              const ai = UNIVERSE_CATEGORY_ORDER.indexOf(a);
+              const bi = UNIVERSE_CATEGORY_ORDER.indexOf(b);
+              return (ai < 0 ? 999 : ai) - (bi < 0 ? 999 : bi) || a.localeCompare(b);
+            })
+            .map(([category, universes]) => (
+            <optgroup key={category} label={category}>
+              {universes.map((universe) => (
+                <option key={universe.id} value={universe.id}>
+                  {universe.label}{universe.runnable ? "" : " — data required"}
+                </option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
+        {universeId && (() => {
+          const universe = schema.universes.find((item) => item.id === universeId);
+          return universe ? (
+            <div className="mb-2 rounded-md border px-2.5 py-2 text-xs" style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}>
+              <div>{universe.description}</div>
+              <div className="mt-1" style={{ color: "var(--text-muted)" }}>
+                {universe.assetClass} · benchmark {universe.primaryBenchmark ?? "N/A"} · {universe.symbols.length || universe.approximateSecurityCount || "dynamic"} instruments
+              </div>
+              {universe.unavailableReason && <div style={{ color: "var(--status-warning)" }}>{universe.unavailableReason}</div>}
+              {universe.pitStatus && (
+                <div className="mt-2 space-y-1 border-t pt-2" style={{ borderColor: "var(--border)" }}>
+                  <div><strong>PIT integrity:</strong> {universe.pitStatus.ready ? "Validated" : "Blocked"}</div>
+                  <div>Coverage: {universe.pitStatus.coverageStart ?? universe.coverageStart ?? "unknown"} to {universe.pitStatus.coverageEnd ?? universe.coverageEnd ?? "unknown"}</div>
+                  <div>Delisted securities: {universe.pitStatus.delistedCount === null ? "not verified" : universe.pitStatus.delistedCount}</div>
+                  <div>Security master: {universe.pitStatus.source ?? "not installed"}</div>
+                  {universe.pitStatus.missingArtifacts.length > 0 && (
+                    <div style={{ color: "var(--status-critical)" }}>
+                      Missing: {universe.pitStatus.missingArtifacts.join(", ")}
+                    </div>
+                  )}
+                  {universe.pitStatus.invalidReasons.length > 0 && (
+                    <div style={{ color: "var(--status-critical)" }}>
+                      Invalid: {universe.pitStatus.invalidReasons.join("; ")}
+                    </div>
+                  )}
+                </div>
+              )}
+              {universe.membershipMode === "full_current_constituents_static_history" && (
+                <div className="mt-2" style={{ color: "var(--status-critical)" }}>
+                  Current constituents applied historically. Results are survivorship-biased and cannot validate an edge.
+                </div>
+              )}
+            </div>
+          ) : null;
+        })()}
+        <div className="mb-2 text-xs" style={{ color: "var(--text-secondary)" }}>
+          Active universe: <strong>{selectedUniverse?.label || (symbolsChanged ? "Custom symbols" : "Strategy default")} — {selectedUniverse?.membershipMode === "dynamic_pit_security_master" ? (selectedUniverse.approximateSecurityCount ?? "dynamic") : symbols.length} securities</strong>
+        </div>
+        {schema.timing ? (
+          <div className="mb-2 rounded-md border px-2.5 py-2 text-xs" style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}>
+            <strong>Execution timing:</strong> {schema.timing.informationAvailability} evidence → {schema.timing.execution.replace(/_/g, " ")}
+            <div className="mt-1" style={{ color: "var(--text-muted)" }}>
+              Engine: {schema.timing.engine}; current close used as evidence: {schema.timing.usesCurrentClose ? "yes" : "no"}.
+            </div>
+            {schema.timing.exceptionReason && (
+              <div className="mt-1" style={{ color: "var(--status-warning)" }}>
+                Explicit timing exception: {schema.timing.exceptionReason}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div
+            className="mb-2 rounded-md border px-2.5 py-2 text-xs"
+            style={{ borderColor: "var(--status-critical)", color: "var(--status-critical)" }}
+          >
+            <strong>Execution timing unavailable.</strong> Restart the API server before running this strategy; the UI will not infer a timing contract.
+          </div>
+        )}
         {schema.symbolOverrideAllowed ? (
           <>
-            {pools && <CapTierSampler pools={pools} onSample={setSymbols} />}
-            <SymbolChips symbols={symbols} editable onChange={setSymbols} />
+            {!universeId && pools && <CapTierSampler pools={pools} onSample={setSymbols} />}
+            {selectedUniverse?.membershipMode === "dynamic_pit_security_master" ? (
+              <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+                Permanent security IDs and the eligible roster are loaded from the point-in-time security master at each rebalance; no present-day ticker list is substituted.
+              </p>
+            ) : (
+              <SymbolChips
+                symbols={universeId && symbols.length > 30 ? symbols.slice(0, 30) : symbols}
+                editable={!universeId}
+                onChange={setSymbols}
+              />
+            )}
+            {universeId && symbols.length > 30 && (
+              <p className="mt-1 text-xs" style={{ color: "var(--text-muted)" }}>
+                Showing the first 30 symbols; all {symbols.length} are included in the run.
+              </p>
+            )}
           </>
         ) : (
           <>
@@ -397,7 +535,8 @@ export function RunConfigPanel({
           <input
             type="date"
             value={start}
-            max={end || undefined}
+            min={selectedUniverse?.membershipMode === "dynamic_pit_security_master" ? selectedUniverse.coverageStart ?? undefined : undefined}
+            max={selectedUniverse?.membershipMode === "dynamic_pit_security_master" ? (selectedUniverse.coverageEnd ?? end) || undefined : end || undefined}
             onChange={(e) => setStart(e.target.value)}
             className="rounded-md border px-2 py-1.5 text-sm"
             style={{ borderColor: "var(--border)", background: "var(--page)", color: "var(--text-primary)" }}
@@ -408,15 +547,21 @@ export function RunConfigPanel({
           <input
             type="date"
             value={end}
-            min={start || undefined}
+            min={start || (selectedUniverse?.membershipMode === "dynamic_pit_security_master" ? selectedUniverse.coverageStart ?? undefined : undefined)}
+            max={selectedUniverse?.membershipMode === "dynamic_pit_security_master" ? selectedUniverse.coverageEnd ?? undefined : undefined}
             onChange={(e) => setEnd(e.target.value)}
             className="rounded-md border px-2 py-1.5 text-sm"
             style={{ borderColor: "var(--border)", background: "var(--page)", color: "var(--text-primary)" }}
           />
         </label>
       </div>
+      {pitDatesOutsideCoverage && (
+        <div className="rounded-md border px-3 py-2 text-xs" style={{ borderColor: "var(--status-critical)", color: "var(--status-critical)" }}>
+          Requested dates fall outside the validated point-in-time dataset coverage.
+        </div>
+      )}
 
-      {schema.params.length > 0 && (
+      {visibleParams.length > 0 && (
         <div>
           <div className="mb-2 flex items-center justify-between">
             <span className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>
@@ -434,7 +579,7 @@ export function RunConfigPanel({
             )}
           </div>
           <div className="space-y-3 rounded-lg border p-3" style={{ borderColor: "var(--border)" }}>
-            {schema.params.map((spec) => (
+            {visibleParams.map((spec) => (
               <ParamControl
                 key={spec.name}
                 spec={spec}
@@ -455,19 +600,25 @@ export function RunConfigPanel({
             color: "var(--text-primary)",
           }}
         >
-          <strong>Custom configuration</strong> — not the pre-registered universe/window.
-          Results here are exploratory, not a replacement for the canonical backtest.
+          <strong>Run variation</strong> — the universe, dates, symbols, or parameters differ
+          from this strategy's default. The selected universe is recorded with the run.
+        </div>
+      )}
+
+      {schema.implementationStatus === "unavailable" && (
+        <div className="rounded-lg border px-3 py-2 text-xs" style={{ borderColor: "var(--status-warning)", color: "var(--status-warning)" }}>
+          <strong>Unavailable by research-integrity rule.</strong> {schema.unavailableReason}
         </div>
       )}
 
       <button
         type="button"
         onClick={handleRun}
-        disabled={running}
+        disabled={running || !schema.timing || universeRunBlocked || pitDatesOutsideCoverage || schema.implementationStatus === "unavailable"}
         className="w-full rounded-md px-4 py-2 text-sm font-medium text-white transition-opacity disabled:opacity-50"
         style={{ background: "var(--series-1)" }}
       >
-        {running ? "Running…" : isCustom ? "Run this variation" : "Run Backtest"}
+        {running ? "Running validation suite…" : !schema.timing ? "Restart API server" : schema.implementationStatus === "unavailable" ? "Unavailable" : universeRunBlocked ? "PIT dataset required" : isCustom ? "Run this variation" : "Run Backtest"}
       </button>
 
       {runError && (

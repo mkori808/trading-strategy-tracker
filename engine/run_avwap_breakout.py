@@ -77,9 +77,7 @@ def _symbol_anchors(bars: pd.DataFrame, symbol: str, anchor_type: str) -> list[p
         earnings_df = data_module.earnings_dates(symbol)
         if earnings_df.empty:
             return []
-        idx = earnings_df.index.tz_localize(None) if earnings_df.index.tz is not None else earnings_df.index
-        raw_dates = [d.date() for d in idx]
-        return avwap.earnings_gap_anchors(bars, raw_dates)
+        return avwap.earnings_gap_anchors(bars, list(earnings_df.index))
     return avwap.swing_low_anchors(bars)
 
 

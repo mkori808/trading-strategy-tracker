@@ -15,6 +15,7 @@ inside `with conn:` blocks.
 
 from __future__ import annotations
 
+import json
 import sqlite3
 from pathlib import Path
 from typing import Any
@@ -27,6 +28,15 @@ CREATE TABLE IF NOT EXISTS strategy_automation (
     strategy_name TEXT PRIMARY KEY,
     enabled INTEGER NOT NULL DEFAULT 0,
     params TEXT NOT NULL DEFAULT '{}',
+    universe_id TEXT,
+    symbols TEXT,
+    validation_run_id INTEGER,
+    inception_policy TEXT,
+    inception_status TEXT,
+    inception_validation_run_id INTEGER,
+    inception_at TEXT,
+    inception_equity REAL,
+    inherited_positions TEXT,
     enabled_at TEXT,
     updated_at TEXT NOT NULL
 );
@@ -62,6 +72,8 @@ CREATE TABLE IF NOT EXISTS orders (
     filled_at TEXT,
     filled_qty REAL,
     filled_avg_price REAL,
+    reference_price REAL,
+    expected_qty REAL,
     is_paper INTEGER NOT NULL DEFAULT 1,
     error_message TEXT
 );
@@ -72,7 +84,12 @@ CREATE TABLE IF NOT EXISTS orders (
 # (kill switch, not enabled, market closed) never occupies the day's one
 # real-attempt slot. Every other status (running/completed/failed/...)
 # represents a genuine attempt and DOES occupy it.
-_BLOCKED_STATUSES = ("blocked_kill_switch", "blocked_not_enabled", "blocked_market_closed")
+_BLOCKED_STATUSES = (
+    "blocked_kill_switch",
+    "blocked_not_enabled",
+    "blocked_market_closed",
+    "blocked_validation",
+)
 
 # SQLite's partial-index WHERE clause can't take bound parameters the way a
 # normal query can -- these are a fixed module constant, never user input,
@@ -93,6 +110,29 @@ def get_connection() -> sqlite3.Connection:
     columns = {row[1] for row in conn.execute("PRAGMA table_info(strategy_automation)")}
     if "params" not in columns:
         conn.execute("ALTER TABLE strategy_automation ADD COLUMN params TEXT NOT NULL DEFAULT '{}'")
+    if "validation_run_id" not in columns:
+        conn.execute("ALTER TABLE strategy_automation ADD COLUMN validation_run_id INTEGER")
+    if "universe_id" not in columns:
+        conn.execute("ALTER TABLE strategy_automation ADD COLUMN universe_id TEXT")
+    if "symbols" not in columns:
+        conn.execute("ALTER TABLE strategy_automation ADD COLUMN symbols TEXT")
+    if "inception_policy" not in columns:
+        conn.execute("ALTER TABLE strategy_automation ADD COLUMN inception_policy TEXT")
+    if "inception_status" not in columns:
+        conn.execute("ALTER TABLE strategy_automation ADD COLUMN inception_status TEXT")
+    if "inception_validation_run_id" not in columns:
+        conn.execute("ALTER TABLE strategy_automation ADD COLUMN inception_validation_run_id INTEGER")
+    if "inception_at" not in columns:
+        conn.execute("ALTER TABLE strategy_automation ADD COLUMN inception_at TEXT")
+    if "inception_equity" not in columns:
+        conn.execute("ALTER TABLE strategy_automation ADD COLUMN inception_equity REAL")
+    if "inherited_positions" not in columns:
+        conn.execute("ALTER TABLE strategy_automation ADD COLUMN inherited_positions TEXT")
+    order_columns = {row[1] for row in conn.execute("PRAGMA table_info(orders)")}
+    if "reference_price" not in order_columns:
+        conn.execute("ALTER TABLE orders ADD COLUMN reference_price REAL")
+    if "expected_qty" not in order_columns:
+        conn.execute("ALTER TABLE orders ADD COLUMN expected_qty REAL")
     conn.execute(_SCHEMA_INDEX)
     return conn
 
@@ -127,22 +167,41 @@ def set_enabled(strategy_name: str, enabled: bool, now: str) -> None:
     conn.close()
 
 
-def set_config(strategy_name: str, enabled: bool, params: str, now: str) -> None:
-    """Persist one deliberately chosen paper-execution configuration."""
+def set_config(
+    strategy_name: str,
+    enabled: bool,
+    params: str,
+    now: str,
+    validation_run_id: int | None = None,
+    universe_id: str | None = None,
+    symbols: str | None = None,
+) -> None:
+    """Persist one configuration and the exact validation authorizing it."""
     conn = get_connection()
     with conn:
         conn.execute(
             """
-            INSERT INTO strategy_automation (strategy_name, enabled, params, enabled_at, updated_at)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO strategy_automation (
+                strategy_name, enabled, params, universe_id, symbols,
+                validation_run_id, enabled_at, updated_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(strategy_name) DO UPDATE SET
                 enabled = excluded.enabled,
                 params = excluded.params,
+                universe_id = COALESCE(excluded.universe_id, strategy_automation.universe_id),
+                symbols = COALESCE(excluded.symbols, strategy_automation.symbols),
+                validation_run_id = COALESCE(
+                    excluded.validation_run_id, strategy_automation.validation_run_id
+                ),
                 enabled_at = CASE WHEN excluded.enabled = 1 THEN excluded.enabled_at
                                   ELSE strategy_automation.enabled_at END,
                 updated_at = excluded.updated_at
             """,
-            (strategy_name, int(enabled), params, now if enabled else None, now),
+            (
+                strategy_name, int(enabled), params, universe_id, symbols, validation_run_id,
+                now if enabled else None, now,
+            ),
         )
     conn.close()
 
@@ -156,12 +215,170 @@ def params_for(strategy_name: str) -> str | None:
     return row[0] if row else None
 
 
+def selected_universe_for(strategy_name: str) -> str | None:
+    conn = get_connection()
+    row = conn.execute(
+        "SELECT universe_id FROM strategy_automation WHERE strategy_name = ?", (strategy_name,)
+    ).fetchone()
+    conn.close()
+    return row[0] if row else None
+
+
+def selected_symbols_for(strategy_name: str) -> list[str] | None:
+    conn = get_connection()
+    row = conn.execute(
+        "SELECT symbols FROM strategy_automation WHERE strategy_name = ?", (strategy_name,)
+    ).fetchone()
+    conn.close()
+    if not row or not row[0]:
+        return None
+    value = json.loads(row[0])
+    return [str(symbol) for symbol in value] if isinstance(value, list) else None
+
+
+def validation_run_id_for(strategy_name: str) -> int | None:
+    conn = get_connection()
+    row = conn.execute(
+        "SELECT validation_run_id FROM strategy_automation WHERE strategy_name = ?",
+        (strategy_name,),
+    ).fetchone()
+    conn.close()
+    return row[0] if row else None
+
+
 def automation_config() -> dict[str, sqlite3.Row]:
     conn = get_connection()
     conn.row_factory = sqlite3.Row
     rows = conn.execute("SELECT * FROM strategy_automation").fetchall()
     conn.close()
     return {row["strategy_name"]: row for row in rows}
+
+
+def configure_inception(
+    strategy_name: str, policy: str, validation_run_id: int, now: str,
+) -> None:
+    """Attach an explicit forward-test inception policy to one promoted run.
+
+    A different validation run always starts a fresh pending inception. Re-enabling
+    the same run preserves an already-recorded baseline; before initialization the
+    user may still change the policy without manufacturing a second experiment.
+    """
+    if policy not in {"adopt", "flatten"}:
+        raise ValueError(f"Unknown inception policy {policy!r}")
+    conn = get_connection()
+    conn.row_factory = sqlite3.Row
+    row = conn.execute(
+        "SELECT * FROM strategy_automation WHERE strategy_name=?", (strategy_name,)
+    ).fetchone()
+    if row is None:
+        conn.close()
+        raise ValueError("Execution configuration must be saved before inception")
+    is_new_run = row["inception_validation_run_id"] != validation_run_id
+    is_pending = row["inception_status"] in (None, "pending")
+    with conn:
+        if is_new_run:
+            conn.execute(
+                """
+                UPDATE strategy_automation SET
+                    inception_policy=?, inception_status='pending',
+                    inception_validation_run_id=?, inception_at=NULL,
+                    inception_equity=NULL, inherited_positions=NULL,
+                    updated_at=?
+                WHERE strategy_name=?
+                """,
+                (policy, validation_run_id, now, strategy_name),
+            )
+        elif is_pending:
+            conn.execute(
+                "UPDATE strategy_automation SET inception_policy=?, updated_at=? WHERE strategy_name=?",
+                (policy, now, strategy_name),
+            )
+    conn.close()
+
+
+def inception_for(strategy_name: str) -> dict[str, Any]:
+    """Return the active run's inception state.
+
+    Legacy rows predate this schema. They remain blocked until the user makes an
+    explicit choice; silently assuming adoption would recreate the provenance gap.
+    """
+    conn = get_connection()
+    conn.row_factory = sqlite3.Row
+    row = conn.execute(
+        "SELECT * FROM strategy_automation WHERE strategy_name=?", (strategy_name,)
+    ).fetchone()
+    conn.close()
+    if row is None:
+        return {
+            "policy": None, "status": "policy_required", "validationRunId": None,
+            "inceptionAt": None, "equity": None, "inheritedPositions": [],
+            "legacyDefault": True,
+        }
+    positions = json.loads(row["inherited_positions"] or "[]")
+    return {
+        "policy": row["inception_policy"],
+        "status": row["inception_status"] or "policy_required",
+        "validationRunId": row["inception_validation_run_id"],
+        "inceptionAt": row["inception_at"],
+        "equity": row["inception_equity"],
+        "inheritedPositions": positions if isinstance(positions, list) else [],
+        "legacyDefault": row["inception_policy"] is None,
+    }
+
+
+def record_inception(
+    strategy_name: str, equity: float, positions: list[dict[str, Any]], now: str,
+) -> None:
+    """Freeze the marked-to-market account baseline and inherited inventory."""
+    snapshot = [
+        {
+            "symbol": str(position.get("symbol", "")),
+            "qty": float(position.get("qty") or 0.0),
+            "marketValue": (
+                float(position.get("qty") or 0.0) * float(position.get("currentPrice"))
+                if position.get("currentPrice") is not None else None
+            ),
+        }
+        for position in positions
+    ]
+    conn = get_connection()
+    with conn:
+        conn.execute(
+            """
+            UPDATE strategy_automation SET inception_status='initialized',
+                inception_at=?, inception_equity=?, inherited_positions=?, updated_at=?
+            WHERE strategy_name=?
+            """,
+            (now, float(equity), json.dumps(snapshot, sort_keys=True), now, strategy_name),
+        )
+    conn.close()
+
+
+def set_inception_status(strategy_name: str, status: str, now: str) -> None:
+    if status not in {"pending", "flattening", "initialized"}:
+        raise ValueError(f"Unknown inception status {status!r}")
+    conn = get_connection()
+    with conn:
+        conn.execute(
+            "UPDATE strategy_automation SET inception_status=?, updated_at=? WHERE strategy_name=?",
+            (status, now, strategy_name),
+        )
+    conn.close()
+
+
+def has_open_orders_for_strategy(strategy_name: str) -> bool:
+    conn = get_connection()
+    row = conn.execute(
+        """
+        SELECT 1 FROM orders o
+        JOIN rebalance_runs r ON r.id=o.rebalance_run_id
+        WHERE r.strategy_name=? AND o.status NOT IN ('filled', 'rejected', 'canceled')
+        LIMIT 1
+        """,
+        (strategy_name,),
+    ).fetchone()
+    conn.close()
+    return row is not None
 
 
 def claim_run(strategy_name: str, rebalance_date: str, trigger_source: str, now: str) -> int | None:
@@ -283,6 +500,48 @@ def open_orders() -> list[sqlite3.Row]:
     ).fetchall()
     conn.close()
     return rows
+
+
+def fill_calibration(symbol: str | None = None, minimum_fills: int = 5) -> dict[str, Any]:
+    """Observed adverse slippage and fill ratios from reconciled broker fills."""
+    conn = get_connection()
+    conn.row_factory = sqlite3.Row
+    query = (
+        "SELECT symbol, side, filled_avg_price, reference_price, filled_qty, expected_qty "
+        "FROM orders WHERE status='filled' AND filled_avg_price IS NOT NULL "
+        "AND reference_price IS NOT NULL"
+    )
+    params: tuple[Any, ...] = ()
+    if symbol:
+        query += " AND symbol=?"
+        params = (symbol,)
+    rows = conn.execute(query, params).fetchall()
+    conn.close()
+    slippage = []
+    fill_ratios = []
+    for row in rows:
+        direction = 1.0 if row["side"] == "buy" else -1.0
+        slippage.append(
+            direction * (float(row["filled_avg_price"]) / float(row["reference_price"]) - 1.0) * 10_000.0
+        )
+        if row["expected_qty"] not in (None, 0) and row["filled_qty"] is not None:
+            fill_ratios.append(min(1.0, float(row["filled_qty"]) / float(row["expected_qty"])))
+    import statistics
+    enough = len(slippage) >= minimum_fills
+    sorted_slippage = sorted(slippage)
+    p95_index = max(0, min(len(sorted_slippage) - 1, int(0.95 * len(sorted_slippage)))) if slippage else 0
+    return {
+        "symbol": symbol,
+        "fills": len(slippage),
+        "minimumFills": minimum_fills,
+        "calibrated": enough,
+        "medianAdverseSlippageBps": statistics.median(slippage) if slippage else None,
+        "p95AdverseSlippageBps": sorted_slippage[p95_index] if slippage else None,
+        "meanFillRatio": statistics.mean(fill_ratios) if fill_ratios else None,
+        "partialFillRate": (
+            sum(value < 0.999 for value in fill_ratios) / len(fill_ratios) if fill_ratios else None
+        ),
+    }
 
 
 # A run where at least some real trading happened -- excludes the benign

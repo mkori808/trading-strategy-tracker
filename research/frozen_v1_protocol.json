@@ -1,0 +1,86 @@
+{
+  "registeredAt": "2026-08-13",
+  "window": {"start": "2021-08-14", "end": "2026-08-13"},
+  "selectionRule": "Canonical V1 remains the headline result; neighbor results are diagnostics and may not replace it.",
+  "primaryUniverse": "dow_pit",
+  "families": {
+    "52-Week-High Momentum": {
+      "status": "implemented",
+      "engine": "cross_sectional",
+      "searchFamily": "52-week-high-momentum:cross_sectional",
+      "canonical": {"high_window": 252, "momentum_lookback": 126, "skip_days": 5, "top_n": 5, "rebalance_frequency": "monthly"},
+      "neighbors": {"high_window": [189, 252], "momentum_lookback": [126, 189], "skip_days": [0, 5, 21], "top_n": [3, 5, 10], "rebalance_frequency": ["monthly", "every_20_sessions"]},
+      "materialConfigurations": 72,
+      "universesAttempted": 1
+    },
+    "Negative Return + Volume Shock Reversal": {
+      "status": "implemented",
+      "engine": "frozen_event",
+      "searchFamily": "negative-volume-shock-reversal:frozen_event",
+      "canonical": {"return_threshold": -0.04, "volume_ratio": 2.0, "trend_filter": true, "holding_sessions": 3},
+      "neighbors": {"return_threshold": [-0.03, -0.04, -0.05, -0.06], "volume_ratio": [1.5, 2.0, 3.0], "trend_filter": [true, false], "holding_sessions": [2, 3, 5, 7]},
+      "materialConfigurations": 96,
+      "universesAttempted": 1
+    },
+    "Earnings Announcement Return Drift (EAR)": {
+      "status": "unavailable",
+      "reason": "No complete point-in-time earnings-event ledger exists for every historical Dow member; selective events would bias cross-sectional ranks.",
+      "searchFamily": "ear-drift:event_cross_sectional",
+      "materialConfigurations": 0,
+      "universesAttempted": 0
+    },
+    "Market-Residual Momentum": {
+      "status": "implemented",
+      "engine": "cross_sectional",
+      "searchFamily": "market-residual-momentum:cross_sectional",
+      "canonical": {"lookback": 126, "skip_days": 5, "top_n": 5, "rebalance_frequency": "monthly", "factorModel": "market_only"},
+      "neighbors": {"lookback": [63, 126, 189], "skip_days": [0, 5, 21], "top_n": [3, 5, 10], "factorModel": ["market_only"]},
+      "materialConfigurations": 27,
+      "universesAttempted": 1
+    },
+    "Sector-Relative Momentum": {
+      "status": "unavailable",
+      "reason": "No point-in-time historical sector-classification ledger is installed; current classifications are prohibited.",
+      "searchFamily": "sector-relative-momentum:cross_sectional",
+      "materialConfigurations": 0,
+      "universesAttempted": 0
+    },
+    "Overnight Idiosyncratic Shock Reversal": {
+      "status": "unavailable",
+      "reason": "Daily bars cannot honestly observe Open[T] and also fill at that same Open[T]. Long and short V1 variants are both withheld.",
+      "searchFamily": "overnight-idiosyncratic-shock:open_execution",
+      "materialConfigurations": 0,
+      "universesAttempted": 0
+    },
+    "Volume-Shock Continuation": {
+      "status": "implemented",
+      "engine": "frozen_event",
+      "searchFamily": "volume-shock-continuation:frozen_event",
+      "canonical": {"volume_ratio": 2.0, "close_location_threshold": 0.8, "holding_sessions": 5, "event_mode": "excluded"},
+      "neighbors": {"volume_ratio": [1.5, 2.0, 3.0], "close_location_threshold": [0.7, 0.8, 0.9], "holding_sessions": [3, 5, 10], "event_mode": ["excluded", "earnings_only_diagnostic"]},
+      "materialConfigurationsPerSide": 54,
+      "materialConfigurations": 108,
+      "universesAttempted": 1,
+      "sides": ["long", "short"]
+    },
+    "MAX Lottery-Return Reversal": {
+      "status": "implemented",
+      "engine": "frozen_event",
+      "searchFamily": "max-lottery-reversal:frozen_event",
+      "canonical": {"max_threshold": 0.08, "volume_ratio": 1.5, "holding_sessions": 5, "earningsExclusion": true},
+      "neighbors": {"max_threshold": [0.05, 0.08, 0.12], "volume_ratio": [1.0, 1.5, 2.0], "holding_sessions": [2, 3, 5, 10], "earningsExclusion": [true, false]},
+      "materialConfigurations": 72,
+      "universesAttempted": 1,
+      "economicLimitation": "Assumes borrow availability; historical locates and borrow fees are not modeled."
+    },
+    "Volatility-Conditioned Pullback": {
+      "status": "implemented",
+      "engine": "frozen_event",
+      "searchFamily": "volatility-conditioned-pullback:frozen_event",
+      "canonical": {"rsi_threshold": 5.0, "atrRegime": "middle_60", "market_trend_filter": true, "holding_sessions": 5},
+      "neighbors": {"rsi_threshold": [2.0, 5.0, 10.0], "atrRegime": ["bottom_50", "middle_60", "top_50"], "market_trend_filter": [true, false], "holding_sessions": [3, 5, 7]},
+      "materialConfigurations": 54,
+      "universesAttempted": 1
+    }
+  }
+}

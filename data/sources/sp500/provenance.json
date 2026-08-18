@@ -1,0 +1,39 @@
+{
+  "repository": "https://github.com/fja05680/sp500",
+  "file": "S&P 500 Historical Components & Changes (Updated).csv",
+  "commit": "c31ac3cc56f28cf9a02b4e694eff7ceab596a0ff",
+  "sha256": "0a56d59ab5b6313064df9484312cd048a0103341195e5a6154feb6ccb74066e8",
+  "license": "MIT",
+  "official": false,
+  "coverageStart": "1996-01-02",
+  "coverageEnd": "2035-01-01",
+  "priceCoverageComplete": false,
+  "tailEvents": [
+    {
+      "effectiveDate": "2026-08-05",
+      "additions": [
+        "FERG"
+      ],
+      "deletions": [
+        "EA"
+      ],
+      "source": "S&P Dow Jones Indices announcement distributed by PR Newswire on 2026-07-31: https://finance.yahoo.com/markets/stocks/articles/ferguson-enterprises-set-join-p-215100514.html",
+      "timing": "effective prior to the opening of trading"
+    }
+  ],
+  "audit": {
+    "snapshotRows": 2719,
+    "membershipIntervals": 695,
+    "transitionDates": 694,
+    "additions": 773,
+    "deletions": 757,
+    "eventLegs": 1530,
+    "finalRosterSize": 503,
+    "finalSnapshotDate": "2026-08-05",
+    "reverseReplay": {
+      "passed": true,
+      "transitionDates": 694,
+      "initialRosterSize": 487
+    }
+  }
+}

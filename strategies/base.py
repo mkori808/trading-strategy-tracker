@@ -13,6 +13,8 @@ from typing import Literal
 
 import pandas as pd
 
+from engine.event_timing import TimingContract, default_timing_contract
+
 Direction = Literal["long", "short", "both"]
 
 
@@ -20,6 +22,11 @@ class Strategy(ABC):
     name: str
     timeframe: str
     direction: Direction
+
+    @classmethod
+    def timing_contract(cls) -> TimingContract:
+        """Standard strategies observe bar T at its close and enter T+1 open."""
+        return default_timing_contract(engine="standard")
 
     @abstractmethod
     def entry_signal(self, bars: pd.DataFrame) -> bool:

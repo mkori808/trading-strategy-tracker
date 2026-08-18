@@ -71,26 +71,24 @@ export function StrategyTable({
           </button>
         </div>
       )}
+      <p className="mb-2 text-xs" style={{ color: "var(--text-muted)" }}>
+        Scannable columns only -- click a row or "Details" for win rate, R-multiples,
+        window, and full validation evidence.
+      </p>
       <div
         className="overflow-x-auto rounded-lg border"
         style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}
       >
-        <table className="w-full min-w-[980px] border-collapse text-sm">
+        <table className="w-full min-w-[720px] border-collapse text-sm">
           <thead>
             <tr style={{ borderBottom: "1px solid var(--gridline)" }}>
               {[
                 "Strategy",
                 "Type",
-                "Window",
                 "Trades",
-                "Win Rate",
-                "Avg Win (R)",
-                "Avg Loss (R)",
-                "Expectancy (R)",
-                "Profit Factor",
                 "Sharpe (vs rf)",
-                "Alpha",
-                "Status",
+                "Gap vs SPY",
+                "Edge verdict",
                 "",
               ].map((h) => (
                 <th
@@ -106,6 +104,7 @@ export function StrategyTable({
           <tbody>
             {visible.map((s) => {
             const hasConfig = s.symbols.length > 0 || Object.keys(s.params).length > 0;
+            const hasDetails = hasConfig || s.archived || (s.tradesTaken ?? 0) > 0 || s.engine !== "standard";
             const isExpanded = expanded.has(s.name);
             return (
               <Fragment key={s.name}>
@@ -132,26 +131,8 @@ export function StrategyTable({
                   <td className="px-4 py-3" style={{ color: "var(--text-secondary)" }}>
                     {s.kind}
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap" style={{ color: "var(--text-secondary)" }}>
-                    {fmtWindow(s.startDate, s.endDate)}
-                  </td>
                   <td className="px-4 py-3 tabular-nums" style={{ color: "var(--text-secondary)" }}>
                     {s.tradesTaken ?? "—"}
-                  </td>
-                  <td className="px-4 py-3 tabular-nums" style={{ color: "var(--text-secondary)" }}>
-                    {fmtPct(s.winRate)}
-                  </td>
-                  <td className="px-4 py-3 tabular-nums" style={{ color: "var(--text-secondary)" }}>
-                    {fmtNum(s.avgWinR)}
-                  </td>
-                  <td className="px-4 py-3 tabular-nums" style={{ color: "var(--text-secondary)" }}>
-                    {fmtNum(s.avgLossR)}
-                  </td>
-                  <td className="px-4 py-3 tabular-nums" style={{ color: "var(--text-secondary)" }}>
-                    {fmtNum(s.expectancyR, 3)}
-                  </td>
-                  <td className="px-4 py-3 tabular-nums" style={{ color: "var(--text-secondary)" }}>
-                    {fmtPF(s.profitFactor)}
                   </td>
                   <td
                     className="px-4 py-3 tabular-nums"
@@ -168,18 +149,31 @@ export function StrategyTable({
                     className="px-4 py-3 tabular-nums"
                     style={{
                       color:
-                        s.alphaPct !== null && s.alphaPct <= 0
+                        s.benchmarkGapPct !== null && s.benchmarkGapPct <= 0
                           ? "var(--status-critical)"
                           : "var(--text-secondary)",
                     }}
                   >
-                    {s.alphaPct === null ? "—" : `${s.alphaPct >= 0 ? "+" : ""}${s.alphaPct.toFixed(1)}%`}
+                    <span
+                      title={
+                        s.benchmarkWindowStart && s.benchmarkWindowEnd
+                          ? `${s.benchmarkName} measured ${s.benchmarkWindowStart} to ${s.benchmarkWindowEnd} -- can move between runs, since a canonical run's end date defaults to "today"`
+                          : `Cumulative return gap vs ${s.benchmarkName} over identical dates`
+                      }
+                    >
+                      {s.benchmarkGapPct === null ? "—" : `${s.benchmarkGapPct >= 0 ? "+" : ""}${s.benchmarkGapPct.toFixed(1)}%`}
+                    </span>
                   </td>
                   <td className="px-4 py-3">
-                    <StatusPill status={s.status} />
+                    <StatusPill status={s.edgeVerdict ?? "Validation not recorded"} />
+                    {s.lifecycleStage && (
+                      <div className="mt-1 text-[10px] capitalize" style={{ color: "var(--text-muted)" }}>
+                        {s.lifecycleStage.replace(/_/g, " ")}
+                      </div>
+                    )}
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">
-                    {(hasConfig || s.archived) && (
+                    {hasDetails && (
                       <button
                         type="button"
                         onClick={(e) => {
@@ -189,7 +183,7 @@ export function StrategyTable({
                         className="text-xs font-medium underline-offset-2 hover:underline"
                         style={{ color: "var(--series-1)" }}
                       >
-                        {isExpanded ? "Hide config" : "Show config"}
+                        {isExpanded ? "Hide details" : "Details"}
                       </button>
                     )}
                   </td>
@@ -202,16 +196,48 @@ export function StrategyTable({
                       background: "var(--surface-2, var(--surface-1))",
                     }}
                   >
-                    <td colSpan={13} className="px-4 py-3">
+                    <td colSpan={7} className="px-4 py-3">
                       <div className="flex flex-col gap-1 text-xs" style={{ color: "var(--text-secondary)" }}>
                         {s.archived && (
                           <div style={{ color: "var(--status-warning)" }}>
                             Archived: {s.archivedReason}
                           </div>
                         )}
-                        {s.engine !== "standard" && (
+                        <div>
+                          <span style={{ color: "var(--text-muted)" }}>Window: </span>
+                          {fmtWindow(s.startDate, s.endDate)}
+                        </div>
+                        {s.engine === "standard" && (
                           <div>
-                            <span style={{ color: "var(--text-muted)" }}>Portfolio result: </span>
+                            <span style={{ color: "var(--text-muted)" }}>Win rate: </span>
+                            {fmtPct(s.winRate)}
+                            <span style={{ color: "var(--text-muted)" }}> · Avg win (R): </span>
+                            {fmtNum(s.avgWinR)}
+                            <span style={{ color: "var(--text-muted)" }}> · Avg loss (R): </span>
+                            {fmtNum(s.avgLossR)}
+                            <span style={{ color: "var(--text-muted)" }}> · Expectancy (R): </span>
+                            {fmtNum(s.expectancyR, 3)}
+                            <span style={{ color: "var(--text-muted)" }}> · Profit factor: </span>
+                            {fmtPF(s.profitFactor)}
+                          </div>
+                        )}
+                        {s.validation && (
+                          <div>
+                            <span style={{ color: "var(--text-muted)" }}>Validation: </span>
+                            Signal evidence: {s.validation.verdict.signalEdge} · {s.validation.verdict.forwardTestWorthy
+                              ? "eligible for paper execution"
+                              : `paper execution blocked (${s.validation.verdict.blockers.join(" · ") || "required gates did not pass"})`}
+                          </div>
+                        )}
+                        <div>
+                          <span style={{ color: "var(--text-muted)" }}>Comparison basis: </span>
+                          cumulative strategy return minus {s.benchmarkName} return over identical dates
+                        </div>
+                        {s.returnPct != null && (
+                          <div>
+                            <span style={{ color: "var(--text-muted)" }}>
+                              {s.engine === "standard" ? "Shared-capital result: " : "Portfolio result: "}
+                            </span>
                             {/* `!= null` (not `!==`): a stale API without these
                                 fields sends undefined, which must render as
                                 missing, not crash on .toFixed. */}
@@ -221,7 +247,9 @@ export function StrategyTable({
                               : ""}
                             {s.cagrPct != null ? ` · CAGR ${s.cagrPct.toFixed(2)}%` : ""}
                             {s.maxDrawdownPct != null ? ` · Max DD ${s.maxDrawdownPct.toFixed(1)}%` : ""}
-                            {" · rebalancing portfolio engine — no discrete R-multiple trades"}
+                            {s.engine !== "standard"
+                              ? " · rebalancing portfolio engine — no discrete R-multiple trades"
+                              : " · aggregate of simultaneous signals and cash"}
                           </div>
                         )}
                         <div>

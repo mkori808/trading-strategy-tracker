@@ -72,6 +72,9 @@ class PairsResult:
     # caller still specified a real universe in those cases, so silently
     # defaulting to [] would misreport it as empty rather than unsearched.
     symbols: list[str]
+    total_costs: float = 0.0
+    total_borrow_cost: float = 0.0
+    run_id: int | None = None
 
 
 def find_cointegrated_pair(
@@ -119,6 +122,9 @@ def run_pairs_backtest(
     end: date,
     cash: float = DEFAULT_CASH,
     risk_free_rate: float = 0.0,
+    spread_by_symbol: dict[str, float] | None = None,
+    commission_bps: float = 0.0,
+    annual_borrow_rate: float = 0.03,
 ) -> PairsResult:
     raw_bars = {s: data_module.get_bars(s, "1d", start, end) for s in symbols}
     raw_bars = {s: b for s, b in raw_bars.items() if not b.empty}
@@ -160,52 +166,148 @@ def run_pairs_backtest(
         if risk_free_rate else 0.0
     )
 
+    commission = commission_bps / 10_000.0
+
+    def cost_rate(symbol: str) -> float:
+        spread = 0.0 if spread_by_symbol is None else spread_by_symbol.get(symbol, 0.0)
+        return spread + commission
+
     cash_balance = cash
     position: str | None = None  # "long_spread" (long A, short B) or "short_spread"
     shares_a = shares_b = 0.0
     entry_a_price = entry_b_price = None
     entry_time = None
+    entry_principal = 0.0
+    entry_cost_paid = 0.0
+    pending_action: str | None = None
+    pending_reason: str | None = None
+    total_costs = 0.0
+    total_borrow_cost = 0.0
     equity_points: list[tuple[pd.Timestamp, float]] = []
     trade_log: list[dict] = []
 
     for step, t in enumerate(common):
-        if step and daily_rf:
+        # Cash that was flat overnight earns the risk-free rate. A queued
+        # entry is still flat until today's open; a queued exit was invested.
+        if step and daily_rf and position is None:
             cash_balance *= 1.0 + daily_rf
-        z = zscores.get(t)
-        pa, pb = close_a.loc[t], close_b.loc[t]
+        open_a = float(trade_a["Open"].loc[t])
+        open_b = float(trade_b["Open"].loc[t])
 
-        if position is not None and pd.notna(z):
-            stop_hit = abs(z) > strategy.stop_zscore
-            reverted = abs(z) < strategy.exit_zscore
-            if stop_hit or reverted:
-                pnl = shares_a * (pa - entry_a_price) + shares_b * (pb - entry_b_price)
-                cash_balance += abs(shares_a) * entry_a_price + abs(shares_b) * entry_b_price + pnl
-                trade_log.append({
-                    "EntryTime": entry_time, "ExitTime": t, "Pair": f"{a}/{b}",
-                    "Position": position, "PnL": pnl,
-                    "Reason": "cointegration_break_stop" if stop_hit else "reverted",
-                })
-                position = None
-                shares_a = shares_b = 0.0
-
-        if position is None and pd.notna(z) and abs(z) >= strategy.entry_zscore:
-            leg_dollars = cash_balance / 2
-            if z > 0:  # spread too high vs. its mean: short A, long B
-                shares_a, shares_b = -leg_dollars / pa, leg_dollars / pb
+        # Signals are formed after a completed close and executed at the NEXT
+        # session open. This queue is the causal boundary; same-close fills
+        # would make the apparent spread reversion untradeable look-ahead.
+        if pending_action == "exit" and position is not None:
+            gross_pnl = (
+                shares_a * (open_a - entry_a_price)
+                + shares_b * (open_b - entry_b_price)
+            )
+            exit_notional_a = abs(shares_a) * open_a
+            exit_notional_b = abs(shares_b) * open_b
+            exit_cost = exit_notional_a * cost_rate(a) + exit_notional_b * cost_rate(b)
+            holding_days = max(0.0, (t - entry_time).total_seconds() / 86_400.0)
+            short_entry_notional = (
+                abs(shares_a) * entry_a_price if shares_a < 0
+                else abs(shares_b) * entry_b_price
+            )
+            borrow_cost = short_entry_notional * annual_borrow_rate * holding_days / 365.25
+            cash_pnl_after_entry = gross_pnl - exit_cost - borrow_cost
+            reported_net_pnl = gross_pnl - entry_cost_paid - exit_cost - borrow_cost
+            cash_balance += entry_principal + cash_pnl_after_entry
+            total_costs += exit_cost
+            total_borrow_cost += borrow_cost
+            trade_log.append({
+                "EntryTime": entry_time,
+                "ExitTime": t,
+                "Pair": f"{a}/{b}",
+                "Position": position,
+                "EntryPriceA": entry_a_price,
+                "EntryPriceB": entry_b_price,
+                "ExitPriceA": open_a,
+                "ExitPriceB": open_b,
+                "SizeA": shares_a,
+                "SizeB": shares_b,
+                "GrossPnL": gross_pnl,
+                "TransactionCosts": entry_cost_paid + exit_cost,
+                "BorrowCost": borrow_cost,
+                "PnL": reported_net_pnl,
+                "Reason": pending_reason,
+            })
+            position = None
+            shares_a = shares_b = 0.0
+            entry_a_price = entry_b_price = entry_time = None
+            entry_principal = 0.0
+            entry_cost_paid = 0.0
+        elif pending_action in {"enter_long", "enter_short"} and position is None:
+            leg_dollars = max(0.0, cash_balance) / 2.0
+            if pending_action == "enter_short":
+                shares_a, shares_b = -leg_dollars / open_a, leg_dollars / open_b
                 position = "short_spread"
-            else:  # spread too low: long A, short B
-                shares_a, shares_b = leg_dollars / pa, -leg_dollars / pb
+            else:
+                shares_a, shares_b = leg_dollars / open_a, -leg_dollars / open_b
                 position = "long_spread"
-            entry_a_price, entry_b_price, entry_time = pa, pb, t
-            cash_balance -= abs(shares_a) * pa + abs(shares_b) * pb
+            entry_a_price, entry_b_price, entry_time = open_a, open_b, t
+            entry_notional_a = abs(shares_a) * open_a
+            entry_notional_b = abs(shares_b) * open_b
+            entry_principal = entry_notional_a + entry_notional_b
+            entry_cost = entry_notional_a * cost_rate(a) + entry_notional_b * cost_rate(b)
+            cash_balance -= entry_principal + entry_cost
+            total_costs += entry_cost
+            entry_cost_paid = entry_cost
+        pending_action = None
+        pending_reason = None
+
+        z = zscores.get(t)
+        pa, pb = float(close_a.loc[t]), float(close_b.loc[t])
 
         mark_to_market = 0.0
         if position is not None:
+            holding_days = max(0.0, (t - entry_time).total_seconds() / 86_400.0)
+            short_entry_notional = (
+                abs(shares_a) * entry_a_price if shares_a < 0
+                else abs(shares_b) * entry_b_price
+            )
+            accrued_borrow = short_entry_notional * annual_borrow_rate * holding_days / 365.25
             mark_to_market = (
                 shares_a * (pa - entry_a_price) + shares_b * (pb - entry_b_price)
-                + abs(shares_a) * entry_a_price + abs(shares_b) * entry_b_price
+                + entry_principal - accrued_borrow
             )
         equity_points.append((t, cash_balance + mark_to_market))
+
+        if position is not None and pd.notna(z):
+            if abs(z) > strategy.stop_zscore:
+                pending_action, pending_reason = "exit", "cointegration_break_stop"
+            elif abs(z) < strategy.exit_zscore:
+                pending_action, pending_reason = "exit", "reverted"
+        elif position is None and pd.notna(z) and abs(z) >= strategy.entry_zscore:
+            pending_action = "enter_short" if z > 0 else "enter_long"
+
+    # Liquidate an open book at the last observable close so final equity and
+    # return never contain an uncharged exit or an unrecorded live position.
+    if position is not None and len(common):
+        t = common[-1]
+        pa, pb = float(close_a.loc[t]), float(close_b.loc[t])
+        gross_pnl = shares_a * (pa - entry_a_price) + shares_b * (pb - entry_b_price)
+        exit_cost = abs(shares_a) * pa * cost_rate(a) + abs(shares_b) * pb * cost_rate(b)
+        holding_days = max(0.0, (t - entry_time).total_seconds() / 86_400.0)
+        short_entry_notional = (
+            abs(shares_a) * entry_a_price if shares_a < 0
+            else abs(shares_b) * entry_b_price
+        )
+        borrow_cost = short_entry_notional * annual_borrow_rate * holding_days / 365.25
+        cash_pnl_after_entry = gross_pnl - exit_cost - borrow_cost
+        reported_net_pnl = gross_pnl - entry_cost_paid - exit_cost - borrow_cost
+        cash_balance += entry_principal + cash_pnl_after_entry
+        total_costs += exit_cost
+        total_borrow_cost += borrow_cost
+        trade_log.append({
+            "EntryTime": entry_time, "ExitTime": t, "Pair": f"{a}/{b}",
+            "Position": position, "EntryPriceA": entry_a_price, "EntryPriceB": entry_b_price,
+            "ExitPriceA": pa, "ExitPriceB": pb, "SizeA": shares_a, "SizeB": shares_b,
+            "GrossPnL": gross_pnl, "TransactionCosts": entry_cost_paid + exit_cost,
+            "BorrowCost": borrow_cost, "PnL": reported_net_pnl, "Reason": "end_of_test",
+        })
+        equity_points[-1] = (t, cash_balance)
 
     equity_curve = pd.Series(
         [v for _, v in equity_points], index=pd.DatetimeIndex([t for t, _ in equity_points])
@@ -234,4 +336,6 @@ def run_pairs_backtest(
         sortino=sortino,
         risk_free_rate=risk_free_rate,
         symbols=symbols,
+        total_costs=total_costs,
+        total_borrow_cost=total_borrow_cost,
     )

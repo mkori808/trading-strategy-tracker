@@ -1,0 +1,36 @@
+{
+  "id": "international_markets",
+  "label": "International markets",
+  "category": "International",
+  "description": "Liquid US-listed ETFs covering developed, emerging, and major country equity markets.",
+  "assetClass": "equity",
+  "symbols": ["EFA", "EEM", "EWJ", "EWG", "EWU", "EWZ", "INDA", "FXI"],
+  "membershipLedgerPath": null,
+  "membershipMode": "fixed_country_etf_proxies",
+  "dataCoverage": {
+    "EFA": {"dataSource": "Yahoo Finance adjusted daily bars, fetched on demand", "coverageStart": "2016-01-04", "coverageEnd": "2026-08-12"},
+    "EEM": {"dataSource": "Yahoo Finance adjusted daily bars, fetched on demand", "coverageStart": "2016-01-04", "coverageEnd": "2026-08-12"},
+    "EWJ": {"dataSource": "Yahoo Finance adjusted daily bars, fetched on demand", "coverageStart": "2016-01-04", "coverageEnd": "2026-08-12"},
+    "EWG": {"dataSource": "Yahoo Finance adjusted daily bars, fetched on demand", "coverageStart": "2016-01-04", "coverageEnd": "2026-08-12"},
+    "EWU": {"dataSource": "Yahoo Finance adjusted daily bars, fetched on demand", "coverageStart": "2016-01-04", "coverageEnd": "2026-08-12"},
+    "EWZ": {"dataSource": "Yahoo Finance adjusted daily bars, fetched on demand", "coverageStart": "2016-01-04", "coverageEnd": "2026-08-12"},
+    "INDA": {"dataSource": "Yahoo Finance adjusted daily bars, fetched on demand", "coverageStart": "2016-01-04", "coverageEnd": "2026-08-12"},
+    "FXI": {"dataSource": "Yahoo Finance adjusted daily bars, fetched on demand", "coverageStart": "2016-01-04", "coverageEnd": "2026-08-12"}
+  },
+  "costModel": {
+    "type": "equity_spread",
+    "estimator": "engine.execution_calibration.spread_for",
+    "commissionBps": 0.0,
+    "note": "US-listed ETF execution costs; underlying local-market frictions are reflected only indirectly in ETF prices."
+  },
+  "primaryBenchmark": "EFA",
+  "equalWeightBenchmark": "self_equal_weight",
+  "applicableGates": {
+    "pit_membership": {"applicable": false, "reason": "The instruments are fixed country/region ETFs, not retrospectively selected constituents."},
+    "beats_equal_weight": {"applicable": true, "reason": "This is a multi-instrument international-market basket."},
+    "beats_spy": {"applicable": false, "reason": "SPY is not the registered primary benchmark for international markets; EFA is primary."}
+  },
+  "runnable": true,
+  "selectable": true,
+  "unavailableReason": null
+}

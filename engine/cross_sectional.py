@@ -14,11 +14,10 @@ discrete stop/target bracket order to model here the way engine/backtest.py's
 adapter does, so there's no realism cost to fractional sizing (and real
 brokers, including Alpaca, support fractional shares).
 
-No intrabar fills to reason about: every rebalance decision uses only data
-up to and including its own rebalance date (enforced by slicing each
-symbol's bars to `.loc[:day]` before calling `strategy.rebalance`), so
-there's no look-ahead to guard against the way engine/backtest.py's
-adapter has to for bracket orders.
+Every rebalance decision uses bars strictly BEFORE the execution date and
+fills at that date's open.  This one-bar information boundary is deliberate:
+ranking on a day's close and also buying that close is not an executable
+historical rule, even when the dataframe slice itself contains no future row.
 
 Slippage/commission (`slippage_bps`/`commission_bps`) default to 0.0 --
 byte-identical to this module's original behavior for every existing caller
@@ -30,9 +29,9 @@ transacts.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date, timedelta
-from typing import Literal
+from typing import Callable, Literal
 
 import pandas as pd
 
@@ -52,7 +51,7 @@ class InsufficientHistory(RuntimeError):
 
 DEFAULT_CASH = 10_000.0
 
-RebalanceFrequency = Literal["monthly", "weekly", "daily", "semimonthly", "quarterly"]
+RebalanceFrequency = Literal["monthly", "weekly", "daily", "semimonthly", "quarterly", "every_20_sessions"]
 
 
 @dataclass
@@ -71,6 +70,20 @@ class CrossSectionalResult:
     sortino: float | None
     risk_free_rate: float
     total_costs: float = 0.0  # sum of slippage + commission paid across all rebalances
+    total_traded_notional: float = 0.0  # absolute dollar delta actually charged a cost
+    commission_bps: float = 0.0
+    universe_key: str | None = None
+    pit_membership_applied: bool = False
+    incomplete_warmup: dict[str, int] = field(default_factory=dict)
+    pit_diagnostics: dict = field(default_factory=dict)
+    pit_analysis: dict = field(default_factory=dict)
+    security_labels: dict[str, str] = field(default_factory=dict)
+    validation_bars: dict[str, pd.DataFrame] | None = field(default=None, repr=False)
+    membership_at_runtime: Callable[[date], set[str]] | None = field(default=None, repr=False)
+    # logging_db row id, set by engine/runner.py after the run is logged, so
+    # engine/validation.py's report can be attached to THIS run rather than
+    # guessed at by strategy name + timestamp.
+    run_id: int | None = None
 
 
 def _rebalance_dates(
@@ -88,6 +101,8 @@ def _rebalance_dates(
     'quarterly'."""
     if frequency == "daily":
         return set(calendar)
+    if frequency == "every_20_sessions":
+        return set(calendar[::20])
     s = pd.Series(calendar, index=calendar)
     if frequency == "weekly":
         iso = calendar.isocalendar()
@@ -113,6 +128,10 @@ def run_cross_sectional_backtest(
     slippage_bps: float = 0.0,
     commission_bps: float = 0.0,
     spread_by_symbol: dict[str, float] | None = None,
+    bars_by_symbol: dict[str, pd.DataFrame] | None = None,
+    membership_at: Callable[[date], set[str]] | None = None,
+    universe_key: str | None = None,
+    allow_incomplete_warmup: bool = False,
 ) -> CrossSectionalResult:
     """`spread_by_symbol` maps symbol -> spread as a DECIMAL (0.0002 = 2bps),
     the shape engine/data.py:estimate_spread returns. When supplied it
@@ -142,7 +161,23 @@ def run_cross_sectional_backtest(
     # ASSERTED below rather than trusted.
     fetch_start = start - timedelta(days=int(warmup_days * 1.45) + 7) if warmup_days else start
 
-    raw_bars = {s: data_module.get_bars(s, "1d", fetch_start, end) for s in symbols}
+    # Validation replays many nearby parameter arms over the identical data.
+    # Let it preload the widest required window once; normal callers keep the
+    # original fetch behavior. Copies prevent this loop from mutating a shared
+    # validation cache through later slicing/alignment operations.
+    raw_bars = (
+        {s: bars_by_symbol.get(s, pd.DataFrame()).copy() for s in symbols}
+        if bars_by_symbol is not None
+        else {s: data_module.get_bars(s, "1d", fetch_start, end) for s in symbols}
+    )
+    # A preloaded validation cache may extend beyond this arm's requested end.
+    # Never let those later rows expand the trading calendar or membership
+    # schedule; warmup is allowed only before start, never after end.
+    raw_bars = {
+        symbol: bars.loc[bars.index.date <= end]
+        for symbol, bars in raw_bars.items()
+        if not bars.empty
+    }
     raw_bars = {s: b for s, b in raw_bars.items() if not b.empty}
     if not raw_bars:
         empty_curve = pd.Series([cash], index=[pd.Timestamp(start)])
@@ -163,12 +198,14 @@ def run_cross_sectional_backtest(
         window_open = window_open.tz_localize(sample_index.tz)
 
     if warmup_days:
+        starting_members = membership_at(start) if membership_at else set(raw_bars)
         short = {
             symbol: int((bars.index < window_open).sum())
             for symbol, bars in raw_bars.items()
+            if symbol in starting_members
             if (bars.index < window_open).sum() < warmup_days
         }
-        if short:
+        if short and not allow_incomplete_warmup:
             detail = ", ".join(f"{s} has {n}" for s, n in sorted(short.items()))
             raise InsufficientHistory(
                 f"{strategy_name}: cannot start at {start} -- {len(short)} symbol(s) "
@@ -189,6 +226,7 @@ def run_cross_sectional_backtest(
         )
     rebalance_dates = _rebalance_dates(calendar, rebalance_frequency)
     close_df = pd.DataFrame({s: b["Close"] for s, b in raw_bars.items()}).sort_index().ffill()
+    open_df = pd.DataFrame({s: b["Open"] for s, b in raw_bars.items()}).sort_index()
     flat_slippage = slippage_bps / 10_000.0
     commission = commission_bps / 10_000.0
 
@@ -199,6 +237,7 @@ def run_cross_sectional_backtest(
     shares: dict[str, float] = {}
     cash_balance = cash
     total_costs = 0.0
+    total_traded_notional = 0.0
     equity_points: list[tuple[pd.Timestamp, float]] = []
     rebalance_log: list[dict] = []
 
@@ -223,28 +262,41 @@ def run_cross_sectional_backtest(
         if position and daily_rf:
             cash_balance *= 1.0 + daily_rf
         if day in rebalance_dates:
-            history = {s: b.loc[:day] for s, b in raw_bars.items()}
+            # The target is computed from information available before this
+            # session and executed at this session's open.  Never let today's
+            # close leak into a fill that claims to occur today.
+            eligible = membership_at(day.date()) if membership_at else set(raw_bars)
+            history = {
+                s: b.loc[b.index < day]
+                for s, b in raw_bars.items()
+                if s in eligible
+            }
             target_weights = strategy.rebalance(history, as_of=day)
             rebalance_log.append({"date": day, "holdings": dict(target_weights)})
 
-            portfolio_value = cash_balance + _positions_value(day)
+            portfolio_value = cash_balance
+            for symbol, qty in shares.items():
+                px = open_df.loc[day, symbol] if symbol in open_df.columns else float("nan")
+                if pd.notna(px):
+                    portfolio_value += qty * px
 
             # Liquidate anything no longer in the target set.
             for symbol in list(shares):
                 if symbol not in target_weights:
-                    px = close_df.loc[day, symbol]
+                    px = open_df.loc[day, symbol] if symbol in open_df.columns else float("nan")
                     qty = shares.pop(symbol)
                     if pd.notna(px):
                         proceeds = qty * px
                         cost = abs(proceeds) * cost_rate(symbol)
                         cash_balance += proceeds - cost
                         total_costs += cost
+                        total_traded_notional += abs(proceeds)
 
             # (Re)establish target positions at this rebalance's weights.
             for symbol, weight in target_weights.items():
                 if symbol not in close_df.columns:
                     continue
-                px = close_df.loc[day, symbol]
+                px = open_df.loc[day, symbol]
                 if pd.isna(px) or px <= 0:
                     continue
                 target_value = portfolio_value * weight
@@ -253,10 +305,12 @@ def run_cross_sectional_backtest(
                 # Slippage/commission apply to the traded delta only -- an
                 # unchanged holding from the prior rebalance doesn't re-pay
                 # a cost it already paid to get established.
-                cost = abs(delta_shares * px) * cost_rate(symbol)
+                traded_notional = abs(delta_shares * px)
+                cost = traded_notional * cost_rate(symbol)
                 shares[symbol] = shares.get(symbol, 0.0) + delta_shares
                 cash_balance -= delta_shares * px + cost
                 total_costs += cost
+                total_traded_notional += traded_notional
 
         equity_points.append((day, cash_balance + _positions_value(day)))
 
@@ -271,7 +325,7 @@ def run_cross_sectional_backtest(
         equity_curve, risk_free_rate, cash_accrued=True
     )
 
-    return CrossSectionalResult(
+    output = CrossSectionalResult(
         strategy_name=strategy_name,
         symbols=symbols,
         start=start,
@@ -286,4 +340,12 @@ def run_cross_sectional_backtest(
         sortino=sortino,
         risk_free_rate=risk_free_rate,
         total_costs=total_costs,
+        total_traded_notional=total_traded_notional,
+        commission_bps=commission_bps,
+        universe_key=universe_key,
+        pit_membership_applied=membership_at is not None,
+        incomplete_warmup=short if warmup_days else {},
     )
+    output.validation_bars = raw_bars
+    output.membership_at_runtime = membership_at
+    return output

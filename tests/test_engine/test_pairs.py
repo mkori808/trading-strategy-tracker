@@ -103,6 +103,29 @@ def test_market_neutral_entry_sizes_both_legs_from_shared_cash(monkeypatch, synt
     assert result.final_equity > 0
 
 
+def test_pairs_fills_next_open_and_charges_both_legs_and_borrow(monkeypatch, synthetic_universe):
+    def fake_get_bars(symbol, interval, start, end, **kwargs):
+        return synthetic_universe[symbol]
+
+    monkeypatch.setattr("engine.pairs.data_module.get_bars", fake_get_bars)
+    result = run_pairs_backtest(
+        "Pairs / Stat Arb", PairsStatArb(), ["A", "B", "C"],
+        date(2024, 1, 1), date(2025, 1, 1),
+        spread_by_symbol={"A": 0.001, "B": 0.001, "C": 0.001},
+        commission_bps=1.0, annual_borrow_rate=0.03,
+    )
+
+    assert not result.trades.empty
+    assert result.total_costs > 0
+    assert result.total_borrow_cost > 0
+    first = result.trades.iloc[0]
+    assert first["TransactionCosts"] > 0
+    assert first["BorrowCost"] > 0
+    assert first["EntryPriceA"] == pytest.approx(
+        synthetic_universe[result.pair.symbol_a].loc[first["EntryTime"], "Open"]
+    )
+
+
 def test_no_data_produces_flat_result(monkeypatch):
     monkeypatch.setattr(
         "engine.pairs.data_module.get_bars",

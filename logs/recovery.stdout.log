@@ -1,0 +1,30 @@
+MMM: FAILED RuntimeError: MMM: 1 rows violate OHLC bounds
+GS: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+NKE: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+AXP: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+HD: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+PG: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+AMGN: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+HON: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+CRM: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+AAPL: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+INTC: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+TRV: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+BA: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+IBM: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+UNH: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+CAT: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+JNJ: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+VZ: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+CVX: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+JPM: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+V: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+CSCO: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+MCD: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+KO: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+MRK: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+WMT: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+DOW: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+MSFT: recovered 1758 rows; cache 1758 rows; 2019-08-13T20:00:00-04:00 -> 2026-08-11T20:00:00-04:00
+DIS: FAILED RuntimeError: DIS: 1 rows violate OHLC bounds
+FAILURES=[["MMM", "MMM: 1 rows violate OHLC bounds"], ["DIS", "DIS: 1 rows violate OHLC bounds"]]

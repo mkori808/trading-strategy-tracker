@@ -23,11 +23,12 @@ back below the 20-day EMA, backed by an ATR stop.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, datetime
 
 import pandas as pd
 
 from engine.indicators import atr, ema
+from engine.event_timing import reaction_session
 from strategies.base import Strategy
 from strategies.params import param_field
 
@@ -38,7 +39,7 @@ class PostEarningsDrift(Strategy):
     timeframe = "1d"
     direction = "long"
 
-    positive_earnings: list[date] = field(default_factory=list)
+    positive_earnings: list[date | datetime | pd.Timestamp] = field(default_factory=list)
 
     entry_window_bars: int = param_field(
         3, label="Entry window (sessions)", minimum=1, maximum=10, step=1,
@@ -55,18 +56,17 @@ class PostEarningsDrift(Strategy):
     )
 
     def __post_init__(self) -> None:
-        self._events = sorted(self.positive_earnings)
+        self._events = sorted((pd.Timestamp(item) for item in self.positive_earnings), key=lambda item: item.value)
 
     def _drift_active(self, bars: pd.DataFrame) -> bool:
         if not self._events or len(bars) < self.ema_period:
             return False
         i = len(bars) - 1
         for k in range(max(1, i - self.entry_window_bars), i):
-            sess_date = bars.index[k].date()
-            prev_date = bars.index[k - 1].date()
-            # k is the reaction session if a positive-surprise report landed
-            # after the prior session's date and on/before this one.
-            if any(prev_date < e <= sess_date for e in self._events):
+            # k is the first session whose close occurs after the exact report
+            # timestamp. BMO reports map to this date; AMC reports cannot use
+            # the already-completed bar and map to the next trading session.
+            if any(reaction_session(bars.index, event) == bars.index[k] for event in self._events):
                 reaction_up = bars["Close"].iloc[k] > bars["Close"].iloc[k - 1]
                 drift_up = bars["Close"].iloc[-1] > bars["Close"].iloc[k]
                 if reaction_up and drift_up:

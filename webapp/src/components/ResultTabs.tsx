@@ -1,16 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { BacktestResult, Metrics } from "../api";
 import { ChatPanel } from "./ChatPanel";
 import { EquityChart } from "./EquityChart";
+import { EdgeValidationPanel } from "./EdgeValidationPanel";
 import { PerSymbolTable } from "./PerSymbolTable";
 import { PortfolioPanel } from "./PortfolioPanel";
 import { StatTile } from "./StatTile";
 import { StatusPill } from "./StatusPill";
 import { TradesTable } from "./TradesTable";
 
-type Tab = "overview" | "trades" | "perSymbol" | "portfolio" | "chat";
+type Tab = "validation" | "overview" | "trades" | "perSymbol" | "portfolio" | "chat";
 
 const TABS: { key: Tab; label: string }[] = [
+  { key: "validation", label: "Edge validation" },
   { key: "overview", label: "Overview" },
   { key: "trades", label: "Trades" },
   { key: "perSymbol", label: "Per-Symbol" },
@@ -53,20 +55,28 @@ function OverviewTab({ result }: { result: BacktestResult }) {
           valueColor={m.sharpe !== null ? (m.sharpe > 0 ? "var(--status-good)" : "var(--status-critical)") : undefined}
         />
         <StatTile
-          label="Buy & Hold Return"
-          value={m.buyHoldReturnPct !== null ? `${m.buyHoldReturnPct >= 0 ? "+" : ""}${m.buyHoldReturnPct.toFixed(1)}%` : "—"}
+          label="Buy-and-hold gap (descriptive)"
+          value={m.benchmarkGapPct !== null ? `${m.benchmarkGapPct >= 0 ? "+" : ""}${m.benchmarkGapPct.toFixed(1)}%` : "—"}
         />
         <StatTile
-          label="Alpha vs. buy & hold"
-          value={m.alphaPct !== null ? `${m.alphaPct >= 0 ? "+" : ""}${m.alphaPct.toFixed(1)}%` : "—"}
-          valueColor={m.alphaPct !== null ? (m.alphaPct > 0 ? "var(--status-good)" : "var(--status-critical)") : undefined}
+          label="Matched SPY excess"
+          value={m.matchedSpyExcessPct !== null ? `${m.matchedSpyExcessPct >= 0 ? "+" : ""}${m.matchedSpyExcessPct.toFixed(1)}%` : "—"}
+          valueColor={m.matchedSpyExcessPct !== null ? (m.matchedSpyExcessPct > 0 ? "var(--status-good)" : "var(--status-critical)") : undefined}
         />
-        <StatTile label="Beta" value={m.beta !== null ? m.beta.toFixed(3) : "—"} />
+        <StatTile label="Matched beta" value={m.matchedBeta !== null ? m.matchedBeta.toFixed(3) : "—"} />
         <StatTile label="CAGR" value={m.cagrPct !== null ? `${m.cagrPct.toFixed(2)}%` : "—"} />
         <StatTile
-          label="Exposure"
-          value={m.exposurePct !== null ? `${m.exposurePct.toFixed(1)}% of time` : "—"}
+          label="Average gross exposure"
+          value={m.averageGrossExposurePct !== null ? `${m.averageGrossExposurePct.toFixed(1)}%` : "—"}
         />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+        <StatTile label="Matched SPY return" value={m.matchedSpyReturnPct !== null ? `${m.matchedSpyReturnPct >= 0 ? "+" : ""}${m.matchedSpyReturnPct.toFixed(1)}%` : "—"} />
+        <StatTile label="Matched alpha (annual)" value={m.matchedAlphaAnnualPct !== null ? `${m.matchedAlphaAnnualPct >= 0 ? "+" : ""}${m.matchedAlphaAnnualPct.toFixed(2)}%` : "Underpowered"} />
+        <StatTile label="Time in market" value={m.timeInMarketPct !== null ? `${m.timeInMarketPct.toFixed(1)}%` : "—"} />
+        <StatTile label="Turnover" value={m.turnoverPct !== null ? `${m.turnoverPct.toFixed(1)}%` : "—"} />
+        <StatTile label="Modeled costs" value={m.modeledCosts !== null ? `$${m.modeledCosts.toFixed(2)}` : "—"} />
       </div>
 
       {result.excursionSummary.tradesWithData > 0 && (
@@ -106,9 +116,10 @@ function OverviewTab({ result }: { result: BacktestResult }) {
 
       {m.riskFreeRate !== null && (
         <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-          Sharpe/alpha measured against a {(m.riskFreeRate * 100).toFixed(1)}% risk-free rate
-          (13-week T-bill, averaged over this run's window) and this strategy's own buy-and-hold
-          return on the same symbols — not just R-multiples.
+          Sharpe is measured against a {(m.riskFreeRate * 100).toFixed(1)}% risk-free rate
+          (13-week T-bill, averaged over this run's window). The full-window buy-and-hold
+          gap is descriptive. Matched SPY excess compares only intervals and notional where
+          strategy capital was deployed.
         </p>
       )}
 
@@ -120,7 +131,13 @@ function OverviewTab({ result }: { result: BacktestResult }) {
 }
 
 export function ResultTabs({ result }: { result: BacktestResult | null }) {
-  const [tab, setTab] = useState<Tab>("overview");
+  const [tab, setTab] = useState<Tab>("validation");
+
+  // Every new run should lead with the verdict even if the user was viewing
+  // trades or the portfolio on the previous result.
+  useEffect(() => {
+    if (result) setTab("validation");
+  }, [result]);
 
   return (
     <div>
@@ -150,6 +167,7 @@ export function ResultTabs({ result }: { result: BacktestResult | null }) {
         </div>
       ) : (
         <>
+          {tab === "validation" && <EdgeValidationPanel report={result.validation} />}
           {tab === "overview" && <OverviewTab result={result} />}
           {tab === "trades" && <TradesTable trades={result.trades} />}
           {tab === "perSymbol" && <PerSymbolTable rows={result.perSymbol} />}

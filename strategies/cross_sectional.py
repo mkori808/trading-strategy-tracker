@@ -16,10 +16,16 @@ from abc import ABC, abstractmethod
 
 import pandas as pd
 
+from engine.event_timing import TimingContract, default_timing_contract
+
 
 class CrossSectionalStrategy(ABC):
     name: str
     timeframe: str
+
+    @classmethod
+    def timing_contract(cls) -> TimingContract:
+        return default_timing_contract(engine="cross_sectional")
 
     def required_history_days(self) -> int:
         """Trading days of history this strategy needs BEFORE the first bar it
