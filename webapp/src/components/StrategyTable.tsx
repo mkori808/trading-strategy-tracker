@@ -119,6 +119,19 @@ export function StrategyTable({
                 >
                   <td className="px-4 py-3 font-medium" style={{ color: "var(--text-primary)" }}>
                     {s.name}
+                    {s.custom && (
+                      <span
+                        className="ml-2 rounded px-1.5 py-0.5 text-[10px] font-medium whitespace-nowrap"
+                        title={
+                          s.customPrompt
+                            ? `Written from a description, not from strategy_tracker.xlsx: "${s.customPrompt}"`
+                            : "Written from a description, not from strategy_tracker.xlsx"
+                        }
+                        style={{ color: "var(--series-1)", background: "var(--series-1-wash)" }}
+                      >
+                        custom
+                      </span>
+                    )}
                     {s.archived && (
                       <span
                         className="ml-2 rounded px-1.5 py-0.5 text-[10px] font-medium whitespace-nowrap"

@@ -21,6 +21,7 @@ from engine.runner import (
     run_cross_sectional,
     run_pairs,
 )
+from engine import custom_strategies
 from strategies.registry import ALL_STRATEGY_NAMES
 
 
@@ -144,8 +145,12 @@ def main() -> None:
 
     if not args.strategy:
         parser.error("--strategy NAME or --all is required")
-    if args.strategy not in ALL_STRATEGY_NAMES:
-        parser.error(f"Unknown strategy {args.strategy!r}. Choices: {ALL_STRATEGY_NAMES}")
+    # Custom (user-authored) strategies are runnable here too, but --all
+    # stays the registered catalogue: a sweep over "every strategy" should
+    # mean the tracker's set, not whatever was typed into the app today.
+    runnable = [*ALL_STRATEGY_NAMES, *custom_strategies.custom_strategy_names()]
+    if args.strategy not in runnable:
+        parser.error(f"Unknown strategy {args.strategy!r}. Choices: {runnable}")
     _run_and_print(args.strategy)
 
 

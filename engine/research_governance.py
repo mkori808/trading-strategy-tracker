@@ -693,10 +693,21 @@ def build_run_manifest(
 ) -> dict[str, Any]:
     code_digest = hashlib.sha256()
     source_paths: list[Path] = []
-    try:
-        source_paths.append(Path(inspect.getsourcefile(strategy_class) or ""))
-    except (TypeError, OSError):
-        pass
+    # A strategy compiled from a declarative spec (natural-language
+    # authoring -- see strategies/spec.py) has no source FILE of its own;
+    # its rules live in the spec. Hash that instead, so the manifest still
+    # binds this run to the exact definition that produced it rather than
+    # silently omitting the strategy from the code digest.
+    compiled_spec = getattr(strategy_class, "spec", None)
+    if compiled_spec is not None and hasattr(compiled_spec, "to_dict"):
+        code_digest.update(
+            json.dumps(compiled_spec.to_dict(), sort_keys=True).encode()
+        )
+    else:
+        try:
+            source_paths.append(Path(inspect.getsourcefile(strategy_class) or ""))
+        except (TypeError, OSError):
+            pass
     root = Path(__file__).resolve().parent.parent
     source_paths.extend([
         root / "engine" / "validation.py",

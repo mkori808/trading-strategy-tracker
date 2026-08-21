@@ -5,7 +5,22 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 
+from engine import custom_strategies
+
 NY = "America/New_York"
+
+
+@pytest.fixture(autouse=True)
+def isolated_custom_strategy_store(tmp_path, monkeypatch):
+    """Point the user-authored strategy store (engine/custom_strategies.py)
+    at an empty temp directory for every test.
+
+    Without this, whatever the developer happened to save from the
+    Strategies tab leaks into anything that reads /api/strategies or
+    ALL-strategy lists -- so a test asserting on the catalogue would pass or
+    fail depending on local state that has nothing to do with the code
+    under test. A test that wants a stored strategy creates one here."""
+    monkeypatch.setattr(custom_strategies, "STORE_DIR", tmp_path / "custom_strategies")
 
 
 def _ohlcv(closes, index, volumes=None, highs=None, lows=None, opens=None):

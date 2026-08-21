@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import inspect
+import json
 import math
 from datetime import date
 from itertools import combinations
@@ -37,6 +38,66 @@ def _daily_returns(equity: pd.Series | None) -> pd.Series:
     return daily.pct_change().replace([np.inf, -np.inf], np.nan).dropna()
 
 
+def _strategy_definition_evidence(strategy_class: type) -> dict[str, Any]:
+    """How this strategy's rules are defined, and the look-ahead evidence
+    that follows from it.
+
+    A hand-written strategy is Python source, and the check is a scan for
+    future-reading operators. A strategy compiled from a declarative spec
+    (strategies/spec.py -- what natural-language authoring produces) has no
+    source file at all, so `inspect.getsource` raises. Scanning source text
+    is not the right evidence for it anyway: its rules can only name
+    operations from `INDICATORS`, every one of which is a right-aligned
+    rolling or recursive op, and every operand offset is a non-negative
+    number of bars BACK. That is a stronger guarantee than a token grep,
+    and it is checked here rather than assumed.
+
+    A class that is neither -- no source and no spec -- FAILS. "We couldn't
+    inspect it" must never read as "it passed."
+    """
+    spec = getattr(strategy_class, "spec", None)
+    if spec is not None and hasattr(spec, "to_dict"):
+        from strategies.spec import INDICATORS, AnyOf
+
+        payload = json.dumps(spec.to_dict(), sort_keys=True)
+        kinds: set[str] = set()
+        offsets: list[int] = []
+        for condition in (*spec.entry, *spec.exit):
+            comparisons = condition.options if isinstance(condition, AnyOf) else (condition,)
+            for comparison in comparisons:
+                for operand in (comparison.left, comparison.right):
+                    kinds.add(operand.kind)
+                    offsets.append(operand.offset)
+        unknown = sorted(kinds - set(INDICATORS))
+        negative = [offset for offset in offsets if offset < 0]
+        return {
+            "definition": "compiled-spec",
+            "sourceSha256": hashlib.sha256(payload.encode()).hexdigest(),
+            "suspicious": [
+                *(f"unknown indicator {kind!r}" for kind in unknown),
+                *(f"negative bar offset {offset}" for offset in negative),
+            ],
+            "specIndicators": sorted(kinds),
+            "maxBarsBackReferenced": max(offsets, default=0),
+        }
+    try:
+        source = inspect.getsource(strategy_class)
+    except (OSError, TypeError) as exc:
+        return {
+            "definition": "unavailable",
+            "sourceSha256": None,
+            "suspicious": [f"strategy definition could not be inspected: {exc}"],
+        }
+    return {
+        "definition": "python-source",
+        "sourceSha256": hashlib.sha256(source.encode()).hexdigest(),
+        "suspicious": [
+            token for token in ("shift(-", "bfill(", "center=True", ".iloc[-1:")
+            if token in source
+        ],
+    }
+
+
 def causality_contract_evidence(engine: str, strategy_class: type) -> tuple[bool, dict[str, Any]]:
     engine_module = {
         "standard": "engine.backtest",
@@ -51,11 +112,8 @@ def causality_contract_evidence(engine: str, strategy_class: type) -> tuple[bool
         "pairs": ("pending_action", 'trade_a["Open"].loc[t]'),
     }[engine]
     missing = [marker for marker in markers if marker not in source]
-    strategy_source = inspect.getsource(strategy_class)
-    suspicious = [
-        token for token in ("shift(-", "bfill(", "center=True", ".iloc[-1:")
-        if token in strategy_source
-    ]
+    definition = _strategy_definition_evidence(strategy_class)
+    suspicious = definition["suspicious"]
     # Runtime future-perturbation sentinel: mutate every price after a cutoff
     # and reconstruct the exact prefix boundary this engine exposes. Every
     # pre-cutoff input hash must remain byte-identical.
@@ -74,7 +132,10 @@ def causality_contract_evidence(engine: str, strategy_class: type) -> tuple[bool
     return passed, {
         "engine": engine,
         "engineSourceSha256": hashlib.sha256(source.encode()).hexdigest(),
-        "strategySourceSha256": hashlib.sha256(strategy_source.encode()).hexdigest(),
+        "strategyDefinition": definition["definition"],
+        "strategySourceSha256": definition["sourceSha256"],
+        **{k: v for k, v in definition.items()
+           if k in ("specIndicators", "maxBarsBackReferenced")},
         "requiredCausalMarkers": list(markers),
         "missingMarkers": missing,
         "suspiciousFutureOperators": suspicious,

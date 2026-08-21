@@ -16,6 +16,7 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 from typing import Any
 
+from engine import custom_strategies
 from engine import data as data_module
 from engine.backtest import (
     StrategyBacktestResult,
@@ -62,6 +63,7 @@ from strategies.registry import (
     build_pairs_strategy,
     build_swing_strategies,
 )
+from strategies.spec import spec_strategy_class
 from strategies.swing.avwap_breakout import AvwapBreakout
 from strategies.swing.dual_momentum import DualMomentum
 from strategies.swing.dual_momentum_pullback import DualMomentumPullbackSwing
@@ -138,6 +140,17 @@ def run_config(strategy_name: str) -> tuple[str, list[str], date, date]:
     /api/params endpoint to describe -- PEAD's default happens to match the
     generic EQUITY_UNIVERSE/daily fallback below; Overnight Hold does not
     (ETF_AND_EQUITY_UNIVERSE) and is branched explicitly."""
+    spec = custom_strategies.custom_spec(strategy_name)
+    if spec is not None:
+        # A custom strategy's interval comes from its own declared timeframe;
+        # its universe is the standard equity list, deliberately NOT a
+        # universe chosen after the fact (see CLAUDE.md on survivorship bias
+        # -- the Lab-style symbols override is still available per run).
+        if spec.timeframe == INTRADAY_INTERVAL:
+            start, end = intraday_date_range()
+            return INTRADAY_INTERVAL, EQUITY_UNIVERSE, start, end
+        start, end = daily_date_range()
+        return "1d", EQUITY_UNIVERSE, start, end
     if strategy_name in DAY_TRADING_STRATEGIES:
         start, end = intraday_date_range()
         symbols = (
@@ -164,6 +177,9 @@ def strategy_class(strategy_name: str) -> type:
     `strategy_name` -- enough to call strategies.params.describe_params()
     without constructing a real instance (Sector Rotation's benchmark_bars,
     PEAD's earnings dates, etc. aren't needed just to read the schema)."""
+    spec = custom_strategies.custom_spec(strategy_name)
+    if spec is not None:
+        return spec_strategy_class(spec)
     if strategy_name in DAY_TRADING_STRATEGIES:
         return type(DAY_TRADING_STRATEGIES[strategy_name])
     if strategy_name == SECTOR_ROTATION_NAME:
@@ -194,6 +210,9 @@ def strategy_class(strategy_name: str) -> type:
 
 
 def build_strategy(strategy_name: str, start: date, end: date):
+    spec = custom_strategies.custom_spec(strategy_name)
+    if spec is not None:
+        return spec_strategy_class(spec)()
     if strategy_name in DAY_TRADING_STRATEGIES:
         return DAY_TRADING_STRATEGIES[strategy_name]
     if strategy_name == SECTOR_ROTATION_NAME:
