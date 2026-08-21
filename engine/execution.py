@@ -237,6 +237,18 @@ def execute_rebalance(
     if not execution_db.is_enabled(strategy_name):
         return {"status": "blocked_not_enabled"}
 
+    # Nothing further can happen for this strategy today once the day's one
+    # real-attempt slot is taken, so short-circuit here rather than letting
+    # a later branch log. The market-hours check below calls write_blocked,
+    # which is deliberately exempt from claim_run's partial unique index --
+    # without this, every hourly tick after the close appended a fresh
+    # 'blocked_market_closed' row to a day whose rebalance already
+    # completed, reading like a repeated execution attempt. Same status
+    # claim_run itself would return, including for force=True: a manual
+    # trigger skips is_rebalance_due, never the one-attempt-per-day guard.
+    if execution_db.has_real_run_for_date(strategy_name, rebalance_date):
+        return {"status": "already_running_or_done_today"}
+
     # Re-check the persisted report on every scheduled/manual attempt. An old
     # enabled flag must never outlive the evidence that authorized it (or a
     # deleted/corrupt validation row) and continue submitting orders.

@@ -257,6 +257,52 @@ def test_second_real_attempt_same_day_is_blocked(enabled, monkeypatch):
     assert second["status"] == "already_running_or_done_today"
 
 
+def test_ticks_after_a_completed_day_log_nothing(enabled, monkeypatch):
+    """The hourly scheduler keeps calling execute_rebalance all day. Once
+    the day's rebalance is done, later ticks must be silent -- especially
+    after the close, where the market-hours branch's write_blocked is
+    exempt from claim_run's unique index and so would append a fresh
+    'blocked_market_closed' row every hour, reading like a repeated
+    execution attempt on a day that already finished."""
+    _patch_client(monkeypatch)
+    _patch_strategy(monkeypatch, {})
+    _patch_account(monkeypatch)
+    assert execution.execute_rebalance(
+        STRATEGY_NAME, "scheduled", force=True, today=TODAY,
+    )["status"] == "completed"
+    rows_after_run = len(enabled.recent_runs())
+
+    # Same day, market now closed -- six more scheduler ticks.
+    _patch_client(monkeypatch, is_open=False)
+    for _ in range(6):
+        result = execution.execute_rebalance(STRATEGY_NAME, "scheduled", today=TODAY)
+        assert result == {"status": "already_running_or_done_today"}
+
+    assert len(enabled.recent_runs()) == rows_after_run
+    assert not any(
+        row["status"] == "blocked_market_closed" for row in enabled.recent_runs()
+    )
+
+
+def test_market_closed_still_logs_on_a_day_that_has_not_run(enabled, monkeypatch):
+    """The short-circuit above is scoped to days whose real-attempt slot is
+    already taken -- a genuine closed-market block on a fresh day must
+    still leave its audit row, and the NEXT day starts logging again."""
+    _patch_client(monkeypatch)
+    _patch_strategy(monkeypatch, {})
+    _patch_account(monkeypatch)
+    execution.execute_rebalance(STRATEGY_NAME, "scheduled", force=True, today=TODAY)
+
+    tomorrow = TODAY + timedelta(days=1)
+    _patch_client(monkeypatch, is_open=False)
+    result = execution.execute_rebalance(
+        STRATEGY_NAME, "scheduled", force=True, today=tomorrow,
+    )
+
+    assert result["status"] == "blocked_market_closed"
+    assert enabled.recent_runs()[0]["rebalance_date"] == tomorrow.isoformat()
+
+
 # --- happy path + order planning ----------------------------------------
 
 

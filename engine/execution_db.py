@@ -381,6 +381,34 @@ def has_open_orders_for_strategy(strategy_name: str) -> bool:
     return row is not None
 
 
+def has_real_run_for_date(strategy_name: str, rebalance_date: str) -> bool:
+    """Whether this strategy/day already holds the one real-attempt slot
+    claim_run guards. Read-only advisory check, NOT a second guard -- the
+    partial unique index remains the only thing that actually enforces
+    one real attempt per day, since a check-then-insert can always be
+    raced. This exists so execute_rebalance can short-circuit BEFORE the
+    market-hours branch, whose write_blocked is deliberately exempt from
+    that index and would otherwise append a fresh
+    'blocked_market_closed' row on every hourly tick for the rest of a
+    day whose rebalance already completed.
+
+    Mirrors the index's own predicate (status NOT IN _BLOCKED_STATUSES)
+    off the same constant, so the two can't drift apart."""
+    placeholders = ",".join("?" * len(_BLOCKED_STATUSES))
+    conn = get_connection()
+    row = conn.execute(
+        f"""
+        SELECT 1 FROM rebalance_runs
+        WHERE strategy_name=? AND rebalance_date=?
+          AND status NOT IN ({placeholders})
+        LIMIT 1
+        """,
+        (strategy_name, rebalance_date, *_BLOCKED_STATUSES),
+    ).fetchone()
+    conn.close()
+    return row is not None
+
+
 def claim_run(strategy_name: str, rebalance_date: str, trigger_source: str, now: str) -> int | None:
     """Insert a 'running' row -- the one real-attempt claim for this
     strategy/day. Returns the new run's id, or None if the partial unique
