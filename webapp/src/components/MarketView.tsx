@@ -80,10 +80,7 @@ export function MarketView({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
-          Market overview
-        </h2>
+      <div className="flex items-center justify-end">
         <button
           type="button"
           onClick={onRefresh}

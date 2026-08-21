@@ -1,29 +1,22 @@
 import { useEffect, useRef, useState } from "react";
-import { api, type Quote, type SymbolsResponse } from "../api";
+import { api, type Quote } from "../api";
+import { useSymbols } from "../dataHooks";
 import { SymbolsTable } from "./SymbolsTable";
 import { SymbolDetail } from "./SymbolDetail";
 
 const QUOTE_REFRESH_MS = 30_000;
 
 export function SymbolsView() {
-  const [data, setData] = useState<SymbolsResponse | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const { data, error: loadError } = useSymbols();
   const [quotes, setQuotes] = useState<Record<string, Quote>>({});
   const [selected, setSelected] = useState<string | null>(null);
   const tickers = useRef<string[]>([]);
 
+  // Quote polling stays local to this view rather than joining the shared
+  // cache: it is a 30s interval that should run only while the watchlist is
+  // actually open, not for the lifetime of the page.
   useEffect(() => {
-    api
-      .listSymbols()
-      .then((res) => {
-        setData(res);
-        setLoadError(null);
-        tickers.current = res.symbols.map((s) => s.symbol);
-      })
-      .catch((e) => setLoadError(String(e)));
-  }, []);
-
-  useEffect(() => {
+    tickers.current = data?.symbols.map((s) => s.symbol) ?? [];
     if (!data?.quotesAvailable || tickers.current.length === 0) return;
     let cancelled = false;
     const poll = () => {

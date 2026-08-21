@@ -1,31 +1,26 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  api,
-  type MarketResponse,
-  type StrategySummary,
-} from "./api";
-import { Sidebar } from "./components/Sidebar";
+import { api, type MarketResponse, type StrategySummary } from "./api";
+import { DashboardView } from "./components/DashboardView";
 import { StrategiesTab } from "./components/StrategiesTab";
-import { SymbolsView } from "./components/SymbolsView";
-import { MarketView } from "./components/MarketView";
-import { ScreenerView } from "./components/ScreenerView";
-import { MoversView } from "./components/MoversView";
-import { LiveMonitorView } from "./components/LiveMonitorView";
+import { StrategySidebar } from "./components/StrategySidebar";
+import { TopBar } from "./components/TopBar";
 import type { Tab } from "./tabs";
 
 function App() {
   const [strategies, setStrategies] = useState<StrategySummary[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [tab, setTab] = useState<Tab>("strategies");
+  const [tab, setTab] = useState<Tab>("dashboard");
 
-  // Fetched ONCE at this level and shared by Sidebar + MarketView -- a cold
-  // /api/market call scans the full 94-symbol research universe (see
-  // CLAUDE.md's "Research platform" section) and can take up to ~40s.
-  // Fetching it per-tab-switch or per-component would multiply that cost;
-  // this is the one place it's requested, on mount, for the whole session.
+  // Fetched ONCE at this level and shared by the dashboard's status strip,
+  // its market card, and the market popup -- a cold /api/market call scans
+  // the full 94-symbol research universe (see CLAUDE.md's "Research
+  // platform" section) and can take up to ~40s. Fetching it per-component
+  // would multiply that cost; this is the one place it's requested, on
+  // mount, for the whole session. Every OTHER endpoint shares through the
+  // cache in useResource.ts instead; this one predates it and stays here
+  // because it must not be re-triggered by a popup opening.
   const [marketData, setMarketData] = useState<MarketResponse | null>(null);
   const [marketLoading, setMarketLoading] = useState(false);
-  const [marketLastUpdated, setMarketLastUpdated] = useState<Date | null>(null);
   const [marketError, setMarketError] = useState<string | null>(null);
 
   const loadStrategies = () => {
@@ -43,10 +38,7 @@ function App() {
     setMarketError(null);
     api
       .market()
-      .then((res) => {
-        setMarketData(res);
-        setMarketLastUpdated(new Date());
-      })
+      .then(setMarketData)
       .catch((e) => setMarketError(String(e)))
       .finally(() => setMarketLoading(false));
   };
@@ -67,58 +59,58 @@ function App() {
   }, []);
 
   return (
-    <div className="flex min-h-screen">
-      <Sidebar
-        marketData={marketData}
-        marketLoading={marketLoading}
-        lastUpdated={marketLastUpdated}
-        activeTab={tab}
-        onSelectTab={setTab}
-      />
+    <div className="min-h-screen">
+      <TopBar activeTab={tab} onSelectTab={setTab} />
 
-      <div className="mx-auto w-full max-w-6xl px-6 py-8">
-        <header className="mb-6">
-          <details>
-            <summary className="cursor-pointer text-xs" style={{ color: "var(--text-muted)" }}>
-              About this tool
-            </summary>
-            <p className="mt-1 max-w-3xl text-xs" style={{ color: "var(--text-muted)" }}>
-              Backtests run against a pre-registered symbol universe by default. Strategies
-              under 30 trades are flagged "sample too small" — treat those numbers as
-              directional, not conclusive. Day-trading strategies use ~60 days of 5-min bars
-              (yfinance's intraday history limit); swing strategies use 5 years of daily bars.
-              The <strong>Strategies</strong> tab lets you test variations — custom symbols,
-              date ranges, and rule parameters — against any strategy; those runs are tagged as
-              experiments and never replace the strategy's canonical (registered-default)
-              result shown in the leaderboard.
-            </p>
-          </details>
-        </header>
+      <div className="flex">
+        {/* Rendered only on Strategies, and in the same commit as the page
+          * itself, so StrategiesTab's portal finds the slot on mount. */}
+        {tab === "strategies" && <StrategySidebar />}
 
-        {loadError && (
-          <div
-            className="mb-6 rounded-lg border px-4 py-3 text-sm"
-            style={{ borderColor: "var(--status-critical)", color: "var(--status-critical)" }}
-          >
-            Failed to load strategies: {loadError}. Is the API running (uvicorn api.main:app)?
-          </div>
-        )}
+        {/* min-w-0 + flex-1: without them a `w-full` flex child refuses to
+          * shrink below its content, and sidebar + main together overflowed
+          * the viewport -- the whole PAGE scrolled sideways instead of the
+          * one wide table inside it. */}
+        <main className="mx-auto w-full min-w-0 max-w-7xl flex-1 px-6 py-6">
+          {loadError && (
+            <div
+              className="mb-6 rounded-lg border px-4 py-3 text-sm"
+              style={{ borderColor: "var(--status-critical)", color: "var(--status-critical)" }}
+            >
+              Failed to load strategies: {loadError}. Is the API running (uvicorn api.main:app)?
+            </div>
+          )}
 
-        {tab === "symbols" && <SymbolsView />}
-        {tab === "market" && (
-          <MarketView
-            data={marketData}
-            loading={marketLoading}
-            error={marketError}
-            onRefresh={loadMarket}
-          />
-        )}
-        {tab === "screener" && <ScreenerView />}
-        {tab === "movers" && <MoversView />}
-        {tab === "monitor" && <LiveMonitorView />}
-        {tab === "strategies" && (
-          <StrategiesTab strategies={strategies} onRunLogged={loadStrategies} />
-        )}
+          {tab === "dashboard" && (
+            <DashboardView
+              marketData={marketData}
+              marketLoading={marketLoading}
+              marketError={marketError}
+              onRefreshMarket={loadMarket}
+            />
+          )}
+
+          {tab === "strategies" && (
+            <>
+              <details className="mb-5">
+                <summary className="cursor-pointer text-xs" style={{ color: "var(--text-muted)" }}>
+                  About backtests here
+                </summary>
+                <p className="mt-1 max-w-3xl text-xs" style={{ color: "var(--text-muted)" }}>
+                  Backtests run against a pre-registered symbol universe by default. Strategies
+                  under 30 trades are flagged "sample too small" — treat those numbers as
+                  directional, not conclusive. Day-trading strategies use 5-min bars (limited to
+                  the window the data provider serves); swing strategies use 5 years of daily
+                  bars. You can test variations — custom symbols, date ranges, and rule
+                  parameters — against any strategy; those runs are tagged as experiments and
+                  never replace the strategy's canonical (registered-default) result shown in
+                  the leaderboard.
+                </p>
+              </details>
+              <StrategiesTab strategies={strategies} onRunLogged={loadStrategies} />
+            </>
+          )}
+        </main>
       </div>
     </div>
   );

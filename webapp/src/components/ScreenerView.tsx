@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
-import { api, type ScreenerResponse, type ScreenerRow } from "../api";
+import { useMemo, useState } from "react";
+import { type ScreenerRow } from "../api";
+import { useScreener } from "../dataHooks";
 
 type SortKey =
   | "symbol"
@@ -66,20 +67,9 @@ function fmtPct(v: number | null): string {
 }
 
 export function ScreenerView() {
-  const [data, setData] = useState<ScreenerResponse | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const { data, error: loadError } = useScreener();
   const [sortKey, setSortKey] = useState<SortKey>("compositeScore");
   const [sortAsc, setSortAsc] = useState(false);
-
-  const load = () => {
-    setLoadError(null);
-    api
-      .screener()
-      .then(setData)
-      .catch((e) => setLoadError(String(e)));
-  };
-
-  useEffect(load, []);
 
   const rows = useMemo(() => {
     if (!data) return [];
@@ -132,20 +122,6 @@ export function ScreenerView() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
-        <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
-          Screener
-        </h2>
-        <button
-          type="button"
-          onClick={load}
-          className="rounded-md border px-3 py-1.5 text-xs font-medium"
-          style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}
-        >
-          Refresh
-        </button>
-      </div>
-
       <div
         className="rounded-lg border px-4 py-3 text-xs"
         style={{ borderColor: "var(--border)", background: "var(--surface-1)", color: "var(--text-secondary)" }}
@@ -228,5 +204,23 @@ export function ScreenerView() {
         </table>
       </div>
     </div>
+  );
+}
+
+/** Refresh control for the screener popup's header -- see Modal's
+ * `headerAction`. Subscribes without fetching (`enabled: false`); the table
+ * below it owns the load. */
+export function ScreenerRefresh() {
+  const { loading, refresh } = useScreener(false);
+  return (
+    <button
+      type="button"
+      onClick={() => void refresh()}
+      disabled={loading}
+      className="rounded-md border px-3 py-1.5 text-xs font-medium disabled:opacity-50"
+      style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}
+    >
+      {loading ? "Refreshing…" : "Refresh"}
+    </button>
   );
 }

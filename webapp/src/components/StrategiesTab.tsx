@@ -14,12 +14,13 @@ import {
 } from "../api";
 import { CrossSectionalResultView } from "./CrossSectionalResultView";
 import { MetricsHistoryChart } from "./MetricsHistoryChart";
+import { NewStrategyDialog } from "./NewStrategyDialog";
 import { PairsResultView } from "./PairsResultView";
 import { PortfolioRunHistory } from "./PortfolioRunHistory";
 import { ResultTabs } from "./ResultTabs";
 import { RunConfigPanel } from "./RunConfigPanel";
 import { RunHistory } from "./RunHistory";
-import { STRATEGY_CONFIG_SLOT } from "./Sidebar";
+import { STRATEGY_CONFIG_SLOT } from "./StrategySidebar";
 import { StrategyTable } from "./StrategyTable";
 
 // Deliberately does NOT state a day count. The free data tier serves ~50
@@ -92,6 +93,7 @@ export function StrategiesTab({
   const [runProgress, setRunProgress] = useState<Pick<ValidationJob, "stage" | "progressPct" | "status"> | null>(null);
   const [runError, setRunError] = useState<string | null>(null);
   const [replay, setReplay] = useState<{ token: number; overrides: BacktestOverrides } | null>(null);
+  const [authoring, setAuthoring] = useState(false);
 
   // Universe filter: which registered universe's results the leaderboard is
   // showing. "" means the registered default (the `strategies` prop as-is).
@@ -137,7 +139,13 @@ export function StrategiesTab({
   }, []);
 
   useEffect(() => {
-    if (!selected && strategies.length > 0) setSelected(strategies[0].name);
+    if (strategies.length === 0) return;
+    // Also re-selects when the selected strategy disappears -- deleting a
+    // custom strategy would otherwise leave a stale selection pointing at
+    // a name the API now 404s.
+    if (!selected || !strategies.some((s) => s.name === selected)) {
+      setSelected(strategies[0].name);
+    }
   }, [strategies, selected]);
 
   const selectedMeta = strategies.find((s) => s.name === selected);
@@ -203,12 +211,31 @@ export function StrategiesTab({
 
   return (
     <>
+      <NewStrategyDialog
+        open={authoring}
+        onClose={() => setAuthoring(false)}
+        onSaved={(name) => {
+          // Refresh the leaderboard so the new strategy appears, and select
+          // it so its run-configuration panel is immediately in reach.
+          setSelected(name);
+          onRunLogged();
+        }}
+        onDeleted={onRunLogged}
+      />
       <section className="mb-8">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
             All strategies
           </h2>
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setAuthoring(true)}
+              className="rounded-md px-2.5 py-1 text-xs font-medium"
+              style={{ background: "var(--series-1)", color: "var(--page)" }}
+            >
+              + Describe a strategy
+            </button>
             <label className="text-xs" style={{ color: "var(--text-muted)" }} htmlFor="universe-filter">
               Universe
             </label>
@@ -258,6 +285,35 @@ export function StrategiesTab({
                         : "Pairs / stat-arb spread."}
                   </span>
                 </div>
+                {selectedMeta?.custom && (
+                  <div
+                    className="mb-3 rounded-md border px-3 py-2 text-xs"
+                    style={{ borderColor: "var(--status-warning)", color: "var(--status-warning)" }}
+                  >
+                    <div className="font-medium">Custom strategy — exploratory</div>
+                    <p className="mt-1">
+                      Written from a description, not from strategy_tracker.xlsx. It runs on
+                      the same engine and is scored by the same bar, but it has no prior
+                      sample and its rules were generated — check them before trusting a
+                      result.
+                    </p>
+                    {selectedMeta.customPrompt && (
+                      <p className="mt-1 italic">“{selectedMeta.customPrompt}”</p>
+                    )}
+                    {selectedMeta.customRules && (
+                      <ul className="mt-1 ml-4 list-disc">
+                        {selectedMeta.customRules.entry.map((line, i) => (
+                          <li key={i}>Enter: {line}</li>
+                        ))}
+                        {selectedMeta.customRules.exit.map((line, i) => (
+                          <li key={`x${i}`}>Exit: {line}</li>
+                        ))}
+                        <li>Stop: {selectedMeta.customRules.stop}</li>
+                        <li>Target: {selectedMeta.customRules.target}</li>
+                      </ul>
+                    )}
+                  </div>
+                )}
                 <RunConfigPanel
                   key={`${selected}-${replay?.token ?? "default"}`}
                   strategyName={selected}
