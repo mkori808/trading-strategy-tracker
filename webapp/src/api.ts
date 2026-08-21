@@ -54,6 +54,14 @@ export interface StrategySummary {
   // controls default visibility (see StrategyTable's "Show archived" toggle).
   archived: boolean;
   archivedReason: string | null;
+  // Authored from a natural-language description rather than defined in
+  // strategy_tracker.xlsx (see engine/custom_strategies.py). Runs on the
+  // same engine and is scored by the same bar -- the flag exists so the UI
+  // can disclose that its RULES were generated, the same way the Lab tab
+  // discloses a custom run CONFIGURATION.
+  custom: boolean;
+  customPrompt: string | null;
+  customRules: CompiledRules | null;
   edgeVerdict: string | null;
   lifecycleStage: string | null;
   validation: ValidationReport | null;
@@ -669,6 +677,37 @@ export interface KillSwitchStatus {
   active: boolean;
 }
 
+export interface DailyPerformanceRow {
+  /** NY calendar date of the session. */
+  date: string;
+  equity: number;
+  profitLoss: number | null;
+  profitLossPct: number | null;
+  /** The benchmark's OWN return that session -- descriptive, not alpha.
+   * null when that session's benchmark bar isn't available (notably the
+   * in-progress day, whose daily bar doesn't exist until the close). */
+  benchmarkPct: number | null;
+}
+
+export interface DailyPerformanceToday extends DailyPerformanceRow {
+  /** Always true. Today is derived from the live account rather than a
+   * settled close, and is reported separately from `rows` so an unsettled
+   * figure is never mistaken for a broker-confirmed one. */
+  inProgress: boolean;
+}
+
+export interface DailyPerformance {
+  available: boolean;
+  reason: string | null;
+  /** Inception of automated trading -- the same anchor
+   * /live/execution/summary uses, so the daily series and the all-time
+   * headline always describe one window. */
+  startDate: string | null;
+  benchmarkSymbol: string;
+  rows: DailyPerformanceRow[];
+  today: DailyPerformanceToday | null;
+}
+
 export interface ExecutionSummary {
   // Account equity right before the earliest completed rebalance --
   // the baseline "all-time P&L since automated trading started" is
@@ -994,6 +1033,74 @@ async function runValidationSuite<T>(
   return job.result;
 }
 
+
+/** A compiled spec rendered back to English by
+ * strategies/spec.py:describe_spec. This -- never the model's own summary
+ * of what it wrote -- is what the review step displays, so the user
+ * approves the rules that will actually run. */
+export interface CompiledRules {
+  summary: string;
+  entry: string[];
+  exit: string[];
+  stop: string;
+  target: string;
+  warmupBars: number;
+}
+
+export interface SpecParam {
+  name: string;
+  label: string;
+  default: number;
+  minimum: number;
+  maximum: number;
+  step: number | null;
+  kind: "int" | "float";
+  help: string | null;
+}
+
+/** The draft step's response: a validated spec plus everything needed to
+ * review it before saving. Nothing is stored until a separate save call. */
+export interface StrategyDraft {
+  name: string;
+  kind: "Day Trading" | "Swing Trading";
+  timeframe: string;
+  direction: "long" | "short";
+  description: string;
+  /** Judgment calls the author model made -- approximations, numbers it
+   * chose, a side it picked. Worth reading before saving. */
+  notes: string;
+  /** How many validation round-trips the spec needed. >1 means the first
+   * attempt was rejected by the parser and repaired. */
+  attempts: number;
+  spec: Record<string, unknown>;
+  rules: CompiledRules;
+  params: SpecParam[];
+  /** Non-null when the proposed name is already taken -- saving would 409. */
+  nameConflict: string | null;
+}
+
+export interface CustomStrategy {
+  name: string;
+  kind: "Day Trading" | "Swing Trading";
+  timeframe: string;
+  direction: "long" | "short";
+  description: string;
+  createdAt: string;
+  /** The description this strategy was written from, kept as provenance. */
+  prompt: string;
+  spec: Record<string, unknown>;
+  rules: CompiledRules;
+}
+
+export interface CustomStrategyList {
+  strategies: CustomStrategy[];
+  /** Stored files that no longer parse -- surfaced so a broken definition
+   * is visible and deletable rather than silently missing. */
+  loadErrors: { filename: string; error: string }[];
+  authoringAvailable: boolean;
+  authoringUnavailableReason: string | null;
+}
+
 export const api = {
   // universeId filters each row to that strategy's latest run AGAINST that
   // specific registered universe (never triggers a new backtest -- see
@@ -1003,6 +1110,29 @@ export const api = {
       universeId ? `/strategies?universe_id=${encodeURIComponent(universeId)}` : "/strategies",
     ),
   listUniverses: () => request<RegisteredUniverse[]>("/universes"),
+  listCustomStrategies: () => request<CustomStrategyList>("/strategies/custom"),
+  // One Anthropic API call; can take 30s+ on a complex description. Saves
+  // nothing -- the returned draft is reviewed, then saved separately.
+  draftStrategy: (description: string) =>
+    request<StrategyDraft>("/strategies/custom/draft", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ description }),
+    }),
+  saveCustomStrategy: (spec: Record<string, unknown>, prompt: string) =>
+    request<CustomStrategy>("/strategies/custom", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ spec, prompt }),
+    }),
+  deleteCustomStrategy: (name: string) =>
+    request<{ deleted: string }>(`/strategies/custom/${encodeURIComponent(name)}`, {
+      method: "DELETE",
+    }),
+  deleteBrokenCustomStrategy: (filename: string) =>
+    request<{ deleted: string }>(`/strategies/custom-file/${encodeURIComponent(filename)}`, {
+      method: "DELETE",
+    }),
   paramSchema: (name: string) => request<ParamSchema>(`/params/${encodeURIComponent(name)}`),
   runBacktest: (
     name: string,
@@ -1073,6 +1203,7 @@ export const api = {
     }),
   killSwitchStatus: () => request<KillSwitchStatus>("/live/execution/kill-switch"),
   executionSummary: () => request<ExecutionSummary>("/live/execution/summary"),
+  executionDaily: () => request<DailyPerformance>("/live/execution/daily"),
   forwardTestStatus: () => request<ForwardTestStatus>("/live/forward-test"),
   executionCalibration: (symbol?: string) =>
     request<FillCalibration>(`/live/execution/calibration${symbol ? `?symbol=${encodeURIComponent(symbol)}` : ""}`),

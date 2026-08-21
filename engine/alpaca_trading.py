@@ -23,10 +23,16 @@ mid-batch crash can't leave a real Alpaca order with zero local record).
 
 from __future__ import annotations
 
+from datetime import UTC, date, datetime, time
 from functools import lru_cache
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from engine.alpaca_client import first_env
+
+# Every timestamp this project surfaces is America/New_York (CLAUDE.md's
+# Timezone note); Alpaca's portfolio history returns unix seconds.
+NY = ZoneInfo("America/New_York")
 
 
 def _credentials() -> tuple[str | None, str | None]:
@@ -151,6 +157,81 @@ def get_clock() -> dict[str, Any]:
         "nextClose": clock.next_close.isoformat(),
         "timestamp": clock.timestamp.isoformat(),
     }
+
+
+def get_portfolio_history(start: date, end: date | None = None) -> dict[str, Any]:
+    """Daily equity/P&L series straight from Alpaca, for the paper account.
+
+    The broker's own record, not a series this app reconstructs from its
+    order log. That matters: `logs/execution.db` stores per-rebalance rows,
+    never a daily equity mark, so any locally-derived daily curve would be
+    an estimate that silently disagrees with the account. It also picks up
+    days the app was not running -- the scheduler only fires while uvicorn
+    is up (see api/main.py's `_start_execution_scheduler` docstring), and a
+    day with no rebalance still has a P&L.
+
+    `profit_loss[i]` is Alpaca's own day-over-day change, the same
+    definition as the account's `lastEquity` baseline used by the
+    daily-loss circuit breaker -- so "today" here and the breaker's view of
+    today cannot drift apart.
+
+    Returns the standard `{"available": False, "reason": ...}` shape every
+    other function in this module uses when Alpaca isn't configured, rather
+    than raising -- the UI degrades to "not configured" the same way
+    everywhere.
+    """
+    client, reason = trading_client()
+    if client is None:
+        return {"available": False, "reason": reason}
+    try:
+        from alpaca.trading.requests import GetPortfolioHistoryRequest
+    except ImportError:  # pragma: no cover -- trading_client() already checked
+        return {"available": False, "reason": "alpaca-py is not installed."}
+
+    try:
+        history = client.get_portfolio_history(
+            GetPortfolioHistoryRequest(
+                start=datetime.combine(start, time.min),
+                end=None if end is None else datetime.combine(end, time.max),
+                timeframe="1D",
+                # Equity marked at each session's close only. Extended-hours
+                # marks would make a "day" disagree with the daily bars every
+                # benchmark in this project is computed from.
+                extended_hours=False,
+            )
+        )
+    except Exception as exc:  # noqa: BLE001 -- surface to the UI, never crash the page
+        return {"available": False, "reason": f"Alpaca portfolio history failed: {exc}"}
+
+    stamps = list(history.timestamp or [])
+    equity = list(history.equity or [])
+    pnl = list(history.profit_loss or [])
+    pnl_pct = list(history.profit_loss_pct or [])
+
+    rows: list[dict[str, Any]] = []
+    for i, stamp in enumerate(stamps):
+        value = equity[i] if i < len(equity) else None
+        if value is None:
+            # Alpaca emits a null equity for a period it has no mark for.
+            # Skipping beats carrying a 0.0 that would render as a -100% day.
+            continue
+        day_pnl = pnl[i] if i < len(pnl) else None
+        day_pct = pnl_pct[i] if i < len(pnl_pct) else None
+        rows.append({
+            # Alpaca stamps these in UTC; the project's convention is
+            # America/New_York everywhere (see CLAUDE.md's Timezone note), and
+            # a UTC-naive read shifts an after-close mark onto the next day.
+            "date": datetime.fromtimestamp(int(stamp), tz=UTC)
+            .astimezone(NY)
+            .date()
+            .isoformat(),
+            "equity": float(value),
+            "profitLoss": None if day_pnl is None else float(day_pnl),
+            # Alpaca returns this as a fraction; every other percent in this
+            # codebase is already scaled, so convert once, here.
+            "profitLossPct": None if day_pct is None else float(day_pct) * 100,
+        })
+    return {"available": True, "rows": rows, "baseValue": float(history.base_value or 0.0)}
 
 
 def account_snapshot() -> dict[str, Any]:

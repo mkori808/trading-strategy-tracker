@@ -111,6 +111,9 @@ in from the start, not as an afterthought:
 ```
 /data          -- cached historical OHLCV data (parquet/csv), gitignored
 /strategies    -- one file per strategy, defining entry/stop/target rules as code
+               -- also spec.py: the declarative rule language a natural-language
+                  description compiles into (see "Natural-language strategy
+                  authoring" below); specs live in data/custom_strategies/
 /engine        -- backtest engine: feeds bars to a strategy, tracks trades, computes metrics
                -- also the pre-trade filter layer (regime.py, trend_template.py,
                   filters.py) that gates entries before entry_signal() runs
@@ -121,10 +124,14 @@ in from the start, not as an afterthought:
                   buying read path -- see "Research platform" below
 /api           -- thin FastAPI layer exposing engine/strategies as JSON for the frontend
                -- also validates and applies Lab-tab overrides (RunRequest)
+               -- also the natural-language authoring endpoints
+                  (/api/strategies/custom*), which never trust a spec they
+                  didn't just re-parse
 /webapp        -- React + TypeScript (Vite, Tailwind) dashboard; talks only to /api
-               -- Lab tab: test strategy variations (symbols/dates/params);
-                  Compare tab: canonical-only leaderboard; Symbols tab: watchlist;
-                  Screener/Movers tabs: live research platform (see below)
+               -- TWO destinations only (see "The dashboard shell" below):
+                  Dashboard (cards -> popups for market state, paper trading,
+                  movers, insider buying, screener, watchlist, digest) and
+                  Strategies (leaderboard + run config + result tabs)
 /logs          -- backtest run outputs + paper-trading signal logs (csv/sqlite)
 strategy_tracker.xlsx   -- source of truth for the strategy list (imported, not duplicated)
 ```
@@ -145,8 +152,11 @@ strategy_tracker.xlsx   -- source of truth for the strategy list (imported, not 
   with a **React + TypeScript frontend (`/webapp`, Vite + Tailwind) backed by
   a thin FastAPI layer (`/api`)** for a more polished look. `/api` only
   serializes `engine`/`strategies` output to JSON — it holds no backtest
-  logic of its own. Run both together: `uvicorn api.main:app --port 8791`
-  and, in `/webapp`, `npm run dev` (proxies `/api` to 8791). Don't reintroduce
+  logic of its own. Run both together: `uvicorn api.main:app --port 8794`
+  and, in `/webapp`, `npm run dev`. The port must match
+  `webapp/vite.config.ts`'s proxy target -- that file is the source of
+  truth, and this line drifted from it (8791) until 2026-08-21, which
+  presents as every request 502ing with the API apparently up. Don't reintroduce
   Streamlit; extend the existing React app instead.
 - **Storage**: SQLite for run history and paper-trading signal logs; nothing
   fancier needed at this scale.
@@ -432,7 +442,7 @@ buy/sell signal** — the same non-goals rule the rest of the app follows.
   risk the way a fixed backtest sample does. Never use `RESEARCH_UNIVERSE`
   as a backtest universe, and never backfill point-in-time rigor onto it;
   it exists for a different purpose than the lists above it.
-- **Screener** (`engine/screener.py`, `GET /api/screener`, Screener tab):
+- **Screener** (`engine/screener.py`, `GET /api/screener`, Screener popup):
   valuation/quality/growth-momentum/risk composite scores, each a
   cross-sectional 0–100 percentile rank computed live across whichever
   symbol set is requested (a filtered subset ranks against itself, not the
@@ -444,7 +454,7 @@ buy/sell signal** — the same non-goals rule the rest of the app follows.
   existing snapshot fields — appropriate here specifically because this is
   a *live* display, not a backtest scan date, so the point-in-time caveat
   that governs `fundamentals.py` elsewhere doesn't apply.
-- **Movers** (`engine/movers.py`, `GET /api/movers`, Movers tab): gainers/
+- **Movers** (`engine/movers.py`, `GET /api/movers`, Movers popup): gainers/
   losers reuse `engine/quotes.py`'s already-computed day change-pct — no new
   fetch logic. Momentum streaks are consecutive up/down days from cached
   closes.
@@ -461,7 +471,7 @@ buy/sell signal** — the same non-goals rule the rest of the app follows.
   whole universe, not a bug; the UI's loading state should say so rather
   than look frozen.
 - **Insider Buying** (`engine/data_edgar.py:recent_purchases`,
-  `GET /api/insider/recent`, `POST /api/insider/refresh`, Movers tab): the
+  `GET /api/insider/recent`, `POST /api/insider/refresh`, Insider buying popup): the
   US analog to "RNS regulatory-news scoring" — there's no US RNS
   equivalent, but the project already had a rigorous, look-ahead-safe SEC
   EDGAR Form 4 pipeline (see `data_edgar.py`'s own module docstring). Real,
@@ -472,8 +482,8 @@ buy/sell signal** — the same non-goals rule the rest of the app follows.
   `executescript(_SCHEMA)`) plus a `PRAGMA busy_timeout`, so a read doesn't
   collide with a multi-minute `fetch_form4_for_universe` write triggered by
   the refresh button.
-- **Daily digest** (`engine/digest.py`, `GET /api/digest/preview`, Movers
-  tab): composes regime + movers + insider buys + the market-signals score
+- **Daily digest** (`engine/digest.py`, `GET /api/digest/preview`, Daily digest
+  popup): composes regime + movers + insider buys + the market-signals score
   into one payload plus a plain-text rendering. **Preview only, by
   deliberate scope decision** — no scheduler, no SMTP, nothing is ever sent.
   Wiring up a real send is a separate decision requiring new `.env` SMTP
@@ -493,12 +503,177 @@ default-`None` field ordering used for `PairsResult.symbols` earlier this
 session applies here too — never insert a new field in the middle of an
 existing dataclass whose cache/construction sites aren't all keyword-based.
 
-## The Lab tab: testing strategy variations (`engine/runner.py:RunRequest`)
+## Natural-language strategy authoring (`strategies/spec.py`, `engine/strategy_authoring.py`, `engine/custom_strategies.py`)
 
-The webapp's **Lab** tab lets a user override a strategy's symbol universe,
+Added 2026-08-17 at the user's request: the Strategies page's "Describe a
+strategy" box turns a sentence into a runnable strategy. This is the app's
+second LLM feature (after the chat assistant) and the only one that creates
+something the engine then measures, so the rules below are load-bearing
+rather than stylistic.
+
+**Natural language compiles to a declarative spec, never to Python.**
+`strategies/spec.py` defines the rule language: an enumerated indicator
+vocabulary (`INDICATORS`), comparisons, an AND-list of conditions with
+optional OR groups, a stop rule and a target rule. `parse_spec()` is the
+only way a dict becomes a `StrategySpec`, and it raises `ValueError` naming
+the exact path on anything it does not recognize. Generated *source code*
+could import anything, read any bar, and bake numbers in as constants --
+and none of that can be checked before it runs. A spec can only say what
+the vocabulary can express, and every entry in that vocabulary is a
+right-aligned rolling or recursive op, so "did the model write a look-ahead
+bug?" stops being a per-strategy question. Assert this by recomputation
+(`tests/test_engine/test_strategy_spec.py` appends a wildly different
+future and requires the signal at bar *i* to be unchanged), not by
+inspection.
+
+**A generated strategy gets no leniency anywhere.** It runs on the standard
+per-symbol engine via `engine/runner.py`'s existing `run_config` /
+`strategy_class` / `build_strategy` branches, logs to the same `runs`
+table, and is scored by the same `derive_status()` bar as a tracker
+strategy. `spec_strategy_class()` compiles the spec into a real
+`@dataclass` `Strategy` subclass whose tunable numbers are `param_field()`s
+(see "Strategy definitions" above), so Lab-tab sliders and
+`apply_params()`'s bounds validation work on it with no custom-strategy
+code path. The authoring model is required to declare every tunable number
+as a param -- a number written inline is frozen forever.
+
+**Custom strategies are NOT in `ALL_STRATEGY_NAMES`.** That list is checked
+1:1 against `strategy_tracker.xlsx` (`tests/test_engine/test_registry.py`),
+and a strategy typed into the app at runtime has not been through that
+decision. `api/main.py:_known_strategy_names()` unions the two for
+serving/validation; the leaderboard row carries `custom: true` and the
+webapp badges it, the same disclosure principle the Lab tab's
+"custom configuration" banner already follows -- applied to a strategy's
+*rules* rather than to one run's *configuration*.
+
+**Declining is a first-class outcome, and the reason it matters is
+measurement, not politeness.** The response schema has an explicit
+`decline` branch for anything the vocabulary can't express -- fundamentals,
+news, cross-symbol ranking, a vague "buy strong stocks". A model that
+instead substitutes the nearest expressible rule produces real, honest-
+looking metrics for an idea the user never described, which is worse than
+no strategy at all. `strategies/spec.py` enforces the same principle
+structurally: a spec with no target and no exit rule is rejected, because
+its only exit would be the stop (a guaranteed 0% win rate that reads as a
+measured result -- same construction-artifact rule as Dividend Hybrid's
+100% above).
+
+**The review step renders the compiled spec, not the model's summary.**
+`describe_spec()` turns the *parsed* spec back into English, and that is
+what the dialog shows before saving. The model's own account of what it
+wrote is not evidence about what will run. Validation failures are fed back
+to the model with the parser's exact message and retried up to
+`MAX_ATTEMPTS`; a spec still failing after that is reported as a failure,
+never partially applied.
+
+**The prompt that produced a strategy is stored beside it**
+(`data/custom_strategies/*.json`). A rule that came out of a sentence is
+only auditable if the sentence is still there. Saving never overwrites --
+name and slug collisions both raise, since a silent overwrite would orphan
+that name's logged run history under changed rules. Deleting removes the
+definition only; the runs it logged stay in `logs/runs.db`, matching the
+archive-don't-delete principle above. A stored file that a later, stricter
+parser rejects is reported as a load error the UI can show and delete, not
+skipped as if it never existed.
+
+## The dashboard shell (`webapp/src/App.tsx`, `DashboardView`, `Modal`, `useResource`)
+
+Rebuilt 2026-08-21 at the user's request ("combine all the information into
+this app as a single dashboard with popups for specific pieces ... more
+integrated like production, user friendly apps are"). The app had grown six
+sibling tabs — Strategies, Symbols, Market, Screener, Movers, Live Monitor —
+each a full-page destination you had to navigate to and lose your place in.
+It is now **two** destinations:
+
+- **Dashboard** (`components/DashboardView.tsx`) — a status strip plus a
+  grid of summary cards. Each card shows the two or three numbers that
+  answer "do I need to look closer?", and clicking it opens the full former
+  tab in a popup ON TOP of the overview. Market state, paper trading,
+  movers, insider buying, screener, watchlist and daily digest.
+- **Strategies** — unchanged in content, still a real page. It is a
+  WORKSPACE, not a readout: a selected strategy, an unsaved override draft,
+  a validation run that takes minutes, a chat conversation scoped to one
+  result. State you leave and come back to does not belong in a dialog, and
+  the canonical-vs-experiment disclosure above needs room to stay visible.
+  Don't "finish the job" by moving it into a popup.
+
+**One fetch per endpoint, shared between a card and its popup**
+(`webapp/src/useResource.ts`, keys in `resourceKeys.ts`). A card summarizes
+the same response its popup renders in full; without a shared cache, opening
+a popup would re-fetch a 94-symbol screener scan the card already had. It is
+deliberately NOT a general-purpose client cache — no TTL, no
+stale-while-revalidate, no background refetch — because every value in it is
+live market data whose refresh cost is exactly what the cache exists to
+avoid paying twice. `setResource()` lets the live-trading view publish its
+own 30s poll into the cache so the status strip stays in step with it.
+
+**`/api/market` is deliberately NOT in that cache.** It stays fetched once in
+`App.tsx` behind a StrictMode ref guard, because a cold call scans the full
+94-symbol research universe (~40s) and must never be re-triggered by a popup
+opening. Same reasoning as before the rebuild; the cache is additional, not
+a replacement.
+
+**A card renders; it never triggers expensive work.** The digest (~1 min,
+scans every tracked symbol) and the insider EDGAR refresh (minutes) stay
+behind explicit buttons INSIDE their popups. A dashboard that fires those on
+load would make the home screen unusable.
+
+**Popups are real dialogs** (`components/Modal.tsx`): portalled to `<body>`,
+Escape and backdrop-click to close, focus moved in on open and returned to
+the triggering card on close, Tab cycling trapped inside, background scroll
+locked with the scrollbar width replaced as padding so the page doesn't jump.
+The close handler is held in a REF and kept out of the effect's dependency
+list — callers pass an inline arrow whose identity changes on every render of
+the page behind the dialog, and that page re-renders on every 30s poll;
+depending on it directly tore down and re-ran the whole effect each time,
+releasing and re-applying the scroll lock and yanking focus out of the
+dialog and back in mid-interaction. If you touch that effect, keep the
+dependency list `[open]`.
+
+**Day-by-day paper performance** (`engine/alpaca_trading.py:get_portfolio_history`,
+`GET /api/live/execution/daily`, `components/DailyPerformancePanel.tsx`).
+A cumulative "all-time P&L" hides every day inside it — the same +1.2%
+reads identically whether it was a steady drift or one good day inside four
+bad ones. Three rules this feature must keep:
+
+- **The daily equity series comes from the BROKER, not from our order log.**
+  `logs/execution.db` stores per-rebalance rows and never a daily equity
+  mark, so any locally-derived curve would be an estimate that disagrees
+  with the account — and would miss days the app wasn't running at all (the
+  scheduler only fires while uvicorn is up).
+- **Today is reported separately from settled days and badged
+  "in progress".** Alpaca's daily history contains session CLOSES only;
+  today's row does not exist until the close. Today is derived from the live
+  account (`equity - lastEquity`, the same baseline
+  `engine/live_risk.py`'s daily-loss breaker uses, so the two can't drift)
+  and is excluded from the best/worst/up-days statistics, which describe
+  settled sessions only. Once Alpaca publishes today's real mark, the
+  derived row disappears rather than double-counting the session.
+- **The benchmark column is the benchmark's OWN return, per session** —
+  descriptive, never alpha, same framing as `buy_hold_return_pct` above.
+  Settled rows join daily bars on the NY calendar date (daily bars are
+  stamped midnight NY, so a date-key join is safe here — this is NOT true
+  intraday; see "Fundamentals data"). The in-progress row instead uses a
+  delayed quote against the last SETTLED close, so it spans the same
+  part-day the account figure does, and refuses to compute at all if the
+  cached daily series already contains today (that close would be part of
+  today, making the comparison circular).
+
+**The kill switch's STATE is on the status strip, not only in the popup.**
+The guardrails section above requires the switch itself to be reachable when
+the UI is unhelpful; a state you have to open something to discover fails the
+same test for a different reason. The control that flips it stays in the
+trading popup — reading is promoted, acting is not.
+
+## Testing strategy variations (`engine/runner.py:RunRequest`)
+
+The **Strategies** page lets a user override a strategy's symbol universe,
 date range, and/or rule parameters (see `param_field()` above) for one run,
 without touching its registered defaults — the "test variations" one-stop-
-shop. Three things make this safe rather than a quiet backdoor around
+shop. (Historically two separate "Lab" and "Compare" tabs, then one merged
+Strategies tab, now one of the app's two pages; "Lab-tab override" survives
+as a term of art in code comments and means exactly this `RunRequest`
+path.) Three things make this safe rather than a quiet backdoor around
 CLAUDE.md's own survivorship-bias rule:
 
 - **`RunRequest(symbols=None, start=None, end=None, params=None)`** is the
@@ -512,8 +687,8 @@ CLAUDE.md's own survivorship-bias rule:
   clamp or drop a bad value.
 - **Canonical vs. experiment is tracked in the DB, not by convention.**
   `engine/logging_db.py`'s `runs` table has an `is_canonical` column;
-  `latest_run_per_strategy()` (what `/api/strategies` and the Compare tab's
-  leaderboard read) filters to canonical rows only, so a one-off parameter
+  `latest_run_per_strategy()` (what `/api/strategies` and the Strategies
+  page's leaderboard read) filters to canonical rows only, so a one-off parameter
   sweep can never silently replace what a strategy's registered
   configuration shows. This is the same principle already applied to
   `compare_universe.py`/`compare_filters.py`/`compare_dividend_hybrid.py`
@@ -524,14 +699,14 @@ CLAUDE.md's own survivorship-bias rule:
 **The UI must disclose when a config is custom.** Overriding symbols or the
 date range reintroduces exactly the survivorship-bias risk CLAUDE.md warns
 about elsewhere ("picking symbols after seeing which ones moved is
-survivorship bias") — the Lab tab shows a persistent "Custom configuration
+survivorship bias") — the Strategies page shows a persistent "Custom configuration
 — exploratory, not a replacement for the canonical backtest" banner the
 moment anything differs from the registered defaults. Don't remove this
 banner or make custom results visually indistinguishable from canonical
 ones anywhere in the UI.
 
 Sector Rotation Play's universe (sector ETFs ranked against SPY
-specifically) can't be overridden via the Lab tab — same reasoning
+specifically) can't be overridden this way — same reasoning
 `engine/compare_universe.py` already documents for excluding it from
 universe-swap comparisons; a symbols override for it is rejected with a 400
 at the API layer (`SYMBOL_OVERRIDE_DISALLOWED_NAMES`).

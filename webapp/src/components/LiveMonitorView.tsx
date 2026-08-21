@@ -15,6 +15,9 @@ import {
   type RebalanceRunRow,
   type SignalAlert,
 } from "../api";
+import { setResource } from "../useResource";
+import { KEYS } from "../resourceKeys";
+import { DailyPerformancePanel } from "./DailyPerformancePanel";
 import { StatTile } from "./StatTile";
 
 const POLL_MS = 30_000;
@@ -165,6 +168,12 @@ export function LiveMonitorView() {
       setRuns(runRows);
       setKillSwitch(kill);
       setSummary(execSummary);
+      // Publish into the shared cache so the always-visible status strip
+      // and the dashboard's account card track this view's 30s poll while
+      // it is open, instead of showing a reading frozen at page load.
+      setResource(KEYS.executionConfig, config);
+      setResource(KEYS.killSwitch, kill);
+      setResource(KEYS.executionSummary, execSummary);
       setForwardTest(forward);
       setFillCalibration(calibration);
       // The registered-default config each ENABLED strategy is actually
@@ -188,6 +197,7 @@ export function LiveMonitorView() {
           if (cancelled) return;
           setAccount(acct);
           setSignals(sig);
+          setResource(KEYS.liveAccount, acct);
           setLoadError(null);
         })
         .catch((e) => {
@@ -675,6 +685,10 @@ export function LiveMonitorView() {
                 isolation) — accurate as long as only automated strategies trade in it.
               </p>
             )}
+
+            {/* The all-time tiles above answer "is this working"; they cannot
+              * answer "what happened today". */}
+            <DailyPerformancePanel />
 
             <div className="space-y-2">
               <div className="flex items-center justify-between gap-3">

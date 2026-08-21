@@ -29,6 +29,7 @@ from pydantic import BaseModel
 from engine import (
     alpaca_trading,
     chat_assistant,
+    custom_strategies,
     data_quality,
     data_edgar,
     digest as digest_module,
@@ -43,9 +44,14 @@ from engine import (
     movers as movers_module,
     screener as screener_module,
     signals_db,
+    strategy_authoring,
 )
+from engine import data as data_module
 from engine import quotes as quotes_module
 from engine.cross_sectional import InsufficientHistory
+# Reused, not redefined: engine/regime.py already names the benchmark this
+# whole project measures against, and a second copy is a second thing to drift.
+from engine.regime import BENCHMARK as BENCHMARK_SYMBOL
 from engine.event_timing import timing_contract_for
 from engine.logging_db import (
     attach_standard_benchmark,
@@ -90,6 +96,7 @@ from engine.validation import (
     validate_standard,
 )
 from strategies.params import apply_params, describe_params
+from strategies.spec import describe_spec, parse_spec
 from strategies.registry import (
     ALL_STRATEGY_NAMES,
     ARCHIVED_STRATEGY_NAMES,
@@ -282,8 +289,46 @@ def _clean(value: Any) -> Any:
     return value
 
 
-def _strategy_kind(name: str) -> str:
+def _known_strategy_names() -> list[str]:
+    """Every strategy this API will serve: the tracker-backed registry plus
+    whatever the user has authored from a description
+    (engine/custom_strategies.py). Read fresh on every call -- a strategy
+    saved a second ago is runnable without a restart, and a deleted one
+    404s immediately.
+
+    Deliberately a function, not a module constant, and deliberately not
+    merged into ALL_STRATEGY_NAMES: that list is checked 1:1 against
+    strategy_tracker.xlsx, so a runtime-authored strategy must never join
+    it (see engine/custom_strategies.py's docstring)."""
+    return [*ALL_STRATEGY_NAMES, *custom_strategies.custom_strategy_names()]
+
+
+def _strategy_kind(name: str, custom: dict[str, Any] | None = None) -> str:
+    """`custom` is the already-loaded store when the caller has one (the
+    leaderboard builds ~30 rows and would otherwise re-read the store's
+    files once per row)."""
+    entry = (
+        custom.get(name) if custom is not None
+        else custom_strategies.custom_strategies().get(name)
+    )
+    if entry is not None:
+        return entry.spec.kind
     return "Day Trading" if name in DAY_TRADING_STRATEGIES else "Swing Trading"
+
+
+def _custom_fields(name: str, entry: Any = None) -> dict:
+    """`custom`/`customPrompt`/`customRules` for a /api/strategies row. The
+    flag is what lets the UI mark an authored strategy as exploratory
+    everywhere it appears -- the same disclosure rule the Lab tab's custom-
+    configuration banner follows, applied to the strategy's definition
+    rather than to one run's configuration."""
+    if entry is None:
+        return {"custom": False, "customPrompt": None, "customRules": None}
+    return {
+        "custom": True,
+        "customPrompt": entry.prompt,
+        "customRules": describe_spec(entry.spec),
+    }
 
 
 def _run_config_fields(row: Any) -> dict:
@@ -389,6 +434,25 @@ class KillSwitchActivateRequest(BaseModel):
 class ChatMessage(BaseModel):
     role: str
     content: str
+
+
+class DraftStrategyRequest(BaseModel):
+    """Body for POST /api/strategies/custom/draft -- the plain-English
+    description a user typed into the Strategies tab's "Describe a
+    strategy" box. Drafting never saves anything: it returns a compiled
+    spec for review, and a separate POST stores it."""
+
+    description: str
+
+
+class SaveStrategyRequest(BaseModel):
+    """Body for POST /api/strategies/custom. `spec` is the spec dict the
+    draft step returned (re-validated here rather than trusted -- the round
+    trip through the browser means it is untrusted input again), `prompt`
+    the description it came from, kept alongside it as provenance."""
+
+    spec: dict[str, Any]
+    prompt: str
 
 
 class ChatRequest(BaseModel):
@@ -645,7 +709,7 @@ def _warmup_ok_from_row(row: Any) -> bool:
     return True
 
 
-def _portfolio_strategy_row(name: str, row: Any) -> dict:
+def _portfolio_strategy_row(name: str, row: Any, custom: dict[str, Any] | None = None) -> dict:
     """Row shape for cross-sectional (Dual Momentum) / pairs (Pairs / Stat
     Arb) strategies -- these never had a discrete-trade result, so the
     R-multiple fields (win rate, avg win/loss R, expectancy, profit factor,
@@ -658,7 +722,7 @@ def _portfolio_strategy_row(name: str, row: Any) -> dict:
     if row is None:
         return {
             "name": name,
-            "kind": _strategy_kind(name),
+            "kind": _strategy_kind(name, custom),
             "engine": _strategy_engine(name),
             # None, not 0: "no discrete-trade concept," which is different
             # from "traded zero times." The UI renders it as "--".
@@ -684,10 +748,11 @@ def _portfolio_strategy_row(name: str, row: Any) -> dict:
             **_run_config_fields(None),
             **_validation_fields(None),
             **_archive_fields(name),
+            **_custom_fields(name),
         }
     return {
         "name": name,
-        "kind": _strategy_kind(name),
+        "kind": _strategy_kind(name, custom),
         "engine": _strategy_engine(name),
         "tradesTaken": None,
         "winRate": None,
@@ -737,6 +802,7 @@ def _portfolio_strategy_row(name: str, row: Any) -> dict:
         **_validation_fields(row),
         **_run_config_fields(row),
         **_archive_fields(name),
+        **_custom_fields(name),
     }
 
 
@@ -765,7 +831,8 @@ def list_strategies(universe_id: str | None = None) -> list[dict]:
     # It must not be reported as untested -- see STATUS_AWAITING_REMEASUREMENT.
     awaiting = strategies_awaiting_remeasurement()
     rows = []
-    for name in ALL_STRATEGY_NAMES:
+    stored_custom = custom_strategies.custom_strategies()
+    for name in [*ALL_STRATEGY_NAMES, *stored_custom]:
         # Cross-sectional (Dual Momentum) and pairs (Pairs / Stat Arb)
         # strategies run on a different engine with a different result shape
         # -- reachable through /api/backtest/cross-sectional and
@@ -775,14 +842,14 @@ def list_strategies(universe_id: str | None = None) -> list[dict]:
         # here lets the UI pick the right endpoint/result view instead of
         # guessing from the name.
         if _strategy_engine(name) != "standard":
-            rows.append(_portfolio_strategy_row(name, latest_portfolio.get(name)))
+            rows.append(_portfolio_strategy_row(name, latest_portfolio.get(name), stored_custom))
             continue
 
         row = latest.get(name)
         if row is None:
             rows.append({
                 "name": name,
-                "kind": _strategy_kind(name),
+                "kind": _strategy_kind(name, stored_custom),
                 "engine": "standard",
                 "tradesTaken": 0,
                 "winRate": None,
@@ -811,13 +878,14 @@ def list_strategies(universe_id: str | None = None) -> list[dict]:
                 **_run_config_fields(None),
                 **_validation_fields(None),
                 **_archive_fields(name),
+                **_custom_fields(name, stored_custom.get(name)),
             })
         else:
             portfolio_metrics = _canonical_portfolio_metrics(row)
             displayed_sharpe = portfolio_metrics.get("sharpe", row["sharpe"])
             rows.append({
                 "name": name,
-                "kind": _strategy_kind(name),
+                "kind": _strategy_kind(name, stored_custom),
                 "engine": "standard",
                 "tradesTaken": row["trades_taken"],
                 "winRate": row["win_rate"],
@@ -850,6 +918,7 @@ def list_strategies(universe_id: str | None = None) -> list[dict]:
                 **_validation_fields(row),
                 **_run_config_fields(row),
                 **_archive_fields(name),
+                **_custom_fields(name, stored_custom.get(name)),
             })
     return _clean(rows)
 
@@ -866,7 +935,7 @@ def strategy_params(strategy_name: str) -> dict:
     run_cross_sectional/run_pairs now accept a RunRequest the same as
     run_backtest -- see /api/backtest/cross-sectional and /api/backtest/
     pairs below for where an override submitted from this schema goes."""
-    if strategy_name not in ALL_STRATEGY_NAMES:
+    if strategy_name not in _known_strategy_names():
         raise HTTPException(status_code=404, detail=f"Unknown strategy {strategy_name!r}")
 
     interval, symbols, start, end = run_config(strategy_name)
@@ -907,6 +976,82 @@ def strategy_params(strategy_name: str) -> dict:
             for s in specs
         ],
     })
+
+
+@app.get("/api/strategies/custom")
+def list_custom_strategies() -> dict:
+    """Every user-authored strategy, plus any stored file that no longer
+    parses. A broken file is reported rather than skipped -- a strategy
+    whose spec a later parser rejects must be visible (and deletable), not
+    silently absent (see engine/custom_strategies.py:LoadError)."""
+    stored, errors = custom_strategies.load_all()
+    configured, reason = strategy_authoring.available()
+    return _clean({
+        "strategies": [entry.to_dict() for entry in stored.values()],
+        "loadErrors": [{"filename": e.filename, "error": e.error} for e in errors],
+        "authoringAvailable": configured,
+        "authoringUnavailableReason": None if configured else reason,
+    })
+
+
+@app.post("/api/strategies/custom/draft")
+def draft_custom_strategy(body: DraftStrategyRequest) -> dict:
+    """Natural language in, a compiled-and-validated spec out. Saves
+    nothing: the response is what the review step renders, and the user
+    decides whether it becomes a strategy. `rules` is generated from the
+    parsed spec (engine/strategy_authoring.py), so what is reviewed is what
+    would run."""
+    try:
+        payload = strategy_authoring.draft_payload(
+            body.description, _known_strategy_names()
+        )
+    except strategy_authoring.AuthoringError as e:
+        # 422: the request was well-formed, the strategy just can't be
+        # expressed (or the model declined). Distinct from a 400 bad body.
+        raise HTTPException(status_code=422, detail=str(e)) from e
+    conflict = custom_strategies.name_conflict(payload["name"])
+    payload["nameConflict"] = conflict
+    return _clean(payload)
+
+
+@app.post("/api/strategies/custom")
+def save_custom_strategy(body: SaveStrategyRequest) -> dict:
+    """Store a drafted strategy. Re-parses the spec instead of trusting the
+    round trip, and refuses a name already used by a registered or custom
+    strategy rather than overwriting (which would orphan that name's logged
+    run history under changed rules)."""
+    try:
+        spec = parse_spec(body.spec)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    try:
+        entry = custom_strategies.save(spec, body.prompt)
+    except ValueError as e:
+        raise HTTPException(status_code=409, detail=str(e)) from e
+    return _clean(entry.to_dict())
+
+
+@app.delete("/api/strategies/custom/{strategy_name:path}")
+def delete_custom_strategy(strategy_name: str) -> dict:
+    """Delete a custom strategy's definition. Its logged runs stay in
+    logs/runs.db -- see engine/custom_strategies.py:delete."""
+    try:
+        custom_strategies.delete(strategy_name)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e
+    return {"deleted": strategy_name}
+
+
+@app.delete("/api/strategies/custom-file/{filename}")
+def delete_broken_custom_strategy(filename: str) -> dict:
+    """Delete a stored file that failed to load (reported by
+    /api/strategies/custom's loadErrors) -- the only way to clear one,
+    since it has no parseable name to address it by."""
+    try:
+        custom_strategies.delete_broken(filename)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e
+    return {"deleted": filename}
 
 
 @app.get("/api/universes")
@@ -1092,7 +1237,7 @@ def run_pairs_endpoint(strategy_name: str, overrides: BacktestOverrides | None =
 
 @app.post("/api/backtest/{strategy_name:path}")
 def run(strategy_name: str, overrides: BacktestOverrides | None = None) -> dict:
-    if strategy_name not in ALL_STRATEGY_NAMES:
+    if strategy_name not in _known_strategy_names():
         raise HTTPException(status_code=404, detail=f"Unknown strategy {strategy_name!r}")
     if is_cross_sectional(strategy_name):
         raise HTTPException(
@@ -1413,7 +1558,7 @@ def start_validation_job(
     strategy_name: str,
     overrides: BacktestOverrides | None = None,
 ) -> dict:
-    if strategy_name not in ALL_STRATEGY_NAMES:
+    if strategy_name not in _known_strategy_names():
         raise HTTPException(status_code=404, detail=f"Unknown strategy {strategy_name!r}")
     expected_engine = (
         "cross_sectional" if is_cross_sectional(strategy_name)
@@ -1561,7 +1706,7 @@ def validation_job(job_id: str) -> dict:
 
 @app.get("/api/research/spec/{strategy_name:path}")
 def research_spec(strategy_name: str) -> dict:
-    if strategy_name not in ALL_STRATEGY_NAMES:
+    if strategy_name not in _known_strategy_names():
         raise HTTPException(status_code=404, detail=f"Unknown strategy {strategy_name!r}")
     engine = (
         "cross_sectional" if is_cross_sectional(strategy_name)
@@ -1576,7 +1721,7 @@ def research_spec(strategy_name: str) -> dict:
 
 @app.get("/api/research/data-quality/{strategy_name:path}")
 def research_data_quality(strategy_name: str) -> dict:
-    if strategy_name not in ALL_STRATEGY_NAMES:
+    if strategy_name not in _known_strategy_names():
         raise HTTPException(status_code=404, detail=f"Unknown strategy {strategy_name!r}")
     interval, symbols, start, end = run_config(strategy_name)
     return _clean(data_quality.audit_universe(symbols, interval, start, end).to_dict())
@@ -1589,7 +1734,7 @@ def execution_fill_calibration(symbol: str | None = None) -> dict:
 
 @app.get("/api/research/experiments/{strategy_name:path}")
 def research_experiments(strategy_name: str, limit: int = 100) -> list[dict]:
-    if strategy_name not in ALL_STRATEGY_NAMES:
+    if strategy_name not in _known_strategy_names():
         raise HTTPException(status_code=404, detail=f"Unknown strategy {strategy_name!r}")
     return _clean([
         {
@@ -1658,7 +1803,7 @@ def portfolio_history(strategy_name: str) -> list[dict]:
     /api/backtest/pairs: that route's own `:path` converter would
     otherwise greedily swallow 'portfolio/Dual Momentum' as a single
     (wrong) strategy_name."""
-    if strategy_name not in ALL_STRATEGY_NAMES:
+    if strategy_name not in _known_strategy_names():
         raise HTTPException(status_code=404, detail=f"Unknown strategy {strategy_name!r}")
     rows = [
         {
@@ -1699,7 +1844,7 @@ def portfolio_history(strategy_name: str) -> list[dict]:
 
 @app.get("/api/history/{strategy_name:path}")
 def history(strategy_name: str) -> list[dict]:
-    if strategy_name not in ALL_STRATEGY_NAMES:
+    if strategy_name not in _known_strategy_names():
         raise HTTPException(status_code=404, detail=f"Unknown strategy {strategy_name!r}")
     rows = [
         {
@@ -1940,7 +2085,7 @@ def set_execution_config(body: ExecutionConfigUpdate) -> dict:
 
 @app.get("/api/research/forward/{strategy_name:path}")
 def forward_experiment_status(strategy_name: str) -> list[dict]:
-    if strategy_name not in ALL_STRATEGY_NAMES:
+    if strategy_name not in _known_strategy_names():
         raise HTTPException(status_code=404, detail=f"Unknown strategy {strategy_name!r}")
     return _clean(forward_experiments.for_strategy(strategy_name))
 
@@ -2033,6 +2178,176 @@ def execution_summary() -> dict:
         ),
         "completedRebalances": execution_db.count_completed_runs(),
         "inception": active_inception,
+    })
+
+
+def _benchmark_daily_pct(start: date) -> dict[str, float]:
+    """`{NY calendar date -> benchmark % change that session}`.
+
+    Daily bars are stamped midnight NY on the session date, so a date-key
+    join against Alpaca's (UTC-stamped, converted) marks lines up session
+    for session. This is NOT true of intraday bars, whose stamping
+    convention differs -- see CLAUDE.md's note under "Fundamentals data";
+    don't reuse this helper for a non-daily interval.
+
+    Returns an empty mapping rather than raising when the benchmark can't
+    be loaded: a missing SPY column must degrade the comparison to "—", not
+    take down the P&L series the user actually asked for.
+    """
+    try:
+        # One extra session of lead-in so the FIRST reported day has a prior
+        # close to compute a change against.
+        bars = data_module.get_bars(
+            BENCHMARK_SYMBOL, "1d", start - timedelta(days=7), date.today()
+        )
+    except Exception:  # noqa: BLE001 -- benchmark is a nice-to-have column here
+        return {}
+    if bars is None or bars.empty or "Close" not in bars:
+        return {}
+    pct = bars["Close"].pct_change() * 100
+    return {
+        stamp.date().isoformat(): float(value)
+        for stamp, value in pct.items()
+        if value == value  # drop the leading NaN
+    }
+
+
+def _benchmark_intraday_pct(last_settled_date: str | None) -> float | None:
+    """The benchmark's move so far TODAY, from the live delayed quote.
+
+    The in-progress account figure is intraday-to-now, so pairing it with a
+    settled daily bar would compare two different spans. This is the only
+    honest counterpart -- but it is only computable when the cached daily
+    series still ENDS BEFORE today, because that guarantees the last cached
+    close is genuinely the prior session's. Providers sometimes publish a
+    partial bar for the current day; dividing by that would quietly compare
+    today against part of itself, so this returns None instead.
+    """
+    quotes = quotes_module.get_quotes([BENCHMARK_SYMBOL])
+    quote = quotes.get(BENCHMARK_SYMBOL) or {}
+    price = quote.get("price")
+    if price is None:
+        return None
+    meta = quotes_module.symbol_metadata(BENCHMARK_SYMBOL)
+    prior_close, close_as_of = meta.get("lastClose"), meta.get("closeAsOf")
+    if not prior_close or close_as_of is None:
+        return None
+    today = datetime.now(alpaca_trading.NY).date().isoformat()
+    if str(close_as_of)[:10] >= today:
+        return None
+    # A settled prior close was already used for `last_settled_date`'s own
+    # row; if the two disagree the cache moved under us mid-request.
+    if last_settled_date is not None and str(close_as_of)[:10] < last_settled_date:
+        return None
+    return (float(price) / float(prior_close) - 1) * 100
+
+
+@app.get("/api/live/execution/daily")
+def execution_daily() -> dict:
+    """Day-by-day performance of the paper account since automated trading
+    started, next to the same day's SPY move.
+
+    The overall/all-time figures in /api/live/execution/summary answer "is
+    this working"; they cannot answer "what happened today", and a forward
+    test that only reports a cumulative number hides every day inside it.
+
+    Two deliberate choices about honesty here:
+
+    - **Today is reported separately from the closed days, never appended
+      to them.** Alpaca's daily portfolio history only contains SESSION
+      CLOSES, so today's row does not exist until the close. Today's figure
+      is derived from the live account (`equity - lastEquity`, the same
+      baseline engine/live_risk.py's daily-loss breaker uses) and flagged
+      `inProgress`, rather than silently mixed into a series of settled
+      marks.
+    - **The SPY column is a descriptive same-day comparison, not alpha.**
+      It is the benchmark's own daily return over the identical session,
+      joined on the NY calendar date; it is not risk-adjusted and says
+      nothing about attribution. Same framing as `buy_hold_return_pct`
+      elsewhere: show the benchmark's own number, don't only show a gap.
+
+    Account-level, like the all-time figures it sits beside -- accurate as
+    long as only automated strategies trade in this Alpaca account.
+    """
+    earliest = execution_db.earliest_run_with_baseline()
+    active_inception = next(
+        (
+            execution_db.inception_for(name)
+            for name, row in execution_db.automation_config().items()
+            if bool(row["enabled"])
+        ),
+        None,
+    )
+    inception_ready = bool(
+        active_inception
+        and active_inception.get("status") == "initialized"
+        and active_inception.get("equity") is not None
+    )
+    # Anchor to whatever /api/live/execution/summary calls the start, so the
+    # daily series and the all-time headline can never describe different
+    # windows.
+    started_at = (
+        active_inception["inceptionAt"] if inception_ready
+        else earliest["triggered_at"] if earliest else None
+    )
+    if started_at is None:
+        return {
+            "available": True,
+            "reason": None,
+            "startDate": None,
+            "benchmarkSymbol": BENCHMARK_SYMBOL,
+            "rows": [],
+            "today": None,
+        }
+
+    start_date = datetime.fromisoformat(started_at).date()
+    history = alpaca_trading.get_portfolio_history(start_date)
+    if not history.get("available"):
+        return {
+            "available": False,
+            "reason": history.get("reason"),
+            "startDate": start_date.isoformat(),
+            "benchmarkSymbol": BENCHMARK_SYMBOL,
+            "rows": [],
+            "today": None,
+        }
+
+    rows = history["rows"]
+    benchmark = _benchmark_daily_pct(start_date)
+    for row in rows:
+        row["benchmarkPct"] = benchmark.get(row["date"])
+
+    account = alpaca_trading.get_account()
+    today = None
+    if account.get("available") and account.get("lastEquity"):
+        equity = float(account["equity"])
+        last_equity = float(account["lastEquity"])
+        today_date = datetime.now(alpaca_trading.NY).date()
+        # Only when the closed series hasn't already settled today -- after
+        # the close Alpaca publishes the real mark, which beats a derived one.
+        if not rows or rows[-1]["date"] != today_date.isoformat():
+            today = {
+                "date": today_date.isoformat(),
+                "equity": equity,
+                "profitLoss": equity - last_equity,
+                "profitLossPct": (
+                    (equity - last_equity) / last_equity * 100 if last_equity else None
+                ),
+                # Intraday-to-now, matching the in-progress account figure --
+                # today's settled daily bar does not exist yet.
+                "benchmarkPct": _benchmark_intraday_pct(
+                    rows[-1]["date"] if rows else None
+                ),
+                "inProgress": True,
+            }
+
+    return _clean({
+        "available": True,
+        "reason": None,
+        "startDate": start_date.isoformat(),
+        "benchmarkSymbol": BENCHMARK_SYMBOL,
+        "rows": rows,
+        "today": today,
     })
 
 
