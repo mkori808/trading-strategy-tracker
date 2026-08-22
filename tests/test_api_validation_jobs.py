@@ -60,6 +60,16 @@ def test_identical_recent_job_is_reused(monkeypatch):
         "run",
         lambda name, overrides=None: calls.append(name) or {"strategyName": name},
     )
+    # Freeze the clock. Reuse is deliberately time-bounded, and only `run`
+    # is mocked here -- everything else between these two calls is real
+    # validation work whose duration depends on whether the on-disk data
+    # cache is warm (~150s warm, tens of minutes cold). On a cold cache the
+    # first job aged past JOB_REUSE_WINDOW_SECONDS before the second call
+    # looked at it, so the cache correctly declined to reuse it and this
+    # test failed for a reason that had nothing to do with reuse. Asserting
+    # on wall-clock recency while doing unbounded work is the bug; the
+    # window itself is exercised by the test below.
+    monkeypatch.setattr(main, "monotonic", lambda: 1_000.0)
 
     first = main.start_validation_job("standard", strategy_name)
     second = main.start_validation_job("standard", strategy_name)
@@ -67,6 +77,29 @@ def test_identical_recent_job_is_reused(monkeypatch):
     assert second["jobId"] == first["jobId"]
     assert second["reused"] is True
     assert calls == [strategy_name]
+
+
+def test_completed_job_past_the_reuse_window_is_not_reused(monkeypatch):
+    """The other side of the rule above, and the behaviour that made it
+    look flaky: once a completed job is older than the window, a repeat
+    request must re-run rather than hand back stale numbers."""
+    strategy_name = _standard_strategy()
+    calls = []
+    monkeypatch.setattr(
+        main,
+        "run",
+        lambda name, overrides=None: calls.append(name) or {"strategyName": name},
+    )
+    clock = {"now": 1_000.0}
+    monkeypatch.setattr(main, "monotonic", lambda: clock["now"])
+
+    first = main.start_validation_job("standard", strategy_name)
+    clock["now"] += main.JOB_REUSE_WINDOW_SECONDS + 1
+    second = main.start_validation_job("standard", strategy_name)
+
+    assert second["jobId"] != first["jobId"]
+    assert second["reused"] is False
+    assert calls == [strategy_name, strategy_name]
 
 
 def test_job_rejects_wrong_engine():

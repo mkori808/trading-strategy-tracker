@@ -187,6 +187,12 @@ _execution_task: asyncio.Task | None = None
 _validation_executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="validation")
 _validation_jobs: dict[str, dict[str, Any]] = {}
 _validation_job_cache: dict[str, str] = {}
+# How long a COMPLETED validation job stays reusable. A second identical
+# request inside this window gets the first job's result instead of
+# re-running the suite; past it, the user gets fresh numbers. Named because
+# tests assert on both sides of it -- a duplicated literal 600 in a test is
+# a second copy that can drift from this one.
+JOB_REUSE_WINDOW_SECONDS = 10 * 60
 _validation_jobs_lock = Lock()
 _research_context_var: ContextVar[dict[str, Any] | None] = ContextVar(
     "research_context", default=None,
@@ -1587,7 +1593,7 @@ def start_validation_job(
                 cached["status"] in {"queued", "running"}
                 or (
                     cached["status"] == "completed"
-                    and monotonic() - cached["createdMonotonic"] <= 10 * 60
+                    and monotonic() - cached["createdMonotonic"] <= JOB_REUSE_WINDOW_SECONDS
                 )
             )
         )
