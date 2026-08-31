@@ -1,0 +1,54 @@
+{
+  "study": "Market-Residual Momentum Regime & Drawdown Attribution v1",
+  "frozenAt": "2026-08-31",
+  "status": "diagnostic_only",
+  "purpose": "Answer one question: does market residualization (rung D, canonical Market-Residual Momentum) consistently improve downside/risk behavior over plain momentum (rung C) across distinct market environments, or is the observed Sharpe/drawdown improvement mostly attributable to one or two historical episodes?",
+  "inputs": {
+    "reuses": "engine.mrm_attribution_ladder.compute_rungs() unchanged -- the same PlainMomentumControl (C) and canonical MarketResidualMomentum (D) instances, same dow_pit universe, window, membership, cost model, and rebalance mechanics as research/mrm_attribution_ladder_preregistration.json. Neither strategy's parameters are touched by this study.",
+    "periodDefinition": "Rebalance-to-rebalance equity segments from engine.mrm_attribution_ladder._period_returns, the same period definition the attribution ladder's paired bootstrap already uses."
+  },
+  "regimeDefinitions": {
+    "trend": {
+      "source": "engine.regime.regime_series(spy_bars) -- SPY's own existing Bullish/Neutral/Bearish classifier (50/200-day SMA), unmodified and already causality-tested elsewhere in this project",
+      "labelMap": {"Bullish": "bull", "Bearish": "bear/correction", "Neutral": "sideways"},
+      "assignment": "each rebalance period is labeled by the trend regime in effect on the period's START date (the date the holdings entering that period were already decided), never a date inside or after the period"
+    },
+    "volatility": {
+      "source": "engine.timing_filters.spy_vol_percentile(start, end) -- SPY's existing 21-day realized-vol percentile against its own trailing 252-day history, unmodified",
+      "threshold": 0.7,
+      "labelMap": {"<= 0.70 percentile": "low/normal vol", "> 0.70 percentile": "high vol"},
+      "assignment": "same start-of-period assignment rule as the trend regime"
+    }
+  },
+  "drawdownEpisodeDefinition": {
+    "anchor": "SPY's own normalized equity curve over the shared traded window (not C's or D's curve), so episodes are an objective, market-wide event calendar rather than being defined by whichever strategy happens to have a drawdown there",
+    "algorithm": "peak-to-trough-to-recovery segments, same shape as engine/dm_replacement_quality.py:_all_drawdown_episodes -- a run of days where SPY sits below its running peak, closed either by a return to a new high (recovery) or by the end of the data window",
+    "materialityThresholdPct": 5.0,
+    "materialityRationale": "5% is more inclusive than the conventional 10% 'correction' line; this window (~5 years, ~60 monthly rebalances) contains too few conventional corrections to assess broad-based-vs-single-event without a lower bar. This threshold is a SAMPLING choice for this diagnostic, not a claim that a 5% dip is a bear market.",
+    "perEpisodeMeasurement": "for each SPY episode window [start, recovery-or-data-end], C's and D's OWN local max drawdown (peak within the window to trough within the window) and cumulative return over the identical calendar window are computed independently -- not assumed to share SPY's exact peak/trough dates"
+  },
+  "minimumSampleRule": {
+    "minimumRebalancePeriods": 6,
+    "rule": "any regime bucket or drawdown episode with fewer than 6 monthly rebalance periods is reported with its full numbers but explicitly labeled 'underpowered / insufficient sample' in both the JSON and the markdown report, and excluded from the headline broad-based-vs-concentrated verdict",
+    "rationale": "matches this project's existing 30-trade minimum-sample convention in spirit, scaled down for a monthly-rebalance cross-sectional design where 30 periods is 2.5 years -- 6 is the floor below which a bucket's own mean is not a meaningful statistic, not a claim that 6 is sufficient for a strong verdict"
+  },
+  "concentrationCheck": {
+    "method": "same technique as engine/dm_replacement_quality.py's worstKClusterShareOfNegativePct: rank episodes by (C's local max drawdown minus D's local max drawdown), sum the positive improvements, and report what share of that total the single largest and the two largest episodes account for",
+    "broadBasedThreshold": "top-1 episode share <= 60% AND at least 2 episodes individually improve by a materially positive amount",
+    "concentratedThreshold": "top-1 episode share > 60%, or fewer than 2 episodes show a materially positive improvement"
+  },
+  "inference": {
+    "pairedBootstrap": "reuses engine.mrm_attribution_ladder._paired_bootstrap unmodified, applied separately within each regime bucket and each drawdown episode using each bucket's own paired (D-minus-C) period-return differences",
+    "seed": 20260831,
+    "draws": 5000,
+    "note": "per-bucket sample sizes are small by construction (a single bear episode may contain 3-6 monthly periods); intervals are reported as intervals, never thresholded into pass/fail, and any bucket below minimumRebalancePeriods carries the underpowered label regardless of how the interval looks"
+  },
+  "prohibited": [
+    "tuning PlainMomentumControl's or MarketResidualMomentum's parameters",
+    "creating a new strategy variant conditioned on regime or drawdown state",
+    "writing this run to engine/logging_db.py's runs or portfolio_runs tables",
+    "using this diagnostic's findings to change Market-Residual Momentum's status in research/frozen_research_report.md, the leaderboard, or any validation gate in engine/validation.py",
+    "cherry-picking drawdown episodes after seeing which ones flatter D -- the episode set is fixed by the materiality threshold applied to SPY, not selected after inspecting C/D results"
+  ],
+  "interpretationRule": "Broad-based: D's local max drawdown is lower than C's in a majority of materially-sampled (>=6 periods) bear/correction and high-vol buckets AND in a majority of the identified drawdown episodes, AND the concentration check does not find a single episode responsible for more than 60% of the aggregate improvement. Concentrated/single-event: the aggregate max-drawdown gap between C and D is real but the concentration check attributes more than 60% of it to one episode, or only one episode individually improves by a material amount. Inconclusive: too few materially-sampled buckets or episodes exist to distinguish the two -- report this explicitly rather than defaulting to either label."
+}

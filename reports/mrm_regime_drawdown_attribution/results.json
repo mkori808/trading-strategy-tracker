@@ -1,0 +1,323 @@
+{
+  "generatedFrom": "mrm_regime_drawdown_attribution_preregistration.json",
+  "window": {
+    "start": "2021-09-01",
+    "end": "2026-08-31"
+  },
+  "minimumPeriodsForPower": 6,
+  "drawdownMaterialityThresholdPct": 5.0,
+  "volatilityThresholdPercentile": 0.7,
+  "regimeDistribution": {
+    "trend": {
+      "bull": 35,
+      "sideways": 16,
+      "bear/correction": 9
+    },
+    "volatility": {
+      "low/normal vol": 39,
+      "high vol": 21
+    },
+    "totalPeriods": 60
+  },
+  "trendRegimeBuckets": [
+    {
+      "label": "bear/correction",
+      "periods": 9,
+      "underpowered": false,
+      "cContributionPct": 12.463026049372395,
+      "dContributionPct": 4.568868220790057,
+      "cMinusDReturnContributionPct": 7.894157828582339,
+      "cSyntheticMaxDrawdownPct": -15.025623424869494,
+      "dSyntheticMaxDrawdownPct": -11.566076751583044,
+      "drawdownImprovementPct": 3.45954667328645,
+      "pairedBootstrap": {
+        "draws": 5000,
+        "periods": 9,
+        "meanPct": -7.527864353948088,
+        "medianPct": -8.506605637806334,
+        "ci90LowPct": -25.904240398452078,
+        "ci90HighPct": 14.679047320866236,
+        "fractionPositive": 0.2562,
+        "pointEstimatePct": -8.216129105642844
+      }
+    },
+    {
+      "label": "bull",
+      "periods": 35,
+      "underpowered": false,
+      "cContributionPct": 0.3694268182931948,
+      "dContributionPct": 31.007183468452105,
+      "cMinusDReturnContributionPct": -30.63775665015891,
+      "cSyntheticMaxDrawdownPct": -21.96546634887583,
+      "dSyntheticMaxDrawdownPct": -9.435227347247777,
+      "drawdownImprovementPct": 12.530239001628052,
+      "pairedBootstrap": {
+        "draws": 5000,
+        "periods": 35,
+        "meanPct": 27.709723139506544,
+        "medianPct": 24.110321209175048,
+        "ci90LowPct": -14.780000573095965,
+        "ci90HighPct": 83.60606897602935,
+        "fractionPositive": 0.8254,
+        "pointEstimatePct": 25.02852623086733
+      }
+    },
+    {
+      "label": "sideways",
+      "periods": 16,
+      "underpowered": false,
+      "cContributionPct": 56.55524704634709,
+      "dContributionPct": 27.42327160601745,
+      "cMinusDReturnContributionPct": 29.13197544032964,
+      "cSyntheticMaxDrawdownPct": -11.014959786758372,
+      "dSyntheticMaxDrawdownPct": -6.303913918463532,
+      "drawdownImprovementPct": 4.711045868294839,
+      "pairedBootstrap": {
+        "draws": 5000,
+        "periods": 16,
+        "meanPct": -20.36622488243079,
+        "medianPct": -22.900663617799367,
+        "ci90LowPct": -57.48384459793919,
+        "ci90HighPct": 24.78486063941981,
+        "fractionPositive": 0.202,
+        "pointEstimatePct": -24.985811375724552
+      }
+    }
+  ],
+  "volatilityRegimeBuckets": [
+    {
+      "label": "high vol",
+      "periods": 21,
+      "underpowered": false,
+      "cContributionPct": 34.146827959181095,
+      "dContributionPct": 30.46303230457181,
+      "cMinusDReturnContributionPct": 3.683795654609284,
+      "cSyntheticMaxDrawdownPct": -9.54106482683008,
+      "dSyntheticMaxDrawdownPct": -7.16352954909093,
+      "drawdownImprovementPct": 2.3775352777391507,
+      "pairedBootstrap": {
+        "draws": 5000,
+        "periods": 21,
+        "meanPct": -7.212770183754576,
+        "medianPct": -10.102192342617865,
+        "ci90LowPct": -51.18724639318778,
+        "ci90HighPct": 47.698115258753155,
+        "fractionPositive": 0.3658,
+        "pointEstimatePct": -11.564918886655217
+      }
+    },
+    {
+      "label": "low/normal vol",
+      "periods": 39,
+      "underpowered": false,
+      "cContributionPct": 31.73416681999146,
+      "dContributionPct": 33.800827807493185,
+      "cMinusDReturnContributionPct": -2.0666609875017237,
+      "cSyntheticMaxDrawdownPct": -23.260826597860817,
+      "dSyntheticMaxDrawdownPct": -15.898532850211,
+      "drawdownImprovementPct": 7.362293747649817,
+      "pairedBootstrap": {
+        "draws": 5000,
+        "periods": 39,
+        "meanPct": 0.896621017165939,
+        "medianPct": -2.560198139576264,
+        "ci90LowPct": -38.111107859727035,
+        "ci90HighPct": 52.93739094784093,
+        "fractionPositive": 0.465,
+        "pointEstimatePct": -2.659332654448676
+      }
+    }
+  ],
+  "drawdownEpisodes": [
+    {
+      "start": "2021-09-02",
+      "trough": "2021-10-04",
+      "recovery": "2021-10-20",
+      "end": "2021-10-20",
+      "spyDrawdownPct": -5.114152007278716,
+      "cMaxDrawdownPct": -6.727552351827715,
+      "dMaxDrawdownPct": -4.561622293973089,
+      "drawdownImprovementPct": 2.1659300578546254,
+      "cReturnPct": 0.29065928908036387,
+      "dReturnPct": -1.7805796732212054,
+      "cMinusDReturnContributionPct": 2.0712389623015692,
+      "periods": 1,
+      "underpowered": true,
+      "pairedBootstrap": {
+        "draws": 5000,
+        "periods": 1,
+        "meanPct": -3.4211478408794793,
+        "medianPct": -3.4211478408794793,
+        "ci90LowPct": -3.4211478408794793,
+        "ci90HighPct": -3.4211478408794793,
+        "fractionPositive": 0.0,
+        "pointEstimatePct": -3.4211478408794793
+      }
+    },
+    {
+      "start": "2022-01-03",
+      "trough": "2022-10-12",
+      "recovery": "2023-12-13",
+      "end": "2023-12-13",
+      "spyDrawdownPct": -24.496387071508753,
+      "cMaxDrawdownPct": -21.466894638029068,
+      "dMaxDrawdownPct": -16.53334641386499,
+      "drawdownImprovementPct": 4.933548224164078,
+      "cReturnPct": -11.88397013978635,
+      "dReturnPct": -0.007498231106606301,
+      "cMinusDReturnContributionPct": -11.876471908679743,
+      "periods": 24,
+      "underpowered": false,
+      "pairedBootstrap": {
+        "draws": 5000,
+        "periods": 24,
+        "meanPct": 10.239612144296695,
+        "medianPct": 7.685675653435076,
+        "ci90LowPct": -21.496865794485362,
+        "ci90HighPct": 49.748849662239884,
+        "fractionPositive": 0.6508,
+        "pointEstimatePct": 8.426990225538656
+      }
+    },
+    {
+      "start": "2024-03-27",
+      "trough": "2024-04-19",
+      "recovery": "2024-05-14",
+      "end": "2024-05-14",
+      "spyDrawdownPct": -5.353908275043684,
+      "cMaxDrawdownPct": -7.963298971021294,
+      "dMaxDrawdownPct": -6.772286686351725,
+      "drawdownImprovementPct": 1.1910122846695685,
+      "cReturnPct": -1.985457089734799,
+      "dReturnPct": -1.4683848067145844,
+      "cMinusDReturnContributionPct": -0.5170722830202146,
+      "periods": 2,
+      "underpowered": true,
+      "pairedBootstrap": {
+        "draws": 5000,
+        "periods": 2,
+        "meanPct": 1.2204655366690078,
+        "medianPct": 1.1547058041565528,
+        "ci90LowPct": -4.370437271561888,
+        "ci90HighPct": 6.99907240381652,
+        "fractionPositive": 0.7464,
+        "pointEstimatePct": 1.1547058041565528
+      }
+    },
+    {
+      "start": "2024-07-16",
+      "trough": "2024-08-05",
+      "recovery": "2024-09-19",
+      "end": "2024-09-19",
+      "spyDrawdownPct": -8.405634598597167,
+      "cMaxDrawdownPct": -9.484532289365944,
+      "dMaxDrawdownPct": -4.435025150473204,
+      "drawdownImprovementPct": 5.04950713889274,
+      "cReturnPct": 0.6196284428186649,
+      "dReturnPct": 2.2713606050511093,
+      "cMinusDReturnContributionPct": -1.6517321622324443,
+      "periods": 2,
+      "underpowered": true,
+      "pairedBootstrap": {
+        "draws": 5000,
+        "periods": 2,
+        "meanPct": -1.545239056285831,
+        "medianPct": -1.544598401612407,
+        "ci90LowPct": -2.1358674430957625,
+        "ci90HighPct": -0.9497570699520286,
+        "fractionPositive": 0.0,
+        "pointEstimatePct": -1.544598401612407
+      }
+    },
+    {
+      "start": "2025-02-19",
+      "trough": "2025-04-08",
+      "recovery": "2025-06-26",
+      "end": "2025-06-26",
+      "spyDrawdownPct": -18.75523448942731,
+      "cMaxDrawdownPct": -20.789121190570793,
+      "dMaxDrawdownPct": -9.700196369552728,
+      "drawdownImprovementPct": 11.088924821018065,
+      "cReturnPct": -1.7279091924090273,
+      "dReturnPct": 13.842871717272054,
+      "cMinusDReturnContributionPct": -15.570780909681082,
+      "periods": 4,
+      "underpowered": true,
+      "pairedBootstrap": {
+        "draws": 5000,
+        "periods": 4,
+        "meanPct": 10.68885792444882,
+        "medianPct": 10.510137049698764,
+        "ci90LowPct": 0.8159223379658131,
+        "ci90HighPct": 21.270017577805422,
+        "fractionPositive": 0.977,
+        "pointEstimatePct": 10.510137049698764
+      }
+    },
+    {
+      "start": "2025-10-29",
+      "trough": "2025-11-20",
+      "recovery": "2025-12-10",
+      "end": "2025-12-10",
+      "spyDrawdownPct": -5.071354461223931,
+      "cMaxDrawdownPct": -7.741695773604185,
+      "dMaxDrawdownPct": -2.9250180700790773,
+      "drawdownImprovementPct": 4.816677703525108,
+      "cReturnPct": 2.7683283828057403,
+      "dReturnPct": -0.7123207041773605,
+      "cMinusDReturnContributionPct": 3.480649086983101,
+      "periods": 2,
+      "underpowered": true,
+      "pairedBootstrap": {
+        "draws": 5000,
+        "periods": 2,
+        "meanPct": -3.5741018698234446,
+        "medianPct": -3.619132918691903,
+        "ci90LowPct": -8.181137184147403,
+        "ci90HighPct": 1.1695337370370762,
+        "fractionPositive": 0.251,
+        "pointEstimatePct": -3.619132918691903
+      }
+    },
+    {
+      "start": "2026-01-27",
+      "trough": "2026-03-30",
+      "recovery": "2026-04-14",
+      "end": "2026-04-14",
+      "spyDrawdownPct": -8.884968175523733,
+      "cMaxDrawdownPct": -3.6389107651460084,
+      "dMaxDrawdownPct": -8.253009389280964,
+      "drawdownImprovementPct": -4.6140986241349555,
+      "cReturnPct": 25.294504346710767,
+      "dReturnPct": -2.8620618399048947,
+      "cMinusDReturnContributionPct": 28.156566186615663,
+      "periods": 3,
+      "underpowered": true,
+      "pairedBootstrap": {
+        "draws": 5000,
+        "periods": 3,
+        "meanPct": -31.154843636137677,
+        "medianPct": -32.16115760531768,
+        "ci90LowPct": -47.59053523500313,
+        "ci90HighPct": -12.189362015309225,
+        "fractionPositive": 0.0342,
+        "pointEstimatePct": -32.16115760531768
+      }
+    }
+  ],
+  "concentrationCheck": {
+    "totalImprovementPct": 29.245600230124182,
+    "materialEpisodeCount": 6,
+    "top1SharePct": 37.91655747792112,
+    "top2SharePct": 55.18242687078636
+  },
+  "verdict": {
+    "label": "broad-based",
+    "riskBucketsSampled": 2,
+    "riskBucketsFavoringD": 2,
+    "episodesSampled": 1,
+    "episodesFavoringD": 1,
+    "materialEpisodeCount": 6,
+    "top1EpisodeSharePct": 37.91655747792112
+  }
+}

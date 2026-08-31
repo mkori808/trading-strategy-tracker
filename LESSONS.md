@@ -7,6 +7,90 @@ Newest entries at the top.
 
 ---
 
+## 2026-08-31 — Market-Residual Momentum regime/drawdown attribution: the drawdown improvement is directionally broad-based but certified by only one episode
+
+Follow-up to the attribution-ladder entry directly below this one. Built a
+second preregistered diagnostic
+(`research/mrm_regime_drawdown_attribution_preregistration.json`,
+`engine/mrm_regime_drawdown_attribution.py`) asking whether D's (canonical
+Market-Residual Momentum) lower drawdown than C (plain momentum) is
+broad-based across market environments or driven by one or two episodes.
+Reused `engine.mrm_attribution_ladder.compute_rungs()` unchanged (extracted
+it from `run_ladder()` as a pure refactor first, verified byte-identical
+output before building on it) so this is the same C/D equity curves, not a
+new run.
+
+Two cuts: (1) trend regime (bull/bear-correction/sideways, from the
+existing `engine/regime.py` SPY classifier) and volatility regime (from
+`engine/timing_filters.py`'s existing realized-vol percentile), each period
+labeled by the regime in effect at its own start date; (2) SPY-anchored
+drawdown episodes (>=5% peak-to-trough, market-wide and fixed before
+inspecting either strategy's numbers, not selected after seeing which dates
+flatter D).
+
+**Result: D drew down less than C in every single regime bucket** (bull,
+bear/correction, sideways, high-vol, low-vol) and in 6 of 7 identified SPY
+drawdown episodes (the one exception: Jan-Mar 2026, where D drew down MORE
+than C, -8.25% vs -3.64%). The concentration check found the largest single
+episode's improvement was only 37.9% of the total, and the two largest only
+55.2% -- not dominated by one event. **But**: only 1 of those 7 episodes (the
+2022-2023 bear market, 24 rebalance periods) clears this study's own
+6-period minimum for an individually reliable result; the other six have
+1-4 periods each and are explicitly reported as underpowered rather than
+folded into the headline verdict. Read "broad-based" here as a correct
+DIRECTIONAL pattern across many small, individually-noisy episodes plus one
+well-sampled one -- not as seven independently confirmed results. Return
+contribution (as opposed to drawdown) was NOT consistently in either
+strategy's favor across buckets: D beat C by a lot in "bull"-labeled
+periods (+31.0% vs +0.4%) while C beat D by a lot in "sideways"-labeled
+periods (+56.6% vs +27.4%) -- the risk improvement and the return
+differences are two separate, non-correlated findings; don't collapse them.
+
+Diagnostic only; does not change Market-Residual Momentum's "Interesting,
+unresolved" verdict, parameters, or leaderboard status. Full numbers in
+`reports/mrm_regime_drawdown_attribution/report.md`.
+
+---
+
+## 2026-08-31 — Market-Residual Momentum attribution ladder: residualization buys risk quality, not return, and the gap is unresolvable at this sample size
+
+Following an external review's suggestion, built a preregistered ablation
+(`research/mrm_attribution_ladder_preregistration.json`,
+`engine/mrm_attribution_ladder.py`) isolating what residualizing the
+momentum score against SPY (rung D, the canonical strategy) adds over an
+identically-configured plain trailing-return momentum control (rung C) --
+same `dow_pit` universe, window, cost model, lookback/skip/top_n/rebalance,
+membership, and PIT equal-weight/random-top-N baselines, so the only
+variable between C and D is the score formula.
+
+Result: plain momentum (C) had the higher raw return and CAGR (+76.36% /
++12.09% vs. D's +74.93% / +11.82%), but Market-Residual Momentum (D) had
+materially better risk-adjusted quality -- Sharpe 0.57 vs 0.43, max drawdown
+16.53% vs 26.06%, and lower cost drag. Residualizing against the market did
+not add return; it removed a large chunk of drawdown and improved the
+return-per-unit-risk. A paired bootstrap over the 60 shared monthly
+rebalance periods put the return delta's 90% interval at roughly
+[-60pp, +71pp] with 38% of draws positive -- wide enough to include zero,
+confirming (again) that five years / ~60 decisions cannot resolve a
+difference this size. **Read the return numbers and the Sharpe/drawdown
+numbers as two different, both-real findings, not as one strategy "beating"
+the other** -- this is the same "R-multiple and profit factor can disagree
+in direction" caution from the main README, one level up the stack.
+
+Rung E (residual momentum + an absolute-momentum filter) does not exist:
+the canonical Market-Residual Momentum spec has no filter stage, so the
+canonical strategy (F) and rung D are the same run. Adding an absolute
+filter would be a new hypothesis requiring its own preregistration, not a
+free rung of this ablation -- resist the temptation to bolt one on just
+because the ladder has a slot for it.
+
+This is a diagnostic, not a validation gate: it does not change Market-
+Residual Momentum's "Interesting, unresolved" verdict in
+`research/frozen_research_report.md`. Full numbers in
+`reports/mrm_attribution_ladder/report.md`.
+
+---
+
 ## 2026-08-12 — Six validation-pipeline bugs from a single external review: sampling-frequency regression, an exposure-denominator collapse (again), a silently drifting benchmark window, two conflated p-values, an undocumented gate, and a threshold with no recorded reasoning
 
 A precise six-item bug report against `engine/validation.py`'s evidence

@@ -1,0 +1,38 @@
+{
+  "study": "Market-Residual Momentum Attribution Ladder v1",
+  "frozenAt": "2026-08-31",
+  "status": "diagnostic_only",
+  "purpose": "Isolate the incremental economic value of residualizing the momentum score against SPY (rung C -> rung D), separate from concentration (rung B) and universe return (rung A). This is an ablation of the already-canonical Market-Residual Momentum definition, not a new candidate strategy.",
+  "canonicalInputs": {
+    "universe": "dow_pit",
+    "window": "engine.universe.daily_date_range() default, same window the canonical V1 run uses",
+    "lookback": 126,
+    "skipDays": 5,
+    "topN": 5,
+    "rebalanceFrequency": "monthly",
+    "factorModel": "market_only",
+    "costModel": "identical per-symbol spread_for_universe estimate and ALPACA_COMMISSION_BPS used by the canonical run"
+  },
+  "ladder": {
+    "A": {"rule": "PIT Dow equal-weight (dynamic membership)", "isolates": "universe return"},
+    "B": {"rule": "concentration-matched random top-N, same membership/dates/topN", "isolates": "concentration / sampling effect"},
+    "C": {"rule": "plain trailing-return momentum, top-N, identical lookback/skip/topN/rebalance/universe/costs to D", "isolates": "raw momentum selection"},
+    "D": {"rule": "canonical Market-Residual Momentum (registered defaults, unmodified)", "isolates": "incremental residualization value = D minus C"}
+  },
+  "notApplicable": {
+    "E": "Residual momentum + absolute-momentum filter is NOT implemented as a distinct rung: the canonical Market-Residual Momentum spec has no absolute-filter stage, so D and F (the canonical full strategy) are the same run. Adding a new absolute-filter variant would be a new, separately preregistered hypothesis, not a rung of this ablation, and is explicitly out of scope here."
+  },
+  "designConstraints": [
+    "Rungs C and D differ ONLY in score formula (raw cumulative return vs. market-residual cumulative compounded return); lookback, skip_days, top_n, rebalance_frequency, universe, membership, dates, and cost model are byte-identical between them.",
+    "Rungs A and B are computed ONCE (same PIT bars, same membership_at, same equity-curve index, same seed) and reused as the shared baseline for both C and D -- not independently reseeded per rung -- so the C-vs-D comparison against A/B is paired, not two independently noisy estimates.",
+    "No parameter search on rung C or rung D: both use the canonical V1 lookback/skip/topN (126/5/5). This is an ablation, not a new neighbor sweep.",
+    "A paired bootstrap over rebalance-period return differences (D minus C) is the only uncertainty estimate computed; it is reported as an interval, not as a pass/fail gate."
+  ],
+  "prohibited": [
+    "tuning rung C's or rung D's parameters away from the canonical V1 values",
+    "adding a rung E/F absolute-filter variant without a separate preregistration",
+    "writing this run to engine/logging_db.py's runs or portfolio_runs tables (diagnostic only, same discipline as engine/compare_filters.py and engine/compare_universe.py)",
+    "treating this experiment's outcome as a validation gate for Market-Residual Momentum -- it is attribution, not a replacement for research/frozen_v1_protocol.json's validation suite"
+  ],
+  "interpretationRule": "If D materially and consistently improves on C (positive mean and median return/CAGR/Sharpe difference across the paired bootstrap, CI excluding zero), residualization is adding selection value beyond plain momentum. If C is approximately equal to D, the residualization step is not earning its complexity. If C beats D, residualizing has removed useful momentum exposure rather than added it. None of these outcomes changes Market-Residual Momentum's existing 'Interesting, unresolved' verdict in research/frozen_research_report.md by itself."
+}
