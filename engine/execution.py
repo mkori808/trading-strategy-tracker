@@ -41,6 +41,7 @@ from engine import (
     alpaca_trading,
     data as data_module,
     execution_db,
+    execution_ownership,
     kill_switch,
     live_risk,
     logging_db,
@@ -50,7 +51,7 @@ from engine.runner import run_config
 from engine.universe import TIMEZONE
 from strategies.cross_sectional import CrossSectionalStrategy
 from strategies.params import apply_params, describe_params
-from strategies.registry import build_cross_sectional_strategy
+from strategies.registry import ALPACA_PAPER_STRATEGY_NAMES, build_cross_sectional_strategy
 
 RISK_LIMITS = live_risk.RiskLimits()
 
@@ -234,6 +235,9 @@ def execute_rebalance(
     today = today if today is not None else date.today()
     rebalance_date = today.isoformat()
 
+    if strategy_name not in ALPACA_PAPER_STRATEGY_NAMES:
+        return {"status": "blocked_research_shadow", "reason": "Research shadow strategies cannot place Alpaca orders."}
+
     if not execution_db.is_enabled(strategy_name):
         return {"status": "blocked_not_enabled"}
 
@@ -283,6 +287,16 @@ def execute_rebalance(
         # safety-relevant event worth an audit-trail entry the way a real
         # kill-switch/market-closed block is.
         return {"status": "alpaca_not_configured", "reason": reason}
+
+    account_identity = alpaca_trading.get_account()
+    if not account_identity.get("available"):
+        return {"status": "alpaca_not_configured", "reason": account_identity.get("reason")}
+    execution_ownership.bootstrap_current_owner(account_identity["accountNumber"])
+    authorized, ownership_reason = execution_ownership.verify_execution_authority(
+        account_identity["accountNumber"], strategy_name,
+    )
+    if not authorized:
+        return {"status": "blocked_account_ownership", "reason": ownership_reason}
 
     interval, default_symbols, _default_start, _default_end = run_config(strategy_name)
     # A promoted exploratory run may use a different universe. The exact

@@ -1,4 +1,12 @@
 const STATUS_STYLE: Record<string, { color: string; bg: string; icon: string }> = {
+  "Holdout passed": { color: "var(--status-good)", bg: "var(--status-good-bg)", icon: "✓" },
+  "holdout passed": { color: "var(--status-good)", bg: "var(--status-good-bg)", icon: "✓" },
+  "Forward testing": { color: "var(--status-good)", bg: "var(--status-good-bg)", icon: "✓" },
+  "Underpowered": { color: "var(--status-warning)", bg: "var(--status-warning-bg)", icon: "!" },
+  "Power unresolved": { color: "var(--status-warning)", bg: "var(--status-warning-bg)", icon: "?" },
+  "Data blocked": { color: "var(--status-warning)", bg: "var(--status-warning-bg)", icon: "!" },
+  "Closed": { color: "var(--text-muted)", bg: "var(--pill-bg)", icon: "×" },
+  "Archived": { color: "var(--text-muted)", bg: "var(--pill-bg)", icon: "×" },
   "Identified edge": {
     color: "var(--status-good)",
     bg: "var(--status-good-bg)",

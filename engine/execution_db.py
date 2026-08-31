@@ -77,6 +77,44 @@ CREATE TABLE IF NOT EXISTS orders (
     is_paper INTEGER NOT NULL DEFAULT 1,
     error_message TEXT
 );
+
+CREATE TABLE IF NOT EXISTS brokerage_accounts (
+    account_key TEXT PRIMARY KEY,
+    brokerage TEXT NOT NULL,
+    account_id TEXT NOT NULL,
+    environment TEXT NOT NULL,
+    active INTEGER NOT NULL DEFAULT 1,
+    multi_strategy_execution INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    UNIQUE (brokerage, account_id, environment)
+);
+
+CREATE TABLE IF NOT EXISTS execution_account_owners (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    account_key TEXT NOT NULL REFERENCES brokerage_accounts(account_key),
+    strategy_id TEXT NOT NULL,
+    strategy_name TEXT NOT NULL,
+    strategy_fingerprint TEXT NOT NULL,
+    ownership_started_at TEXT NOT NULL,
+    ownership_ended_at TEXT,
+    active INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS execution_integrity_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    account_key TEXT NOT NULL REFERENCES brokerage_accounts(account_key),
+    detected_at TEXT NOT NULL,
+    event_type TEXT NOT NULL,
+    severity TEXT NOT NULL,
+    symbol TEXT,
+    broker_order_id TEXT,
+    broker_fill_id TEXT,
+    attributable_strategy_id TEXT,
+    details_json TEXT NOT NULL,
+    evidence_key TEXT NOT NULL UNIQUE
+);
 """
 
 # Statuses a rebalance_runs row can carry that mean "nothing real was
@@ -104,6 +142,7 @@ _SCHEMA_INDEX = (
 def get_connection() -> sqlite3.Connection:
     LOGS_DIR.mkdir(exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
     conn.executescript(_SCHEMA)
     # Lightweight migration for databases created before live parameters
     # were configurable. SQLite cannot add a column conditionally in SQL.

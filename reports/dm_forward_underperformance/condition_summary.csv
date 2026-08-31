@@ -1,0 +1,5 @@
+condition,timing,nTrue,underperformTrue,rateTrue,nFalse,underperformFalse,rateFalse,riskDifference,inferenceAllowed
+SPY above 200-day SMA at T-1,known_by_T_minus_1,9,6,0.6666666666666666,0,0,,,False
+High SPY volatility at T-1,known_by_T_minus_1,8,5,0.625,1,1,1.0,-0.375,False
+High cross-sectional dispersion at T-1,known_by_T_minus_1,1,0,0.0,8,6,0.75,-0.75,False
+SPY down during session,same_session_descriptive,4,2,0.5,5,4,0.8,-0.30000000000000004,False

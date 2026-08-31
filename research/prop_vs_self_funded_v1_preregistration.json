@@ -1,0 +1,99 @@
+{
+  "study": "Optimized DM Prop versus Self-Funded Capital Efficiency v1",
+  "preregisteredAt": "2026-08-22",
+  "purpose": "Compare the frozen Optimized DM 63D/Daily strategy under the existing prop-account lifecycle with a same-effective-exposure self-funded account, without changing signals, execution ownership, or the frozen prop study.",
+  "frozenInputs": {
+    "strategy": "Dual Momentum · Optimized 63D/Daily",
+    "validationRunId": 33,
+    "parameters": {"lookback_trading_days": 63, "top_n": 5, "rebalance_frequency": "daily"},
+    "historicalPropPreregistration": {
+      "path": "research/prop_scaling_survival_v1_preregistration.json",
+      "sha256": "e383b105cb793f9f34169f3d6e98aab7a0ac0734dc59ce7b4ad37eadac8ad19f"
+    },
+    "historicalPropResults": {
+      "path": "reports/prop_scaling_survival_v1/results.json",
+      "sha256": "c26135c5ebe924f786b7d0458a2576dc35f2c683664c049d88c64088f93da437"
+    },
+    "prospectivePropPreregistration": {
+      "path": "research/optimized_dm_prop_forward_v1_preregistration.json",
+      "sha256": "8c37e7ae75b6c6d105aa6ee03e8fe230f45d9297111e5ec54a1acabb63c9b063"
+    }
+  },
+  "operatingPoints": [
+    {"key": "020_trailing", "scale": 0.20, "propDrawdownRule": "trailing_to_breakeven", "effectiveExposure": 20000},
+    {"key": "025_static", "scale": 0.25, "propDrawdownRule": "static", "effectiveExposure": 25000}
+  ],
+  "propAccount": {
+    "nominalAccount": 100000,
+    "dailyLossLimitPct": 0.03,
+    "maximumDrawdownPct": 0.06,
+    "evaluationProfitTargetPct": 0.08,
+    "payoutSplit": 0.80,
+    "challengeFee": 500,
+    "resetFee": 500,
+    "payoutCadenceTradingDays": 21,
+    "newAttemptAfterFailure": true,
+    "capitalCommittedDefinition": "Cumulative trader-paid challenge and reset fees; nominal account capacity is not treated as trader-owned capital.",
+    "capitalAtRiskDefinition": "Cumulative non-refundable challenge and reset fees paid by the trader. Contractual rule risk and lost future opportunity are reported separately, not assigned a fabricated dollar capital base."
+  },
+  "selfFundedComparatorA": {
+    "included": true,
+    "startingAndCommittedCapital": "Exactly the effective exposure: nominalAccount multiplied by scale ($20,000 or $25,000).",
+    "exposure": "Fixed dollar exposure equal to the matched prop exposure; no compounding of position size.",
+    "returnPath": "The same sampled, execution-calibrated Optimized DM daily return path used by the prop account.",
+    "stopout": "None",
+    "fees": "No prop challenge/reset fees and no payout split. Strategy transaction costs and observed execution calibration remain embedded in the return path.",
+    "capitalAtRiskDefinition": "The self-funded account equity committed to the strategy.",
+    "negativeEquityTreatment": "No artificial stopout; losses continue on the fixed exposure and may exceed starting capital in a simulated extreme path."
+  },
+  "selfFundedComparatorB": {
+    "included": false,
+    "reason": "No legitimate, previously preregistered personal stop/restart rule exists. A restart rule will not be invented after seeing outcomes."
+  },
+  "simulation": {
+    "paths": 5000,
+    "horizonTradingDays": 252,
+    "movingBlockLength": 21,
+    "seed": 20260822,
+    "sampling": "Reuse the frozen study's candidate-specific seed offset and moving-block bootstrap exactly.",
+    "accountCounts": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    "accountDependence": "Perfectly correlated identical accounts: same strategy, same marks, same rule state, and synchronized breaches/payouts. Aggregate path metrics are computed path by path, never from multiplied summary medians.",
+    "targetNetProfit": 35000
+  },
+  "primaryComparisons": [
+    "0.20x prop trailing-to-breakeven versus $20,000 self-funded fixed exposure",
+    "0.25x prop static versus $25,000 self-funded fixed exposure"
+  ],
+  "approvedSensitivities": [
+    "Static versus trailing-to-breakeven prop rules at both frozen scales",
+    "Registered historical backtest costs only versus the current observed execution overlay for Optimized DM"
+  ],
+  "metrics": [
+    "expected, median, 5th-percentile, and 1st-percentile annual net profit",
+    "probability of annual loss and probability of reaching $35,000 aggregate net profit",
+    "prop breach probabilities, expected resets, fees, payouts, and time to first payout",
+    "self-funded peak-to-trough drawdown and probability of crossing the equivalent $6,000 absolute loss threshold",
+    "capital committed, effective exposure, return on committed capital, and drawdown utilization",
+    "1-to-10 identical-account frontier and marginal economics",
+    "break-even available-own-capital thresholds, reported as feasibility thresholds and economic-return comparisons rather than a leverage recommendation"
+  ],
+  "prospectiveExtension": {
+    "source": "The same append-only Alpaca paper account equity snapshots and locked execution fingerprint consumed by the existing prop shadows.",
+    "selfFundedShadows": [
+      {"key": "optimized_dm_self_funded_020", "startingCapital": 20000, "fixedExposure": 20000},
+      {"key": "optimized_dm_self_funded_025", "startingCapital": 25000, "fixedExposure": 25000}
+    ],
+    "orders": "Observation only; these ledgers cannot place, modify, or cancel orders.",
+    "start": "First raw snapshot inserted after this preregistration is installed. No historical snapshot backfill.",
+    "classification": "Prospective observations remain separate from historical development and Monte Carlo results."
+  },
+  "interpretationGuards": [
+    "No strategy parameter, universe, holding, order, execution baseline, prop rule, or historical prop artifact may change.",
+    "Historical Optimized DM evidence is selection-contaminated and cannot substitute for forward evidence.",
+    "Daily OHLC envelopes are approximate for intraday rules; prospective five-minute account marks are the higher-quality evidence stream.",
+    "The $35,000 target frontier is descriptive. It does not select an account count or scale.",
+    "Nominal prop buying power is not personal capital and must not appear in return-on-capital denominators.",
+    "Perfectly correlated accounts do not diversify breach risk; probability of at least one breach equals the single-account breach probability.",
+    "No conclusion may be upgraded beyond depends-on-capital or inconclusive solely from the one-year selected development sample."
+  ]
+}

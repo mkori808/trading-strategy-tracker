@@ -1,9 +1,10 @@
 """Strategy name -> instance registry.
 
-Names must match strategy_tracker.xlsx's Day Trading / Swing Trading tabs
-exactly (see tests/test_engine/test_registry.py, which cross-checks this
-against the tracker) so the tracker stays the single source of truth for
-what a strategy "is".
+Established strategy names must match strategy_tracker.xlsx's Day Trading /
+Swing Trading tabs exactly.  Preregistered research variants that have not
+been promoted into the workbook are kept in the explicit
+``RESEARCH_ONLY_STRATEGY_NAMES`` set below, so they cannot silently blur that
+catalogue boundary.
 
 Most strategies here are strategies.base.Strategy instances, run through
 the per-symbol engine (engine/backtest.py). A few tracker entries need a
@@ -109,6 +110,71 @@ CROSS_SECTIONAL_STRATEGY_NAMES: list[str] = [
     "Dual Momentum", "52-Week-High Momentum", "Market-Residual Momentum",
 ]
 
+# Runnable research variants that are intentionally not yet part of the
+# tracker-backed established catalogue.  Keep this explicit: tests compare
+# every other registered swing strategy to the workbook and will expose a new
+# unclassified name.
+RESEARCH_ONLY_STRATEGY_NAMES: frozenset[str] = frozenset({
+    "52-Week-High Momentum",
+    "Market-Residual Momentum",
+})
+
+# Explicit order-routing boundary. MRM is part of the frozen research-shadow
+# comparison and must never reach Alpaca; it remains a runnable
+# cross-sectional strategy everywhere else.
+ALPACA_PAPER_STRATEGY_NAMES: tuple[str, ...] = (
+    "Dual Momentum", "52-Week-High Momentum",
+)
+
+# Promotion candidates are broader than the automated-paper execution
+# allowlist.  In particular, the frozen DM/MRM overlay is intentionally a
+# research-only shadow forward test: listing it here makes it visible in the
+# live-test promotion UI without implying that engine/execution.py can route
+# it to Alpaca.  Keep CROSS_SECTIONAL_STRATEGY_NAMES as the order-placement
+# allowlist; the API enforces that boundary independently of this registry.
+DM_MRM_VOL_SCALED_FORWARD_NAME = "DM/MRM Volatility-Scaled Portfolio"
+FORWARD_TEST_PROMOTION_CANDIDATES: tuple[dict[str, object], ...] = (
+    *(
+        {
+            "strategyName": name,
+            "testMode": "automated_paper",
+            "canPlaceOrders": True,
+            "status": "Eligible for automated paper promotion",
+        }
+        for name in ALPACA_PAPER_STRATEGY_NAMES
+    ),
+    {
+        "strategyName": "Market-Residual Momentum",
+        "testMode": "research_shadow",
+        "canPlaceOrders": False,
+        "status": "Frozen research shadow — no Alpaca orders",
+    },
+    {
+        "strategyName": DM_MRM_VOL_SCALED_FORWARD_NAME,
+        "testMode": "research_shadow",
+        "canPlaceOrders": False,
+        "status": "Frozen — eligible for research shadow forward testing",
+    },
+)
+
+# Evidence-mode registry. This is presentation/research metadata, not an
+# order-routing allowlist; ALPACA_PAPER_STRATEGY_NAMES remains the lower-level
+# capability boundary and account ownership independently decides who may use
+# that capability now.
+FORWARD_STRATEGY_REGISTRY: tuple[dict[str, object], ...] = (
+    {"key": "dm_optimized_63d_daily", "strategyName": "DM Optimized 63D/Daily", "mode": "BROKERAGE EXECUTION", "evidenceQuality": "Execution-observed", "canPlaceOrders": True},
+    {"key": "dm_optimized_63d_hourly", "strategyName": "DM Optimized 63D/Hourly", "mode": "SHADOW", "evidenceQuality": "Prospective synthetic", "parentStrategyId": "dm_optimized_63d_daily", "canPlaceOrders": False},
+    {"key": "dm", "strategyName": "Canonical DM", "mode": "SHADOW", "evidenceQuality": "Prospective synthetic", "canPlaceOrders": False},
+    {"key": "mrm", "strategyName": "Canonical MRM", "mode": "SHADOW", "evidenceQuality": "Prospective synthetic", "canPlaceOrders": False},
+    {"key": "fiftyFifty", "strategyName": "Fixed 50/50 DM/MRM", "mode": "SHADOW", "evidenceQuality": "Prospective synthetic", "canPlaceOrders": False},
+    {"key": "volScaled", "strategyName": "Vol-Scaled DM/MRM", "mode": "SHADOW", "evidenceQuality": "Prospective synthetic", "canPlaceOrders": False},
+    {"key": "optimized_dm_020_trailing", "strategyName": "Optimized DM 0.20x", "mode": "PROP SHADOW", "evidenceQuality": "Prop synthetic on observed parent stream", "parentStrategyId": "dm_optimized_63d_daily", "canPlaceOrders": False},
+    {"key": "optimized_dm_025_static", "strategyName": "Optimized DM 0.25x", "mode": "PROP SHADOW", "evidenceQuality": "Prop synthetic on observed parent stream", "parentStrategyId": "dm_optimized_63d_daily", "canPlaceOrders": False},
+    {"key": "optimized_dm_self_funded_020", "strategyName": "Optimized DM Self-Funded 0.20x", "mode": "SHADOW", "evidenceQuality": "Self-funded synthetic on observed parent stream", "parentStrategyId": "dm_optimized_63d_daily", "canPlaceOrders": False},
+    {"key": "optimized_dm_self_funded_025", "strategyName": "Optimized DM Self-Funded 0.25x", "mode": "SHADOW", "evidenceQuality": "Self-funded synthetic on observed parent stream", "parentStrategyId": "dm_optimized_63d_daily", "canPlaceOrders": False},
+    {"key": "earnings_momentum_gap_hold", "strategyName": "Earnings Momentum / Gap-Hold", "mode": "CLOSED / BLOCKED", "evidenceQuality": "No active forward evidence", "status": "DATA BLOCKED", "canPlaceOrders": False},
+)
+
 
 def build_cross_sectional_strategy(
     name: str, risk_free_rate: float, benchmark_bars: pd.DataFrame | None = None,
@@ -129,6 +195,10 @@ FROZEN_EVENT_STRATEGY_NAMES = [
     "MAX Lottery-Return Reversal (Short)",
     "Volatility-Conditioned Pullback",
 ]
+
+RESEARCH_ONLY_STRATEGY_NAMES = RESEARCH_ONLY_STRATEGY_NAMES | frozenset(
+    FROZEN_EVENT_STRATEGY_NAMES
+)
 
 
 def build_frozen_event_strategy(name: str):
@@ -165,6 +235,10 @@ UNAVAILABLE_RESEARCH_STRATEGIES: dict[str, str] = {
         "honestly with daily bars."
     ),
 }
+
+RESEARCH_ONLY_STRATEGY_NAMES = RESEARCH_ONLY_STRATEGY_NAMES | frozenset(
+    UNAVAILABLE_RESEARCH_STRATEGIES
+)
 
 
 # Pairs strategies (see strategies/swing/pairs_stat_arb.py): run through
@@ -224,11 +298,11 @@ class ArchivedStrategy:
 
 
 # Purely additive: does NOT remove anything from DAY_TRADING_STRATEGIES /
-# SWING_TRADING_STRATEGIES_NO_BENCHMARK / ALL_STRATEGY_NAMES above, all of
-# which must still match strategy_tracker.xlsx 1:1 (see
-# tests/test_engine/test_registry.py) -- the tracker is the full candidate
-# list; this is which of those candidates the app still actively surfaces
-# by default. Every archived strategy's code, run history, and backtest
+# SWING_TRADING_STRATEGIES_NO_BENCHMARK and the established subset of
+# ALL_STRATEGY_NAMES above still match strategy_tracker.xlsx 1:1 (see
+# tests/test_engine/test_registry.py). Research-only names have their own
+# explicit boundary; this registry controls which tested candidates the app
+# actively surfaces by default. Every archived strategy's code, run history, and backtest
 # reproducibility are fully intact -- only default visibility in
 # /api/strategies and the webapp changes (see api/main.py's `archived`
 # field and the webapp's "Show archived" toggle). Numbers are each

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { api, type DailyPerformance, type DailyPerformanceRow } from "../api";
 import { useResource } from "../useResource";
 import { KEYS } from "../resourceKeys";
@@ -133,10 +134,21 @@ function DayRow({
  * not exist until the session closes. It is deliberately not summed into
  * the best/worst/up-days statistics below, which describe settled sessions
  * only. */
-export function DailyPerformancePanel() {
-  const { data, error, loading } = useResource<DailyPerformance>(KEYS.executionDaily, () =>
+export function DailyPerformancePanel({
+  suppliedData,
+  accountLabel = "Paper account",
+  scopeNote = "Account-level, like the all-time figures above — accurate as long as only automated strategies trade in this account.",
+}: {
+  suppliedData?: DailyPerformance;
+  accountLabel?: string;
+  scopeNote?: string;
+} = {}) {
+  const resource = useResource<DailyPerformance>(KEYS.executionDaily, () =>
     api.executionDaily(),
   );
+  const data = suppliedData ?? resource.data;
+  const error = suppliedData ? null : resource.error;
+  const loading = suppliedData ? false : resource.loading;
   const [showAll, setShowAll] = useState(false);
 
   if (error) {
@@ -179,6 +191,15 @@ export function DailyPerformancePanel() {
   const downDays = pcts.filter((v) => v < 0).length;
   const best = pcts.length ? Math.max(...pcts) : null;
   const worst = pcts.length ? Math.min(...pcts) : null;
+  const comparison: DailyPerformance["alignedBenchmarkComparison"] = data.alignedBenchmarkComparison ?? {
+    available: false,
+    reason: "Aligned comparison has not loaded yet.",
+  };
+  const growth = (comparison.growth ?? []).map((point) => ({
+    ...point,
+    account: Number(point.account.toFixed(2)),
+    benchmark: Number(point.benchmark.toFixed(2)),
+  }));
 
   return (
     <div className="space-y-3">
@@ -217,10 +238,67 @@ export function DailyPerformancePanel() {
         </div>
       )}
 
+      {comparison.available && (
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <StatTile
+              label={`${accountLabel} · aligned`}
+              value={fmtPct(comparison.accountReturnPct ?? null)}
+              valueColor={changeColor(comparison.accountReturnPct ?? null)}
+            />
+            <StatTile
+              label={`${data.benchmarkSymbol} · aligned`}
+              value={fmtPct(comparison.benchmarkReturnPct ?? null)}
+              valueColor={changeColor(comparison.benchmarkReturnPct ?? null)}
+            />
+            <StatTile
+              label="Difference"
+              value={`${(comparison.differencePctPoints ?? 0) >= 0 ? "+" : ""}${(comparison.differencePctPoints ?? 0).toFixed(2)}pp`}
+              valueColor={changeColor(comparison.differencePctPoints ?? null)}
+            />
+            <StatTile
+              label={`Max drawdown · ${accountLabel === "Paper account" ? "paper" : accountLabel} / ${data.benchmarkSymbol}`}
+              value={`${fmtPct(comparison.accountMaxDrawdownPct ?? null)} / ${fmtPct(comparison.benchmarkMaxDrawdownPct ?? null)}`}
+            />
+          </div>
+
+          <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+            Settled through {comparison.endDate} · {comparison.sessions ?? 0} aligned sessions · the {data.startDate} intraday inception and today are excluded.
+          </p>
+
+          {growth.length > 1 && (
+            <div className="rounded-lg border p-3" style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}>
+              <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <h4 className="text-xs font-semibold" style={{ color: "var(--text-primary)" }}>Normalized growth · settled sessions</h4>
+                  <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>Both series start at 100 after the intraday inception session.</p>
+                </div>
+                <div className="flex gap-3 text-[11px]" style={{ color: "var(--text-secondary)" }}>
+                  <span><span className="mr-1 inline-block h-2 w-2 rounded-full" style={{ background: "var(--series-1)" }} />{accountLabel}</span>
+                  <span><span className="mr-1 inline-block h-2 w-2 rounded-full" style={{ background: "var(--text-muted)" }} />{data.benchmarkSymbol}</span>
+                </div>
+              </div>
+              <ResponsiveContainer width="100%" height={210}>
+                <LineChart data={growth} margin={{ top: 8, right: 10, bottom: 0, left: 0 }}>
+                  <CartesianGrid stroke="var(--gridline)" vertical={false} />
+                  <XAxis dataKey="date" tickFormatter={(value: string) => fmtDay(value)} tick={{ fontSize: 10, fill: "var(--text-muted)" }} minTickGap={30} />
+                  <YAxis domain={["auto", "auto"]} width={42} tick={{ fontSize: 10, fill: "var(--text-muted)" }} />
+                  <Tooltip labelFormatter={(value) => fmtDay(String(value))} />
+                  <Line type="monotone" dataKey="account" name={accountLabel} stroke="var(--series-1)" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="benchmark" name={data.benchmarkSymbol} stroke="var(--text-muted)" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+              <p className="mt-2 text-[11px]" style={{ color: "var(--text-muted)" }}>
+                {comparison.startDate} through {comparison.endDate} · {comparison.note}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
       {pcts.length > 0 && (
         <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-          {upDays} up / {downDays} down across settled sessions. Account-level, like the all-time
-          figures above — accurate as long as only automated strategies trade in this account. The{" "}
+          {upDays} up / {downDays} down across settled sessions. {scopeNote} The{" "}
           {data.benchmarkSymbol} column is that session's own return for context, not a
           risk-adjusted comparison; on the in-progress row it is intraday-to-now from a delayed
           quote, so it spans the same part-day the account figure does.

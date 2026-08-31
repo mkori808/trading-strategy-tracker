@@ -3,10 +3,16 @@ import {
   api,
   ApiError,
   type ExecutionOrderRow,
+  type ExecutionAccountStatus,
   type ExecutionStrategyConfig,
+  type ForwardTestPromotionCandidate,
   type ExecutionSummary,
   type ForwardTestStatus,
   type FillCalibration,
+  type ForwardStackStatus,
+  type PropShadowStatus,
+  type OptimizedDmHourlyShadowStatus,
+  type CapitalEfficiencyStatus,
   type GovernedForwardExperiment,
   type KillSwitchStatus,
   type LiveAccountResponse,
@@ -18,6 +24,7 @@ import {
 import { setResource } from "../useResource";
 import { KEYS } from "../resourceKeys";
 import { DailyPerformancePanel } from "./DailyPerformancePanel";
+import { StrategyAccountsPanel } from "./StrategyAccountsPanel";
 import { StatTile } from "./StatTile";
 
 const POLL_MS = 30_000;
@@ -89,6 +96,46 @@ function fmtSignedMoney(v: number | null | undefined): string {
   return `${sign}$${Math.abs(v).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
 }
 
+export function ExecutionCalibrationSummary({ calibration }: { calibration: FillCalibration }) {
+  return (
+    <p className="mt-2 text-xs" style={{ color: "var(--text-muted)" }}>
+      {calibration.calibrated
+        ? `${calibration.fills} fills · median adverse slippage ${calibration.medianAdverseSlippageBps?.toFixed(1) ?? "—"} bps · partial fills ${calibration.partialFillRate === null ? "—" : `${(calibration.partialFillRate * 100).toFixed(1)}%`}`
+        : `Calibration immature — ${calibration.fills}/${calibration.minimumFills} required fills.`}
+      {" "}The locked promoted-run record does not expose one comparable aggregate backtest-friction figure, so no realized-vs-assumed verdict is shown.
+    </p>
+  );
+}
+
+export function PropShadowRows({ data }: { data: PropShadowStatus }) {
+  return <div className="mt-3 overflow-x-auto"><table className="w-full text-left text-xs"><thead style={{ color: "var(--text-muted)" }}><tr><th className="pb-2 pr-3">Shadow</th><th className="pb-2 pr-3 text-right">Scale</th><th className="pb-2 pr-3 text-right">Sessions</th><th className="pb-2 pr-3">State</th><th className="pb-2 pr-3 text-right">Net payout</th><th className="pb-2 pr-3 text-right">Breaches</th><th className="pb-2 text-right">DD utilization</th></tr></thead><tbody>{data.shadows.map((row) => <tr key={row.key} className="border-t" style={{ borderColor: "var(--gridline)" }}><td className="py-2 pr-3 font-medium">{row.label}</td><td className="py-2 pr-3 text-right">{row.scale.toFixed(2)}x</td><td className="py-2 pr-3 text-right">{row.sessions}</td><td className="py-2 pr-3">{row.state}</td><td className="py-2 pr-3 text-right">{fmtSignedMoney(row.netPayout)}</td><td className="py-2 pr-3 text-right">{row.breaches}</td><td className="py-2 text-right">{(row.drawdownUtilization * 100).toFixed(0)}%</td></tr>)}</tbody></table></div>;
+}
+
+function CapitalEfficiencyPanel({ data, forward }: { data: CapitalEfficiencyStatus; forward: PropShadowStatus }) {
+  if (!data.available || !data.operatingPoints || !data.frontier || !data.classification) return null;
+  const targets = Object.values(data.operatingPoints).flatMap((point) =>
+    (["prop", "self_funded_a"] as const).map((structure) => {
+      const rows = data.frontier!.filter((row) => row.operatingPoint === point.key && row.structure === structure);
+      return { point, structure, row: (rows.find((row) => row.probabilityTarget35000 >= 0.5) ?? rows[rows.length - 1])! };
+    }),
+  );
+  return (
+    <div className="rounded-lg border p-4" style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div><h2 className="text-sm font-semibold">Prop vs self-funded capital efficiency</h2><p className="mt-1 text-xs" style={{ color: "var(--text-secondary)" }}>Same Optimized DM marks and effective exposure · no signal or order changes.</p></div>
+        <RunStatusBadge status="depends on capital" />
+      </div>
+      <p className="mt-3 text-xs" style={{ color: "var(--text-secondary)" }}>{data.classification.reason}</p>
+      <div className="mt-3 overflow-x-auto"><table className="w-full min-w-[760px] text-left text-xs"><thead style={{ color: "var(--text-muted)" }}><tr><th className="pb-2 pr-3">Point</th><th className="pb-2 pr-3 text-right">Exposure</th><th className="pb-2 pr-3 text-right">Prop expected / median</th><th className="pb-2 pr-3 text-right">Prop breach</th><th className="pb-2 pr-3 text-right">Prop expected fees</th><th className="pb-2 pr-3 text-right">Self-funded expected / median</th><th className="pb-2 text-right">Own capital to match</th></tr></thead><tbody>{Object.values(data.operatingPoints).map((point) => <tr key={point.key} className="border-t" style={{ borderColor: "var(--gridline)" }}><td className="py-2 pr-3 font-medium">{point.scale.toFixed(2)}x · {point.drawdownRule === "static" ? "static" : "trailing"}</td><td className="py-2 pr-3 text-right">{fmtMoney(point.effectiveExposure)}</td><td className="py-2 pr-3 text-right">{fmtMoney(point.prop.netProfit.expected)} / {fmtMoney(point.prop.netProfit.median)}</td><td className="py-2 pr-3 text-right">{(point.prop.breachProbability12m * 100).toFixed(1)}%</td><td className="py-2 pr-3 text-right">{fmtMoney(point.prop.fees.expected)}</td><td className="py-2 pr-3 text-right">{fmtMoney(point.selfFundedA.netProfit.expected)} / {fmtMoney(point.selfFundedA.netProfit.median)}</td><td className="py-2 text-right">{fmtMoney(point.breakEven.minimumOwnCapitalToMatchExposure)}</td></tr>)}</tbody></table></div>
+      <div className="mt-4 grid gap-3 lg:grid-cols-2">
+        <div><h3 className="text-xs font-semibold">$35,000 historical target</h3><div className="mt-2 space-y-1 text-xs" style={{ color: "var(--text-secondary)" }}>{targets.map(({ point, structure, row }) => <div key={`${point.key}-${structure}`} className="flex justify-between gap-3"><span>{point.scale.toFixed(2)}x · {structure === "prop" ? "prop" : "self-funded"}</span><span className="text-right">{row.accounts} account{row.accounts === 1 ? "" : "s"} · {(row.probabilityTarget35000 * 100).toFixed(1)}% · {fmtMoney(row.expectedCapitalCommitted)} committed</span></div>)}</div><p className="mt-2 text-xs" style={{ color: "var(--text-muted)" }}>First tested count reaching 50%, or 10 if none. Perfect correlation means count does not diversify breach risk.</p></div>
+        <div><h3 className="text-xs font-semibold">Prospective ledgers</h3><div className="mt-2 space-y-1 text-xs" style={{ color: "var(--text-secondary)" }}>{forward.selfFundedShadows.map((own, index) => { const prop = forward.shadows[index]; return <div key={own.key} className="flex justify-between gap-3"><span>{own.label}</span><span className="text-right">self {fmtSignedMoney(own.netProfit)} · prop {fmtSignedMoney(prop?.netPayout)} · {own.observations} marks</span></div>; })}</div><p className="mt-2 text-xs" style={{ color: "var(--text-muted)" }}>Append-only prospective marks are never merged into the historical Monte Carlo.</p></div>
+      </div>
+      <details className="mt-3"><summary className="cursor-pointer text-xs font-medium" style={{ color: "var(--series-1)" }}>Definitions and safeguards</summary><p className="mt-2 text-xs" style={{ color: "var(--text-secondary)" }}>Prop committed capital is cumulative challenge/reset fees; self-funded committed capital is the full matched exposure. Comparator B is omitted because no restart rule was preregistered. Frozen reproduction: {data.reproductionChecks?.every((row) => row.passed) ? "exact" : "failed"}.</p></details>
+    </div>
+  );
+}
+
 // Neutral "Long/Short signal" wording, never "BUY"/"SELL" -- this is a
 // detected entry-condition alert, not a recommendation (CLAUDE.md's
 // investment-advice non-goal applies here same as the Screener banner).
@@ -137,6 +184,7 @@ export function LiveMonitorView() {
   const [scanning, setScanning] = useState(false);
 
   const [executionConfig, setExecutionConfig] = useState<ExecutionStrategyConfig[]>([]);
+  const [executionAccount, setExecutionAccount] = useState<ExecutionAccountStatus | null>(null);
   const [runs, setRuns] = useState<RebalanceRunRow[]>([]);
   const [killSwitch, setKillSwitch] = useState<KillSwitchStatus | null>(null);
   const [rebalancing, setRebalancing] = useState<string | null>(null);
@@ -147,10 +195,14 @@ export function LiveMonitorView() {
   const [runOrders, setRunOrders] = useState<ExecutionOrderRow[]>([]);
   const [summary, setSummary] = useState<ExecutionSummary | null>(null);
   const [forwardTest, setForwardTest] = useState<ForwardTestStatus | null>(null);
+  const [forwardStack, setForwardStack] = useState<ForwardStackStatus | null>(null);
+  const [propShadows, setPropShadows] = useState<PropShadowStatus | null>(null);
+  const [hourlyShadow, setHourlyShadow] = useState<OptimizedDmHourlyShadowStatus | null>(null);
+  const [capitalEfficiency, setCapitalEfficiency] = useState<CapitalEfficiencyStatus | null>(null);
   const [governedForward, setGovernedForward] = useState<GovernedForwardExperiment[]>([]);
   const [fillCalibration, setFillCalibration] = useState<FillCalibration | null>(null);
   const [paramSchemas, setParamSchemas] = useState<Record<string, ParamSchema>>({});
-  const [availableStrategies, setAvailableStrategies] = useState<{ strategyName: string }[]>([]);
+  const [availableStrategies, setAvailableStrategies] = useState<ForwardTestPromotionCandidate[]>([]);
   const [editingStrategy, setEditingStrategy] = useState<string | null>(null);
   const [draftParams, setDraftParams] = useState<Record<string, number | boolean | string>>({});
   const [savingConfig, setSavingConfig] = useState(false);
@@ -163,7 +215,12 @@ export function LiveMonitorView() {
       api.executionSummary(),
       api.forwardTestStatus(),
       api.executionCalibration(),
-    ]).then(([config, runRows, kill, execSummary, forward, calibration]) => {
+      api.researchForwardStack(),
+      api.researchPropShadows(),
+      api.executionAccountOwnership(),
+      api.researchCapitalEfficiency(),
+      api.researchOptimizedDmHourlyShadow(),
+    ]).then(([config, runRows, kill, execSummary, forward, calibration, stack, prop, ownership, capital, hourly]) => {
       setExecutionConfig(config);
       setRuns(runRows);
       setKillSwitch(kill);
@@ -176,6 +233,12 @@ export function LiveMonitorView() {
       setResource(KEYS.executionSummary, execSummary);
       setForwardTest(forward);
       setFillCalibration(calibration);
+      setForwardStack(stack);
+      setPropShadows(prop);
+      setExecutionAccount(ownership);
+      setCapitalEfficiency(capital);
+      setHourlyShadow(hourly);
+      setResource(KEYS.executionAccountOwnership, ownership);
       // The registered-default config each ENABLED strategy is actually
       // running -- automated execution never applies a Lab-tab override
       // (see engine/execution.py's module docstring), so this schema's
@@ -215,7 +278,11 @@ export function LiveMonitorView() {
   useEffect(() => {
     api.executionStrategies().then(async (strategies) => {
       setAvailableStrategies(strategies);
-      const schemas = await Promise.all(strategies.map((s) => api.paramSchema(s.strategyName)));
+      // Shadow candidates have frozen portfolio-level specifications, not a
+      // tunable strategy parameter schema, and must never enter the Alpaca
+      // configuration flow.
+      const automated = strategies.filter((s) => s.canPlaceOrders);
+      const schemas = await Promise.all(automated.map((s) => api.paramSchema(s.strategyName)));
       setParamSchemas((current) => ({ ...current, ...Object.fromEntries(schemas.map((s) => [s.strategyName, s])) }));
     }).catch((e) => setLoadError(String(e)));
   }, []);
@@ -477,6 +544,123 @@ export function LiveMonitorView() {
         </div>
       )}
 
+      {executionAccount?.available && (
+        <div className="rounded-lg border p-4" style={{ borderColor: executionAccount.actionRequired ? "var(--status-critical)" : "var(--border)", background: "var(--surface-1)" }}>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div><h2 className="text-sm font-semibold">Brokerage execution account</h2><p className="mt-1 text-xs" style={{ color: "var(--text-secondary)" }}>{executionAccount.brokerageLabel} · <code>{executionAccount.accountId}</code></p></div>
+            <span className="rounded-full px-2 py-1 text-xs font-semibold" style={{ color: executionAccount.actionRequired ? "var(--status-critical)" : "var(--status-good)", background: executionAccount.actionRequired ? "var(--status-critical-bg)" : "var(--status-good-bg)" }}>{executionAccount.actionRequired ? "Action required" : executionAccount.executionIsolation}</span>
+          </div>
+          <div className="mt-3 grid gap-3 text-xs sm:grid-cols-3">
+            <div><span style={{ color: "var(--text-muted)" }}>Assigned strategy</span><div className="font-medium">{executionAccount.owner?.displayName ?? "Unassigned"}</div></div>
+            <div><span style={{ color: "var(--text-muted)" }}>Execution isolation</span><div className="font-medium">{executionAccount.executionIsolation}</div></div>
+            <div><span style={{ color: "var(--text-muted)" }}>Other forward strategies</span><div className="font-medium">{executionAccount.counts.SHADOW} shadow · {executionAccount.counts["PROP SHADOW"]} prop shadow</div></div>
+          </div>
+          {executionAccount.integrityIssues.map((issue, index) => <div key={`${issue.type}-${issue.brokerOrderId ?? index}`} className="mt-3 rounded-md border px-3 py-2 text-xs" style={{ borderColor: "var(--status-critical)", background: "var(--status-critical-bg)" }}><strong>Operational Integrity — account contamination: </strong>{issue.type.replaceAll("_", " ")}{issue.symbol ? ` · ${issue.symbol}` : ""}{issue.brokerOrderId ? ` · order ${issue.brokerOrderId}` : ""}</div>)}
+          <details className="mt-3"><summary className="cursor-pointer text-xs font-medium" style={{ color: "var(--series-1)" }}>Forward-test evidence map</summary><div className="mt-2 overflow-x-auto"><table className="w-full min-w-[720px] text-left text-xs"><thead style={{ color: "var(--text-muted)" }}><tr><th className="pb-2 pr-3">Strategy</th><th className="pb-2 pr-3">Mode</th><th className="pb-2 pr-3">Brokerage</th><th className="pb-2 pr-3 text-right">Observations</th><th className="pb-2">Evidence</th></tr></thead><tbody>{executionAccount.forwardStrategies.map((row) => <tr key={row.key} className="border-t" style={{ borderColor: "var(--gridline)" }}><td className="py-2 pr-3 font-medium">{row.strategy}</td><td className="py-2 pr-3">{row.mode}</td><td className="py-2 pr-3">{row.brokerage ?? "—"}</td><td className="py-2 pr-3 text-right">{row.backfillObservations === undefined ? row.observations : `${row.observations} prospective · ${row.backfillObservations} backfill marks`}</td><td className="py-2">{row.evidenceQuality}</td></tr>)}</tbody></table></div><p className="mt-2 text-xs" style={{ color: "var(--text-muted)" }}>Brokerage positions and shadow holdings are separate portfolio states. {executionAccount.principle}</p></details>
+        </div>
+      )}
+
+      {acct.available && (
+        <StrategyAccountsPanel
+          live={account}
+          summary={summary}
+          ownership={executionAccount}
+          forward={forwardStack}
+          prop={propShadows}
+          hourly={hourlyShadow}
+          runs={runs}
+        />
+      )}
+
+      {forwardStack && (
+        <div
+          className="rounded-lg border p-4"
+          style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}
+        >
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+                DM / MRM forward-testing stack
+              </h2>
+              <p className="mt-1 text-xs" style={{ color: "var(--text-secondary)" }}>
+                Normalized research NAV, kept separate from {forwardStack.separation.alpacaEquityLabel.toLowerCase()}.
+              </p>
+            </div>
+            <RunStatusBadge status={forwardStack.maturity.label} />
+          </div>
+
+          {forwardStack.alerts.map((alert) => (
+            <div
+              key={alert.code}
+              className="mt-3 rounded-md border px-3 py-2 text-xs"
+              style={{
+                borderColor: alert.severity === "error" && alert.scope !== "research_shadow" ? "var(--status-critical)" : "var(--status-warning)",
+                background: alert.severity === "error" && alert.scope !== "research_shadow" ? "var(--status-critical-bg)" : "var(--status-warning-bg)",
+                color: "var(--text-primary)",
+              }}
+            >
+              <strong>{alert.code === "strategy_fingerprint_mismatch" ? "Live fingerprint mismatch: " : alert.scope === "research_shadow" ? "Research-shadow reconciliation: " : "Forward-stack alert: "}</strong>
+              {alert.message}
+            </div>
+          ))}
+
+          <div className="mt-3 overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead style={{ color: "var(--text-muted)" }}>
+                <tr>
+                  <th className="pb-2 pr-3 font-medium">Series</th>
+                  <th className="pb-2 pr-3 font-medium">Role</th>
+                  <th className="pb-2 pr-3 text-right font-medium">Sessions</th>
+                  <th className="pb-2 pr-3 text-right font-medium">NAV</th>
+                  <th className="pb-2 pr-3 text-right font-medium">Return</th>
+                  <th className="pb-2 text-right font-medium">Drawdown</th>
+                </tr>
+              </thead>
+              <tbody>
+                {forwardStack.series.map((row) => (
+                  <tr key={row.key} className="border-t" style={{ borderColor: "var(--gridline)" }}>
+                    <td className="py-2 pr-3 font-medium" style={{ color: "var(--text-primary)" }}>{row.series}</td>
+                    <td className="py-2 pr-3" style={{ color: "var(--text-secondary)" }}>{row.type}</td>
+                    <td className="py-2 pr-3 text-right">{row.sessions}</td>
+                    <td className="py-2 pr-3 text-right">{row.nav === null ? "—" : row.nav.toFixed(2)}</td>
+                    <td className="py-2 pr-3 text-right">{fmtPct(row.returnPct)}</td>
+                    <td className="py-2 text-right">{fmtPct(row.drawdownPct)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {forwardStack.paperAutomation.enabled && forwardStack.paperAutomation.identity?.fingerprintMatches && (
+            <p className="mt-3 text-xs" style={{ color: "var(--text-secondary)" }}>
+              Alpaca paper: <strong>{forwardStack.paperAutomation.identity.displayName}</strong> · {forwardStack.paperAutomation.identity.provenance}. Canonical DM above remains a separate normalized shadow.
+            </p>
+          )}
+          {forwardStack.paperAutomation.enabled && forwardStack.paperAutomation.identity?.fingerprintMatches === false && (
+            <p className="mt-3 text-xs" style={{ color: "var(--status-critical)" }}>
+              {forwardStack.paperAutomation.identity.fingerprintReason}
+            </p>
+          )}
+          <p className="mt-2 text-xs" style={{ color: "var(--text-muted)" }}>
+            Next checkpoint: {forwardStack.maturity.next ? `${forwardStack.maturity.next.sessions} sessions (${forwardStack.maturity.next.label})` : "annualized review eligible"}.
+          </p>
+        </div>
+      )}
+
+      {propShadows && (
+        <div className="rounded-lg border p-4" style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div><h2 className="text-sm font-semibold">Optimized DM Prop Shadows</h2><p className="mt-1 text-xs" style={{ color: "var(--text-secondary)" }}>Prospective synthetic accounting only · historical Monte Carlo remains separate.</p></div>
+            <RunStatusBadge status={propShadows.maturity} />
+          </div>
+          {propShadows.warnings.map((warning) => <div key={warning} className="mt-3 rounded-md border px-3 py-2 text-xs" style={{ borderColor: "var(--status-warning)", background: "var(--status-warning-bg)" }}><strong>Operational Integrity: </strong>{warning}</div>)}
+          <PropShadowRows data={propShadows} />
+          <details className="mt-3"><summary className="cursor-pointer text-xs font-medium" style={{ color: "var(--series-1)" }}>Sampling and breach distances</summary><div className="mt-2 grid gap-2 text-xs sm:grid-cols-2" style={{ color: "var(--text-secondary)" }}><div>Last snapshot: {fmtTime(propShadows.lastSnapshot)} · cadence {propShadows.samplingIntervalSeconds / 60} minutes</div><div>Fingerprint: {propShadows.fingerprintLocked ? "locked" : "mismatch — collection blocked"}</div>{propShadows.shadows.map((row) => <div key={`${row.key}-distance`}>{row.label}: daily breach distance {fmtMoney(row.distanceToDailyBreach)} · {row.drawdownRule === "static" ? "static" : "trailing"} breach distance {fmtMoney(row.distanceToDrawdownBreach)}</div>)}</div></details>
+        </div>
+      )}
+
+      {propShadows && capitalEfficiency && <CapitalEfficiencyPanel data={capitalEfficiency} forward={propShadows} />}
+
       {forwardTest && (
         <div
           className="rounded-lg border p-4"
@@ -485,10 +669,10 @@ export function LiveMonitorView() {
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
-                Frozen forward test · Dual Momentum
+                Legacy canonical-DM stop protocol
               </h2>
               <p className="mt-1 text-xs" style={{ color: "var(--text-secondary)" }}>
-                Stop benchmark: {forwardTest.stopBenchmark}. SPY remains an allocation comparison and does not drive the stop.
+                Separate legacy ledger. Stop benchmark: {forwardTest.stopBenchmark}. SPY remains an allocation comparison and does not drive the stop.
               </p>
             </div>
             <RunStatusBadge status={forwardTest.status} />
@@ -560,6 +744,7 @@ export function LiveMonitorView() {
             <div><span style={{ color: "var(--text-muted)" }}>P95 adverse slippage</span><div>{fillCalibration.p95AdverseSlippageBps?.toFixed(1) ?? "—"} bps</div></div>
             <div><span style={{ color: "var(--text-muted)" }}>Partial-fill rate</span><div>{fillCalibration.partialFillRate === null ? "—" : `${(fillCalibration.partialFillRate * 100).toFixed(1)}%`}</div></div>
           </div>
+          <ExecutionCalibrationSummary calibration={fillCalibration} />
         </div>
       )}
 
@@ -691,28 +876,53 @@ export function LiveMonitorView() {
             <DailyPerformancePanel />
 
             <div className="space-y-2">
+              {availableStrategies.some((s) => !s.canPlaceOrders) && (
+                <div className="rounded-md border px-3 py-2" style={{ borderColor: "var(--gridline)" }}>
+                  <div className="mb-1 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
+                    Research-only shadow systems
+                  </div>
+                  {availableStrategies.filter((s) => !s.canPlaceOrders).map((candidate) => (
+                    <div key={candidate.strategyName} className="flex flex-wrap items-center justify-between gap-2 py-1">
+                      <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                        {candidate.strategyName}
+                      </span>
+                      <span
+                        className="rounded-full px-2 py-0.5 text-xs font-medium"
+                        style={{ color: "var(--series-1)", background: "var(--gridline)" }}
+                      >
+                        Research Shadow Forward Test · no orders
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
               <div className="flex items-center justify-between gap-3">
                 <span className="text-xs" style={{ color: "var(--text-muted)" }}>
-                  Add a strategy disabled first, configure it, then explicitly enable paper execution.
+                  {executionAccount?.owner
+                    ? `${executionAccount.owner.displayName} owns this account. Other strategies remain shadow-only unless assigned a separate account.`
+                    : "Add a strategy disabled first, configure it, then explicitly enable paper execution."}
                 </span>
                 <button
                   type="button"
                   onClick={() => {
-                    // Today Dual Momentum is the only safely automatable
-                    // strategy. Once it has been added, keep this action
-                    // useful by reopening its saved configuration instead
-                    // of leaving an unexplained disabled button.
-                    const candidate = availableStrategies.find((s) => !executionConfig.some((c) => c.strategyName === s.strategyName))
-                      ?? availableStrategies[0];
+                    // Only order-capable candidates enter this control.
+                    // Research-shadow candidates remain visible above but
+                    // cannot be passed into the Alpaca configuration flow.
+                    const automated = availableStrategies.filter((s) => s.canPlaceOrders);
+                    const candidate = automated.find((s) => !executionConfig.some((c) => c.strategyName === s.strategyName))
+                      ?? automated[0];
                     if (!candidate) return;
                     const current = executionConfig.find((c) => c.strategyName === candidate.strategyName);
                     openConfig(candidate.strategyName, current?.params);
                   }}
-                  disabled={availableStrategies.length === 0}
+                  disabled={!availableStrategies.some((s) => s.canPlaceOrders) || Boolean(executionAccount?.owner)}
+                  title={executionAccount?.owner ? "The connected brokerage account already has a fingerprint-locked execution owner." : undefined}
                   className="rounded-md px-2.5 py-1 text-xs font-medium text-white disabled:opacity-50"
                   style={{ background: "var(--series-1)" }}
                 >
-                  {availableStrategies.some((s) => !executionConfig.some((c) => c.strategyName === s.strategyName))
+                  {executionAccount?.owner
+                    ? "Brokerage account occupied"
+                    : availableStrategies.some((s) => s.canPlaceOrders && !executionConfig.some((c) => c.strategyName === s.strategyName))
                     ? "Add live strategy"
                     : "Configure live strategy"}
                 </button>
@@ -750,7 +960,7 @@ export function LiveMonitorView() {
                           <input
                             type="checkbox"
                             checked={cfg.enabled}
-                            disabled={togglingConfig === cfg.strategyName}
+                            disabled={togglingConfig === cfg.strategyName || Boolean(executionAccount?.owner && executionAccount.owner.strategyName !== cfg.strategyName)}
                             onChange={(e) => toggleStrategy(cfg.strategyName, e.target.checked)}
                           />
                           {cfg.strategyName}
@@ -762,7 +972,7 @@ export function LiveMonitorView() {
                             background: cfg.enabled ? "var(--status-good-bg)" : "var(--gridline)",
                           }}
                         >
-                          {cfg.enabled ? "Automated" : "Off"}
+                          {cfg.enabled ? "PAPER AUTOMATED" : executionAccount?.owner && executionAccount.owner.strategyName !== cfg.strategyName ? "SHADOW — NO ORDERS" : "Off"}
                         </span>
                         {cfg.overrideUsed && (
                           <span
@@ -801,7 +1011,7 @@ export function LiveMonitorView() {
                       <button
                         type="button"
                         onClick={() => rebalanceNow(cfg.strategyName)}
-                        disabled={rebalancing === cfg.strategyName}
+                        disabled={rebalancing === cfg.strategyName || Boolean(executionAccount?.owner && executionAccount.owner.strategyName !== cfg.strategyName)}
                         className="rounded-md border px-2.5 py-1 text-xs font-medium disabled:opacity-50"
                         style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}
                       >
@@ -949,7 +1159,7 @@ export function LiveMonitorView() {
 
           <div>
             <div className="mb-3 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
-              Open positions ({positions.length})
+              Brokerage positions ({positions.length})
             </div>
             <div
               className="overflow-x-auto rounded-lg border"

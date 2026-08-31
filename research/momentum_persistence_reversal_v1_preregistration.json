@@ -1,0 +1,94 @@
+{
+  "study": "Momentum Persistence / Reversal Regime Audit v1",
+  "preregisteredAt": "2026-08-27",
+  "purpose": "Test the narrow ex-ante hypothesis that five already-frozen momentum portfolios have stronger SPY-relative daily returns during persistent market trends than during pullback/rebound transition states.",
+  "strategySources": [
+    {
+      "key": "dm_optimized_63d_daily",
+      "source": "portfolio_runs.id=33",
+      "configuration": "63-session lookback, top 5, daily rebalance, frozen 26-symbol universe",
+      "execution": "Use the frozen execution overlay in research/dm_regime_dependence_v1_preregistration.json.",
+      "evidenceCap": "exploratory_historical_selection_contaminated"
+    },
+    {
+      "key": "canonical_dm_189d_monthly",
+      "source": "portfolio_runs.id=26",
+      "configuration": "189-session lookback, top 5, monthly rebalance, point-in-time Dow membership",
+      "evidenceCap": "candidate_for_independent_validation_only"
+    },
+    {
+      "key": "canonical_mrm",
+      "source": "portfolio_runs.id=24",
+      "configuration": "126-session market-residual momentum, skip 5, top 5, monthly rebalance, point-in-time Dow membership",
+      "evidenceCap": "candidate_for_independent_validation_only"
+    },
+    {
+      "key": "fixed_50_50_dm_mrm",
+      "source": "Derived only from runs 26 and 24 using the frozen fixed 50/50 monthly reset rule",
+      "evidenceCap": "exploratory_historical_overlay_designed_on_analyzed_period"
+    },
+    {
+      "key": "vol_scaled_dm_mrm",
+      "source": "Derived only from runs 26 and 24 using the frozen 60-session inverse-volatility monthly reset rule",
+      "evidenceCap": "exploratory_historical_overlay_designed_on_analyzed_period"
+    }
+  ],
+  "stateInformationTiming": "Every state for strategy return session T uses only SPY closes available through T-1.",
+  "stateInputs": {
+    "longTermTrend": "SPY close T-1 strictly above its 200-session simple moving average computed through T-1",
+    "shortTermDirection": "SPY total return from close T-22 through close T-1 strictly above zero"
+  },
+  "states": [
+    {"key": "bullish_persistence", "definition": "long-term trend true and short-term direction positive"},
+    {"key": "pullback", "definition": "long-term trend true and short-term direction non-positive"},
+    {"key": "bearish_persistence", "definition": "long-term trend false and short-term direction non-positive"},
+    {"key": "rebound", "definition": "long-term trend false and short-term direction positive"}
+  ],
+  "outcomes": {
+    "primary": "Daily active return: strategy close-to-close return T minus SPY close-to-close return T",
+    "secondary": [
+      "strategy absolute daily return",
+      "positive strategy-return rate",
+      "positive active-return rate",
+      "worst strategy day",
+      "state-attributed maximum drawdown",
+      "state observation share"
+    ]
+  },
+  "primaryHypothesis": {
+    "estimand": "Mean active return on persistence sessions (bullish_persistence plus bearish_persistence) minus mean active return on transition sessions (pullback plus rebound)",
+    "family": "Five tests, one per frozen strategy; Benjamini-Hochberg correction across all five",
+    "direction": "positive",
+    "movingBlockBootstrapReplications": 5000,
+    "blockLengthSessions": 21,
+    "seed": 20260827,
+    "confidenceLevel": 0.95,
+    "leaveOneYearOut": true
+  },
+  "secondaryContrasts": [
+    "bullish_persistence minus rebound active return",
+    "bearish_persistence minus pullback active return"
+  ],
+  "stabilityGates": {
+    "maximumBhQ": 0.10,
+    "confidenceIntervalMustExcludeZero": true,
+    "minimumObservationsPerPrimarySide": 63,
+    "minimumObservationsPerDisplayedState": 21,
+    "minimumContributingCalendarYears": 3,
+    "minimumLeaveOneYearOutDirectionalAgreement": 0.80,
+    "positivePersistenceActiveReturnRequired": true
+  },
+  "classification": {
+    "stableCandidate": "All stability gates pass; still requires independent prospective validation before any trading use.",
+    "unsupportedOrUnstable": "At least one stability gate fails.",
+    "exploratoryHistorical": "Applied to Optimized DM and both derived overlays regardless of statistics because their selection/design used the analyzed history."
+  },
+  "interpretationGuards": [
+    "State tables are attribution diagnostics, not a backtest of switching a strategy on and off.",
+    "No best-state label may be interpreted as predictive when the five-test primary family fails.",
+    "Secondary contrasts and absolute-return summaries cannot rescue a failed primary active-return test.",
+    "No additional state, threshold, lookback, outcome, or interaction may be added after results are observed.",
+    "No condition may suppress, resize, create, modify, or cancel a live or paper order.",
+    "Optimized DM and both portfolio overlays remain exploratory historical evidence regardless of p-values."
+  ]
+}

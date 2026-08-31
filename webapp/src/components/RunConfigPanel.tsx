@@ -1,5 +1,21 @@
 import { useEffect, useState } from "react";
-import { api, type BacktestOverrides, type CapTierPools, type ParamSchema, type ParamSpec } from "../api";
+import { api, type BacktestOverrides, type CapTierPools, type ParamSchema, type ParamSpec, type TimingContract } from "../api";
+
+export interface RunConfigState {
+  dirty: boolean;
+  provenance: "Exploratory" | "Preregistered";
+  universeLabel: string;
+  securityCount: number | string;
+  start: string;
+  end: string;
+  timing: TimingContract | null;
+  interval: string;
+  registeredParams: Record<string, number | boolean | string>;
+  params: Record<string, number | boolean | string>;
+  implementationStatus: ParamSchema["implementationStatus"];
+  unavailableReason: string | null;
+  overrides: BacktestOverrides;
+}
 
 const CHIP_STYLE = {
   borderColor: "var(--border)",
@@ -45,7 +61,8 @@ function CapTierSampler({
     >
       <div className="flex items-center justify-between gap-2">
         <span className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>
-          Experimental sampling source
+          <span className="mr-2 rounded px-1.5 py-0.5 text-[10px]" style={{ background: "var(--status-warning-bg)", color: "var(--status-warning)" }}>EXPERIMENTAL</span>
+          Sampling source
         </span>
         <span className="text-xs" style={{ color: "var(--text-muted)" }}>
           {CAP_TIERS.find((item) => item.key === tier)?.label} pool: {poolSize}
@@ -255,12 +272,42 @@ function ParamControl({
   );
 }
 
+export function StructuralUniverseSummary({ symbols }: { symbols: string[] }) {
+  return <div className="rounded-lg border p-3" style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}><div className="flex flex-wrap items-start justify-between gap-3"><div><div className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>Universe</div><div className="mt-1 text-sm font-medium">Strategy default · {symbols.length} securities</div><div className="mt-1 text-xs" style={{ color: "var(--text-muted)" }}>Structural universe · locked</div></div><details><summary className="cursor-pointer text-xs font-medium" style={{ color: "var(--series-1)" }}>View constituents</summary><div className="mt-3 max-w-xl"><SymbolChips symbols={symbols} editable={false} onChange={() => undefined} /></div></details></div></div>;
+}
+
+export function EditableUniverseSummary({ label, count }: { label: string; count: number | string }) {
+  return <><span>Advanced universe settings</span><span className="ml-2 text-xs font-normal" style={{ color: "var(--text-muted)" }}>{label} · {count} securities</span></>;
+}
+
+export function LoadedRunNotice({ runId, provenance }: { runId: number; provenance?: string }) {
+  return <div className="rounded-lg border px-3 py-2 text-xs" style={{ borderColor: "var(--series-1)", color: "var(--text-secondary)" }}><strong>Loaded from Run #{runId}.</strong> {provenance ?? "Historical configuration"}. Loading it does not create a new preregistration or make it the registered default.</div>;
+}
+
+function intervalName(interval: string): string {
+  const match = interval.match(/^(\d+)m(?:in)?$/i);
+  if (match) return `${match[1]}-minute bar`;
+  if (/^1d|day|daily$/i.test(interval)) return "Daily";
+  const hour = interval.match(/^(\d+)h$/i);
+  return hour ? `${hour[1]}-hour bar` : `${interval} bar`;
+}
+
+export function ExecutionSemantics({ timing, interval }: { timing: TimingContract | null; interval?: string }) {
+  const bar = interval ? intervalName(interval) : null;
+  const observed = timing?.informationAvailability === "AT_CLOSE" && bar ? `${bar} close` : timing?.informationAvailability.replace(/_/g, " ").toLowerCase();
+  const fill = timing?.execution === "NEXT_OPEN" && bar ? `Next ${bar.toLowerCase()} open` : timing?.execution.replace(/_/g, " ").toLowerCase();
+  return <div className="rounded-lg border p-3" title={timing ? `Execution engine: ${timing.engine}; interval: ${interval ?? "not reported"}` : undefined} style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}><div className="mb-2 text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>Execution semantics</div>{timing ? <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-3"><div><span className="block text-xs" style={{ color: "var(--text-muted)" }}>Signal observed</span>{observed}</div><div><span className="block text-xs" style={{ color: "var(--text-muted)" }}>Earliest fill</span>{fill}</div><div><span className="block text-xs" style={{ color: "var(--text-muted)" }}>Lookahead-safe</span><span style={{ color: timing.execution === "SAME_CLOSE" && timing.usesCurrentClose ? "var(--status-critical)" : "var(--status-positive)" }}>{timing.execution === "SAME_CLOSE" && timing.usesCurrentClose ? "✕ Review timing" : "✓ Yes"}</span></div>{timing.exceptionReason && <div className="text-xs sm:col-span-3" style={{ color: "var(--status-warning)" }}>{timing.exceptionReason}</div>}</div> : <div className="text-sm" style={{ color: "var(--status-critical)" }}>Execution timing unavailable. The run is blocked.</div>}</div>;
+}
+
 export function RunConfigPanel({
   strategyName,
   running,
   runError,
   onRun,
   initialOverrides,
+  loadedRunId,
+  loadedRunProvenance,
+  onStateChange,
 }: {
   strategyName: string;
   running: boolean;
@@ -271,6 +318,9 @@ export function RunConfigPanel({
    * on this component from the parent to force a remount when replaying a
    * different experiment, the standard React reset-via-remount pattern. */
   initialOverrides?: BacktestOverrides;
+  loadedRunId?: number;
+  loadedRunProvenance?: string;
+  onStateChange?: (state: RunConfigState) => void;
 }) {
   const [schema, setSchema] = useState<ParamSchema | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -327,6 +377,39 @@ export function RunConfigPanel({
       .catch((e) => setLoadError(String(e)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [strategyName]);
+
+  useEffect(() => {
+    if (!schema || !onStateChange) return;
+    const symbolsChanged = JSON.stringify([...symbols].sort()) !== JSON.stringify([...schema.symbolsDefault].sort());
+    const datesChanged = start !== schema.startDefault || end !== schema.endDefault;
+    const paramsChanged = schema.params.some((p) => params[p.name] !== p.default);
+    const universeChanged = universeId !== (schema.universeDefault ?? "");
+    const selected = schema.universes.find((item) => item.id === universeId);
+    const overrides: BacktestOverrides = {};
+    if (universeId) overrides.universeId = universeId;
+    else if (symbolsChanged) overrides.symbols = symbols;
+    if (start !== schema.startDefault) overrides.start = start;
+    if (end !== schema.endDefault) overrides.end = end;
+    if (paramsChanged) overrides.params = Object.fromEntries(
+      schema.params.filter((p) => params[p.name] !== p.default).map((p) => [p.name, params[p.name]]),
+    );
+    const dirty = symbolsChanged || datesChanged || paramsChanged || universeChanged;
+    onStateChange({
+      dirty,
+      provenance: dirty || loadedRunId !== undefined ? "Exploratory" : "Preregistered",
+      universeLabel: selected?.label ?? (symbolsChanged ? "Custom symbols" : "Strategy default"),
+      securityCount: selected?.membershipMode === "dynamic_pit_security_master" ? (selected.approximateSecurityCount ?? "dynamic") : symbols.length,
+      start,
+      end,
+      timing: schema.timing ?? null,
+      interval: schema.interval,
+      registeredParams: Object.fromEntries(schema.params.map((spec) => [spec.name, spec.default])),
+      params,
+      implementationStatus: schema.implementationStatus,
+      unavailableReason: schema.unavailableReason,
+      overrides,
+    });
+  }, [schema, symbols, universeId, start, end, params, loadedRunId, onStateChange]);
 
   if (loadError) {
     return (
@@ -385,8 +468,12 @@ export function RunConfigPanel({
   };
 
   return (
-    <div className="space-y-4">
-      <div>
+    <div className="flex flex-col gap-4">
+      {schema.symbolOverrideAllowed ? <details className="order-4 rounded-lg border p-3" style={{ borderColor: "var(--border)" }}>
+        <summary className="cursor-pointer text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+          <EditableUniverseSummary label={selectedUniverse?.label || (symbolsChanged ? "Custom symbols" : "Strategy default")} count={selectedUniverse?.membershipMode === "dynamic_pit_security_master" ? (selectedUniverse.approximateSecurityCount ?? "dynamic") : symbols.length} />
+        </summary>
+      <div className="mt-3">
         <div className="mb-1.5 flex items-center justify-between">
           <span className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>
             Market universe
@@ -398,7 +485,7 @@ export function RunConfigPanel({
               className="text-xs underline"
               style={{ color: "var(--text-muted)" }}
             >
-              Reset to defaults
+              Reset to registered defaults
             </button>
           )}
         </div>
@@ -478,26 +565,6 @@ export function RunConfigPanel({
         <div className="mb-2 text-xs" style={{ color: "var(--text-secondary)" }}>
           Active universe: <strong>{selectedUniverse?.label || (symbolsChanged ? "Custom symbols" : "Strategy default")} — {selectedUniverse?.membershipMode === "dynamic_pit_security_master" ? (selectedUniverse.approximateSecurityCount ?? "dynamic") : symbols.length} securities</strong>
         </div>
-        {schema.timing ? (
-          <div className="mb-2 rounded-md border px-2.5 py-2 text-xs" style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}>
-            <strong>Execution timing:</strong> {schema.timing.informationAvailability} evidence → {schema.timing.execution.replace(/_/g, " ")}
-            <div className="mt-1" style={{ color: "var(--text-muted)" }}>
-              Engine: {schema.timing.engine}; current close used as evidence: {schema.timing.usesCurrentClose ? "yes" : "no"}.
-            </div>
-            {schema.timing.exceptionReason && (
-              <div className="mt-1" style={{ color: "var(--status-warning)" }}>
-                Explicit timing exception: {schema.timing.exceptionReason}
-              </div>
-            )}
-          </div>
-        ) : (
-          <div
-            className="mb-2 rounded-md border px-2.5 py-2 text-xs"
-            style={{ borderColor: "var(--status-critical)", color: "var(--status-critical)" }}
-          >
-            <strong>Execution timing unavailable.</strong> Restart the API server before running this strategy; the UI will not infer a timing contract.
-          </div>
-        )}
         {schema.symbolOverrideAllowed ? (
           <>
             {!universeId && pools && <CapTierSampler pools={pools} onSample={setSymbols} />}
@@ -528,8 +595,11 @@ export function RunConfigPanel({
           </>
         )}
       </div>
+      </details> : (
+        <div className="order-4"><StructuralUniverseSummary symbols={symbols} /></div>
+      )}
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="order-1 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <label className="flex flex-col gap-1 text-xs">
           <span style={{ color: "var(--text-muted)" }}>Start</span>
           <input
@@ -556,13 +626,13 @@ export function RunConfigPanel({
         </label>
       </div>
       {pitDatesOutsideCoverage && (
-        <div className="rounded-md border px-3 py-2 text-xs" style={{ borderColor: "var(--status-critical)", color: "var(--status-critical)" }}>
+        <div className="order-5 rounded-md border px-3 py-2 text-xs" style={{ borderColor: "var(--status-critical)", color: "var(--status-critical)" }}>
           Requested dates fall outside the validated point-in-time dataset coverage.
         </div>
       )}
 
       {visibleParams.length > 0 && (
-        <div>
+        <div className="order-2">
           <div className="mb-2 flex items-center justify-between">
             <span className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>
               Parameters
@@ -591,9 +661,11 @@ export function RunConfigPanel({
         </div>
       )}
 
+      <div className="order-3"><ExecutionSemantics timing={schema.timing ?? null} interval={schema.interval} /></div>
+
       {isCustom && (
         <div
-          className="rounded-lg border px-3 py-2 text-xs"
+          className="order-5 rounded-lg border px-3 py-2 text-xs"
           style={{
             borderColor: "var(--status-warning)",
             background: "var(--status-warning-bg)",
@@ -605,8 +677,12 @@ export function RunConfigPanel({
         </div>
       )}
 
+      {loadedRunId !== undefined && (
+        <div className="order-5"><LoadedRunNotice runId={loadedRunId} provenance={loadedRunProvenance} /></div>
+      )}
+
       {schema.implementationStatus === "unavailable" && (
-        <div className="rounded-lg border px-3 py-2 text-xs" style={{ borderColor: "var(--status-warning)", color: "var(--status-warning)" }}>
+        <div className="order-5 rounded-lg border px-3 py-2 text-xs" style={{ borderColor: "var(--status-warning)", color: "var(--status-warning)" }}>
           <strong>Unavailable by research-integrity rule.</strong> {schema.unavailableReason}
         </div>
       )}
@@ -615,7 +691,7 @@ export function RunConfigPanel({
         type="button"
         onClick={handleRun}
         disabled={running || !schema.timing || universeRunBlocked || pitDatesOutsideCoverage || schema.implementationStatus === "unavailable"}
-        className="w-full rounded-md px-4 py-2 text-sm font-medium text-white transition-opacity disabled:opacity-50"
+        className="order-6 w-full rounded-md px-4 py-2 text-sm font-medium text-white transition-opacity disabled:opacity-50"
         style={{ background: "var(--series-1)" }}
       >
         {running ? "Running validation suite…" : !schema.timing ? "Restart API server" : schema.implementationStatus === "unavailable" ? "Unavailable" : universeRunBlocked ? "PIT dataset required" : isCustom ? "Run this variation" : "Run Backtest"}
@@ -623,7 +699,7 @@ export function RunConfigPanel({
 
       {runError && (
         <div
-          className="rounded-lg border px-3 py-2 text-xs"
+          className="order-7 rounded-lg border px-3 py-2 text-xs"
           style={{ borderColor: "var(--status-critical)", color: "var(--status-critical)" }}
         >
           {runError}

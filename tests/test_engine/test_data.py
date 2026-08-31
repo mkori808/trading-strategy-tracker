@@ -91,6 +91,55 @@ def test_get_bars_merges_narrow_refresh_without_erasing_older_history(tmp_path, 
     pd.testing.assert_frame_equal(result, stored, check_freq=False, check_index_type=False)
 
 
+def test_get_bars_tail_extension_never_re_requests_settled_history(tmp_path, monkeypatch):
+    """A cache that already reaches back to `start` must only have its tail
+    extended. Re-requesting the whole range on every call let yfinance's
+    auto_adjust silently revise already-cached historical closes whenever a
+    symbol paid a dividend since the last fetch (the adjustment factor is
+    recomputed from the entire queried window) -- surfacing downstream as
+    DM/MRM's forward-NAV reconciliation repeatedly failing with 'historical
+    NAV mutation detected' even though nothing in that ledger was ever
+    touched. See engine/data.py:get_bars and the 2026-08-30 incident."""
+    monkeypatch.setattr(data_module, "DATA_DIR", tmp_path)
+    cached = _fake_bars(start="2020-01-02", periods=10)
+    cached.to_parquet(tmp_path / "TEST_1d.parquet")
+    calls = []
+
+    def fake_fetch(symbol, interval, start, end):
+        calls.append(start)
+        # A realistic provider only returns bars from the requested start.
+        return _fake_bars(start=start.isoformat(), periods=5)
+
+    monkeypatch.setattr(data_module, "_fetch", fake_fetch)
+    data_module.get_bars("TEST", "1d", date(2020, 1, 2), date(2020, 2, 1))
+
+    assert len(calls) == 1
+    assert calls[0] > date(2020, 1, 2)  # never re-requested the settled start
+    stored = pd.read_parquet(tmp_path / "TEST_1d.parquet")
+    pd.testing.assert_frame_equal(
+        stored.loc[:cached.index[-1]], cached, check_freq=False, check_index_type=False,
+    )
+
+
+def test_get_bars_tail_extension_still_permits_a_short_lookback_correction(tmp_path, monkeypatch):
+    """The tail-only fetch still re-requests the last few cached sessions
+    (not just brand-new dates), so a genuinely late correction to a recent,
+    not-yet-fully-settled bar is still picked up."""
+    monkeypatch.setattr(data_module, "DATA_DIR", tmp_path)
+    cached = _fake_bars(start="2024-01-02", periods=10)
+    cached.to_parquet(tmp_path / "TEST_1d.parquet")
+    calls = []
+
+    def fake_fetch(symbol, interval, start, end):
+        calls.append(start)
+        return _fake_bars(start=start.isoformat(), periods=20)
+
+    monkeypatch.setattr(data_module, "_fetch", fake_fetch)
+    data_module.get_bars("TEST", "1d", date(2024, 1, 2), date(2024, 2, 1))
+
+    assert calls[0] <= cached.index.max().date()
+
+
 def test_yfinance_cache_is_relocated_to_writable_project_storage(tmp_path, monkeypatch):
     configured: list[str] = []
     monkeypatch.setattr(data_module.yf, "set_tz_cache_location", configured.append)

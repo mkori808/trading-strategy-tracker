@@ -1,0 +1,84 @@
+{
+  "study": "Canonical Dual Momentum Stock-Characteristics Audit v1",
+  "frozenAt": "2026-08-30",
+  "status": "diagnostic_only",
+  "question": "Among stocks actually selected by unchanged canonical Dual Momentum, do point-in-time price or liquidity characteristics identify stronger next-rebalance SPY-relative outcomes?",
+  "population": {
+    "strategy": "registered canonical Dual Momentum, 189-session lookback, monthly rebalance, top N = 5",
+    "sourceLedger": "reports/dm_rank_depth_audit/dm_rank_ledger.csv",
+    "includedRows": "selected_by_canonical == true with complete exact-open next-rebalance outcomes",
+    "independentUnit": "rebalance date",
+    "informationBoundary": "features use the final daily bar strictly before the rebalance session; outcomes use the rebalance open through the next rebalance open",
+    "scope": "conditional description inside the selected top-five portfolio, not a test of the full eligible universe"
+  },
+  "primaryFeatures": [
+    {
+      "key": "volatility_63d",
+      "label": "63-session annualized volatility",
+      "definition": "sample standard deviation of the last 63 close-to-close returns multiplied by sqrt(252)",
+      "expectedDirection": "two_sided"
+    },
+    {
+      "key": "beta_spy_126d",
+      "label": "126-session SPY beta",
+      "definition": "covariance of stock and SPY close-to-close returns divided by SPY return variance over the latest 126 aligned sessions",
+      "expectedDirection": "two_sided"
+    },
+    {
+      "key": "log_dollar_volume_20d",
+      "label": "20-session log average dollar volume",
+      "definition": "natural log of mean adjusted close times volume over the latest 20 sessions",
+      "expectedDirection": "two_sided"
+    },
+    {
+      "key": "distance_from_252d_high",
+      "label": "Distance from 252-session high",
+      "definition": "latest adjusted close divided by the maximum adjusted close over the latest 252 sessions, minus one; larger values are nearer the high",
+      "expectedDirection": "two_sided"
+    },
+    {
+      "key": "momentum_acceleration_63_189",
+      "label": "63-vs-189-session momentum acceleration",
+      "definition": "63-session close return minus 189-session close return",
+      "expectedDirection": "two_sided"
+    }
+  ],
+  "primaryOutcome": "stock exact-open next-rebalance return minus aligned SPY exact-open return",
+  "estimand": "percentage-point change in next-period active return for a one-standard-deviation within-rebalance increase in the characteristic, after rebalance-date demeaning",
+  "inference": {
+    "clusterBootstrapDraws": 2000,
+    "familywisePermutationDraws": 2000,
+    "seed": 20260830,
+    "confidenceLevel": 0.95,
+    "family": "all five primary features",
+    "null": "within each rebalance, apply the same random permutation of outcomes to all five fixed feature columns; use the maximum absolute cluster t statistic",
+    "missingPolicy": "drop a row only from the affected feature; never impute",
+    "minimumFeatureCoverage": 0.95
+  },
+  "descriptiveOnly": [
+    "top-two versus bottom-two characteristic buckets within each rebalance",
+    "incumbent versus newly selected status",
+    "first-half and second-half estimates",
+    "leave-one-calendar-year-out directional agreement",
+    "leave-one-security-out estimate range",
+    "raw stock return and win-rate summaries"
+  ],
+  "qualificationRule": {
+    "minimumAbsoluteEffectPerWithinRebalanceSd": 0.01,
+    "requirements": "95% cluster-bootstrap CI excludes zero, familywise p <= 0.10, coverage >= 95%, first and second half have the same sign, and at least 80% of usable leave-one-year-out estimates share the full-sample direction",
+    "interpretation": "A qualifying result justifies one separately preregistered validation study; it does not authorize a filter, weight, order, or sizing change."
+  },
+  "excludedForDataIntegrity": {
+    "sector": "No genuine point-in-time historical sector-classification ledger is installed.",
+    "marketCap": "No point-in-time shares-outstanding/security-master history is installed.",
+    "fundamentals": "Historical point-in-time accounting snapshots with filing availability dates are not installed.",
+    "currentCompanyLabels": "Present-day classifications may not be applied backward."
+  },
+  "prohibited": [
+    "changing canonical Dual Momentum",
+    "searching additional features or thresholds after seeing results",
+    "constructing a filtered or reweighted portfolio",
+    "treating five simultaneous holdings as five independent observations",
+    "modifying any frozen forward test or Alpaca execution setting"
+  ]
+}

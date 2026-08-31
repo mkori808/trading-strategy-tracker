@@ -1,0 +1,102 @@
+{
+  "study": "Dual Momentum Regime-Dependence Audit v1",
+  "preregisteredAt": "2026-08-26",
+  "purpose": "Test whether two already-frozen Dual Momentum return streams vary with three ex-ante market states, without changing either strategy or searching condition thresholds.",
+  "strategies": [
+    {
+      "key": "dm_optimized_63d_daily",
+      "label": "Dual Momentum Optimized 63D/Daily",
+      "source": "portfolio_runs.id=33",
+      "parameters": {"lookback_trading_days": 63, "top_n": 5, "rebalance_frequency": "daily"},
+      "requestedWindow": ["2025-08-15", "2026-08-14"],
+      "universePolicy": "The exact frozen 26-symbol run-33 universe.",
+      "evidenceGuard": "Historically selected development candidate. It cannot earn a stable-regime classification from this sample; all historical conditional findings are exploratory and selection-contaminated.",
+      "executionTreatment": {
+        "historicalBacktestSlippageBps": 5.0000000000000036,
+        "observedCalibrationFrozenAtPreregistration": {
+          "fills": 45,
+          "medianAdverseSlippageBps": 10.857763300760048,
+          "p95AdverseSlippageBps": 101.90973709000572,
+          "meanFillRatio": 0.9971572353512573,
+          "partialFillRate": 0.3333333333333333
+        },
+        "primary": "Apply the same aggregate fill-ratio and incremental-slippage approximation used by the frozen prop study, with calibration values frozen above."
+      }
+    },
+    {
+      "key": "canonical_dm_189d_monthly",
+      "label": "Canonical Dual Momentum 189D/Monthly",
+      "source": "portfolio_runs.id=26 and registered Dual Momentum defaults",
+      "parameters": {"lookback_trading_days": 189, "top_n": 5, "rebalance_frequency": "monthly"},
+      "requestedWindow": ["2021-08-15", "2026-08-14"],
+      "universePolicy": "Point-in-time Dow membership schedule used by the canonical runner.",
+      "executionTreatment": "Retain the registered per-symbol spread/cost model. Do not transfer small-cap optimized-DM fill calibration to the Dow universe."
+    }
+  ],
+  "conditions": [
+    {
+      "key": "spy_trend",
+      "stateOne": "above_200d",
+      "stateZero": "at_or_below_200d",
+      "definition": "SPY adjusted close at T-1 is strictly above its 200-session simple moving average through T-1.",
+      "informationBoundary": "Uses no observation later than the close of T-1 for strategy return T."
+    },
+    {
+      "key": "market_volatility",
+      "stateOne": "high_vol",
+      "stateZero": "low_vol",
+      "definition": "SPY 21-session annualized realized volatility through T-1 is above the median of its preceding 252 realized-volatility observations, excluding T-1.",
+      "informationBoundary": "The current volatility estimate and its reference distribution are both known by the close of T-1."
+    },
+    {
+      "key": "cross_sectional_dispersion",
+      "stateOne": "high_dispersion",
+      "stateZero": "low_dispersion",
+      "definition": "The cross-sectional standard deviation of constituent close-to-close returns at T-1 is above the median of the preceding 63 dispersion observations, excluding T-1. Membership is the frozen fixed universe for Optimized DM and the point-in-time Dow membership for Canonical DM.",
+      "informationBoundary": "No T prices enter the state applied to return T."
+    }
+  ],
+  "primaryHypotheses": {
+    "count": 6,
+    "family": "Each of two strategies crossed with each of three binary conditions.",
+    "estimand": "Mean daily strategy return in state one minus mean daily strategy return in state zero.",
+    "direction": "Two-sided; no favorable state is declared in advance."
+  },
+  "inference": {
+    "movingBlockBootstrapReplications": 5000,
+    "blockLengthSessions": 21,
+    "seed": 20260826,
+    "confidenceLevel": 0.95,
+    "multipleTesting": "Benjamini-Hochberg correction across all six primary interaction tests.",
+    "leaveOneYearOut": true,
+    "minimumObservationsPerState": 63,
+    "minimumCalendarYearsForStableCandidate": 3,
+    "minimumLeaveOneYearOutDirectionalAgreement": 0.80,
+    "stableCandidateRule": "q <= 0.10, 95% block-bootstrap CI excludes zero, both states have at least 63 observations, at least three calendar years contribute, and at least 80% of usable leave-one-year-out estimates share the full-sample direction.",
+    "optimizedOverride": "Optimized DM is always capped at exploratory_historical regardless of statistical results because its sample selected this configuration."
+  },
+  "reportedMetrics": [
+    "state counts and calendar-year coverage",
+    "mean, median, annualized mean, volatility, Sharpe, hit rate, worst day, cumulative return, and maximum drawdown by state",
+    "state-one minus state-zero daily mean and annualized difference",
+    "moving-block bootstrap confidence interval and p-value",
+    "Benjamini-Hochberg q-value",
+    "leave-one-year-out estimates and directional agreement",
+    "turnover by state when available",
+    "missing-condition observations and point-in-time membership diagnostics"
+  ],
+  "prospectiveExtension": {
+    "strategy": "Dual Momentum Optimized 63D/Daily only",
+    "start": "First completed market session strictly after 2026-08-26",
+    "storage": "Append-only daily regime labels linked to the existing locked optimized strategy fingerprint.",
+    "orders": "Observation only. Regime labels cannot suppress, resize, create, modify, or cancel an order.",
+    "historicalSeparation": "Prospective labels and returns are never pooled into the historical discovery result."
+  },
+  "prohibitions": [
+    "No threshold, lookback, state definition, strategy parameter, universe, holding, rebalance, leverage, or cost model may be selected after seeing conditional results.",
+    "No conditional strategy or live trading filter is created by this audit.",
+    "No subgroup Sharpe alone can qualify a condition; the interaction estimand and preregistered stability gates control interpretation.",
+    "No annualized or long-history claim is made for the optimized strategy's approximately one-year selected sample.",
+    "Canonical and optimized results remain separate; they are not pooled as independent replications."
+  ]
+}

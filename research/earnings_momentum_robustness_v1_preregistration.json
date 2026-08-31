@@ -1,0 +1,30 @@
+{
+  "study": "Earnings Momentum / Gap-Hold Robustness Audit v1",
+  "preregisteredAt": "2026-08-22T19:04:56.9247152-07:00",
+  "strategy": "Earnings Momentum / Gap-Hold",
+  "configuration": "existing registered defaults only; no parameter optimization",
+  "requiredInputGate": {
+    "historicalAnnouncementTimestamp": true,
+    "timezone": "America/New_York or losslessly convertible",
+    "bmoAmcClassification": true,
+    "knownAtTimestamp": true,
+    "sourceProvenance": true,
+    "decision": "If any required field is unavailable, classify DATA BLOCKED and do not run outcome robustness statistics on a price/volume proxy."
+  },
+  "testsIfInputGatePasses": {
+    "contributionConcentration": ["top 1", "top 3", "top 5", "top 10%", "top 20%"],
+    "removeBestTrades": [1, 3, 5, "top 10%"],
+    "leaveOneSecurityOut": true,
+    "leaveOneCalendarYearOut": true,
+    "clusters": ["announcement date", "security", "market episode", "PIT sector only if legitimately available"],
+    "clusterBootstrapDraws": 10000,
+    "bootstrapSeed": 20260822,
+    "confidenceIntervals": ["expectancy R", "profit factor when defined", "average trade return", "win rate"],
+    "timing": {"BMO": "earliest tradable open after public release", "AMC": "next regular-session open", "sameBarExecution": false},
+    "slippageBps": [0, 5, 10, 20, 30, 50],
+    "gapSensitivity": "apply the frozen grid to executable next-open prices; do not choose a favorable arm",
+    "regimeStability": "descriptive only",
+    "propAnalysis": "only after signal-level robustness survives; no sizing optimization"
+  },
+  "classifications": ["Rejected", "Interesting but underpowered", "Candidate for prospective forward testing", "DATA BLOCKED"]
+}

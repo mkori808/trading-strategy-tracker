@@ -1,0 +1,1373 @@
+{
+  "guards": [
+    "No threshold, lookback, state definition, strategy parameter, universe, holding, rebalance, leverage, or cost model may be selected after seeing conditional results.",
+    "No conditional strategy or live trading filter is created by this audit.",
+    "No subgroup Sharpe alone can qualify a condition; the interaction estimand and preregistered stability gates control interpretation.",
+    "No annualized or long-history claim is made for the optimized strategy's approximately one-year selected sample.",
+    "Canonical and optimized results remain separate; they are not pooled as independent replications."
+  ],
+  "historicalEvidenceClassification": {
+    "canonical_dm_189d_monthly": "canonical historical audit; candidates still require independent validation",
+    "dm_optimized_63d_daily": "selected development history; exploratory only"
+  },
+  "preregistration": "research/dm_regime_dependence_v1_preregistration.json",
+  "preregistrationSha256": "72ee369e00abe5ab44755dae076c56e033972c7c9766eb64a1dfe6665b314ea9",
+  "primaryTests": [
+    {
+      "bootstrap": {
+        "ciHigh": 0.004442728707294915,
+        "ciLow": -0.016867190896246685,
+        "replications": 4045,
+        "twoSidedP": 0.7337453646477132
+      },
+      "calendarYears": [
+        2025,
+        2026
+      ],
+      "classification": "exploratory_historical",
+      "classificationReasons": [
+        "fewer than 63 observations in at least one state",
+        "fewer than three contributing calendar years",
+        "95% block-bootstrap interval includes zero",
+        "six-test BH q-value exceeds 0.10",
+        "optimized configuration is selection-contaminated and capped at exploratory historical evidence"
+      ],
+      "condition": "spy_trend",
+      "differenceAnnualizedMean": -0.17456292962347997,
+      "differenceMeanDaily": -0.0006927100381884125,
+      "leaveOneYearOut": {
+        "directionalAgreement": 1.0,
+        "folds": [
+          {
+            "difference": -0.0007460307999767736,
+            "leftOutYear": 2025,
+            "nStateOne": 143,
+            "nStateZero": 12
+          },
+          {
+            "difference": null,
+            "leftOutYear": 2026,
+            "nStateOne": 95,
+            "nStateZero": 0
+          }
+        ],
+        "usableFolds": 1
+      },
+      "missingObservations": 0,
+      "qValue": 0.8804944375772559,
+      "stateOne": {
+        "annualizedMeanReturn": 0.6025473161639742,
+        "annualizedVolatility": 0.2847706178566522,
+        "calendarYears": [
+          2025,
+          2026
+        ],
+        "cumulativeAttributedReturn": 0.6996733931437087,
+        "maximumAttributedDrawdown": -0.13068603009727686,
+        "meanDailyReturn": 0.002391060778428469,
+        "meanTurnover": 0.16974789915966387,
+        "medianDailyReturn": 0.00163919328571043,
+        "n": 238,
+        "positiveDayRate": 0.5462184873949579,
+        "sharpe": 2.115904093965496,
+        "worstDay": -0.05876670194783287
+      },
+      "stateOneLabel": "above_200d",
+      "stateZero": {
+        "annualizedMeanReturn": 0.7771102457874541,
+        "annualizedVolatility": 0.31801509525265387,
+        "calendarYears": [
+          2026
+        ],
+        "cumulativeAttributedReturn": 0.035358493598423024,
+        "maximumAttributedDrawdown": -0.0694980991213141,
+        "meanDailyReturn": 0.0030837708166168813,
+        "meanTurnover": 0.2333333333333333,
+        "medianDailyReturn": 0.0054185635574750535,
+        "n": 12,
+        "positiveDayRate": 0.5833333333333334,
+        "sharpe": 2.443626913905022,
+        "worstDay": -0.028330585035777275
+      },
+      "stateZeroLabel": "at_or_below_200d",
+      "strategy": "dm_optimized_63d_daily",
+      "usableObservations": 250
+    },
+    {
+      "bootstrap": {
+        "ciHigh": 0.007378305578798671,
+        "ciLow": -0.0043426067545733445,
+        "replications": 5000,
+        "twoSidedP": 0.518
+      },
+      "calendarYears": [
+        2025,
+        2026
+      ],
+      "classification": "exploratory_historical",
+      "classificationReasons": [
+        "fewer than three contributing calendar years",
+        "95% block-bootstrap interval includes zero",
+        "six-test BH q-value exceeds 0.10",
+        "leave-one-year-out directional agreement is below 80%",
+        "optimized configuration is selection-contaminated and capped at exploratory historical evidence"
+      ],
+      "condition": "market_volatility",
+      "differenceAnnualizedMean": 0.47054977012949106,
+      "differenceMeanDaily": 0.0018672609925773455,
+      "leaveOneYearOut": {
+        "directionalAgreement": 0.5,
+        "folds": [
+          {
+            "difference": -0.002804147720085884,
+            "leftOutYear": 2025,
+            "nStateOne": 88,
+            "nStateZero": 67
+          },
+          {
+            "difference": 0.010411678734795884,
+            "leftOutYear": 2026,
+            "nStateOne": 33,
+            "nStateZero": 62
+          }
+        ],
+        "usableFolds": 2
+      },
+      "missingObservations": 0,
+      "qValue": 0.777,
+      "stateOne": {
+        "annualizedMeanReturn": 0.8537300181727184,
+        "annualizedVolatility": 0.29181287223653213,
+        "calendarYears": [
+          2025,
+          2026
+        ],
+        "cumulativeAttributedReturn": 0.47557026239546096,
+        "maximumAttributedDrawdown": -0.18198566910049818,
+        "meanDailyReturn": 0.0033878175324314223,
+        "meanTurnover": 0.15206611570247933,
+        "medianDailyReturn": 0.003855031637637634,
+        "n": 121,
+        "positiveDayRate": 0.5867768595041323,
+        "sharpe": 2.925607810339217,
+        "worstDay": -0.05598927788028583
+      },
+      "stateOneLabel": "high_vol",
+      "stateZero": {
+        "annualizedMeanReturn": 0.38318024804322737,
+        "annualizedVolatility": 0.2803425951647739,
+        "calendarYears": [
+          2025,
+          2026
+        ],
+        "cumulativeAttributedReturn": 0.19260419431179665,
+        "maximumAttributedDrawdown": -0.16332831781544,
+        "meanDailyReturn": 0.0015205565398540768,
+        "meanTurnover": 0.19224806201550387,
+        "medianDailyReturn": 0.0009525092488905958,
+        "n": 129,
+        "positiveDayRate": 0.5116279069767442,
+        "sharpe": 1.3668284971750715,
+        "worstDay": -0.05876670194783287
+      },
+      "stateZeroLabel": "low_vol",
+      "strategy": "dm_optimized_63d_daily",
+      "usableObservations": 250
+    },
+    {
+      "bootstrap": {
+        "ciHigh": 0.0037501599262936866,
+        "ciLow": -0.004114057655037109,
+        "replications": 5000,
+        "twoSidedP": 0.9912
+      },
+      "calendarYears": [
+        2025,
+        2026
+      ],
+      "classification": "exploratory_historical",
+      "classificationReasons": [
+        "fewer than three contributing calendar years",
+        "95% block-bootstrap interval includes zero",
+        "six-test BH q-value exceeds 0.10",
+        "optimized configuration is selection-contaminated and capped at exploratory historical evidence"
+      ],
+      "condition": "cross_sectional_dispersion",
+      "differenceAnnualizedMean": -0.04007011206031357,
+      "differenceMeanDaily": -0.00015900838119172053,
+      "leaveOneYearOut": {
+        "directionalAgreement": 1.0,
+        "folds": [
+          {
+            "difference": -0.00015568255165476254,
+            "leftOutYear": 2025,
+            "nStateOne": 91,
+            "nStateZero": 64
+          },
+          {
+            "difference": -0.00014074075300143062,
+            "leftOutYear": 2026,
+            "nStateOne": 35,
+            "nStateZero": 60
+          }
+        ],
+        "usableFolds": 2
+      },
+      "missingObservations": 0,
+      "qValue": 0.9912,
+      "stateOne": {
+        "annualizedMeanReturn": 0.5910515612039856,
+        "annualizedVolatility": 0.30013051705157817,
+        "calendarYears": [
+          2025,
+          2026
+        ],
+        "cumulativeAttributedReturn": 0.31383047644068895,
+        "maximumAttributedDrawdown": -0.10386775354158673,
+        "meanDailyReturn": 0.002345442703190419,
+        "meanTurnover": 0.21587301587301583,
+        "medianDailyReturn": 0.0015070412385545405,
+        "n": 126,
+        "positiveDayRate": 0.5317460317460317,
+        "sharpe": 1.969315106675447,
+        "worstDay": -0.05598927788028583
+      },
+      "stateOneLabel": "high_dispersion",
+      "stateZero": {
+        "annualizedMeanReturn": 0.6311216732642992,
+        "annualizedVolatility": 0.271595888109553,
+        "calendarYears": [
+          2025,
+          2026
+        ],
+        "cumulativeAttributedReturn": 0.33942035558651296,
+        "maximumAttributedDrawdown": -0.10415589919200241,
+        "meanDailyReturn": 0.0025044510843821397,
+        "meanTurnover": 0.12903225806451613,
+        "medianDailyReturn": 0.0022314972971603456,
+        "n": 124,
+        "positiveDayRate": 0.5645161290322581,
+        "sharpe": 2.323752681446065,
+        "worstDay": -0.05876670194783287
+      },
+      "stateZeroLabel": "low_dispersion",
+      "strategy": "dm_optimized_63d_daily",
+      "usableObservations": 250
+    },
+    {
+      "bootstrap": {
+        "ciHigh": 0.0006718952632566448,
+        "ciLow": -0.002716656620873929,
+        "replications": 5000,
+        "twoSidedP": 0.2492
+      },
+      "calendarYears": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025,
+        2026
+      ],
+      "classification": "unsupported_or_unstable",
+      "classificationReasons": [
+        "95% block-bootstrap interval includes zero",
+        "six-test BH q-value exceeds 0.10"
+      ],
+      "condition": "spy_trend",
+      "differenceAnnualizedMean": -0.23375698970493525,
+      "differenceMeanDaily": -0.0009276071020037112,
+      "leaveOneYearOut": {
+        "directionalAgreement": 1.0,
+        "folds": [
+          {
+            "difference": -0.0009701206398375932,
+            "leftOutYear": 2021,
+            "nStateOne": 884,
+            "nStateZero": 274
+          },
+          {
+            "difference": -0.002029986145016343,
+            "leftOutYear": 2022,
+            "nStateOne": 932,
+            "nStateZero": 71
+          },
+          {
+            "difference": -0.0006226809686821079,
+            "leftOutYear": 2023,
+            "nStateOne": 747,
+            "nStateZero": 257
+          },
+          {
+            "difference": -0.000955087937824136,
+            "leftOutYear": 2024,
+            "nStateOne": 728,
+            "nStateZero": 274
+          },
+          {
+            "difference": -0.001214052157115,
+            "leftOutYear": 2025,
+            "nStateOne": 772,
+            "nStateZero": 232
+          },
+          {
+            "difference": -0.0007231068933139064,
+            "leftOutYear": 2026,
+            "nStateOne": 837,
+            "nStateZero": 262
+          }
+        ],
+        "usableFolds": 6
+      },
+      "missingObservations": 0,
+      "qValue": 0.4984,
+      "stateOne": {
+        "annualizedMeanReturn": 0.14214483864899044,
+        "annualizedVolatility": 0.19094909851832353,
+        "calendarYears": [
+          2021,
+          2022,
+          2023,
+          2024,
+          2025,
+          2026
+        ],
+        "cumulativeAttributedReturn": 0.619221977497451,
+        "maximumAttributedDrawdown": -0.2504433345473742,
+        "meanDailyReturn": 0.0005640668200356763,
+        "meanTurnover": 0.02897959183673469,
+        "medianDailyReturn": 0.0005296579713739424,
+        "n": 980,
+        "positiveDayRate": 0.5244897959183673,
+        "sharpe": 0.7444122006962508,
+        "worstDay": -0.058352090380020205
+      },
+      "stateOneLabel": "above_200d",
+      "stateZero": {
+        "annualizedMeanReturn": 0.37590182835392566,
+        "annualizedVolatility": 0.22629706292474194,
+        "calendarYears": [
+          2022,
+          2023,
+          2025,
+          2026
+        ],
+        "cumulativeAttributedReturn": 0.4634974353540193,
+        "maximumAttributedDrawdown": -0.1274321196449678,
+        "meanDailyReturn": 0.0014916739220393875,
+        "meanTurnover": 0.024817518248175185,
+        "medianDailyReturn": 0.00185995756560986,
+        "n": 274,
+        "positiveDayRate": 0.572992700729927,
+        "sharpe": 1.6610990151424847,
+        "worstDay": -0.06466266751302685
+      },
+      "stateZeroLabel": "at_or_below_200d",
+      "strategy": "canonical_dm_189d_monthly",
+      "usableObservations": 1254
+    },
+    {
+      "bootstrap": {
+        "ciHigh": 0.00250756279427156,
+        "ciLow": -0.00018228434576672315,
+        "replications": 5000,
+        "twoSidedP": 0.0868
+      },
+      "calendarYears": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025,
+        2026
+      ],
+      "classification": "unsupported_or_unstable",
+      "classificationReasons": [
+        "95% block-bootstrap interval includes zero",
+        "six-test BH q-value exceeds 0.10"
+      ],
+      "condition": "market_volatility",
+      "differenceAnnualizedMean": 0.2941622402716164,
+      "differenceMeanDaily": 0.001167310477268319,
+      "leaveOneYearOut": {
+        "directionalAgreement": 1.0,
+        "folds": [
+          {
+            "difference": 0.0010038625930900256,
+            "leftOutYear": 2021,
+            "nStateOne": 588,
+            "nStateZero": 570
+          },
+          {
+            "difference": 0.001654817292821997,
+            "leftOutYear": 2022,
+            "nStateOne": 401,
+            "nStateZero": 602
+          },
+          {
+            "difference": 0.0008726238403763049,
+            "leftOutYear": 2023,
+            "nStateOne": 614,
+            "nStateZero": 390
+          },
+          {
+            "difference": 0.0011033064122239226,
+            "leftOutYear": 2024,
+            "nStateOne": 513,
+            "nStateZero": 489
+          },
+          {
+            "difference": 0.0010783265132704627,
+            "leftOutYear": 2025,
+            "nStateOne": 500,
+            "nStateZero": 504
+          },
+          {
+            "difference": 0.0013932213953973586,
+            "leftOutYear": 2026,
+            "nStateOne": 544,
+            "nStateZero": 555
+          }
+        ],
+        "usableFolds": 6
+      },
+      "missingObservations": 0,
+      "qValue": 0.4984,
+      "stateOne": {
+        "annualizedMeanReturn": 0.3391291517495468,
+        "annualizedVolatility": 0.21462107670737707,
+        "calendarYears": [
+          2021,
+          2022,
+          2023,
+          2024,
+          2025,
+          2026
+        ],
+        "cumulativeAttributedReturn": 1.2090509280494985,
+        "maximumAttributedDrawdown": -0.1785697551025398,
+        "meanDailyReturn": 0.0013457506021807412,
+        "meanTurnover": 0.027848101265822787,
+        "medianDailyReturn": 0.0014838483955084136,
+        "n": 632,
+        "positiveDayRate": 0.5490506329113924,
+        "sharpe": 1.5801297661549292,
+        "worstDay": -0.06466266751302685
+      },
+      "stateOneLabel": "high_vol",
+      "stateZero": {
+        "annualizedMeanReturn": 0.04496691147793037,
+        "annualizedVolatility": 0.18191073102377311,
+        "calendarYears": [
+          2021,
+          2022,
+          2023,
+          2024,
+          2025,
+          2026
+        ],
+        "cumulativeAttributedReturn": 0.07273543640243707,
+        "maximumAttributedDrawdown": -0.18363830448780238,
+        "meanDailyReturn": 0.0001784401249124221,
+        "meanTurnover": 0.02829581993569132,
+        "medianDailyReturn": 0.00045581989620202545,
+        "n": 622,
+        "positiveDayRate": 0.5209003215434084,
+        "sharpe": 0.24719218720556865,
+        "worstDay": -0.058352090380020205
+      },
+      "stateZeroLabel": "low_vol",
+      "strategy": "canonical_dm_189d_monthly",
+      "usableObservations": 1254
+    },
+    {
+      "bootstrap": {
+        "ciHigh": 0.002227442019532253,
+        "ciLow": -0.0005091745854693925,
+        "replications": 5000,
+        "twoSidedP": 0.2228
+      },
+      "calendarYears": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025,
+        2026
+      ],
+      "classification": "unsupported_or_unstable",
+      "classificationReasons": [
+        "95% block-bootstrap interval includes zero",
+        "six-test BH q-value exceeds 0.10"
+      ],
+      "condition": "cross_sectional_dispersion",
+      "differenceAnnualizedMean": 0.2203001991402711,
+      "differenceMeanDaily": 0.0008742071394455202,
+      "leaveOneYearOut": {
+        "directionalAgreement": 1.0,
+        "folds": [
+          {
+            "difference": 0.000887280527942063,
+            "leftOutYear": 2021,
+            "nStateOne": 596,
+            "nStateZero": 562
+          },
+          {
+            "difference": 0.0007707960343176568,
+            "leftOutYear": 2022,
+            "nStateOne": 535,
+            "nStateZero": 468
+          },
+          {
+            "difference": 0.0007554294560890215,
+            "leftOutYear": 2023,
+            "nStateOne": 536,
+            "nStateZero": 468
+          },
+          {
+            "difference": 0.0014702021490180825,
+            "leftOutYear": 2024,
+            "nStateOne": 519,
+            "nStateZero": 483
+          },
+          {
+            "difference": 0.001060902137071492,
+            "leftOutYear": 2025,
+            "nStateOne": 522,
+            "nStateZero": 482
+          },
+          {
+            "difference": 0.0003338679165521782,
+            "leftOutYear": 2026,
+            "nStateOne": 562,
+            "nStateZero": 537
+          }
+        ],
+        "usableFolds": 6
+      },
+      "missingObservations": 0,
+      "qValue": 0.4984,
+      "stateOne": {
+        "annualizedMeanReturn": 0.29862772115562114,
+        "annualizedVolatility": 0.21329268546313823,
+        "calendarYears": [
+          2021,
+          2022,
+          2023,
+          2024,
+          2025,
+          2026
+        ],
+        "cumulativeAttributedReturn": 1.045942193368488,
+        "maximumAttributedDrawdown": -0.16275021438020099,
+        "meanDailyReturn": 0.0011850306395064332,
+        "meanTurnover": 0.026911314984709483,
+        "medianDailyReturn": 0.0014558484006755856,
+        "n": 654,
+        "positiveDayRate": 0.5626911314984709,
+        "sharpe": 1.4000842106103575,
+        "worstDay": -0.06466266751302685
+      },
+      "stateOneLabel": "high_dispersion",
+      "stateZero": {
+        "annualizedMeanReturn": 0.07832752201535005,
+        "annualizedVolatility": 0.18252097080289262,
+        "calendarYears": [
+          2021,
+          2022,
+          2023,
+          2024,
+          2025,
+          2026
+        ],
+        "cumulativeAttributedReturn": 0.15825716827062597,
+        "maximumAttributedDrawdown": -0.16627681082026413,
+        "meanDailyReturn": 0.00031082350006091293,
+        "meanTurnover": 0.029333333333333336,
+        "medianDailyReturn": 8.654413687392282e-05,
+        "n": 600,
+        "positiveDayRate": 0.505,
+        "sharpe": 0.4291425893188856,
+        "worstDay": -0.058352090380020205
+      },
+      "stateZeroLabel": "low_dispersion",
+      "strategy": "canonical_dm_189d_monthly",
+      "usableObservations": 1254
+    }
+  ],
+  "simulation": {
+    "blockLength": 21,
+    "bootstrapReplications": 5000,
+    "seed": 20260826
+  },
+  "strategies": {
+    "canonical_dm_189d_monthly": {
+      "conditionDiagnostics": {
+        "dispersionBars": 1447,
+        "dispersionUniversePolicy": "point-in-time membership",
+        "missingByCondition": {
+          "cross_sectional_dispersion": 0,
+          "market_volatility": 0,
+          "spy_trend": 0
+        },
+        "spyBars": 1875
+      },
+      "provenance": {
+        "executionCalibration": {
+          "applied": false,
+          "treatment": "registered canonical Dow costs retained; optimized small-cap calibration not transferred"
+        },
+        "loggedMetrics": {
+          "maxDrawdownPct": 20.53809417219469,
+          "metricsVersion": 2,
+          "returnPct": 139.62632249472824,
+          "sharpeVsRiskFree": 0.7787455337418879
+        },
+        "observationsBeforeConditions": 1254,
+        "parameters": {},
+        "pitDiagnostics": {},
+        "pitMembershipApplied": true,
+        "reconstructedMetrics": {
+          "maxDrawdownPct": 20.64421913246012,
+          "returnPct": 137.34115784981248,
+          "sharpeVsRiskFree": 0.7668116083080098
+        },
+        "requestedEnd": "2026-08-14",
+        "requestedStart": "2021-08-15",
+        "sourceRunId": 26,
+        "symbols": [
+          "AAPL",
+          "AMGN",
+          "AXP",
+          "BA",
+          "CAT",
+          "CRM",
+          "CSCO",
+          "CVX",
+          "DIS",
+          "DOW",
+          "GS",
+          "HD",
+          "HON",
+          "IBM",
+          "INTC",
+          "JNJ",
+          "JPM",
+          "KO",
+          "MCD",
+          "MMM",
+          "MRK",
+          "MSFT",
+          "NKE",
+          "PG",
+          "TRV",
+          "UNH",
+          "V",
+          "VZ",
+          "WMT"
+        ],
+        "totalCosts": 121.38509896013963,
+        "totalTradedNotional": 506272.07140523364
+      },
+      "tests": [
+        {
+          "bootstrap": {
+            "ciHigh": 0.0006718952632566448,
+            "ciLow": -0.002716656620873929,
+            "replications": 5000,
+            "twoSidedP": 0.2492
+          },
+          "calendarYears": [
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "classification": "unsupported_or_unstable",
+          "classificationReasons": [
+            "95% block-bootstrap interval includes zero",
+            "six-test BH q-value exceeds 0.10"
+          ],
+          "condition": "spy_trend",
+          "differenceAnnualizedMean": -0.23375698970493525,
+          "differenceMeanDaily": -0.0009276071020037112,
+          "leaveOneYearOut": {
+            "directionalAgreement": 1.0,
+            "folds": [
+              {
+                "difference": -0.0009701206398375932,
+                "leftOutYear": 2021,
+                "nStateOne": 884,
+                "nStateZero": 274
+              },
+              {
+                "difference": -0.002029986145016343,
+                "leftOutYear": 2022,
+                "nStateOne": 932,
+                "nStateZero": 71
+              },
+              {
+                "difference": -0.0006226809686821079,
+                "leftOutYear": 2023,
+                "nStateOne": 747,
+                "nStateZero": 257
+              },
+              {
+                "difference": -0.000955087937824136,
+                "leftOutYear": 2024,
+                "nStateOne": 728,
+                "nStateZero": 274
+              },
+              {
+                "difference": -0.001214052157115,
+                "leftOutYear": 2025,
+                "nStateOne": 772,
+                "nStateZero": 232
+              },
+              {
+                "difference": -0.0007231068933139064,
+                "leftOutYear": 2026,
+                "nStateOne": 837,
+                "nStateZero": 262
+              }
+            ],
+            "usableFolds": 6
+          },
+          "missingObservations": 0,
+          "qValue": 0.4984,
+          "stateOne": {
+            "annualizedMeanReturn": 0.14214483864899044,
+            "annualizedVolatility": 0.19094909851832353,
+            "calendarYears": [
+              2021,
+              2022,
+              2023,
+              2024,
+              2025,
+              2026
+            ],
+            "cumulativeAttributedReturn": 0.619221977497451,
+            "maximumAttributedDrawdown": -0.2504433345473742,
+            "meanDailyReturn": 0.0005640668200356763,
+            "meanTurnover": 0.02897959183673469,
+            "medianDailyReturn": 0.0005296579713739424,
+            "n": 980,
+            "positiveDayRate": 0.5244897959183673,
+            "sharpe": 0.7444122006962508,
+            "worstDay": -0.058352090380020205
+          },
+          "stateOneLabel": "above_200d",
+          "stateZero": {
+            "annualizedMeanReturn": 0.37590182835392566,
+            "annualizedVolatility": 0.22629706292474194,
+            "calendarYears": [
+              2022,
+              2023,
+              2025,
+              2026
+            ],
+            "cumulativeAttributedReturn": 0.4634974353540193,
+            "maximumAttributedDrawdown": -0.1274321196449678,
+            "meanDailyReturn": 0.0014916739220393875,
+            "meanTurnover": 0.024817518248175185,
+            "medianDailyReturn": 0.00185995756560986,
+            "n": 274,
+            "positiveDayRate": 0.572992700729927,
+            "sharpe": 1.6610990151424847,
+            "worstDay": -0.06466266751302685
+          },
+          "stateZeroLabel": "at_or_below_200d",
+          "strategy": "canonical_dm_189d_monthly",
+          "usableObservations": 1254
+        },
+        {
+          "bootstrap": {
+            "ciHigh": 0.00250756279427156,
+            "ciLow": -0.00018228434576672315,
+            "replications": 5000,
+            "twoSidedP": 0.0868
+          },
+          "calendarYears": [
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "classification": "unsupported_or_unstable",
+          "classificationReasons": [
+            "95% block-bootstrap interval includes zero",
+            "six-test BH q-value exceeds 0.10"
+          ],
+          "condition": "market_volatility",
+          "differenceAnnualizedMean": 0.2941622402716164,
+          "differenceMeanDaily": 0.001167310477268319,
+          "leaveOneYearOut": {
+            "directionalAgreement": 1.0,
+            "folds": [
+              {
+                "difference": 0.0010038625930900256,
+                "leftOutYear": 2021,
+                "nStateOne": 588,
+                "nStateZero": 570
+              },
+              {
+                "difference": 0.001654817292821997,
+                "leftOutYear": 2022,
+                "nStateOne": 401,
+                "nStateZero": 602
+              },
+              {
+                "difference": 0.0008726238403763049,
+                "leftOutYear": 2023,
+                "nStateOne": 614,
+                "nStateZero": 390
+              },
+              {
+                "difference": 0.0011033064122239226,
+                "leftOutYear": 2024,
+                "nStateOne": 513,
+                "nStateZero": 489
+              },
+              {
+                "difference": 0.0010783265132704627,
+                "leftOutYear": 2025,
+                "nStateOne": 500,
+                "nStateZero": 504
+              },
+              {
+                "difference": 0.0013932213953973586,
+                "leftOutYear": 2026,
+                "nStateOne": 544,
+                "nStateZero": 555
+              }
+            ],
+            "usableFolds": 6
+          },
+          "missingObservations": 0,
+          "qValue": 0.4984,
+          "stateOne": {
+            "annualizedMeanReturn": 0.3391291517495468,
+            "annualizedVolatility": 0.21462107670737707,
+            "calendarYears": [
+              2021,
+              2022,
+              2023,
+              2024,
+              2025,
+              2026
+            ],
+            "cumulativeAttributedReturn": 1.2090509280494985,
+            "maximumAttributedDrawdown": -0.1785697551025398,
+            "meanDailyReturn": 0.0013457506021807412,
+            "meanTurnover": 0.027848101265822787,
+            "medianDailyReturn": 0.0014838483955084136,
+            "n": 632,
+            "positiveDayRate": 0.5490506329113924,
+            "sharpe": 1.5801297661549292,
+            "worstDay": -0.06466266751302685
+          },
+          "stateOneLabel": "high_vol",
+          "stateZero": {
+            "annualizedMeanReturn": 0.04496691147793037,
+            "annualizedVolatility": 0.18191073102377311,
+            "calendarYears": [
+              2021,
+              2022,
+              2023,
+              2024,
+              2025,
+              2026
+            ],
+            "cumulativeAttributedReturn": 0.07273543640243707,
+            "maximumAttributedDrawdown": -0.18363830448780238,
+            "meanDailyReturn": 0.0001784401249124221,
+            "meanTurnover": 0.02829581993569132,
+            "medianDailyReturn": 0.00045581989620202545,
+            "n": 622,
+            "positiveDayRate": 0.5209003215434084,
+            "sharpe": 0.24719218720556865,
+            "worstDay": -0.058352090380020205
+          },
+          "stateZeroLabel": "low_vol",
+          "strategy": "canonical_dm_189d_monthly",
+          "usableObservations": 1254
+        },
+        {
+          "bootstrap": {
+            "ciHigh": 0.002227442019532253,
+            "ciLow": -0.0005091745854693925,
+            "replications": 5000,
+            "twoSidedP": 0.2228
+          },
+          "calendarYears": [
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "classification": "unsupported_or_unstable",
+          "classificationReasons": [
+            "95% block-bootstrap interval includes zero",
+            "six-test BH q-value exceeds 0.10"
+          ],
+          "condition": "cross_sectional_dispersion",
+          "differenceAnnualizedMean": 0.2203001991402711,
+          "differenceMeanDaily": 0.0008742071394455202,
+          "leaveOneYearOut": {
+            "directionalAgreement": 1.0,
+            "folds": [
+              {
+                "difference": 0.000887280527942063,
+                "leftOutYear": 2021,
+                "nStateOne": 596,
+                "nStateZero": 562
+              },
+              {
+                "difference": 0.0007707960343176568,
+                "leftOutYear": 2022,
+                "nStateOne": 535,
+                "nStateZero": 468
+              },
+              {
+                "difference": 0.0007554294560890215,
+                "leftOutYear": 2023,
+                "nStateOne": 536,
+                "nStateZero": 468
+              },
+              {
+                "difference": 0.0014702021490180825,
+                "leftOutYear": 2024,
+                "nStateOne": 519,
+                "nStateZero": 483
+              },
+              {
+                "difference": 0.001060902137071492,
+                "leftOutYear": 2025,
+                "nStateOne": 522,
+                "nStateZero": 482
+              },
+              {
+                "difference": 0.0003338679165521782,
+                "leftOutYear": 2026,
+                "nStateOne": 562,
+                "nStateZero": 537
+              }
+            ],
+            "usableFolds": 6
+          },
+          "missingObservations": 0,
+          "qValue": 0.4984,
+          "stateOne": {
+            "annualizedMeanReturn": 0.29862772115562114,
+            "annualizedVolatility": 0.21329268546313823,
+            "calendarYears": [
+              2021,
+              2022,
+              2023,
+              2024,
+              2025,
+              2026
+            ],
+            "cumulativeAttributedReturn": 1.045942193368488,
+            "maximumAttributedDrawdown": -0.16275021438020099,
+            "meanDailyReturn": 0.0011850306395064332,
+            "meanTurnover": 0.026911314984709483,
+            "medianDailyReturn": 0.0014558484006755856,
+            "n": 654,
+            "positiveDayRate": 0.5626911314984709,
+            "sharpe": 1.4000842106103575,
+            "worstDay": -0.06466266751302685
+          },
+          "stateOneLabel": "high_dispersion",
+          "stateZero": {
+            "annualizedMeanReturn": 0.07832752201535005,
+            "annualizedVolatility": 0.18252097080289262,
+            "calendarYears": [
+              2021,
+              2022,
+              2023,
+              2024,
+              2025,
+              2026
+            ],
+            "cumulativeAttributedReturn": 0.15825716827062597,
+            "maximumAttributedDrawdown": -0.16627681082026413,
+            "meanDailyReturn": 0.00031082350006091293,
+            "meanTurnover": 0.029333333333333336,
+            "medianDailyReturn": 8.654413687392282e-05,
+            "n": 600,
+            "positiveDayRate": 0.505,
+            "sharpe": 0.4291425893188856,
+            "worstDay": -0.058352090380020205
+          },
+          "stateZeroLabel": "low_dispersion",
+          "strategy": "canonical_dm_189d_monthly",
+          "usableObservations": 1254
+        }
+      ],
+      "unconditional": {
+        "annualizedMeanReturn": 0.19322092730860146,
+        "annualizedVolatility": 0.19920577525605077,
+        "calendarYears": [
+          2021,
+          2022,
+          2023,
+          2024,
+          2025,
+          2026
+        ],
+        "cumulativeAttributedReturn": 1.369727211336388,
+        "maximumAttributedDrawdown": -0.20644219132460118,
+        "meanDailyReturn": 0.0007667497115420694,
+        "meanTurnover": 0.028070175438596495,
+        "medianDailyReturn": 0.000699035079700705,
+        "n": 1254,
+        "positiveDayRate": 0.5350877192982456,
+        "sharpe": 0.969956453623111,
+        "worstDay": -0.06466266751302685
+      }
+    },
+    "dm_optimized_63d_daily": {
+      "conditionDiagnostics": {
+        "dispersionBars": 318,
+        "dispersionUniversePolicy": "fixed frozen symbols",
+        "missingByCondition": {
+          "cross_sectional_dispersion": 0,
+          "market_volatility": 0,
+          "spy_trend": 0
+        },
+        "spyBars": 867
+      },
+      "provenance": {
+        "executionCalibration": {
+          "applied": true,
+          "fills": 45,
+          "incrementalSlippageBps": 5.857763300760045,
+          "meanFillRatio": 0.9971572353512573,
+          "medianAdverseSlippageBps": 10.857763300760048,
+          "p95AdverseSlippageBps": 101.90973709000572,
+          "partialFillRate": 0.3333333333333333,
+          "treatment": "daily return multiplied by mean fill ratio; incremental slippage charged on turnover"
+        },
+        "loggedMetrics": {
+          "maxDrawdownPct": 13.477305227862876,
+          "metricsVersion": 2,
+          "returnPct": 78.83865936576046,
+          "sharpeVsRiskFree": 2.7367188037270003
+        },
+        "observationsBeforeConditions": 250,
+        "parameters": {
+          "lookback_trading_days": 63,
+          "rebalance_frequency": "daily"
+        },
+        "pitDiagnostics": {},
+        "pitMembershipApplied": false,
+        "reconstructedMetrics": {
+          "maxDrawdownPct": 13.477303340131852,
+          "returnPct": 78.5920557705413,
+          "sharpeVsRiskFree": 2.7182376798424768
+        },
+        "requestedEnd": "2026-08-14",
+        "requestedStart": "2025-08-15",
+        "sourceRunId": 33,
+        "symbols": [
+          "AAMI",
+          "ACIW",
+          "AEO",
+          "ALG",
+          "AROC",
+          "AWI",
+          "BCPC",
+          "BLFS",
+          "BXMT",
+          "CBRL",
+          "CFFN",
+          "CRC",
+          "CXW",
+          "DFIN",
+          "EAT",
+          "ENPH",
+          "EVTC",
+          "FCPT",
+          "FORM",
+          "GEO",
+          "GRBK",
+          "HCC",
+          "HOPE",
+          "HZO",
+          "INVA",
+          "JBSS"
+        ],
+        "totalCosts": 390.525548929681,
+        "totalTradedNotional": 625006.9067760987
+      },
+      "tests": [
+        {
+          "bootstrap": {
+            "ciHigh": 0.004442728707294915,
+            "ciLow": -0.016867190896246685,
+            "replications": 4045,
+            "twoSidedP": 0.7337453646477132
+          },
+          "calendarYears": [
+            2025,
+            2026
+          ],
+          "classification": "exploratory_historical",
+          "classificationReasons": [
+            "fewer than 63 observations in at least one state",
+            "fewer than three contributing calendar years",
+            "95% block-bootstrap interval includes zero",
+            "six-test BH q-value exceeds 0.10",
+            "optimized configuration is selection-contaminated and capped at exploratory historical evidence"
+          ],
+          "condition": "spy_trend",
+          "differenceAnnualizedMean": -0.17456292962347997,
+          "differenceMeanDaily": -0.0006927100381884125,
+          "leaveOneYearOut": {
+            "directionalAgreement": 1.0,
+            "folds": [
+              {
+                "difference": -0.0007460307999767736,
+                "leftOutYear": 2025,
+                "nStateOne": 143,
+                "nStateZero": 12
+              },
+              {
+                "difference": null,
+                "leftOutYear": 2026,
+                "nStateOne": 95,
+                "nStateZero": 0
+              }
+            ],
+            "usableFolds": 1
+          },
+          "missingObservations": 0,
+          "qValue": 0.8804944375772559,
+          "stateOne": {
+            "annualizedMeanReturn": 0.6025473161639742,
+            "annualizedVolatility": 0.2847706178566522,
+            "calendarYears": [
+              2025,
+              2026
+            ],
+            "cumulativeAttributedReturn": 0.6996733931437087,
+            "maximumAttributedDrawdown": -0.13068603009727686,
+            "meanDailyReturn": 0.002391060778428469,
+            "meanTurnover": 0.16974789915966387,
+            "medianDailyReturn": 0.00163919328571043,
+            "n": 238,
+            "positiveDayRate": 0.5462184873949579,
+            "sharpe": 2.115904093965496,
+            "worstDay": -0.05876670194783287
+          },
+          "stateOneLabel": "above_200d",
+          "stateZero": {
+            "annualizedMeanReturn": 0.7771102457874541,
+            "annualizedVolatility": 0.31801509525265387,
+            "calendarYears": [
+              2026
+            ],
+            "cumulativeAttributedReturn": 0.035358493598423024,
+            "maximumAttributedDrawdown": -0.0694980991213141,
+            "meanDailyReturn": 0.0030837708166168813,
+            "meanTurnover": 0.2333333333333333,
+            "medianDailyReturn": 0.0054185635574750535,
+            "n": 12,
+            "positiveDayRate": 0.5833333333333334,
+            "sharpe": 2.443626913905022,
+            "worstDay": -0.028330585035777275
+          },
+          "stateZeroLabel": "at_or_below_200d",
+          "strategy": "dm_optimized_63d_daily",
+          "usableObservations": 250
+        },
+        {
+          "bootstrap": {
+            "ciHigh": 0.007378305578798671,
+            "ciLow": -0.0043426067545733445,
+            "replications": 5000,
+            "twoSidedP": 0.518
+          },
+          "calendarYears": [
+            2025,
+            2026
+          ],
+          "classification": "exploratory_historical",
+          "classificationReasons": [
+            "fewer than three contributing calendar years",
+            "95% block-bootstrap interval includes zero",
+            "six-test BH q-value exceeds 0.10",
+            "leave-one-year-out directional agreement is below 80%",
+            "optimized configuration is selection-contaminated and capped at exploratory historical evidence"
+          ],
+          "condition": "market_volatility",
+          "differenceAnnualizedMean": 0.47054977012949106,
+          "differenceMeanDaily": 0.0018672609925773455,
+          "leaveOneYearOut": {
+            "directionalAgreement": 0.5,
+            "folds": [
+              {
+                "difference": -0.002804147720085884,
+                "leftOutYear": 2025,
+                "nStateOne": 88,
+                "nStateZero": 67
+              },
+              {
+                "difference": 0.010411678734795884,
+                "leftOutYear": 2026,
+                "nStateOne": 33,
+                "nStateZero": 62
+              }
+            ],
+            "usableFolds": 2
+          },
+          "missingObservations": 0,
+          "qValue": 0.777,
+          "stateOne": {
+            "annualizedMeanReturn": 0.8537300181727184,
+            "annualizedVolatility": 0.29181287223653213,
+            "calendarYears": [
+              2025,
+              2026
+            ],
+            "cumulativeAttributedReturn": 0.47557026239546096,
+            "maximumAttributedDrawdown": -0.18198566910049818,
+            "meanDailyReturn": 0.0033878175324314223,
+            "meanTurnover": 0.15206611570247933,
+            "medianDailyReturn": 0.003855031637637634,
+            "n": 121,
+            "positiveDayRate": 0.5867768595041323,
+            "sharpe": 2.925607810339217,
+            "worstDay": -0.05598927788028583
+          },
+          "stateOneLabel": "high_vol",
+          "stateZero": {
+            "annualizedMeanReturn": 0.38318024804322737,
+            "annualizedVolatility": 0.2803425951647739,
+            "calendarYears": [
+              2025,
+              2026
+            ],
+            "cumulativeAttributedReturn": 0.19260419431179665,
+            "maximumAttributedDrawdown": -0.16332831781544,
+            "meanDailyReturn": 0.0015205565398540768,
+            "meanTurnover": 0.19224806201550387,
+            "medianDailyReturn": 0.0009525092488905958,
+            "n": 129,
+            "positiveDayRate": 0.5116279069767442,
+            "sharpe": 1.3668284971750715,
+            "worstDay": -0.05876670194783287
+          },
+          "stateZeroLabel": "low_vol",
+          "strategy": "dm_optimized_63d_daily",
+          "usableObservations": 250
+        },
+        {
+          "bootstrap": {
+            "ciHigh": 0.0037501599262936866,
+            "ciLow": -0.004114057655037109,
+            "replications": 5000,
+            "twoSidedP": 0.9912
+          },
+          "calendarYears": [
+            2025,
+            2026
+          ],
+          "classification": "exploratory_historical",
+          "classificationReasons": [
+            "fewer than three contributing calendar years",
+            "95% block-bootstrap interval includes zero",
+            "six-test BH q-value exceeds 0.10",
+            "optimized configuration is selection-contaminated and capped at exploratory historical evidence"
+          ],
+          "condition": "cross_sectional_dispersion",
+          "differenceAnnualizedMean": -0.04007011206031357,
+          "differenceMeanDaily": -0.00015900838119172053,
+          "leaveOneYearOut": {
+            "directionalAgreement": 1.0,
+            "folds": [
+              {
+                "difference": -0.00015568255165476254,
+                "leftOutYear": 2025,
+                "nStateOne": 91,
+                "nStateZero": 64
+              },
+              {
+                "difference": -0.00014074075300143062,
+                "leftOutYear": 2026,
+                "nStateOne": 35,
+                "nStateZero": 60
+              }
+            ],
+            "usableFolds": 2
+          },
+          "missingObservations": 0,
+          "qValue": 0.9912,
+          "stateOne": {
+            "annualizedMeanReturn": 0.5910515612039856,
+            "annualizedVolatility": 0.30013051705157817,
+            "calendarYears": [
+              2025,
+              2026
+            ],
+            "cumulativeAttributedReturn": 0.31383047644068895,
+            "maximumAttributedDrawdown": -0.10386775354158673,
+            "meanDailyReturn": 0.002345442703190419,
+            "meanTurnover": 0.21587301587301583,
+            "medianDailyReturn": 0.0015070412385545405,
+            "n": 126,
+            "positiveDayRate": 0.5317460317460317,
+            "sharpe": 1.969315106675447,
+            "worstDay": -0.05598927788028583
+          },
+          "stateOneLabel": "high_dispersion",
+          "stateZero": {
+            "annualizedMeanReturn": 0.6311216732642992,
+            "annualizedVolatility": 0.271595888109553,
+            "calendarYears": [
+              2025,
+              2026
+            ],
+            "cumulativeAttributedReturn": 0.33942035558651296,
+            "maximumAttributedDrawdown": -0.10415589919200241,
+            "meanDailyReturn": 0.0025044510843821397,
+            "meanTurnover": 0.12903225806451613,
+            "medianDailyReturn": 0.0022314972971603456,
+            "n": 124,
+            "positiveDayRate": 0.5645161290322581,
+            "sharpe": 2.323752681446065,
+            "worstDay": -0.05876670194783287
+          },
+          "stateZeroLabel": "low_dispersion",
+          "strategy": "dm_optimized_63d_daily",
+          "usableObservations": 250
+        }
+      ],
+      "unconditional": {
+        "annualizedMeanReturn": 0.610926336785901,
+        "annualizedVolatility": 0.28576116387714284,
+        "calendarYears": [
+          2025,
+          2026
+        ],
+        "cumulativeAttributedReturn": 0.7597712839345883,
+        "maximumAttributedDrawdown": -0.13662868861534738,
+        "meanDailyReturn": 0.002424310860261512,
+        "meanTurnover": 0.1728,
+        "medianDailyReturn": 0.0018209332826997346,
+        "n": 250,
+        "positiveDayRate": 0.548,
+        "sharpe": 2.13789140727519,
+        "worstDay": -0.05876670194783287
+      }
+    }
+  },
+  "study": "Dual Momentum Regime-Dependence Audit v1"
+}

@@ -1,0 +1,45 @@
+{
+  "study": "Earnings Momentum / Gap-Hold Robustness Audit v1",
+  "classification": "DATA BLOCKED",
+  "preregistration": "research\\earnings_momentum_robustness_v1_preregistration.json",
+  "preregistrationSha256": "4af3d577aa0d6ac5b2da8c8684d894be19b730ff9cf9e8d727ed7ce0c4f4aecd",
+  "inputGate": {
+    "passed": false,
+    "ledger": null,
+    "rows": 0,
+    "missingFields": [
+      "symbol",
+      "announcement_timestamp",
+      "timezone",
+      "release_session",
+      "known_at",
+      "source"
+    ],
+    "issues": [
+      "The registered strategy declares itself a price/volume proxy and does not confirm that a gap follows earnings.",
+      "No historical earnings-announcement ledger exists under data/, research/, or logs/.",
+      "BMO versus AMC, original timezone, public known_at time, revisions, and source provenance cannot be audited.",
+      "Therefore earliest tradable session and same-bar lookahead cannot be established event by event."
+    ]
+  },
+  "priorCandidateEvidence": {
+    "tradesApprox": 42,
+    "winRatePctApprox": 54.8,
+    "expectancyRApprox": 0.38,
+    "profitFactorApprox": 2.65,
+    "classification": "price/volume-proxy candidate evidence; not reclassified as earnings evidence"
+  },
+  "testsRun": [],
+  "testsWithheld": [
+    "contribution concentration",
+    "remove-best-trades",
+    "leave-one-security-out",
+    "leave-one-year-out",
+    "cluster-aware effective N/bootstrap",
+    "BMO/AMC timing",
+    "slippage/gap sensitivity",
+    "prop path"
+  ],
+  "reasonTestsWithheld": "Running robustness statistics on events that cannot be identified as PIT earnings announcements would answer a different question and create misleading precision.",
+  "unlockRequirement": "Install an immutable historical announcement ledger with every required field, original/revision provenance, and event-by-event known_at timestamps; then rerun this frozen audit without changing its test grid."
+}

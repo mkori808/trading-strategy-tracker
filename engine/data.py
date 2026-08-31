@@ -61,6 +61,12 @@ _YF_INTRADAY_CAP_DAYS = 58
 # Free-tier IEX data can't serve the most recent ~15 min; keep a margin.
 _ALPACA_RECENT_CUTOFF = timedelta(minutes=16)
 
+# How far back a tail-extending refresh is allowed to re-request bars that
+# are already cached, so a late-finalizing recent session can still be
+# corrected -- without re-asking the provider for (and risking a revised
+# answer for) genuinely settled history. See `get_bars`.
+_TAIL_REFETCH_LOOKBACK_DAYS = 5
+
 # Regular trading hours in America/New_York. yfinance intraday is RTH-only by
 # default, and the strategies (ORB especially) assume a 9:30 session open, so
 # we filter Alpaca bars to match rather than let pre/post-market bars in.
@@ -178,7 +184,7 @@ def _fetch(symbol: str, interval: str, start: date, end: date) -> pd.DataFrame:
     return _fetch_yfinance(symbol, interval, start, end)
 
 
-def _required_cache_start(interval: str, requested_start: date) -> date:
+def _required_cache_start(symbol: str, interval: str, requested_start: date) -> date:
     """Earliest date the active provider can actually supply.
 
     Without Alpaca, asking yfinance for two years of intraday data is clamped
@@ -189,7 +195,19 @@ def _required_cache_start(interval: str, requested_start: date) -> date:
     if interval in _ALPACA_TIMEFRAMES:
         client, _ = market_data_client()
         if client is None:
-            return max(requested_start, date.today() - timedelta(days=_YF_INTRADAY_CAP_DAYS))
+            limited_start = max(
+                requested_start,
+                date.today() - timedelta(days=_YF_INTRADAY_CAP_DAYS),
+            )
+            # The provider limit is expressed in calendar days, but stock
+            # intraday bars only begin on the first trading day on or after
+            # that boundary.  Requiring a Saturday/Sunday timestamp makes a
+            # complete cache look short and triggers a pointless refresh on
+            # every read.  Crypto trades seven days a week, so its boundary
+            # remains the literal calendar date.
+            if not _is_crypto_symbol(symbol):
+                limited_start = (pd.Timestamp(limited_start) + pd.offsets.BDay(0)).date()
+            return limited_start
     return requested_start
 
 
@@ -240,7 +258,7 @@ def get_bars(
             # cache miss; the successful fetch below atomically replaces it.
             cached = None
         if cached is not None:
-            required_start = _required_cache_start(interval, start)
+            required_start = _required_cache_start(symbol, interval, start)
             covers_start = not cached.empty and cached.index.min().date() <= required_start
             required_end = end
             # One clock source only. Tests and scheduled research jobs may
@@ -267,7 +285,27 @@ def get_bars(
             if covers_start and covers_end:
                 return cached.loc[str(start):str(end)]
 
-    fresh = _fetch(symbol, interval, start, end)
+    fetch_start = start
+    if cached is not None and not cached.empty and covers_start:
+        # The cache already reaches back to `start`; only the tail needs
+        # extending. Re-fetching the WHOLE range on every call let
+        # yfinance's auto_adjust silently revise already-cached historical
+        # closes: adjustment factors are recomputed from the entire queried
+        # window, so a dividend paid by `symbol` since the last fetch
+        # retroactively nudges every earlier adjusted close, and the merge
+        # below (fresh wins on a duplicated date) then baked that drift
+        # into rows callers assume are frozen once cached. This surfaced as
+        # DM/MRM's forward-NAV reconciliation repeatedly failing with
+        # "historical NAV mutation detected" (see engine/dm_mrm_forward.py
+        # and the recorded 2026-08-27 JNJ amendment) even though nothing in
+        # this app's own ledger had actually been touched. Only requesting
+        # a short tail window means settled historical rows are never
+        # handed to the provider again, so they can never come back
+        # revised -- a brief lookback still lets a genuinely late
+        # correction to the last few sessions through.
+        fetch_start = max(start, (cached.index.max() - timedelta(days=_TAIL_REFETCH_LOOKBACK_DAYS)).date())
+
+    fresh = _fetch(symbol, interval, fetch_start, end)
     if interval == "1d" and fresh is not None and not fresh.empty:
         fresh = _normalize_daily_session_index(fresh)
     if fresh.empty:

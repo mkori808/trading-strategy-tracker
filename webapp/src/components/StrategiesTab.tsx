@@ -1,362 +1,144 @@
-import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
-import {
-  api,
-  type BacktestOverrides,
-  type BacktestResult,
-  type CrossSectionalResponse,
-  type HistoryRow,
-  type PairsResponse,
-  type PortfolioHistoryRow,
-  type RegisteredUniverse,
-  type StrategySummary,
-  type ValidationJob,
-} from "../api";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { api, type BacktestOverrides, type BacktestResult, type CrossSectionalResponse, type ExecutionAccountStatus, type HistoryRow, type PairsResponse, type PortfolioHistoryRow, type RegisteredUniverse, type ResearchStatusRow, type StrategySummary, type ValidationJob } from "../api";
+import { ConditionalEdgePanel } from "./ConditionalEdgePanel";
 import { CrossSectionalResultView } from "./CrossSectionalResultView";
-import { MetricsHistoryChart } from "./MetricsHistoryChart";
+import { EdgeValidationPanel } from "./EdgeValidationPanel";
 import { NewStrategyDialog } from "./NewStrategyDialog";
 import { PairsResultView } from "./PairsResultView";
 import { PortfolioRunHistory } from "./PortfolioRunHistory";
 import { ResultTabs } from "./ResultTabs";
-import { RunConfigPanel } from "./RunConfigPanel";
+import { RunConfigPanel, type RunConfigState } from "./RunConfigPanel";
 import { RunHistory } from "./RunHistory";
-import { STRATEGY_CONFIG_SLOT } from "./StrategySidebar";
+import { StatusPill } from "./StatusPill";
 import { StrategyTable } from "./StrategyTable";
+import { allChecks, benchmarkEvidence, gateCounts, powerSummary, primaryBlocker } from "./researchPresentation";
 
-// Deliberately does NOT state a day count. The free data tier serves ~50
-// trading days of 5-minute bars, not the ~60 this claimed, and the figure
-// moves whenever the provider changes -- so the window is read from the run
-// itself (the MEASURED window, see api/main.py:_run_config_fields) rather
-// than asserted here and left to drift.
-const DAY_TRADING_CAPTION =
-  "Day-trading strategy: 5-min bars, limited to the window the data provider serves (see Window column).";
-const SWING_TRADING_CAPTION = "Swing-trading strategy: backtests the last 5 years of daily bars.";
+const dateLabel = (iso: string | null) => iso ? new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "Not run";
+const field = (label: string, value: string | number | null, title?: string) => <div title={title}><span className="block text-[11px] uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>{label}</span><strong className="tabular-nums">{value ?? "—"}</strong></div>;
 
-function EmptyResultPlaceholder({
-  running = false,
-  progress,
-}: {
-  running?: boolean;
-  progress?: Pick<ValidationJob, "stage" | "progressPct" | "status"> | null;
-}) {
-  return (
-    <div
-      className="flex h-64 items-center justify-center rounded-lg border px-8 text-center text-sm"
-      style={{ borderColor: "var(--border)", background: "var(--surface-1)", color: "var(--text-muted)" }}
-    >
-      {running ? (
-        <div>
-          <div className="font-medium" style={{ color: "var(--text-primary)" }}>
-            {progress?.stage || "Starting the validation suite…"}
-          </div>
-          <div
-            className="mx-auto mt-3 h-2 max-w-md overflow-hidden rounded-full"
-            style={{ background: "var(--gridline)" }}
-          >
-            <div
-              className="h-full rounded-full transition-[width] duration-300"
-              style={{ width: `${progress?.progressPct ?? 2}%`, background: "var(--series-1)" }}
-            />
-          </div>
-          <div className="mt-1 text-xs tabular-nums">{progress?.progressPct ?? 0}%</div>
-          <p className="mt-2 max-w-xl text-xs">
-            The basic backtest is complete. The app is now replaying parameter neighbors,
-            rolling history, random concentration controls, and alternative universes.
-            Dual Momentum can take several minutes. Keep this page open.
-          </p>
-        </div>
-      ) : "Run a backtest to see results here."}
-    </div>
-  );
+function EmptyResult({ running, progress }: { running: boolean; progress: Pick<ValidationJob, "stage" | "progressPct"> | null }) {
+  return <div className="flex min-h-36 items-center justify-center rounded-lg border p-6 text-center text-sm" style={{ borderColor: "var(--border)", color: "var(--text-muted)" }}>{running ? <div><strong style={{ color: "var(--text-primary)" }}>{progress?.stage ?? "Starting validation suite…"}</strong><div className="mt-2">{progress?.progressPct ?? 0}% complete</div></div> : "Run a backtest to establish a latest result for this session."}</div>;
 }
 
-/** The single "Strategies" tab: browse every strategy's scores in one
- * leaderboard, then select a row to drill into it -- run configuration,
- * result view, and run history all update together. Replaces the old
- * separate Lab (config + result, narrow picker) and Compare (leaderboard +
- * canonical-only run button, no override capability) tabs, which had
- * drifted into two inconsistent code paths for the same job. */
-export function StrategiesTab({
-  strategies,
-  onRunLogged,
-}: {
-  strategies: StrategySummary[];
-  onRunLogged: () => void;
-}) {
-  const [selected, setSelected] = useState<string | null>(null);
+function LatestResult({ engine, standard, cross, pairs, running, progress }: { engine: StrategySummary["engine"]; standard: BacktestResult | null; cross: CrossSectionalResponse | null; pairs: PairsResponse | null; running: boolean; progress: Pick<ValidationJob, "stage" | "progressPct"> | null }) {
+  const result = standard ?? cross ?? pairs;
+  if (!result) return <EmptyResult running={running} progress={progress} />;
+  const validation = result.validation;
+  const portfolio = cross ?? pairs;
+  const windowLabel = standard ? `${standard.start} → ${standard.end}` : cross ? `${cross.start} → ${cross.end}` : `${pairs!.tradingWindow[0]} → ${pairs!.tradingWindow[1]}`;
+  return <div className="rounded-lg border p-4" style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}>
+    <div className="text-xs font-semibold uppercase tracking-wide" style={{ color: validation.verdict.forwardTestWorthy ? "var(--status-positive)" : "var(--status-warning)" }}>{validation.verdict.headline || validation.verdict.signalEdge} · {validation.research?.isPreregistered ? "PREREGISTERED" : "EXPLORATORY"}</div>
+    <div className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>{gateCounts(validation).label}</div>
+    <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-7">{field("Window", windowLabel)}{engine === "standard" ? <>{field("Trades", standard!.metrics.tradesTaken)}{field("Win rate", `${(standard!.metrics.winRate * 100).toFixed(1)}%`)}{field("Expectancy", `${standard!.metrics.expectancyR.toFixed(3)} R`)}{field("Profit factor", standard!.metrics.profitFactor?.toFixed(2) ?? "—")}</> : <>{field("Return", `${portfolio!.returnPct.toFixed(1)}%`)}{field("CAGR", portfolio!.cagrPct === null ? "—" : `${portfolio!.cagrPct.toFixed(1)}%`)}</>}{field("Sharpe", (engine === "standard" ? standard!.metrics.sharpe : portfolio!.sharpe)?.toFixed(2) ?? "—")}{field("Max drawdown", (engine === "standard" ? standard!.metrics.maxDrawdownPct : portfolio!.maxDrawdownPct) == null ? "—" : `${(engine === "standard" ? standard!.metrics.maxDrawdownPct! : portfolio!.maxDrawdownPct).toFixed(1)}%`)}</div>
+  </div>;
+}
+
+function lifecycleFor(strategy: StrategySummary): string {
+  if (strategy.implementationStatus === "unavailable") return "Data blocked";
+  if (strategy.archived) return "Archived";
+  return strategy.lifecycleStage?.replace(/_/g, " ") ?? (strategy.lastRun ? "Exploratory" : "Not yet tested");
+}
+
+export function ConditionalStatusSummary({ row, loading = false, error = null, archived = false }: { row?: ResearchStatusRow; loading?: boolean; error?: string | null; archived?: boolean }) {
+  const neverEvaluated = Boolean(row && !row.evidenceStage && row.lastCompletedAction?.startsWith("No Conditional Edge Discovery session"));
+  const status = error ? "Unable to load research status" : loading ? "Loading research status…" : neverEvaluated ? "Not evaluated" : row?.status ?? "Not evaluated";
+  return <><strong>Conditional Edge</strong><span className="ml-2 text-sm" style={{ color: error ? "var(--status-warning)" : "var(--text-muted)" }}>{status}</span><span className="ml-2 text-xs" style={{ color: "var(--series-1)" }}>View conditional research →</span>{(row?.primaryBlocker || (neverEvaluated && archived)) && <span className="mt-2 block text-xs" style={{ color: "var(--text-secondary)" }}>{row?.primaryBlocker ?? "Strategy archived"}</span>}</>;
+}
+
+export function KeyEvidence({ strategy }: { strategy: StrategySummary }) {
+  const checks = allChecks(strategy.validation);
+  const priorities = ["statistical_power", "beats_cash", "sample_coverage", "beats_spy", "pit_membership"];
+  const selected = priorities.map((key) => checks.find((check) => check.key === key)).filter((check): check is NonNullable<typeof check> => Boolean(check)).slice(0, 3);
+  const icon = (status: string) => status === "pass" ? "✓" : status === "fail" ? "✕" : status === "not_applicable" ? "—" : "?";
+  const color = (status: string) => status === "pass" ? "var(--status-good)" : status === "fail" ? "var(--status-warning)" : "var(--text-muted)";
+  const label = (key: string, fallback: string) => ({ statistical_power: "Statistical power", beats_cash: "Beats cash / risk-free", sample_coverage: "Valid trade and exposure coverage", beats_spy: "Benchmark superiority", pit_membership: "PIT universe integrity" }[key] ?? fallback);
+  return <div><div className="text-[11px] uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>Key evidence</div><div className="mt-1 flex flex-wrap gap-2">{selected.length ? selected.map((check) => <span key={check.key} className="rounded-full px-2 py-1 text-xs" title={`${check.status}: ${check.summary}`} style={{ background: "var(--pill-bg)", color: color(check.status) }}>{icon(check.status)} {label(check.key, check.label)}</span>) : <span className="text-xs" style={{ color: "var(--text-muted)" }}>Structured gate results not recorded</span>}</div></div>;
+}
+
+export function StrategyExecutionState({ strategyName, blocked, account }: { strategyName: string; blocked: boolean; account: ExecutionAccountStatus | null }) {
+  const isOwner = account?.owner?.strategyName === strategyName;
+  const mode = blocked ? "DATA BLOCKED" : isOwner ? `PAPER AUTOMATED — ${account?.owner?.displayName ?? strategyName}` : "SHADOW — NO ORDERS";
+  const occupied = Boolean(account?.owner && !isOwner);
+  return <section><h2 className="mb-3 text-base font-semibold">Forward execution state</h2><div className="rounded-lg border p-4 text-sm" style={{ borderColor: blocked || occupied ? "var(--status-warning)" : "var(--border)", background: "var(--surface-1)" }}><div className="flex flex-wrap items-center justify-between gap-3"><strong>{mode}</strong><span className="text-xs" style={{ color: "var(--text-muted)" }}>{isOwner ? "Execution-observed" : blocked ? "No active forward evidence" : "Prospective synthetic only"}</span></div><p className="mt-2 text-xs" style={{ color: "var(--text-secondary)" }}>{blocked ? "This strategy cannot enter forward testing until its data-quality blocker is resolved." : isOwner ? `${account?.brokerageLabel} is assigned only to the exact ${account?.owner?.displayName} fingerprint. This does not make the canonical 189D/Monthly configuration an executing strategy; canonical DM remains a separate shadow.` : occupied ? `The connected account is assigned to ${account?.owner?.displayName}. Brokerage execution is unavailable here; use a shadow forward test or a separate account.` : "No free brokerage account is assigned. Shadow testing does not place orders."}</p>{occupied && !blocked && <button type="button" disabled className="mt-3 rounded-md border px-2.5 py-1 text-xs font-medium opacity-60" title="Assign a separate free brokerage account before enabling execution">Enable brokerage execution</button>}</div></section>;
+}
+
+export function StrategiesTab({ strategies, onRunLogged }: { strategies: StrategySummary[]; onRunLogged: () => void }) {
+  const [selected, setSelected] = useState<string | null>(strategies[0]?.name ?? null);
+  const [view, setView] = useState<"workspace" | "catalog">("workspace");
+  const [switcherOpen, setSwitcherOpen] = useState(false);
+  const [switchQuery, setSwitchQuery] = useState("");
   const [result, setResult] = useState<BacktestResult | null>(null);
   const [csResult, setCsResult] = useState<CrossSectionalResponse | null>(null);
   const [pairsResult, setPairsResult] = useState<PairsResponse | null>(null);
   const [history, setHistory] = useState<HistoryRow[]>([]);
   const [portfolioHistory, setPortfolioHistory] = useState<PortfolioHistoryRow[]>([]);
   const [running, setRunning] = useState(false);
-  const [runProgress, setRunProgress] = useState<Pick<ValidationJob, "stage" | "progressPct" | "status"> | null>(null);
+  const [progress, setProgress] = useState<Pick<ValidationJob, "stage" | "progressPct" | "status"> | null>(null);
   const [runError, setRunError] = useState<string | null>(null);
-  const [replay, setReplay] = useState<{ token: number; overrides: BacktestOverrides } | null>(null);
+  const [replay, setReplay] = useState<{ token: number; runId: number; provenance: string; overrides: BacktestOverrides } | null>(null);
+  const [config, setConfig] = useState<RunConfigState | null>(null);
   const [authoring, setAuthoring] = useState(false);
-
-  // Universe filter: which registered universe's results the leaderboard is
-  // showing. "" means the registered default (the `strategies` prop as-is).
-  // Selecting a universe never triggers a new backtest -- it only re-reads
-  // whichever row each strategy last logged AGAINST that universe (see
-  // api/main.py:list_strategies), so most rows read "Not yet tested" until
-  // someone runs that strategy against it from the Lab tab.
+  const [conditionalOpen, setConditionalOpen] = useState(false);
+  const [conditionalState, setConditionalState] = useState<{ row?: ResearchStatusRow; loading: boolean; error: string | null }>({ loading: false, error: null });
   const [universes, setUniverses] = useState<RegisteredUniverse[]>([]);
-  const [selectedUniverseId, setSelectedUniverseId] = useState("");
-  const [universeStrategies, setUniverseStrategies] = useState<StrategySummary[] | null>(null);
-  const [universeLoading, setUniverseLoading] = useState(false);
-  useEffect(() => {
-    api.listUniverses().then(setUniverses).catch(() => {});
-  }, []);
-  useEffect(() => {
-    if (!selectedUniverseId) {
-      setUniverseStrategies(null);
-      return;
-    }
-    let cancelled = false;
-    setUniverseLoading(true);
-    api.listStrategies(selectedUniverseId)
-      .then((rows) => { if (!cancelled) setUniverseStrategies(rows); })
-      .catch(() => { if (!cancelled) setUniverseStrategies(null); })
-      .finally(() => { if (!cancelled) setUniverseLoading(false); });
-    return () => { cancelled = true; };
-  }, [selectedUniverseId]);
-  const displayedStrategies = selectedUniverseId ? (universeStrategies ?? []) : strategies;
-  const universesByCategory = new Map<string, RegisteredUniverse[]>();
-  for (const u of universes) {
-    if (!u.selectable || !u.runnable) continue;
-    const list = universesByCategory.get(u.category) ?? [];
-    list.push(u);
-    universesByCategory.set(u.category, list);
-  }
+  const [catalogUniverse, setCatalogUniverse] = useState("");
+  const [catalogRows, setCatalogRows] = useState<StrategySummary[] | null>(null);
+  const [executionAccount, setExecutionAccount] = useState<ExecutionAccountStatus | null>(null);
 
-  // The sidebar slot is a sibling subtree, so it is absent on first render.
-  // Resolved after mount and stored in state so the portal re-renders once it
-  // exists rather than silently dropping the panel.
-  const [configSlot, setConfigSlot] = useState<HTMLElement | null>(null);
-  useEffect(() => {
-    setConfigSlot(document.getElementById(STRATEGY_CONFIG_SLOT));
-  }, []);
+  useEffect(() => { if (strategies.length && (!selected || !strategies.some((item) => item.name === selected))) setSelected(strategies[0].name); }, [strategies, selected]);
+  useEffect(() => { api.listUniverses().then(setUniverses).catch(() => undefined); }, []);
+  useEffect(() => { api.executionAccountOwnership().then(setExecutionAccount).catch(() => setExecutionAccount(null)); }, []);
+  useEffect(() => { if (!catalogUniverse) { setCatalogRows(null); return; } api.listStrategies(catalogUniverse).then(setCatalogRows).catch(() => setCatalogRows([])); }, [catalogUniverse]);
+  const meta = strategies.find((strategy) => strategy.name === selected);
+  const engine = meta?.engine ?? "standard";
+  useEffect(() => { if (!selected) return; setResult(null); setCsResult(null); setPairsResult(null); setRunError(null); setReplay(null); setConfig(null); setConditionalOpen(false); if (engine === "standard") api.history(selected).then(setHistory).catch(() => setHistory([])); else api.portfolioHistory(selected).then(setPortfolioHistory).catch(() => setPortfolioHistory([])); }, [selected, engine]);
+  useEffect(() => { if (!selected || engine === "pairs") return; let cancelled = false; setConditionalState({ loading: true, error: null }); api.researchConditionalStatus(selected).then((row) => { if (!cancelled) setConditionalState({ row, loading: false, error: null }); }).catch((error) => { if (!cancelled) setConditionalState({ loading: false, error: String(error) }); }); return () => { cancelled = true; }; }, [selected, engine]);
 
-  useEffect(() => {
-    if (strategies.length === 0) return;
-    // Also re-selects when the selected strategy disappears -- deleting a
-    // custom strategy would otherwise leave a stale selection pointing at
-    // a name the API now 404s.
-    if (!selected || !strategies.some((s) => s.name === selected)) {
-      setSelected(strategies[0].name);
-    }
-  }, [strategies, selected]);
+  const onConfigState = useCallback((state: RunConfigState) => setConfig(state), []);
+  const runBacktest = async (overrides: BacktestOverrides) => { if (!selected) return; setRunning(true); setProgress(null); setRunError(null); try { if (engine === "cross_sectional") { setCsResult(await api.runCrossSectional(selected, overrides, setProgress)); setPortfolioHistory(await api.portfolioHistory(selected)); } else if (engine === "pairs") { setPairsResult(await api.runPairs(selected, overrides, setProgress)); setPortfolioHistory(await api.portfolioHistory(selected)); } else { setResult(await api.runBacktest(selected, overrides, setProgress)); setHistory(await api.history(selected)); } onRunLogged(); } catch (error) { setRunError(String(error)); } finally { setRunning(false); } };
+  const replayRun = (row: HistoryRow | PortfolioHistoryRow) => setReplay({ token: Date.now(), runId: row.id, provenance: row.isPreregistered === true ? "Preregistered historical configuration" : row.isPreregistered === false ? "Exploratory historical configuration" : row.lifecycleStage?.replace(/_/g, " ") ?? "Historical configuration", overrides: { universeId: row.universeId ?? undefined, symbols: row.universeId ? undefined : row.symbols.length ? row.symbols : undefined, start: row.startDate ?? undefined, end: row.endDate ?? undefined, params: Object.keys(row.params).length ? row.params : undefined } });
+  const chooseStrategy = (name: string) => { setSelected(name); setView("workspace"); setSwitcherOpen(false); setSwitchQuery(""); window.scrollTo({ top: 0, behavior: "smooth" }); };
 
-  const selectedMeta = strategies.find((s) => s.name === selected);
-  const selectedEngine = selectedMeta?.engine ?? "standard";
+  const switchGroups = useMemo(() => { const groups = new Map<string, StrategySummary[]>(); strategies.filter((strategy) => strategy.name.toLowerCase().includes(switchQuery.toLowerCase())).forEach((strategy) => { const label = lifecycleFor(strategy); groups.set(label, [...(groups.get(label) ?? []), strategy]); }); return groups; }, [strategies, switchQuery]);
 
-  useEffect(() => {
-    if (!selected) return;
-    setResult(null);
-    setCsResult(null);
-    setPairsResult(null);
-    setRunError(null);
-    if (selectedEngine === "standard") {
-      api.history(selected).then(setHistory).catch(() => setHistory([]));
-    } else {
-      api.portfolioHistory(selected).then(setPortfolioHistory).catch(() => setPortfolioHistory([]));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected, selectedEngine]);
+  if (view === "catalog") return <>
+    <NewStrategyDialog open={authoring} onClose={() => setAuthoring(false)} onSaved={(name) => { chooseStrategy(name); onRunLogged(); }} onDeleted={onRunLogged} />
+    <div className="mb-5 flex flex-wrap items-center justify-between gap-3"><div><h1 className="text-2xl font-semibold">Strategies</h1><p className="mt-1 text-sm" style={{ color: "var(--text-muted)" }}>Research lifecycle and statistical power are distinct states.</p></div><button type="button" onClick={() => setView("workspace")} className="text-sm font-medium" style={{ color: "var(--series-1)" }}>← Back to selected strategy</button></div>
+    <div className="mb-3 flex flex-wrap justify-end gap-2"><select aria-label="Catalog universe" value={catalogUniverse} onChange={(event) => setCatalogUniverse(event.target.value)} className="rounded-md border px-2 py-1 text-xs" style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}><option value="">Registered defaults</option>{universes.filter((universe) => universe.selectable).map((universe) => <option key={universe.id} value={universe.id}>{universe.label}{universe.runnable ? "" : " · DATA REQUIRED"}</option>)}</select><button type="button" onClick={() => setAuthoring(true)} className="rounded-md px-2.5 py-1 text-xs font-medium text-white" style={{ background: "var(--series-1)" }}>+ Describe a strategy</button></div>
+    <StrategyTable strategies={catalogUniverse ? (catalogRows ?? []) : strategies} selected={selected} onSelect={chooseStrategy} />
+  </>;
 
-  const runBacktest = async (overrides: BacktestOverrides) => {
-    if (!selected) return;
-    setRunning(true);
-    setRunProgress(null);
-    setRunError(null);
-    try {
-      if (selectedEngine === "cross_sectional") {
-        setCsResult(await api.runCrossSectional(selected, overrides, setRunProgress));
-        setPortfolioHistory(await api.portfolioHistory(selected));
-        onRunLogged();
-      } else if (selectedEngine === "pairs") {
-        setPairsResult(await api.runPairs(selected, overrides, setRunProgress));
-        setPortfolioHistory(await api.portfolioHistory(selected));
-        onRunLogged();
-      } else {
-        const res = await api.runBacktest(selected, overrides, setRunProgress);
-        setResult(res);
-        const hist = await api.history(selected);
-        setHistory(hist);
-        onRunLogged();
-      }
-    } catch (e) {
-      setRunError(String(e));
-    } finally {
-      setRunning(false);
-    }
-  };
+  if (!selected || !meta) return null;
+  const lifecycle = lifecycleFor(meta);
+  const power = powerSummary(meta);
+  const blocker = primaryBlocker(meta);
+  const gates = gateCounts(meta.validation);
+  const execution = config?.timing?.execution.replace(/_/g, " ").toLowerCase() ?? "Loading";
+  const conditional = conditionalState.row;
+  const lastRow = engine === "standard" ? history[0] : portfolioHistory[0];
+  const holdoutPowerTitle = lifecycle.toLowerCase().includes("holdout") && power.label === "Underpowered" ? "The preregistered holdout did not invalidate the strategy, but statistical power remains insufficient to establish the target edge." : undefined;
 
-  const handleReplay = (row: HistoryRow | PortfolioHistoryRow) => {
-    setReplay({
-      token: Date.now(),
-      overrides: {
-        universeId: row.universeId ?? undefined,
-        symbols: row.universeId ? undefined : row.symbols.length ? row.symbols : undefined,
-        start: row.startDate ?? undefined,
-        end: row.endDate ?? undefined,
-        params: Object.keys(row.params).length ? row.params : undefined,
-      },
-    });
-  };
+  return <>
+    <NewStrategyDialog open={authoring} onClose={() => setAuthoring(false)} onSaved={(name) => { chooseStrategy(name); onRunLogged(); }} onDeleted={onRunLogged} />
+    <article className="space-y-8">
+      <header>
+        <div className="flex flex-wrap items-start justify-between gap-4"><div><h1 className="text-2xl font-semibold" style={{ color: "var(--text-primary)" }}>{selected}</h1><div className="mt-2 flex flex-wrap gap-2"><StatusPill status={meta.kind} /><span title={holdoutPowerTitle}><StatusPill status={lifecycle} /></span><StatusPill status={power.label} /></div></div><div className="relative"><button type="button" aria-expanded={switcherOpen} onClick={() => setSwitcherOpen((open) => !open)} className="rounded-md border px-3 py-2 text-sm font-medium" style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}>Switch strategy ▾</button>{switcherOpen && <div className="absolute right-0 z-20 mt-2 w-[min(22rem,calc(100vw-3rem))] rounded-lg border p-2 shadow-lg" style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}><input autoFocus aria-label="Search strategies" value={switchQuery} onChange={(event) => setSwitchQuery(event.target.value)} placeholder="Search strategies…" className="mb-2 w-full rounded-md border px-3 py-2 text-sm" style={{ borderColor: "var(--border)", background: "var(--page)" }} /><div className="max-h-72 overflow-y-auto">{[...switchGroups.entries()].map(([label, rows]) => <div key={label} className="mb-2"><div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>{label}</div>{rows.map((row) => <button type="button" key={row.name} onClick={() => chooseStrategy(row.name)} className="block w-full rounded px-2 py-1.5 text-left text-sm" style={{ background: row.name === selected ? "var(--series-1-wash)" : undefined, color: "var(--text-primary)" }}>{row.name}</button>)}</div>)}{switchGroups.size === 0 && <p className="p-2 text-sm" style={{ color: "var(--text-muted)" }}>No matching strategies.</p>}</div><button type="button" onClick={() => setView("catalog")} className="mt-2 w-full border-t px-2 pt-2 text-left text-xs font-medium" style={{ borderColor: "var(--gridline)", color: "var(--series-1)" }}>Browse all strategies →</button></div>}</div></div>
+        <div className="mt-4 grid grid-cols-2 gap-4 rounded-lg border p-3 text-sm sm:grid-cols-3 lg:grid-cols-6" style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}>{field("Strategy lifecycle", lifecycle, holdoutPowerTitle)}{field("Statistical power", power.detail ? `${power.label} · ${power.detail.replace(" · target", "; target")}` : power.label)}{field("Benchmark evidence", benchmarkEvidence(meta), `Strategy return minus ${meta.benchmarkName} return over the same test window.${meta.kind === "Day Trading" ? " This does not by itself measure capital efficiency because exposure may differ materially from buy-and-hold." : ""}`)}{field("Last run", dateLabel(meta.lastRun))}{field("Universe", config ? `${config.universeLabel} · ${config.securityCount}` : "Loading")}{field("Execution", execution)}</div>
+        {meta.kind === "Day Trading" && <div className="mt-3 rounded-md border px-3 py-2 text-xs" title={meta.measuredStartDate ? `Provider coverage begins ${meta.measuredStartDate}; usable dates are measured from returned bars, not the requested window.` : "Usable dates come from the bars actually returned by the provider."} style={{ borderColor: "var(--status-warning)", color: "var(--text-secondary)" }}><strong>Intraday history is limited by provider coverage.</strong>{meta.requestedStartDate && meta.measuredStartDate && <span> Requested {meta.requestedStartDate} → {meta.requestedEndDate}; usable {meta.measuredStartDate} → {meta.measuredEndDate}. Provider coverage begins {meta.measuredStartDate}.</span>}</div>}
+      </header>
 
-  const kindCaption =
-    selectedMeta?.kind === "Day Trading" ? DAY_TRADING_CAPTION : SWING_TRADING_CAPTION;
+      <StrategyExecutionState strategyName={selected} blocked={meta.implementationStatus === "unavailable"} account={executionAccount} />
 
-  return (
-    <>
-      <NewStrategyDialog
-        open={authoring}
-        onClose={() => setAuthoring(false)}
-        onSaved={(name) => {
-          // Refresh the leaderboard so the new strategy appears, and select
-          // it so its run-configuration panel is immediately in reach.
-          setSelected(name);
-          onRunLogged();
-        }}
-        onDeleted={onRunLogged}
-      />
-      <section className="mb-8">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
-            All strategies
-          </h2>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setAuthoring(true)}
-              className="rounded-md px-2.5 py-1 text-xs font-medium"
-              style={{ background: "var(--series-1)", color: "var(--page)" }}
-            >
-              + Describe a strategy
-            </button>
-            <label className="text-xs" style={{ color: "var(--text-muted)" }} htmlFor="universe-filter">
-              Universe
-            </label>
-            <select
-              id="universe-filter"
-              value={selectedUniverseId}
-              onChange={(event) => setSelectedUniverseId(event.target.value)}
-              className="rounded-md border px-2 py-1 text-xs"
-              style={{ borderColor: "var(--border)", background: "var(--page)", color: "var(--text-primary)" }}
-            >
-              <option value="">Registered defaults</option>
-              {[...universesByCategory.entries()].map(([category, items]) => (
-                <optgroup key={category} label={category}>
-                  {items.map((u) => (
-                    <option key={u.id} value={u.id}>{u.label}</option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
-          </div>
-        </div>
-        {selectedUniverseId && (
-          <p className="mb-2 text-xs" style={{ color: "var(--status-warning)" }}>
-            Showing each strategy's latest logged run against{" "}
-            {universes.find((u) => u.id === selectedUniverseId)?.label ?? selectedUniverseId}
-            {" "}-- not the registered default, and not a new backtest. Most strategies
-            read "Not yet tested" here until run against this universe from the Lab tab.
-            {universeLoading && " Loading…"}
-          </p>
-        )}
-        <StrategyTable strategies={displayedStrategies} selected={selected} onSelect={setSelected} />
-      </section>
-      {selected && (
-        <section>
-          {configSlot &&
-            createPortal(
-              <div className="border-t pt-4" style={{ borderColor: "var(--gridline)" }}>
-                <div className="mb-3 flex flex-col gap-0.5">
-                  <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
-                    {selected}
-                  </h2>
-                  <span className="text-xs" style={{ color: "var(--text-muted)" }}>
-                    {selectedEngine === "standard"
-                      ? kindCaption
-                      : selectedEngine === "cross_sectional"
-                        ? "Cross-sectional ranking and rebalancing strategy. Run details reflect the selected universe and cadence."
-                        : "Pairs / stat-arb spread."}
-                  </span>
-                </div>
-                {selectedMeta?.custom && (
-                  <div
-                    className="mb-3 rounded-md border px-3 py-2 text-xs"
-                    style={{ borderColor: "var(--status-warning)", color: "var(--status-warning)" }}
-                  >
-                    <div className="font-medium">Custom strategy — exploratory</div>
-                    <p className="mt-1">
-                      Written from a description, not from strategy_tracker.xlsx. It runs on
-                      the same engine and is scored by the same bar, but it has no prior
-                      sample and its rules were generated — check them before trusting a
-                      result.
-                    </p>
-                    {selectedMeta.customPrompt && (
-                      <p className="mt-1 italic">“{selectedMeta.customPrompt}”</p>
-                    )}
-                    {selectedMeta.customRules && (
-                      <ul className="mt-1 ml-4 list-disc">
-                        {selectedMeta.customRules.entry.map((line, i) => (
-                          <li key={i}>Enter: {line}</li>
-                        ))}
-                        {selectedMeta.customRules.exit.map((line, i) => (
-                          <li key={`x${i}`}>Exit: {line}</li>
-                        ))}
-                        <li>Stop: {selectedMeta.customRules.stop}</li>
-                        <li>Target: {selectedMeta.customRules.target}</li>
-                      </ul>
-                    )}
-                  </div>
-                )}
-                <RunConfigPanel
-                  key={`${selected}-${replay?.token ?? "default"}`}
-                  strategyName={selected}
-                  running={running}
-                  runError={runError}
-                  onRun={runBacktest}
-                  initialOverrides={replay?.overrides}
-                />
-              </div>,
-              configSlot,
-            )}
+      <section><h2 className="mb-3 text-base font-semibold">Configuration</h2><div className="rounded-lg border p-4" style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}><RunConfigPanel key={`${selected}-${replay?.token ?? "default"}`} strategyName={selected} running={running} runError={runError} onRun={runBacktest} initialOverrides={replay?.overrides} loadedRunId={replay?.runId} loadedRunProvenance={replay?.provenance} onStateChange={onConfigState} /></div></section>
 
-          <div className="grid grid-cols-1 gap-6">
-            <div>
-              {selectedEngine === "standard" &&
-                (result ? <ResultTabs result={result} /> : <EmptyResultPlaceholder running={running} progress={runProgress} />)}
-              {selectedEngine === "cross_sectional" &&
-                (csResult ? <CrossSectionalResultView result={csResult} /> : <EmptyResultPlaceholder running={running} progress={runProgress} />)}
-              {selectedEngine === "pairs" &&
-                (pairsResult ? <PairsResultView result={pairsResult} /> : <EmptyResultPlaceholder running={running} progress={runProgress} />)}
-            </div>
-          </div>
+      <section><h2 className="mb-3 text-base font-semibold">Latest Result</h2><LatestResult engine={engine} standard={result} cross={csResult} pairs={pairsResult} running={running} progress={progress} />{!result && !csResult && !pairsResult && lastRow && <p className="mt-2 text-xs" style={{ color: "var(--text-muted)" }}>Last recorded experiment: Run #{lastRow.id} · {dateLabel(lastRow.runAt)} · see Previous Experiments</p>}{(result || csResult || pairsResult) && <details className="mt-3 rounded-lg border p-3" style={{ borderColor: "var(--border)" }}><summary className="cursor-pointer text-sm font-medium" style={{ color: "var(--series-1)" }}>Inspect evidence</summary><div className="mt-4">{result && <ResultTabs result={result} />}{csResult && <CrossSectionalResultView result={csResult} />}{pairsResult && <PairsResultView result={pairsResult} />}</div></details>}</section>
 
-          <div className="mt-8">
-            <h2 className="mb-3 text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
-              Previous runs — {selected}
-            </h2>
-            {selectedEngine === "standard" ? (
-              <div className="space-y-4">
-                <MetricsHistoryChart rows={history} />
-                <RunHistory rows={history} onReplay={handleReplay} />
-              </div>
-            ) : (
-              <PortfolioRunHistory
-                rows={portfolioHistory}
-                onReplay={handleReplay}
-                strategyName={selected ?? ""}
-                automatable={selectedEngine === "cross_sectional"}
-              />
-            )}
-          </div>
-        </section>
-      )}
-    </>
-  );
+      <section><h2 className="mb-3 text-base font-semibold">Research Status</h2><div className="rounded-lg border p-4 text-sm" style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}><div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">{field("Strategy lifecycle", lifecycle, holdoutPowerTitle)}{field("Statistical power", power.detail ? `${power.label} · ${power.detail}` : power.label)}{field("Benchmark evidence", benchmarkEvidence(meta))}{field("Logged experiments", engine === "standard" ? history.length : portfolioHistory.length)}{field("Validation gates", gates.label)}</div><div className="mt-4"><div className="text-[11px] uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>Primary blocker</div><strong>{blocker.label}</strong>{blocker.detail && <p className="mt-1 text-xs" style={{ color: "var(--text-secondary)" }}>{blocker.detail}</p>}</div><div className="mt-4"><KeyEvidence strategy={meta} /></div>{meta.validation && <details className="mt-4"><summary className="cursor-pointer text-xs font-medium" style={{ color: "var(--series-1)" }}>View all validation evidence</summary><div className="mt-4"><EdgeValidationPanel report={meta.validation} /></div></details>}</div></section>
+
+      <section><h2 className="mb-3 text-base font-semibold">Previous Experiments</h2>{engine === "standard" ? <RunHistory rows={history} onReplay={replayRun} currentOverrides={config?.overrides} currentParams={config?.params} registeredParams={config?.registeredParams} /> : <PortfolioRunHistory rows={portfolioHistory} onReplay={replayRun} strategyName={selected} automatable={engine === "cross_sectional"} />}</section>
+
+      {(engine === "standard" || engine === "cross_sectional") && <section><h2 className="mb-3 text-base font-semibold">Advanced Research</h2><details className="rounded-lg border p-4" onToggle={(event) => setConditionalOpen(event.currentTarget.open)} style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}><summary className="cursor-pointer"><ConditionalStatusSummary row={conditional} loading={conditionalState.loading} error={conditionalState.error} archived={meta.archived} /></summary>{conditionalOpen && !conditionalState.error && <div className="mt-4"><ConditionalEdgePanel strategyName={selected} engine={engine} /></div>}</details></section>}
+      <button type="button" onClick={() => setView("catalog")} className="text-sm font-medium" style={{ color: "var(--series-1)" }}>Browse all strategies →</button>
+    </article>
+  </>;
 }

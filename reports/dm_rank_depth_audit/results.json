@@ -1,0 +1,5298 @@
+{
+  "study": "Dual Momentum Rank-Depth / Edge-Decay Audit v1",
+  "preregistration": "research\\dm_rank_depth_audit_preregistration.json",
+  "diagnosticOnly": true,
+  "alternativeTopNPortfoliosTested": false,
+  "strategies": {
+    "Dual Momentum": {
+      "canonical": {
+        "strategy": "Dual Momentum",
+        "start": "2021-08-23",
+        "end": "2026-08-22",
+        "lookback": 189,
+        "topN": 5,
+        "rebalanceFrequency": "monthly"
+      },
+      "reconciliation": {
+        "canonicalRebalances": 61,
+        "completeForwardPeriods": 60,
+        "selectedSetMatches": 60,
+        "selectedSetsMatchCanonical": true,
+        "missingOutcomePrices": [],
+        "informationBoundary": "scores use closes strictly before decision; outcomes use exact rebalance opens"
+      },
+      "rankTable": [
+        {
+          "rank": 1,
+          "n": 60,
+          "meanReturn": 0.031250872416477476,
+          "medianReturn": 0.011895011671365419,
+          "winRate": 0.5666666666666667,
+          "volatility": 0.1673348976028346,
+          "downsideDeviation": 0.09334287781073218,
+          "worstReturn": -0.34518517388237846,
+          "bestReturn": 1.071111043294271,
+          "p10": -0.0755411854840177,
+          "p90": 0.1404491944450337,
+          "beatSpy": 0.5166666666666667,
+          "beatUniverseMedian": 0.48333333333333334,
+          "futureTopQuartile": 0.3333333333333333,
+          "averageWinner": 0.10551569580268898,
+          "averageLoser": -0.06586466585779911,
+          "expectancy": 0.031250872416477476,
+          "averageMfe": 0.09561632135912103,
+          "averageMae": -0.06454147578297761
+        },
+        {
+          "rank": 2,
+          "n": 60,
+          "meanReturn": 0.018243663490869744,
+          "medianReturn": 0.0036198549837472838,
+          "winRate": 0.55,
+          "volatility": 0.08837381054286186,
+          "downsideDeviation": 0.07032306151336022,
+          "worstReturn": -0.21358950331344517,
+          "bestReturn": 0.24452550072355894,
+          "p10": -0.07789718254976898,
+          "p90": 0.12644678732668352,
+          "beatSpy": 0.4666666666666667,
+          "beatUniverseMedian": 0.48333333333333334,
+          "futureTopQuartile": 0.25,
+          "averageWinner": 0.07565232357473371,
+          "averageLoser": -0.05192247661163068,
+          "expectancy": 0.018243663490869744,
+          "averageMfe": 0.07056042425806404,
+          "averageMae": -0.05667520043727521
+        },
+        {
+          "rank": 3,
+          "n": 60,
+          "meanReturn": 0.00661226696148757,
+          "medianReturn": -0.001513398815801592,
+          "winRate": 0.48333333333333334,
+          "volatility": 0.07004789838742607,
+          "downsideDeviation": 0.05505365277584295,
+          "worstReturn": -0.15490300548311875,
+          "bestReturn": 0.24427630189323435,
+          "p10": -0.06501629907047382,
+          "p90": 0.08270447938599933,
+          "beatSpy": 0.5,
+          "beatUniverseMedian": 0.4666666666666667,
+          "futureTopQuartile": 0.23333333333333334,
+          "averageWinner": 0.06035286692867981,
+          "averageLoser": -0.043661197523950326,
+          "expectancy": 0.00661226696148757,
+          "averageMfe": 0.05933983963079217,
+          "averageMae": -0.06322972903819224
+        },
+        {
+          "rank": 4,
+          "n": 60,
+          "meanReturn": 0.012364535114983706,
+          "medianReturn": 0.01132891918011203,
+          "winRate": 0.5333333333333333,
+          "volatility": 0.07442348261605344,
+          "downsideDeviation": 0.06349805151594941,
+          "worstReturn": -0.15278760521812773,
+          "bestReturn": 0.21850726972894519,
+          "p10": -0.06762780398856501,
+          "p90": 0.10416067039003266,
+          "beatSpy": 0.5,
+          "beatUniverseMedian": 0.5333333333333333,
+          "futureTopQuartile": 0.21666666666666667,
+          "averageWinner": 0.06675712166066705,
+          "averageLoser": -0.049798420937225814,
+          "expectancy": 0.012364535114983706,
+          "averageMfe": 0.055862111379303,
+          "averageMae": -0.05187961680841709
+        },
+        {
+          "rank": 5,
+          "n": 60,
+          "meanReturn": 0.008165634406412041,
+          "medianReturn": 0.007428068501519558,
+          "winRate": 0.5666666666666667,
+          "volatility": 0.074808951775917,
+          "downsideDeviation": 0.07087380225778743,
+          "worstReturn": -0.21751827045078698,
+          "bestReturn": 0.23954901370931858,
+          "p10": -0.07133840705101936,
+          "p90": 0.10139042197948421,
+          "beatSpy": 0.5333333333333333,
+          "beatUniverseMedian": 0.5,
+          "futureTopQuartile": 0.35,
+          "averageWinner": 0.05440406621317289,
+          "averageLoser": -0.05230000718704445,
+          "expectancy": 0.008165634406412041,
+          "averageMfe": 0.05806909839275398,
+          "averageMae": -0.05361733291307993
+        },
+        {
+          "rank": 6,
+          "n": 60,
+          "meanReturn": 0.004922065803503173,
+          "medianReturn": 0.0018949463045824233,
+          "winRate": 0.5,
+          "volatility": 0.06479708230655272,
+          "downsideDeviation": 0.061012929814414696,
+          "worstReturn": -0.17006622645515446,
+          "bestReturn": 0.1277407504344079,
+          "p10": -0.07246441997062451,
+          "p90": 0.0858737305355793,
+          "beatSpy": 0.4166666666666667,
+          "beatUniverseMedian": 0.48333333333333334,
+          "futureTopQuartile": 0.21666666666666667,
+          "averageWinner": 0.05930598554434019,
+          "averageLoser": -0.049461853937333856,
+          "expectancy": 0.004922065803503173,
+          "averageMfe": 0.05328781480515516,
+          "averageMae": -0.05406549729133246
+        },
+        {
+          "rank": 7,
+          "n": 60,
+          "meanReturn": 0.009898620071899332,
+          "medianReturn": 0.011989733654382384,
+          "winRate": 0.6,
+          "volatility": 0.08349335723249958,
+          "downsideDeviation": 0.08587332413118116,
+          "worstReturn": -0.25841220059728764,
+          "bestReturn": 0.3057220274742718,
+          "p10": -0.07205430396272733,
+          "p90": 0.09290097928137897,
+          "beatSpy": 0.5833333333333334,
+          "beatUniverseMedian": 0.5166666666666667,
+          "futureTopQuartile": 0.3333333333333333,
+          "averageWinner": 0.060138681938638756,
+          "averageLoser": -0.06546147272820979,
+          "expectancy": 0.009898620071899332,
+          "averageMfe": 0.05774974909165816,
+          "averageMae": -0.05284237434246575
+        },
+        {
+          "rank": 8,
+          "n": 60,
+          "meanReturn": 0.0050302073093510995,
+          "medianReturn": 0.0075987397588905825,
+          "winRate": 0.6166666666666667,
+          "volatility": 0.07628066106460774,
+          "downsideDeviation": 0.08346475805911338,
+          "worstReturn": -0.1688432938724883,
+          "bestReturn": 0.1827598823644061,
+          "p10": -0.09014174132930947,
+          "p90": 0.09795149917530689,
+          "beatSpy": 0.5,
+          "beatUniverseMedian": 0.5,
+          "futureTopQuartile": 0.3,
+          "averageWinner": 0.0521157542703117,
+          "averageLoser": -0.07071610736697682,
+          "expectancy": 0.0050302073093510995,
+          "averageMfe": 0.05221491014460287,
+          "averageMae": -0.05301646274829655
+        },
+        {
+          "rank": 9,
+          "n": 60,
+          "meanReturn": 0.0011433648032574035,
+          "medianReturn": 0.0019786344277198387,
+          "winRate": 0.5166666666666667,
+          "volatility": 0.08873549668786627,
+          "downsideDeviation": 0.09685492853319522,
+          "worstReturn": -0.31880787301537483,
+          "bestReturn": 0.1631383575224421,
+          "p10": -0.08578714905994415,
+          "p90": 0.10436776749609658,
+          "beatSpy": 0.48333333333333334,
+          "beatUniverseMedian": 0.45,
+          "futureTopQuartile": 0.3,
+          "averageWinner": 0.06532735449239649,
+          "averageLoser": -0.0674671069334085,
+          "expectancy": 0.0011433648032574035,
+          "averageMfe": 0.0580105079011023,
+          "averageMae": -0.05985972078171849
+        },
+        {
+          "rank": 10,
+          "n": 60,
+          "meanReturn": 0.002188176084089914,
+          "medianReturn": -8.408237452889322e-05,
+          "winRate": 0.5,
+          "volatility": 0.06805319776821171,
+          "downsideDeviation": 0.06543165112922218,
+          "worstReturn": -0.13297157428990225,
+          "bestReturn": 0.17201969245302084,
+          "p10": -0.09251262822176741,
+          "p90": 0.0873205058994653,
+          "beatSpy": 0.43333333333333335,
+          "beatUniverseMedian": 0.45,
+          "futureTopQuartile": 0.2833333333333333,
+          "averageWinner": 0.055566506146619205,
+          "averageLoser": -0.05119015397843937,
+          "expectancy": 0.002188176084089914,
+          "averageMfe": 0.05313018944846289,
+          "averageMae": -0.05566618587187509
+        }
+      ],
+      "groups": {
+        "elite": {
+          "n": 120,
+          "meanReturn": 0.024747267953673605,
+          "medianReturn": 0.007210364076974729,
+          "winRate": 0.5583333333333333,
+          "volatility": 0.13340777908455134,
+          "downsideDeviation": 0.08242311503321222,
+          "worstReturn": -0.34518517388237846,
+          "bestReturn": 1.071111043294271,
+          "p10": -0.0766385213140246,
+          "p90": 0.1401782543863695,
+          "beatSpy": 0.49166666666666664,
+          "beatUniverseMedian": 0.48333333333333334,
+          "futureTopQuartile": 0.2916666666666667,
+          "averageWinner": 0.09080687067548714,
+          "averageLoser": -0.058762041147486885,
+          "expectancy": 0.024747267953673605,
+          "averageMfe": 0.08308837280859252,
+          "averageMae": -0.06060833811012641
+        },
+        "upper": {
+          "n": 60,
+          "meanReturn": 0.00661226696148757,
+          "medianReturn": -0.001513398815801592,
+          "winRate": 0.48333333333333334,
+          "volatility": 0.07004789838742607,
+          "downsideDeviation": 0.05505365277584295,
+          "worstReturn": -0.15490300548311875,
+          "bestReturn": 0.24427630189323435,
+          "p10": -0.06501629907047382,
+          "p90": 0.08270447938599933,
+          "beatSpy": 0.5,
+          "beatUniverseMedian": 0.4666666666666667,
+          "futureTopQuartile": 0.23333333333333334,
+          "averageWinner": 0.06035286692867981,
+          "averageLoser": -0.043661197523950326,
+          "expectancy": 0.00661226696148757,
+          "averageMfe": 0.05933983963079217,
+          "averageMae": -0.06322972903819224
+        },
+        "lowerSelected": {
+          "n": 120,
+          "meanReturn": 0.010265084760697873,
+          "medianReturn": 0.008176158257676036,
+          "winRate": 0.55,
+          "volatility": 0.0743321938924613,
+          "downsideDeviation": 0.06715054442643471,
+          "worstReturn": -0.21751827045078698,
+          "bestReturn": 0.23954901370931858,
+          "p10": -0.07022612342541269,
+          "p90": 0.10416067039003267,
+          "beatSpy": 0.5166666666666667,
+          "beatUniverseMedian": 0.5166666666666667,
+          "futureTopQuartile": 0.2833333333333333,
+          "averageWinner": 0.06039342643013975,
+          "averageLoser": -0.0510028883908422,
+          "expectancy": 0.010265084760697873,
+          "averageMfe": 0.05696560488602849,
+          "averageMae": -0.05274847486074851
+        },
+        "nearMisses": {
+          "n": 300,
+          "meanReturn": 0.0046364868144201845,
+          "medianReturn": 0.006670949433651652,
+          "winRate": 0.5466666666666666,
+          "volatility": 0.07634851599425378,
+          "downsideDeviation": 0.07902762346921187,
+          "worstReturn": -0.31880787301537483,
+          "bestReturn": 0.3057220274742718,
+          "p10": -0.08522754516739203,
+          "p90": 0.0975334970082907,
+          "beatSpy": 0.48333333333333334,
+          "beatUniverseMedian": 0.48,
+          "futureTopQuartile": 0.2866666666666667,
+          "averageWinner": 0.058320720718204884,
+          "averageLoser": -0.06010038348132019,
+          "expectancy": 0.0046364868144201845,
+          "averageMfe": 0.054878634278196274,
+          "averageMae": -0.05509004820713768
+        },
+        "top3": {
+          "n": 180,
+          "meanReturn": 0.018702267622944926,
+          "medianReturn": 0.00287241711418329,
+          "winRate": 0.5333333333333333,
+          "volatility": 0.11628729433358205,
+          "downsideDeviation": 0.07351848240789981,
+          "worstReturn": -0.34518517388237846,
+          "bestReturn": 1.071111043294271,
+          "p10": -0.074988273974842,
+          "p90": 0.12275725701276739,
+          "beatSpy": 0.49444444444444446,
+          "beatUniverseMedian": 0.4777777777777778,
+          "futureTopQuartile": 0.2722222222222222,
+          "averageWinner": 0.08160722371030575,
+          "averageLoser": -0.05318911076261029,
+          "expectancy": 0.018702267622944926,
+          "averageMfe": 0.07517219508265907,
+          "averageMae": -0.06148213508614835
+        },
+        "ranks3To5": {
+          "n": 180,
+          "meanReturn": 0.009047478827627771,
+          "medianReturn": 0.0026885164444988563,
+          "winRate": 0.5277777777777778,
+          "volatility": 0.0727564710390211,
+          "downsideDeviation": 0.06300836625198378,
+          "worstReturn": -0.21751827045078698,
+          "bestReturn": 0.24427630189323435,
+          "p10": -0.07022612342541269,
+          "p90": 0.09964651037589838,
+          "beatSpy": 0.5111111111111111,
+          "beatUniverseMedian": 0.5,
+          "futureTopQuartile": 0.26666666666666666,
+          "averageWinner": 0.06038104510864144,
+          "averageLoser": -0.048325330545269864,
+          "expectancy": 0.009047478827627771,
+          "averageMfe": 0.05775701646761638,
+          "averageMae": -0.05624222625322975
+        },
+        "top5": {
+          "n": 300,
+          "meanReturn": 0.015327394478046106,
+          "medianReturn": 0.0038299906228107528,
+          "winRate": 0.54,
+          "volatility": 0.10154661285546818,
+          "downsideDeviation": 0.07109464057607469,
+          "worstReturn": -0.34518517388237846,
+          "bestReturn": 1.071111043294271,
+          "p10": -0.07469090634084544,
+          "p90": 0.11446206364981615,
+          "beatSpy": 0.5033333333333333,
+          "beatUniverseMedian": 0.49333333333333335,
+          "futureTopQuartile": 0.27666666666666667,
+          "averageWinner": 0.072964565559127,
+          "averageLoser": -0.052333632443222776,
+          "expectancy": 0.015327394478046106,
+          "averageMfe": 0.06788955900400685,
+          "averageMae": -0.057988670995988416
+        }
+      },
+      "comparisons": {
+        "top3VsRanks4To5": {
+          "leftRanks": [
+            1,
+            2,
+            3
+          ],
+          "rightRanks": [
+            4,
+            5
+          ],
+          "effectiveN": 60,
+          "meanReturnDifference": 0.008437182862247053,
+          "medianReturnDifference": -0.005303741143492746,
+          "winRateDifference": -0.01666666666666672,
+          "volatilityDifference": 0.041955100441120746,
+          "downsideDeviationDifference": 0.006367937981465094,
+          "p10Difference": -0.004762150549429314,
+          "beatSpyDifference": -0.022222222222222254,
+          "pairedMonthlyMeanDifference": 0.00843718286224705,
+          "clusterCi95": [
+            -0.01163721583188767,
+            0.03228756002680934
+          ],
+          "pairedStandardizedEffect": 0.09364810408529019,
+          "method": "rebalance-cluster bootstrap, 2000 draws, seed 20260822"
+        },
+        "ranks1To2VsRanks3To5": {
+          "leftRanks": [
+            1,
+            2
+          ],
+          "rightRanks": [
+            3,
+            4,
+            5
+          ],
+          "effectiveN": 60,
+          "meanReturnDifference": 0.015699789126045832,
+          "medianReturnDifference": 0.004521847632475873,
+          "winRateDifference": 0.030555555555555558,
+          "volatilityDifference": 0.06065130804553025,
+          "downsideDeviationDifference": 0.01941474878122844,
+          "p10Difference": -0.0064123978886119065,
+          "beatSpyDifference": -0.01944444444444443,
+          "pairedMonthlyMeanDifference": 0.015699789126045832,
+          "clusterCi95": [
+            -0.009981425383023178,
+            0.047626551160366876
+          ],
+          "pairedStandardizedEffect": 0.1351203005399939,
+          "method": "rebalance-cluster bootstrap, 2000 draws, seed 20260822"
+        },
+        "top5VsRanks6To10": {
+          "leftRanks": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "rightRanks": [
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "effectiveN": 60,
+          "meanReturnDifference": 0.010690907663625921,
+          "medianReturnDifference": -0.002840958810840899,
+          "winRateDifference": -0.006666666666666599,
+          "volatilityDifference": 0.025198096861214395,
+          "downsideDeviationDifference": -0.00793298289313718,
+          "p10Difference": 0.010536638826546596,
+          "beatSpyDifference": 0.019999999999999962,
+          "pairedMonthlyMeanDifference": 0.010690907663625923,
+          "clusterCi95": [
+            -0.002168439967074451,
+            0.024027694288679506
+          ],
+          "pairedStandardizedEffect": 0.2019821009244663,
+          "method": "rebalance-cluster bootstrap, 2000 draws, seed 20260822"
+        }
+      },
+      "rankInference": {
+        "spearman": -0.03173243802664539,
+        "clusterCi95": [
+          -0.09905811905458305,
+          0.04068305712495546
+        ],
+        "effectiveN": 60,
+        "rawN": 600,
+        "decreasingAdjacentSteps": 6,
+        "totalAdjacentSteps": 9,
+        "strictlyMonotonicMeanCurve": false,
+        "method": "rebalance-cluster bootstrap, 2000 draws, seed 20260822"
+      },
+      "rankLabelNull": {
+        "H1Top3MinusRanks4To5": {
+          "observed": 0.008437182862247053,
+          "nullMean": 6.2827720164418e-05,
+          "nullCi95": [
+            -0.019382084861370313,
+            0.019494261822152647
+          ],
+          "directionalEmpiricalP": 0.20339830084957522,
+          "twoSidedEmpiricalP": 0.4017991004497751
+        },
+        "H2Top5MinusRanks6To10": {
+          "observed": 0.010690907663625921,
+          "nullMean": 7.879755283054268e-05,
+          "nullCi95": [
+            -0.012821033752780094,
+            0.012813100684926545
+          ],
+          "directionalEmpiricalP": 0.05297351324337831,
+          "twoSidedEmpiricalP": 0.10644677661169415
+        },
+        "H3RankReturnSpearman": {
+          "observed": -0.03173243802664539,
+          "nullMean": -0.0004278200662054141,
+          "nullCi95": [
+            -0.07024771818279327,
+            0.06960457684092616
+          ],
+          "directionalEmpiricalP": 0.1874062968515742,
+          "twoSidedEmpiricalP": 0.3638180909545227
+        },
+        "draws": 2000,
+        "seed": 20260822,
+        "method": "rank labels shuffled within each rebalance; future-return set preserved"
+      },
+      "cumulativeDepth": [
+        {
+          "depth": 1,
+          "n": 60,
+          "meanReturn": 0.031250872416477476,
+          "newRankMeanReturn": 0.031250872416477476,
+          "marginalVsHigherRanks": null
+        },
+        {
+          "depth": 2,
+          "n": 120,
+          "meanReturn": 0.024747267953673605,
+          "newRankMeanReturn": 0.018243663490869744,
+          "marginalVsHigherRanks": -0.013007208925607732
+        },
+        {
+          "depth": 3,
+          "n": 180,
+          "meanReturn": 0.018702267622944926,
+          "newRankMeanReturn": 0.00661226696148757,
+          "marginalVsHigherRanks": -0.018135000992186037
+        },
+        {
+          "depth": 4,
+          "n": 240,
+          "meanReturn": 0.01711783449595462,
+          "newRankMeanReturn": 0.012364535114983706,
+          "marginalVsHigherRanks": -0.00633773250796122
+        },
+        {
+          "depth": 5,
+          "n": 300,
+          "meanReturn": 0.015327394478046106,
+          "newRankMeanReturn": 0.008165634406412041,
+          "marginalVsHigherRanks": -0.008952200089542579
+        },
+        {
+          "depth": 6,
+          "n": 360,
+          "meanReturn": 0.01359317303228895,
+          "newRankMeanReturn": 0.004922065803503173,
+          "marginalVsHigherRanks": -0.010405328674542934
+        },
+        {
+          "depth": 10,
+          "n": 600,
+          "meanReturn": 0.009981940646233145,
+          "newRankMeanReturn": 0.002188176084089914,
+          "marginalVsHigherRanks": -0.008659738402381368
+        }
+      ],
+      "scoreSpacing": [
+        {
+          "boundary": "1-2",
+          "n": 60,
+          "meanScoreGap": 0.26013421638027445,
+          "medianScoreGap": 0.12507711168219737,
+          "gapReturnDifferenceSpearman": 0.055793275909975,
+          "meanReturnDifferenceSmallGap": -0.003536106638801721,
+          "meanReturnDifferenceLargeGap": 0.029550524490017185
+        },
+        {
+          "boundary": "2-3",
+          "n": 60,
+          "meanScoreGap": 0.08807159912960853,
+          "medianScoreGap": 0.04571661003257954,
+          "gapReturnDifferenceSpearman": 0.03573214781883857,
+          "meanReturnDifferenceSmallGap": 0.004406607660975714,
+          "meanReturnDifferenceLargeGap": 0.018856185397788622
+        },
+        {
+          "boundary": "3-4",
+          "n": 60,
+          "meanScoreGap": 0.05158423507794231,
+          "medianScoreGap": 0.025184433349639268,
+          "gapReturnDifferenceSpearman": -0.11742150597388165,
+          "meanReturnDifferenceSmallGap": -0.0003221148232512738,
+          "meanReturnDifferenceLargeGap": -0.011182421483741
+        },
+        {
+          "boundary": "4-5",
+          "n": 60,
+          "meanScoreGap": 0.04191281717042591,
+          "medianScoreGap": 0.027008665378396968,
+          "gapReturnDifferenceSpearman": -0.016393442622950824,
+          "meanReturnDifferenceSmallGap": 0.01185933314302536,
+          "meanReturnDifferenceLargeGap": -0.0034615317258820276
+        },
+        {
+          "boundary": "5-6",
+          "n": 60,
+          "meanScoreGap": 0.03173602154460537,
+          "medianScoreGap": 0.024133132835808424,
+          "gapReturnDifferenceSpearman": -0.15726590719644348,
+          "meanReturnDifferenceSmallGap": 0.030023790833948356,
+          "meanReturnDifferenceLargeGap": -0.02353665362813062
+        }
+      ],
+      "percentileGroups": [
+        {
+          "group": "top10pct",
+          "lower": 0.0,
+          "upper": 0.1,
+          "n": 180,
+          "meanReturn": 0.018702267622944926,
+          "medianReturn": 0.00287241711418329,
+          "winRate": 0.5333333333333333,
+          "volatility": 0.11628729433358205,
+          "downsideDeviation": 0.07351848240789981,
+          "worstReturn": -0.34518517388237846,
+          "bestReturn": 1.071111043294271,
+          "p10": -0.074988273974842,
+          "p90": 0.12275725701276739,
+          "beatSpy": 0.49444444444444446,
+          "beatUniverseMedian": 0.4777777777777778,
+          "futureTopQuartile": 0.2722222222222222,
+          "averageWinner": 0.08160722371030575,
+          "averageLoser": -0.05318911076261029,
+          "expectancy": 0.018702267622944926,
+          "averageMfe": 0.07517219508265907,
+          "averageMae": -0.06148213508614835
+        },
+        {
+          "group": "pct10To25",
+          "lower": 0.1,
+          "upper": 0.25,
+          "n": 240,
+          "meanReturn": 0.008837713849199564,
+          "medianReturn": 0.008616796047993591,
+          "winRate": 0.55,
+          "volatility": 0.07425383465593793,
+          "downsideDeviation": 0.07019518809202598,
+          "worstReturn": -0.25841220059728764,
+          "bestReturn": 0.3057220274742718,
+          "p10": -0.07156916846987921,
+          "p90": 0.09792410005396629,
+          "beatSpy": 0.5083333333333333,
+          "beatUniverseMedian": 0.5083333333333333,
+          "futureTopQuartile": 0.2791666666666667,
+          "averageWinner": 0.060076805003866834,
+          "averageLoser": -0.053787842006504896,
+          "expectancy": 0.008837713849199564,
+          "averageMfe": 0.05624219341721758,
+          "averageMae": -0.05310120533882381
+        },
+        {
+          "group": "pct25To50",
+          "lower": 0.25,
+          "upper": 0.5,
+          "n": 420,
+          "meanReturn": 0.008149026809864436,
+          "medianReturn": 0.006019349083559056,
+          "winRate": 0.5476190476190477,
+          "volatility": 0.07714304917974027,
+          "downsideDeviation": 0.0731868239759358,
+          "worstReturn": -0.31880787301537483,
+          "bestReturn": 0.3547230636787553,
+          "p10": -0.08326479625123615,
+          "p90": 0.09759653285646985,
+          "beatSpy": 0.46190476190476193,
+          "beatUniverseMedian": 0.4666666666666667,
+          "futureTopQuartile": 0.28095238095238095,
+          "averageWinner": 0.06185169255209828,
+          "averageLoser": -0.056859463299155484,
+          "expectancy": 0.008149026809864436,
+          "averageMfe": 0.057673058508498846,
+          "averageMae": -0.051987415331763216
+        },
+        {
+          "group": "bottom50pct",
+          "lower": 0.5,
+          "upper": 1.0000001,
+          "n": 900,
+          "meanReturn": 0.00988812675691346,
+          "medianReturn": 0.006905097902497048,
+          "winRate": 0.5533333333333333,
+          "volatility": 0.08154213780943342,
+          "downsideDeviation": 0.07520989394684496,
+          "worstReturn": -0.28765552275146755,
+          "bestReturn": 0.40410385082360634,
+          "p10": -0.08486695096549854,
+          "p90": 0.10577863182122882,
+          "beatSpy": 0.4777777777777778,
+          "beatUniverseMedian": 0.48444444444444446,
+          "futureTopQuartile": 0.2733333333333333,
+          "averageWinner": 0.06395692635574994,
+          "averageLoser": -0.05709262498492875,
+          "expectancy": 0.00988812675691346,
+          "averageMfe": 0.06291046234528208,
+          "averageMae": -0.05678574890229802
+        }
+      ],
+      "stability": {
+        "splitDate": "2024-02-01",
+        "firstHalfTop3MinusRanks4To5": -0.0008948630620027339,
+        "secondHalfTop3MinusRanks4To5": 0.017769228786496838,
+        "yearlyTop3MinusRanks4To5": {
+          "2021": -0.049537813414309295,
+          "2022": 0.016290675030595763,
+          "2023": 0.007026029706254526,
+          "2024": -0.007700558152970768,
+          "2025": 0.002305947857369949,
+          "2026": 0.07697927221591085
+        },
+        "leaveOneYearOutTop3MinusRanks4To5": {
+          "2021": 0.01370763706920672,
+          "2022": 0.006473809820159874,
+          "2023": 0.008789971151245184,
+          "2024": 0.012471618116051507,
+          "2025": 0.009969991613466327,
+          "2026": -0.0006155459203123171
+        },
+        "leaveOneSecurityOutTop3MinusRanks4To5": {
+          "AAPL": 0.010864760021477082,
+          "AMGN": 0.006533002833936141,
+          "AXP": 0.007074854664480201,
+          "BA": 0.0063583583271266345,
+          "CAT": 0.011457932043207721,
+          "CRM": 0.0067265875288545105,
+          "CSCO": 0.008006541406068799,
+          "CVX": 0.006770510061080703,
+          "DIS": 0.009378292198099648,
+          "DOW": 0.010789806354785776,
+          "GS": 0.009078881808661775,
+          "HD": 0.006751632482880911,
+          "HON": 0.00848742815023064,
+          "IBM": 0.006920195098822305,
+          "INTC": 0.002747884901476234,
+          "JNJ": 0.00765357225236807,
+          "JPM": 0.007180470151818023,
+          "KO": 0.009214117910839452,
+          "MCD": 0.00804847639987148,
+          "MMM": 0.011085579824335279,
+          "MRK": 0.011351826753532163,
+          "MSFT": 0.013716697144594144,
+          "NKE": 0.008482547836341862,
+          "PG": 0.007766130067065221,
+          "TRV": 0.00846015438318386,
+          "UNH": 0.007168357298812015,
+          "V": 0.007898204896939511,
+          "VZ": 0.00843718286224705,
+          "WMT": 0.01026831734202729
+        },
+        "largestInfluenceSecurity": "INTC",
+        "largestInfluenceResult": 0.002747884901476234,
+        "allLeaveOneYearOutPositive": false,
+        "allLeaveOneSecurityOutPositive": true
+      },
+      "securityContributors": {
+        "byGroup": [
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "MMM",
+            "n": 3,
+            "meanReturn": 0.12926028911399615,
+            "sumReturn": 0.38778086734198847
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "MSFT",
+            "n": 10,
+            "meanReturn": 0.03611782676741458,
+            "sumReturn": 0.36117826767414585
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "JPM",
+            "n": 13,
+            "meanReturn": 0.0256946950850365,
+            "sumReturn": 0.33403103610547447
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "CAT",
+            "n": 8,
+            "meanReturn": 0.03716218305712944,
+            "sumReturn": 0.29729746445703553
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "AAPL",
+            "n": 4,
+            "meanReturn": 0.04752407910008172,
+            "sumReturn": 0.19009631640032687
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "WMT",
+            "n": 5,
+            "meanReturn": 0.03436485981418023,
+            "sumReturn": 0.17182429907090113
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "AXP",
+            "n": 6,
+            "meanReturn": 0.027378244260312195,
+            "sumReturn": 0.16426946556187316
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "UNH",
+            "n": 7,
+            "meanReturn": 0.022858600752673826,
+            "sumReturn": 0.1600102052687168
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "JNJ",
+            "n": 8,
+            "meanReturn": 0.015487947565265572,
+            "sumReturn": 0.12390358052212458
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "DIS",
+            "n": 2,
+            "meanReturn": 0.04792535821379523,
+            "sumReturn": 0.09585071642759047
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "TRV",
+            "n": 9,
+            "meanReturn": 0.009085377904501035,
+            "sumReturn": 0.08176840114050932
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "MRK",
+            "n": 4,
+            "meanReturn": 0.015346922882231162,
+            "sumReturn": 0.06138769152892465
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "HD",
+            "n": 2,
+            "meanReturn": 0.01180468816593122,
+            "sumReturn": 0.02360937633186244
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "MCD",
+            "n": 1,
+            "meanReturn": -0.002100052251981288,
+            "sumReturn": -0.002100052251981288
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "INTC",
+            "n": 2,
+            "meanReturn": -0.0011361407373162713,
+            "sumReturn": -0.0022722814746325426
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "KO",
+            "n": 5,
+            "meanReturn": -0.00049992704477686,
+            "sumReturn": -0.0024996352238843
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "V",
+            "n": 1,
+            "meanReturn": -0.013868189202723702,
+            "sumReturn": -0.013868189202723702
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "CVX",
+            "n": 1,
+            "meanReturn": -0.033756608847113845,
+            "sumReturn": -0.033756608847113845
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "HON",
+            "n": 1,
+            "meanReturn": -0.038858846800082,
+            "sumReturn": -0.038858846800082
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "PG",
+            "n": 2,
+            "meanReturn": -0.022710295319505858,
+            "sumReturn": -0.045420590639011715
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "CSCO",
+            "n": 6,
+            "meanReturn": -0.009185892874427504,
+            "sumReturn": -0.05511535724656502
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "CRM",
+            "n": 3,
+            "meanReturn": -0.02034864362100952,
+            "sumReturn": -0.061045930863028564
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "GS",
+            "n": 4,
+            "meanReturn": -0.016871360564235716,
+            "sumReturn": -0.06748544225694286
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "NKE",
+            "n": 1,
+            "meanReturn": -0.10762248575018685,
+            "sumReturn": -0.10762248575018685
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "BA",
+            "n": 2,
+            "meanReturn": -0.0666098416608018,
+            "sumReturn": -0.1332196833216036
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "AMGN",
+            "n": 4,
+            "meanReturn": -0.04968992998878824,
+            "sumReturn": -0.19875971995515296
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "DOW",
+            "n": 1,
+            "meanReturn": -0.21751827045078698,
+            "sumReturn": -0.21751827045078698
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "IBM",
+            "n": 5,
+            "meanReturn": -0.04833088445280653,
+            "sumReturn": -0.24165442226403266
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "CSCO",
+            "n": 22,
+            "meanReturn": 0.03167038473528529,
+            "sumReturn": 0.6967484641762763
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "IBM",
+            "n": 21,
+            "meanReturn": 0.026380985682121962,
+            "sumReturn": 0.5540006993245612
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "JPM",
+            "n": 17,
+            "meanReturn": 0.025197775546699767,
+            "sumReturn": 0.42836218429389605
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "GS",
+            "n": 14,
+            "meanReturn": 0.01826321962799648,
+            "sumReturn": 0.2556850747919507
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "AAPL",
+            "n": 17,
+            "meanReturn": 0.012975913108028304,
+            "sumReturn": 0.22059052283648117
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "MMM",
+            "n": 3,
+            "meanReturn": 0.06838142379807066,
+            "sumReturn": 0.20514427139421199
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "CVX",
+            "n": 9,
+            "meanReturn": 0.021707493383568772,
+            "sumReturn": 0.19536744045211896
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "MRK",
+            "n": 9,
+            "meanReturn": 0.02096201842428347,
+            "sumReturn": 0.18865816581855122
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "JNJ",
+            "n": 11,
+            "meanReturn": 0.01705294104018901,
+            "sumReturn": 0.18758235144207913
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "AMGN",
+            "n": 12,
+            "meanReturn": 0.01559063860673506,
+            "sumReturn": 0.18708766328082072
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "MCD",
+            "n": 19,
+            "meanReturn": 0.008828737193000502,
+            "sumReturn": 0.16774600666700956
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "PG",
+            "n": 7,
+            "meanReturn": 0.009580287713416806,
+            "sumReturn": 0.06706201399391765
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "KO",
+            "n": 7,
+            "meanReturn": 0.008725232171297266,
+            "sumReturn": 0.06107662519908086
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "WMT",
+            "n": 16,
+            "meanReturn": 0.003544378340777282,
+            "sumReturn": 0.056710053452436515
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "TRV",
+            "n": 17,
+            "meanReturn": 0.0006901131844256108,
+            "sumReturn": 0.011731924135235383
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "V",
+            "n": 13,
+            "meanReturn": -0.00023611359107272427,
+            "sumReturn": -0.0030694766839454157
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "VZ",
+            "n": 6,
+            "meanReturn": -0.003012316254139317,
+            "sumReturn": -0.018073897524835902
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "MSFT",
+            "n": 6,
+            "meanReturn": -0.006219309559072424,
+            "sumReturn": -0.037315857354434545
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "HON",
+            "n": 2,
+            "meanReturn": -0.02170725525890188,
+            "sumReturn": -0.04341451051780376
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "CAT",
+            "n": 9,
+            "meanReturn": -0.006373175914756095,
+            "sumReturn": -0.05735858323280485
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "UNH",
+            "n": 11,
+            "meanReturn": -0.005757476988334772,
+            "sumReturn": -0.06333224687168248
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "HD",
+            "n": 8,
+            "meanReturn": -0.01544216570622417,
+            "sumReturn": -0.12353732564979336
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "AXP",
+            "n": 14,
+            "meanReturn": -0.011732789838809725,
+            "sumReturn": -0.16425905774333616
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "BA",
+            "n": 5,
+            "meanReturn": -0.038781973340538387,
+            "sumReturn": -0.19390986670269195
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "DIS",
+            "n": 4,
+            "meanReturn": -0.058314561432206924,
+            "sumReturn": -0.2332582457288277
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "DOW",
+            "n": 6,
+            "meanReturn": -0.03924732564820758,
+            "sumReturn": -0.23548395388924548
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "CRM",
+            "n": 7,
+            "meanReturn": -0.034820643565733125,
+            "sumReturn": -0.2437445049601319
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "INTC",
+            "n": 1,
+            "meanReturn": -0.31880787301537483,
+            "sumReturn": -0.31880787301537483
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "NKE",
+            "n": 7,
+            "meanReturn": -0.05100600243680912,
+            "sumReturn": -0.3570420170576638
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "INTC",
+            "n": 16,
+            "meanReturn": 0.10791296613673759,
+            "sumReturn": 1.7266074581878015
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "CAT",
+            "n": 16,
+            "meanReturn": 0.031806904024275474,
+            "sumReturn": 0.5089104643884076
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "GS",
+            "n": 19,
+            "meanReturn": 0.02189157223172838,
+            "sumReturn": 0.41593987240283925
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "CVX",
+            "n": 11,
+            "meanReturn": 0.03750481299895683,
+            "sumReturn": 0.4125529429885252
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "CRM",
+            "n": 9,
+            "meanReturn": 0.03401400734952225,
+            "sumReturn": 0.30612606614570026
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "MRK",
+            "n": 12,
+            "meanReturn": 0.019065772637736567,
+            "sumReturn": 0.2287892716528388
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "HD",
+            "n": 2,
+            "meanReturn": 0.059229084063949,
+            "sumReturn": 0.118458168127898
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "WMT",
+            "n": 8,
+            "meanReturn": 0.013963242305031737,
+            "sumReturn": 0.1117059384402539
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "JNJ",
+            "n": 1,
+            "meanReturn": 0.09952967124880296,
+            "sumReturn": 0.09952967124880296
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "JPM",
+            "n": 9,
+            "meanReturn": 0.0106620840443432,
+            "sumReturn": 0.0959587563990888
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "AMGN",
+            "n": 5,
+            "meanReturn": 0.018310207768982643,
+            "sumReturn": 0.09155103884491322
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "BA",
+            "n": 9,
+            "meanReturn": 0.009213831065812257,
+            "sumReturn": 0.08292447959231031
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "AXP",
+            "n": 10,
+            "meanReturn": 0.008018174405916545,
+            "sumReturn": 0.08018174405916545
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "IBM",
+            "n": 9,
+            "meanReturn": 0.005483165713025083,
+            "sumReturn": 0.04934849141722575
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "V",
+            "n": 2,
+            "meanReturn": 0.013407274247952294,
+            "sumReturn": 0.02681454849590459
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "UNH",
+            "n": 6,
+            "meanReturn": -0.004380021389776649,
+            "sumReturn": -0.02628012833865989
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "MMM",
+            "n": 8,
+            "meanReturn": -0.00373007803109085,
+            "sumReturn": -0.0298406242487268
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "DIS",
+            "n": 1,
+            "meanReturn": -0.06397696099535566,
+            "sumReturn": -0.06397696099535566
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "KO",
+            "n": 1,
+            "meanReturn": -0.07809514193193279,
+            "sumReturn": -0.07809514193193279
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "CSCO",
+            "n": 5,
+            "meanReturn": -0.031772962465110854,
+            "sumReturn": -0.15886481232555427
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "DOW",
+            "n": 2,
+            "meanReturn": -0.08526587627790833,
+            "sumReturn": -0.17053175255581665
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "MSFT",
+            "n": 12,
+            "meanReturn": -0.01424680286437921,
+            "sumReturn": -0.17096163437255052
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "AAPL",
+            "n": 7,
+            "meanReturn": -0.04149138364185604,
+            "sumReturn": -0.29043968549299226
+          }
+        ],
+        "byRank": [
+          {
+            "rank": 1,
+            "symbol": "INTC",
+            "n": 11,
+            "meanReturn": 0.11317525641554389,
+            "sumReturn": 1.2449278205709828
+          },
+          {
+            "rank": 1,
+            "symbol": "CVX",
+            "n": 9,
+            "meanReturn": 0.036391091795053,
+            "sumReturn": 0.32751982615547703
+          },
+          {
+            "rank": 1,
+            "symbol": "CAT",
+            "n": 3,
+            "meanReturn": 0.051930938151955375,
+            "sumReturn": 0.15579281445586612
+          },
+          {
+            "rank": 1,
+            "symbol": "WMT",
+            "n": 4,
+            "meanReturn": 0.03302938625516999,
+            "sumReturn": 0.13211754502067996
+          },
+          {
+            "rank": 1,
+            "symbol": "MSFT",
+            "n": 1,
+            "meanReturn": 0.11314470964604317,
+            "sumReturn": 0.11314470964604317
+          },
+          {
+            "rank": 1,
+            "symbol": "AXP",
+            "n": 3,
+            "meanReturn": 0.031013523244694197,
+            "sumReturn": 0.09304056973408259
+          },
+          {
+            "rank": 1,
+            "symbol": "HD",
+            "n": 1,
+            "meanReturn": 0.03603755734048586,
+            "sumReturn": 0.03603755734048586
+          },
+          {
+            "rank": 1,
+            "symbol": "MMM",
+            "n": 5,
+            "meanReturn": 0.00578938840304335,
+            "sumReturn": 0.028946942015216748
+          },
+          {
+            "rank": 1,
+            "symbol": "GS",
+            "n": 6,
+            "meanReturn": 0.003541161361755992,
+            "sumReturn": 0.02124696817053595
+          },
+          {
+            "rank": 1,
+            "symbol": "IBM",
+            "n": 2,
+            "meanReturn": -0.003615638155125722,
+            "sumReturn": -0.007231276310251444
+          },
+          {
+            "rank": 1,
+            "symbol": "BA",
+            "n": 6,
+            "meanReturn": -0.003249209788372176,
+            "sumReturn": -0.019495258730233056
+          },
+          {
+            "rank": 1,
+            "symbol": "V",
+            "n": 1,
+            "meanReturn": -0.02467125291954808,
+            "sumReturn": -0.02467125291954808
+          },
+          {
+            "rank": 1,
+            "symbol": "MRK",
+            "n": 3,
+            "meanReturn": -0.02095479465280148,
+            "sumReturn": -0.06286438395840444
+          },
+          {
+            "rank": 1,
+            "symbol": "AAPL",
+            "n": 2,
+            "meanReturn": -0.03688897358000531,
+            "sumReturn": -0.07377794716001063
+          },
+          {
+            "rank": 1,
+            "symbol": "CRM",
+            "n": 3,
+            "meanReturn": -0.02989409634742472,
+            "sumReturn": -0.08968228904227415
+          },
+          {
+            "rank": 2,
+            "symbol": "INTC",
+            "n": 4,
+            "meanReturn": 0.11535193852454623,
+            "sumReturn": 0.4614077540981849
+          },
+          {
+            "rank": 2,
+            "symbol": "CAT",
+            "n": 11,
+            "meanReturn": 0.03515876458465805,
+            "sumReturn": 0.3867464104312386
+          },
+          {
+            "rank": 2,
+            "symbol": "MRK",
+            "n": 6,
+            "meanReturn": 0.04898588791652878,
+            "sumReturn": 0.2939153274991727
+          },
+          {
+            "rank": 2,
+            "symbol": "GS",
+            "n": 4,
+            "meanReturn": 0.046299951966739944,
+            "sumReturn": 0.18519980786695978
+          },
+          {
+            "rank": 2,
+            "symbol": "CVX",
+            "n": 2,
+            "meanReturn": 0.042516558416524075,
+            "sumReturn": 0.08503311683304815
+          },
+          {
+            "rank": 2,
+            "symbol": "BA",
+            "n": 2,
+            "meanReturn": 0.02746285973825935,
+            "sumReturn": 0.0549257194765187
+          },
+          {
+            "rank": 2,
+            "symbol": "V",
+            "n": 1,
+            "meanReturn": 0.05148580141545267,
+            "sumReturn": 0.05148580141545267
+          },
+          {
+            "rank": 2,
+            "symbol": "IBM",
+            "n": 3,
+            "meanReturn": 0.012899216369846478,
+            "sumReturn": 0.038697649109539434
+          },
+          {
+            "rank": 2,
+            "symbol": "JPM",
+            "n": 2,
+            "meanReturn": 0.018183060545685414,
+            "sumReturn": 0.03636612109137083
+          },
+          {
+            "rank": 2,
+            "symbol": "AXP",
+            "n": 4,
+            "meanReturn": 0.0002521057448200692,
+            "sumReturn": 0.0010084229792802768
+          },
+          {
+            "rank": 2,
+            "symbol": "WMT",
+            "n": 3,
+            "meanReturn": -0.0026220133145201294,
+            "sumReturn": -0.007866039943560388
+          },
+          {
+            "rank": 2,
+            "symbol": "UNH",
+            "n": 3,
+            "meanReturn": -0.00533058824244607,
+            "sumReturn": -0.01599176472733821
+          },
+          {
+            "rank": 2,
+            "symbol": "MMM",
+            "n": 3,
+            "meanReturn": -0.019595855421314517,
+            "sumReturn": -0.05878756626394355
+          },
+          {
+            "rank": 2,
+            "symbol": "AAPL",
+            "n": 3,
+            "meanReturn": -0.03965334813567659,
+            "sumReturn": -0.11896004440702979
+          },
+          {
+            "rank": 2,
+            "symbol": "MSFT",
+            "n": 6,
+            "meanReturn": -0.022241222621483685,
+            "sumReturn": -0.1334473357289021
+          },
+          {
+            "rank": 2,
+            "symbol": "AMGN",
+            "n": 3,
+            "meanReturn": -0.055037856759269234,
+            "sumReturn": -0.1651135702778077
+          },
+          {
+            "rank": 3,
+            "symbol": "CRM",
+            "n": 6,
+            "meanReturn": 0.06596805919799574,
+            "sumReturn": 0.3958083551879744
+          },
+          {
+            "rank": 3,
+            "symbol": "AMGN",
+            "n": 2,
+            "meanReturn": 0.12833230456136047,
+            "sumReturn": 0.25666460912272093
+          },
+          {
+            "rank": 3,
+            "symbol": "GS",
+            "n": 9,
+            "meanReturn": 0.02327701070726039,
+            "sumReturn": 0.20949309636534352
+          },
+          {
+            "rank": 3,
+            "symbol": "JNJ",
+            "n": 1,
+            "meanReturn": 0.09952967124880296,
+            "sumReturn": 0.09952967124880296
+          },
+          {
+            "rank": 3,
+            "symbol": "HD",
+            "n": 1,
+            "meanReturn": 0.08242061078741214,
+            "sumReturn": 0.08242061078741214
+          },
+          {
+            "rank": 3,
+            "symbol": "JPM",
+            "n": 7,
+            "meanReturn": 0.00851323361538828,
+            "sumReturn": 0.05959263530771797
+          },
+          {
+            "rank": 3,
+            "symbol": "BA",
+            "n": 1,
+            "meanReturn": 0.047494018846024666,
+            "sumReturn": 0.047494018846024666
+          },
+          {
+            "rank": 3,
+            "symbol": "INTC",
+            "n": 1,
+            "meanReturn": 0.02027188351863396,
+            "sumReturn": 0.02027188351863396
+          },
+          {
+            "rank": 3,
+            "symbol": "IBM",
+            "n": 4,
+            "meanReturn": 0.00447052965448444,
+            "sumReturn": 0.01788211861793776
+          },
+          {
+            "rank": 3,
+            "symbol": "MRK",
+            "n": 3,
+            "meanReturn": -0.0007538906293098243,
+            "sumReturn": -0.002261671887929473
+          },
+          {
+            "rank": 3,
+            "symbol": "UNH",
+            "n": 3,
+            "meanReturn": -0.0034294545371072274,
+            "sumReturn": -0.010288363611321683
+          },
+          {
+            "rank": 3,
+            "symbol": "WMT",
+            "n": 1,
+            "meanReturn": -0.01254556663686568,
+            "sumReturn": -0.01254556663686568
+          },
+          {
+            "rank": 3,
+            "symbol": "AXP",
+            "n": 3,
+            "meanReturn": -0.004622416218065806,
+            "sumReturn": -0.013867248654197417
+          },
+          {
+            "rank": 3,
+            "symbol": "CAT",
+            "n": 2,
+            "meanReturn": -0.01681438024934856,
+            "sumReturn": -0.03362876049869712
+          },
+          {
+            "rank": 3,
+            "symbol": "DIS",
+            "n": 1,
+            "meanReturn": -0.06397696099535566,
+            "sumReturn": -0.06397696099535566
+          },
+          {
+            "rank": 3,
+            "symbol": "KO",
+            "n": 1,
+            "meanReturn": -0.07809514193193279,
+            "sumReturn": -0.07809514193193279
+          },
+          {
+            "rank": 3,
+            "symbol": "AAPL",
+            "n": 2,
+            "meanReturn": -0.048850846962975925,
+            "sumReturn": -0.09770169392595185
+          },
+          {
+            "rank": 3,
+            "symbol": "MSFT",
+            "n": 5,
+            "meanReturn": -0.030131801657938318,
+            "sumReturn": -0.1506590082896916
+          },
+          {
+            "rank": 3,
+            "symbol": "CSCO",
+            "n": 5,
+            "meanReturn": -0.031772962465110854,
+            "sumReturn": -0.15886481232555427
+          },
+          {
+            "rank": 3,
+            "symbol": "DOW",
+            "n": 2,
+            "meanReturn": -0.08526587627790833,
+            "sumReturn": -0.17053175255581665
+          },
+          {
+            "rank": 4,
+            "symbol": "CAT",
+            "n": 6,
+            "meanReturn": 0.05174931154070036,
+            "sumReturn": 0.31049586924420214
+          },
+          {
+            "rank": 4,
+            "symbol": "MSFT",
+            "n": 5,
+            "meanReturn": 0.052534023871903736,
+            "sumReturn": 0.2626701193595187
+          },
+          {
+            "rank": 4,
+            "symbol": "AAPL",
+            "n": 3,
+            "meanReturn": 0.053199284283419544,
+            "sumReturn": 0.15959785285025863
+          },
+          {
+            "rank": 4,
+            "symbol": "MMM",
+            "n": 1,
+            "meanReturn": 0.14498398232654752,
+            "sumReturn": 0.14498398232654752
+          },
+          {
+            "rank": 4,
+            "symbol": "AXP",
+            "n": 3,
+            "meanReturn": 0.04531517874371956,
+            "sumReturn": 0.13594553623115868
+          },
+          {
+            "rank": 4,
+            "symbol": "JNJ",
+            "n": 5,
+            "meanReturn": 0.02419232386811252,
+            "sumReturn": 0.1209616193405626
+          },
+          {
+            "rank": 4,
+            "symbol": "WMT",
+            "n": 3,
+            "meanReturn": 0.03910124737841425,
+            "sumReturn": 0.11730374213524275
+          },
+          {
+            "rank": 4,
+            "symbol": "MRK",
+            "n": 2,
+            "meanReturn": 0.055672271742948976,
+            "sumReturn": 0.11134454348589795
+          },
+          {
+            "rank": 4,
+            "symbol": "JPM",
+            "n": 2,
+            "meanReturn": 0.04979083141455043,
+            "sumReturn": 0.09958166282910086
+          },
+          {
+            "rank": 4,
+            "symbol": "UNH",
+            "n": 5,
+            "meanReturn": 0.012208232223749005,
+            "sumReturn": 0.061041161118745024
+          },
+          {
+            "rank": 4,
+            "symbol": "GS",
+            "n": 1,
+            "meanReturn": -0.0008208248936860674,
+            "sumReturn": -0.0008208248936860674
+          },
+          {
+            "rank": 4,
+            "symbol": "DIS",
+            "n": 1,
+            "meanReturn": -0.004847346092166638,
+            "sumReturn": -0.004847346092166638
+          },
+          {
+            "rank": 4,
+            "symbol": "V",
+            "n": 1,
+            "meanReturn": -0.013868189202723702,
+            "sumReturn": -0.013868189202723702
+          },
+          {
+            "rank": 4,
+            "symbol": "CSCO",
+            "n": 3,
+            "meanReturn": -0.005208881877188746,
+            "sumReturn": -0.01562664563156624
+          },
+          {
+            "rank": 4,
+            "symbol": "TRV",
+            "n": 5,
+            "meanReturn": -0.0031829605240787815,
+            "sumReturn": -0.01591480262039391
+          },
+          {
+            "rank": 4,
+            "symbol": "KO",
+            "n": 2,
+            "meanReturn": -0.011898016335885164,
+            "sumReturn": -0.02379603267177033
+          },
+          {
+            "rank": 4,
+            "symbol": "HON",
+            "n": 1,
+            "meanReturn": -0.038858846800082,
+            "sumReturn": -0.038858846800082
+          },
+          {
+            "rank": 4,
+            "symbol": "PG",
+            "n": 1,
+            "meanReturn": -0.04030148844099668,
+            "sumReturn": -0.04030148844099668
+          },
+          {
+            "rank": 4,
+            "symbol": "AMGN",
+            "n": 1,
+            "meanReturn": -0.05673168931219308,
+            "sumReturn": -0.05673168931219308
+          },
+          {
+            "rank": 4,
+            "symbol": "CRM",
+            "n": 3,
+            "meanReturn": -0.02034864362100952,
+            "sumReturn": -0.061045930863028564
+          },
+          {
+            "rank": 4,
+            "symbol": "HD",
+            "n": 1,
+            "meanReturn": -0.11306628264156415,
+            "sumReturn": -0.11306628264156415
+          },
+          {
+            "rank": 4,
+            "symbol": "BA",
+            "n": 2,
+            "meanReturn": -0.0666098416608018,
+            "sumReturn": -0.1332196833216036
+          },
+          {
+            "rank": 4,
+            "symbol": "IBM",
+            "n": 3,
+            "meanReturn": -0.08798540651014582,
+            "sumReturn": -0.26395621953043746
+          },
+          {
+            "rank": 5,
+            "symbol": "MMM",
+            "n": 2,
+            "meanReturn": 0.12139844250772047,
+            "sumReturn": 0.24279688501544094
+          },
+          {
+            "rank": 5,
+            "symbol": "JPM",
+            "n": 11,
+            "meanReturn": 0.021313579388761238,
+            "sumReturn": 0.2344493732763736
+          },
+          {
+            "rank": 5,
+            "symbol": "HD",
+            "n": 1,
+            "meanReturn": 0.1366756589734266,
+            "sumReturn": 0.1366756589734266
+          },
+          {
+            "rank": 5,
+            "symbol": "DIS",
+            "n": 1,
+            "meanReturn": 0.1006980625197571,
+            "sumReturn": 0.1006980625197571
+          },
+          {
+            "rank": 5,
+            "symbol": "UNH",
+            "n": 2,
+            "meanReturn": 0.04948452207498588,
+            "sumReturn": 0.09896904414997176
+          },
+          {
+            "rank": 5,
+            "symbol": "MSFT",
+            "n": 5,
+            "meanReturn": 0.019701629662925435,
+            "sumReturn": 0.09850814831462718
+          },
+          {
+            "rank": 5,
+            "symbol": "TRV",
+            "n": 4,
+            "meanReturn": 0.024420800940225806,
+            "sumReturn": 0.09768320376090323
+          },
+          {
+            "rank": 5,
+            "symbol": "WMT",
+            "n": 2,
+            "meanReturn": 0.02726027846782919,
+            "sumReturn": 0.05452055693565838
+          },
+          {
+            "rank": 5,
+            "symbol": "AAPL",
+            "n": 1,
+            "meanReturn": 0.030498463550068244,
+            "sumReturn": 0.030498463550068244
+          },
+          {
+            "rank": 5,
+            "symbol": "AXP",
+            "n": 3,
+            "meanReturn": 0.009441309776904827,
+            "sumReturn": 0.02832392933071448
+          },
+          {
+            "rank": 5,
+            "symbol": "IBM",
+            "n": 2,
+            "meanReturn": 0.0111508986332024,
+            "sumReturn": 0.0223017972664048
+          },
+          {
+            "rank": 5,
+            "symbol": "KO",
+            "n": 3,
+            "meanReturn": 0.007098799149295343,
+            "sumReturn": 0.02129639744788603
+          },
+          {
+            "rank": 5,
+            "symbol": "JNJ",
+            "n": 3,
+            "meanReturn": 0.0009806537271873268,
+            "sumReturn": 0.0029419611815619806
+          },
+          {
+            "rank": 5,
+            "symbol": "MCD",
+            "n": 1,
+            "meanReturn": -0.002100052251981288,
+            "sumReturn": -0.002100052251981288
+          },
+          {
+            "rank": 5,
+            "symbol": "INTC",
+            "n": 2,
+            "meanReturn": -0.0011361407373162713,
+            "sumReturn": -0.0022722814746325426
+          },
+          {
+            "rank": 5,
+            "symbol": "PG",
+            "n": 1,
+            "meanReturn": -0.005119102198015035,
+            "sumReturn": -0.005119102198015035
+          },
+          {
+            "rank": 5,
+            "symbol": "CAT",
+            "n": 2,
+            "meanReturn": -0.006599202393583303,
+            "sumReturn": -0.013198404787166607
+          },
+          {
+            "rank": 5,
+            "symbol": "CVX",
+            "n": 1,
+            "meanReturn": -0.033756608847113845,
+            "sumReturn": -0.033756608847113845
+          },
+          {
+            "rank": 5,
+            "symbol": "CSCO",
+            "n": 3,
+            "meanReturn": -0.013162903871666262,
+            "sumReturn": -0.039488711614998784
+          },
+          {
+            "rank": 5,
+            "symbol": "MRK",
+            "n": 2,
+            "meanReturn": -0.02497842597848665,
+            "sumReturn": -0.0499568519569733
+          },
+          {
+            "rank": 5,
+            "symbol": "GS",
+            "n": 3,
+            "meanReturn": -0.0222215391210856,
+            "sumReturn": -0.0666646173632568
+          },
+          {
+            "rank": 5,
+            "symbol": "NKE",
+            "n": 1,
+            "meanReturn": -0.10762248575018685,
+            "sumReturn": -0.10762248575018685
+          },
+          {
+            "rank": 5,
+            "symbol": "AMGN",
+            "n": 3,
+            "meanReturn": -0.047342676880986624,
+            "sumReturn": -0.14202803064295988
+          },
+          {
+            "rank": 5,
+            "symbol": "DOW",
+            "n": 1,
+            "meanReturn": -0.21751827045078698,
+            "sumReturn": -0.21751827045078698
+          },
+          {
+            "rank": 6,
+            "symbol": "IBM",
+            "n": 6,
+            "meanReturn": 0.0491350008369992,
+            "sumReturn": 0.29481000502199517
+          },
+          {
+            "rank": 6,
+            "symbol": "CAT",
+            "n": 5,
+            "meanReturn": 0.030623879615285697,
+            "sumReturn": 0.1531193980764285
+          },
+          {
+            "rank": 6,
+            "symbol": "UNH",
+            "n": 1,
+            "meanReturn": 0.08770880951187543,
+            "sumReturn": 0.08770880951187543
+          },
+          {
+            "rank": 6,
+            "symbol": "AXP",
+            "n": 1,
+            "meanReturn": 0.08198079121848312,
+            "sumReturn": 0.08198079121848312
+          },
+          {
+            "rank": 6,
+            "symbol": "CVX",
+            "n": 3,
+            "meanReturn": 0.022016068647600046,
+            "sumReturn": 0.06604820594280014
+          },
+          {
+            "rank": 6,
+            "symbol": "KO",
+            "n": 1,
+            "meanReturn": 0.06511730178297737,
+            "sumReturn": 0.06511730178297737
+          },
+          {
+            "rank": 6,
+            "symbol": "MCD",
+            "n": 1,
+            "meanReturn": 0.05071824680237991,
+            "sumReturn": 0.05071824680237991
+          },
+          {
+            "rank": 6,
+            "symbol": "MSFT",
+            "n": 1,
+            "meanReturn": 0.025385191855771705,
+            "sumReturn": 0.025385191855771705
+          },
+          {
+            "rank": 6,
+            "symbol": "V",
+            "n": 1,
+            "meanReturn": 0.014934213393595464,
+            "sumReturn": 0.014934213393595464
+          },
+          {
+            "rank": 6,
+            "symbol": "VZ",
+            "n": 2,
+            "meanReturn": 0.0018949463045824233,
+            "sumReturn": 0.0037898926091648466
+          },
+          {
+            "rank": 6,
+            "symbol": "AAPL",
+            "n": 4,
+            "meanReturn": -0.0007514316953662892,
+            "sumReturn": -0.0030057267814651567
+          },
+          {
+            "rank": 6,
+            "symbol": "CSCO",
+            "n": 8,
+            "meanReturn": -0.000425650651290882,
+            "sumReturn": -0.003405205210327056
+          },
+          {
+            "rank": 6,
+            "symbol": "NKE",
+            "n": 3,
+            "meanReturn": -0.0023153153369350385,
+            "sumReturn": -0.006945946010805115
+          },
+          {
+            "rank": 6,
+            "symbol": "AMGN",
+            "n": 2,
+            "meanReturn": -0.006984691983639046,
+            "sumReturn": -0.013969383967278093
+          },
+          {
+            "rank": 6,
+            "symbol": "GS",
+            "n": 3,
+            "meanReturn": -0.006799031265959006,
+            "sumReturn": -0.02039709379787702
+          },
+          {
+            "rank": 6,
+            "symbol": "HON",
+            "n": 1,
+            "meanReturn": -0.023288483688231,
+            "sumReturn": -0.023288483688231
+          },
+          {
+            "rank": 6,
+            "symbol": "PG",
+            "n": 2,
+            "meanReturn": -0.012810766862364709,
+            "sumReturn": -0.025621533724729417
+          },
+          {
+            "rank": 6,
+            "symbol": "WMT",
+            "n": 1,
+            "meanReturn": -0.028301041718600595,
+            "sumReturn": -0.028301041718600595
+          },
+          {
+            "rank": 6,
+            "symbol": "JPM",
+            "n": 3,
+            "meanReturn": -0.018570778120231817,
+            "sumReturn": -0.05571233436069545
+          },
+          {
+            "rank": 6,
+            "symbol": "MRK",
+            "n": 4,
+            "meanReturn": -0.01489269748733782,
+            "sumReturn": -0.05957078994935128
+          },
+          {
+            "rank": 6,
+            "symbol": "DIS",
+            "n": 2,
+            "meanReturn": -0.06804481380773247,
+            "sumReturn": -0.13608962761546495
+          },
+          {
+            "rank": 6,
+            "symbol": "TRV",
+            "n": 5,
+            "meanReturn": -0.03439618823609123,
+            "sumReturn": -0.17198094118045615
+          },
+          {
+            "rank": 7,
+            "symbol": "CSCO",
+            "n": 4,
+            "meanReturn": 0.11023061512231125,
+            "sumReturn": 0.440922460489245
+          },
+          {
+            "rank": 7,
+            "symbol": "JPM",
+            "n": 7,
+            "meanReturn": 0.032724306271701184,
+            "sumReturn": 0.22907014390190827
+          },
+          {
+            "rank": 7,
+            "symbol": "IBM",
+            "n": 3,
+            "meanReturn": 0.0637148333777607,
+            "sumReturn": 0.1911445001332821
+          },
+          {
+            "rank": 7,
+            "symbol": "CVX",
+            "n": 3,
+            "meanReturn": 0.04382420600911485,
+            "sumReturn": 0.13147261802734456
+          },
+          {
+            "rank": 7,
+            "symbol": "WMT",
+            "n": 2,
+            "meanReturn": 0.05104639306168157,
+            "sumReturn": 0.10209278612336314
+          },
+          {
+            "rank": 7,
+            "symbol": "JNJ",
+            "n": 3,
+            "meanReturn": 0.029682772129590695,
+            "sumReturn": 0.08904831638877209
+          },
+          {
+            "rank": 7,
+            "symbol": "MMM",
+            "n": 1,
+            "meanReturn": 0.07484621984799666,
+            "sumReturn": 0.07484621984799666
+          },
+          {
+            "rank": 7,
+            "symbol": "BA",
+            "n": 1,
+            "meanReturn": 0.06642221360794442,
+            "sumReturn": 0.06642221360794442
+          },
+          {
+            "rank": 7,
+            "symbol": "AAPL",
+            "n": 3,
+            "meanReturn": 0.0177118260760523,
+            "sumReturn": 0.053135478228156896
+          },
+          {
+            "rank": 7,
+            "symbol": "HD",
+            "n": 2,
+            "meanReturn": 0.01780782821440252,
+            "sumReturn": 0.03561565642880504
+          },
+          {
+            "rank": 7,
+            "symbol": "GS",
+            "n": 4,
+            "meanReturn": 0.0036800521595922175,
+            "sumReturn": 0.01472020863836887
+          },
+          {
+            "rank": 7,
+            "symbol": "KO",
+            "n": 1,
+            "meanReturn": 0.01073594585597104,
+            "sumReturn": 0.01073594585597104
+          },
+          {
+            "rank": 7,
+            "symbol": "CRM",
+            "n": 2,
+            "meanReturn": 0.003012729130866809,
+            "sumReturn": 0.006025458261733618
+          },
+          {
+            "rank": 7,
+            "symbol": "AMGN",
+            "n": 2,
+            "meanReturn": 0.0005488292804256001,
+            "sumReturn": 0.0010976585608512002
+          },
+          {
+            "rank": 7,
+            "symbol": "PG",
+            "n": 1,
+            "meanReturn": -0.00019662566283773497,
+            "sumReturn": -0.00019662566283773497
+          },
+          {
+            "rank": 7,
+            "symbol": "TRV",
+            "n": 3,
+            "meanReturn": -0.013263520718700331,
+            "sumReturn": -0.039790562156100995
+          },
+          {
+            "rank": 7,
+            "symbol": "CAT",
+            "n": 1,
+            "meanReturn": -0.04269648435461948,
+            "sumReturn": -0.04269648435461948
+          },
+          {
+            "rank": 7,
+            "symbol": "V",
+            "n": 4,
+            "meanReturn": -0.011138586337445605,
+            "sumReturn": -0.04455434534978242
+          },
+          {
+            "rank": 7,
+            "symbol": "DIS",
+            "n": 1,
+            "meanReturn": -0.04579049193734408,
+            "sumReturn": -0.04579049193734408
+          },
+          {
+            "rank": 7,
+            "symbol": "AXP",
+            "n": 4,
+            "meanReturn": -0.01417744424206177,
+            "sumReturn": -0.05670977696824708
+          },
+          {
+            "rank": 7,
+            "symbol": "MCD",
+            "n": 3,
+            "meanReturn": -0.019619651843306645,
+            "sumReturn": -0.05885895552991993
+          },
+          {
+            "rank": 7,
+            "symbol": "MRK",
+            "n": 1,
+            "meanReturn": -0.0666179009202148,
+            "sumReturn": -0.0666179009202148
+          },
+          {
+            "rank": 7,
+            "symbol": "MSFT",
+            "n": 1,
+            "meanReturn": -0.1023369956174901,
+            "sumReturn": -0.1023369956174901
+          },
+          {
+            "rank": 7,
+            "symbol": "UNH",
+            "n": 1,
+            "meanReturn": -0.16946507722947957,
+            "sumReturn": -0.16946507722947957
+          },
+          {
+            "rank": 7,
+            "symbol": "DOW",
+            "n": 2,
+            "meanReturn": -0.11270762222687342,
+            "sumReturn": -0.22541524445374683
+          },
+          {
+            "rank": 8,
+            "symbol": "TRV",
+            "n": 4,
+            "meanReturn": 0.06095093708989874,
+            "sumReturn": 0.24380374835959495
+          },
+          {
+            "rank": 8,
+            "symbol": "IBM",
+            "n": 4,
+            "meanReturn": 0.05630907091134016,
+            "sumReturn": 0.22523628364536064
+          },
+          {
+            "rank": 8,
+            "symbol": "JNJ",
+            "n": 2,
+            "meanReturn": 0.07598536143670998,
+            "sumReturn": 0.15197072287341995
+          },
+          {
+            "rank": 8,
+            "symbol": "MCD",
+            "n": 4,
+            "meanReturn": 0.03381566879810852,
+            "sumReturn": 0.13526267519243407
+          },
+          {
+            "rank": 8,
+            "symbol": "MRK",
+            "n": 1,
+            "meanReturn": 0.12159460006996281,
+            "sumReturn": 0.12159460006996281
+          },
+          {
+            "rank": 8,
+            "symbol": "CSCO",
+            "n": 4,
+            "meanReturn": 0.026839963537054923,
+            "sumReturn": 0.10735985414821969
+          },
+          {
+            "rank": 8,
+            "symbol": "GS",
+            "n": 3,
+            "meanReturn": 0.03572950625618624,
+            "sumReturn": 0.10718851876855873
+          },
+          {
+            "rank": 8,
+            "symbol": "KO",
+            "n": 2,
+            "meanReturn": 0.051590139813660674,
+            "sumReturn": 0.10318027962732135
+          },
+          {
+            "rank": 8,
+            "symbol": "JPM",
+            "n": 2,
+            "meanReturn": 0.03786198646992567,
+            "sumReturn": 0.07572397293985134
+          },
+          {
+            "rank": 8,
+            "symbol": "MMM",
+            "n": 1,
+            "meanReturn": 0.055708683987479635,
+            "sumReturn": 0.055708683987479635
+          },
+          {
+            "rank": 8,
+            "symbol": "HD",
+            "n": 2,
+            "meanReturn": 0.008023811835289663,
+            "sumReturn": 0.016047623670579325
+          },
+          {
+            "rank": 8,
+            "symbol": "CRM",
+            "n": 2,
+            "meanReturn": 0.005099402807817011,
+            "sumReturn": 0.010198805615634021
+          },
+          {
+            "rank": 8,
+            "symbol": "VZ",
+            "n": 3,
+            "meanReturn": -0.00027321417455139496,
+            "sumReturn": -0.0008196425236541849
+          },
+          {
+            "rank": 8,
+            "symbol": "DOW",
+            "n": 1,
+            "meanReturn": -0.009132668525424381,
+            "sumReturn": -0.009132668525424381
+          },
+          {
+            "rank": 8,
+            "symbol": "AAPL",
+            "n": 3,
+            "meanReturn": -0.01494629360941783,
+            "sumReturn": -0.04483888082825349
+          },
+          {
+            "rank": 8,
+            "symbol": "AMGN",
+            "n": 1,
+            "meanReturn": -0.06725976643567888,
+            "sumReturn": -0.06725976643567888
+          },
+          {
+            "rank": 8,
+            "symbol": "V",
+            "n": 3,
+            "meanReturn": -0.023110409661586877,
+            "sumReturn": -0.06933122898476063
+          },
+          {
+            "rank": 8,
+            "symbol": "CVX",
+            "n": 1,
+            "meanReturn": -0.0890132238099941,
+            "sumReturn": -0.0890132238099941
+          },
+          {
+            "rank": 8,
+            "symbol": "UNH",
+            "n": 4,
+            "meanReturn": -0.02246648430906162,
+            "sumReturn": -0.08986593723624647
+          },
+          {
+            "rank": 8,
+            "symbol": "MSFT",
+            "n": 1,
+            "meanReturn": -0.11179006704072625,
+            "sumReturn": -0.11179006704072625
+          },
+          {
+            "rank": 8,
+            "symbol": "AXP",
+            "n": 4,
+            "meanReturn": -0.0423233036290708,
+            "sumReturn": -0.1692932145162832
+          },
+          {
+            "rank": 8,
+            "symbol": "WMT",
+            "n": 6,
+            "meanReturn": -0.02922390560470765,
+            "sumReturn": -0.1753434336282459
+          },
+          {
+            "rank": 8,
+            "symbol": "BA",
+            "n": 2,
+            "meanReturn": -0.11238763340404151,
+            "sumReturn": -0.22477526680808302
+          },
+          {
+            "rank": 9,
+            "symbol": "AAPL",
+            "n": 7,
+            "meanReturn": 0.03075709317400613,
+            "sumReturn": 0.21529965221804293
+          },
+          {
+            "rank": 9,
+            "symbol": "MRK",
+            "n": 2,
+            "meanReturn": 0.0884521031574772,
+            "sumReturn": 0.1769042063149544
+          },
+          {
+            "rank": 9,
+            "symbol": "GS",
+            "n": 3,
+            "meanReturn": 0.046892458891886646,
+            "sumReturn": 0.14067737667565994
+          },
+          {
+            "rank": 9,
+            "symbol": "WMT",
+            "n": 3,
+            "meanReturn": 0.044843609028024055,
+            "sumReturn": 0.13453082708407216
+          },
+          {
+            "rank": 9,
+            "symbol": "AMGN",
+            "n": 3,
+            "meanReturn": 0.03917493840284403,
+            "sumReturn": 0.11752481520853209
+          },
+          {
+            "rank": 9,
+            "symbol": "PG",
+            "n": 4,
+            "meanReturn": 0.0232200433453712,
+            "sumReturn": 0.0928801733814848
+          },
+          {
+            "rank": 9,
+            "symbol": "JPM",
+            "n": 3,
+            "meanReturn": 0.028081700798388714,
+            "sumReturn": 0.08424510239516614
+          },
+          {
+            "rank": 9,
+            "symbol": "V",
+            "n": 1,
+            "meanReturn": 0.06944345894756632,
+            "sumReturn": 0.06944345894756632
+          },
+          {
+            "rank": 9,
+            "symbol": "UNH",
+            "n": 2,
+            "meanReturn": 0.034488993288102454,
+            "sumReturn": 0.06897798657620491
+          },
+          {
+            "rank": 9,
+            "symbol": "DOW",
+            "n": 2,
+            "meanReturn": 0.02926481460775765,
+            "sumReturn": 0.0585296292155153
+          },
+          {
+            "rank": 9,
+            "symbol": "CSCO",
+            "n": 3,
+            "meanReturn": 0.014804390025261608,
+            "sumReturn": 0.044413170075784825
+          },
+          {
+            "rank": 9,
+            "symbol": "MSFT",
+            "n": 1,
+            "meanReturn": 0.009731914976569334,
+            "sumReturn": 0.009731914976569334
+          },
+          {
+            "rank": 9,
+            "symbol": "BA",
+            "n": 1,
+            "meanReturn": -0.007014862818797041,
+            "sumReturn": -0.007014862818797041
+          },
+          {
+            "rank": 9,
+            "symbol": "TRV",
+            "n": 2,
+            "meanReturn": -0.004771045508104976,
+            "sumReturn": -0.009542091016209953
+          },
+          {
+            "rank": 9,
+            "symbol": "HON",
+            "n": 1,
+            "meanReturn": -0.020126026829572763,
+            "sumReturn": -0.020126026829572763
+          },
+          {
+            "rank": 9,
+            "symbol": "IBM",
+            "n": 5,
+            "meanReturn": -0.004543017419622574,
+            "sumReturn": -0.022715087098112874
+          },
+          {
+            "rank": 9,
+            "symbol": "DIS",
+            "n": 1,
+            "meanReturn": -0.05137812617601867,
+            "sumReturn": -0.05137812617601867
+          },
+          {
+            "rank": 9,
+            "symbol": "AXP",
+            "n": 1,
+            "meanReturn": -0.06991342103199516,
+            "sumReturn": -0.06991342103199516
+          },
+          {
+            "rank": 9,
+            "symbol": "JNJ",
+            "n": 3,
+            "meanReturn": -0.02601033401029233,
+            "sumReturn": -0.07803100203087698
+          },
+          {
+            "rank": 9,
+            "symbol": "CAT",
+            "n": 2,
+            "meanReturn": -0.051058120093324055,
+            "sumReturn": -0.10211624018664811
+          },
+          {
+            "rank": 9,
+            "symbol": "MCD",
+            "n": 5,
+            "meanReturn": -0.0237963006616581,
+            "sumReturn": -0.11898150330829049
+          },
+          {
+            "rank": 9,
+            "symbol": "HD",
+            "n": 3,
+            "meanReturn": -0.055587421041413156,
+            "sumReturn": -0.16676226312423947
+          },
+          {
+            "rank": 9,
+            "symbol": "NKE",
+            "n": 1,
+            "meanReturn": -0.17916792823797256,
+            "sumReturn": -0.17916792823797256
+          },
+          {
+            "rank": 9,
+            "symbol": "INTC",
+            "n": 1,
+            "meanReturn": -0.31880787301537483,
+            "sumReturn": -0.31880787301537483
+          },
+          {
+            "rank": 10,
+            "symbol": "MCD",
+            "n": 6,
+            "meanReturn": 0.026600923918401003,
+            "sumReturn": 0.159605543510406
+          },
+          {
+            "rank": 10,
+            "symbol": "AMGN",
+            "n": 4,
+            "meanReturn": 0.0374235849785986,
+            "sumReturn": 0.1496943399143944
+          },
+          {
+            "rank": 10,
+            "symbol": "MSFT",
+            "n": 2,
+            "meanReturn": 0.07084704923572038,
+            "sumReturn": 0.14169409847144077
+          },
+          {
+            "rank": 10,
+            "symbol": "CSCO",
+            "n": 3,
+            "meanReturn": 0.03581939489111796,
+            "sumReturn": 0.10745818467335388
+          },
+          {
+            "rank": 10,
+            "symbol": "JPM",
+            "n": 2,
+            "meanReturn": 0.047517649708832876,
+            "sumReturn": 0.09503529941766575
+          },
+          {
+            "rank": 10,
+            "symbol": "CVX",
+            "n": 2,
+            "meanReturn": 0.04342992014598418,
+            "sumReturn": 0.08685984029196836
+          },
+          {
+            "rank": 10,
+            "symbol": "MMM",
+            "n": 1,
+            "meanReturn": 0.07458936755873569,
+            "sumReturn": 0.07458936755873569
+          },
+          {
+            "rank": 10,
+            "symbol": "AXP",
+            "n": 4,
+            "meanReturn": 0.012419140888676544,
+            "sumReturn": 0.04967656355470618
+          },
+          {
+            "rank": 10,
+            "symbol": "UNH",
+            "n": 3,
+            "meanReturn": 0.013103990501987739,
+            "sumReturn": 0.03931197150596322
+          },
+          {
+            "rank": 10,
+            "symbol": "V",
+            "n": 4,
+            "meanReturn": 0.006609606327358963,
+            "sumReturn": 0.026438425309435853
+          },
+          {
+            "rank": 10,
+            "symbol": "JNJ",
+            "n": 3,
+            "meanReturn": 0.00819810473692136,
+            "sumReturn": 0.02459431421076408
+          },
+          {
+            "rank": 10,
+            "symbol": "WMT",
+            "n": 4,
+            "meanReturn": 0.005932728897961925,
+            "sumReturn": 0.0237309155918477
+          },
+          {
+            "rank": 10,
+            "symbol": "MRK",
+            "n": 1,
+            "meanReturn": 0.01634805030320008,
+            "sumReturn": 0.01634805030320008
+          },
+          {
+            "rank": 10,
+            "symbol": "GS",
+            "n": 1,
+            "meanReturn": 0.013496064507240169,
+            "sumReturn": 0.013496064507240169
+          },
+          {
+            "rank": 10,
+            "symbol": "HD",
+            "n": 1,
+            "meanReturn": -0.008438342624938255,
+            "sumReturn": -0.008438342624938255
+          },
+          {
+            "rank": 10,
+            "symbol": "TRV",
+            "n": 3,
+            "meanReturn": -0.0035860766238641575,
+            "sumReturn": -0.010758229871592473
+          },
+          {
+            "rank": 10,
+            "symbol": "VZ",
+            "n": 1,
+            "meanReturn": -0.021044147610346564,
+            "sumReturn": -0.021044147610346564
+          },
+          {
+            "rank": 10,
+            "symbol": "BA",
+            "n": 1,
+            "meanReturn": -0.028541950683756312,
+            "sumReturn": -0.028541950683756312
+          },
+          {
+            "rank": 10,
+            "symbol": "DOW",
+            "n": 1,
+            "meanReturn": -0.059465670125589565,
+            "sumReturn": -0.059465670125589565
+          },
+          {
+            "rank": 10,
+            "symbol": "CAT",
+            "n": 1,
+            "meanReturn": -0.06566525676796575,
+            "sumReturn": -0.06566525676796575
+          },
+          {
+            "rank": 10,
+            "symbol": "KO",
+            "n": 3,
+            "meanReturn": -0.03931896735572963,
+            "sumReturn": -0.1179569020671889
+          },
+          {
+            "rank": 10,
+            "symbol": "IBM",
+            "n": 3,
+            "meanReturn": -0.04482500079265461,
+            "sumReturn": -0.13447500237796384
+          },
+          {
+            "rank": 10,
+            "symbol": "NKE",
+            "n": 3,
+            "meanReturn": -0.05697604760296204,
+            "sumReturn": -0.17092814280888613
+          },
+          {
+            "rank": 10,
+            "symbol": "CRM",
+            "n": 3,
+            "meanReturn": -0.08665625627916651,
+            "sumReturn": -0.25996876883749953
+          }
+        ]
+      },
+      "extremeWinnerConcentration": {
+        "top3": {
+          "n": 180,
+          "top1PctObservationCount": 2,
+          "top1PctSharePositiveReturnSum": 0.167933017574134,
+          "top5SharePositiveReturnSum": 0.2588431405982,
+          "top10SharePositiveReturnSum": 0.38788154937440933,
+          "meanAfterRemovingTop1Pct": 0.011521188921978969,
+          "meanAfterRemovingTop5": 0.007648885967915687,
+          "largestObservations": [
+            1.071111043294271,
+            0.24452550072355894,
+            0.24427630189323435,
+            0.23427492842506648,
+            0.23366535340871075,
+            0.21933879030759518,
+            0.20810168162801612,
+            0.2020090217941528,
+            0.20041758023720524,
+            0.1810576900863421
+          ]
+        },
+        "ranks4To5": {
+          "n": 120,
+          "top1PctObservationCount": 2,
+          "top1PctSharePositiveReturnSum": 0.11491725389665912,
+          "top5SharePositiveReturnSum": 0.2447698009900799,
+          "top10SharePositiveReturnSum": 0.3953639406755407,
+          "meanAfterRemovingTop1Pct": 0.006557236337673571,
+          "meanAfterRemovingTop5": 0.002227530707551293,
+          "largestObservations": [
+            0.23954901370931858,
+            0.21850726972894519,
+            0.19806794030423647,
+            0.1745359338462984,
+            0.14498398232654752,
+            0.1366756589734266,
+            0.12453163835528214,
+            0.1162551437577315,
+            0.11450743377095418,
+            0.10829326747227408
+          ]
+        },
+        "top1PctTrimmedTop3MinusRanks4To5": 0.004963952584305398
+      },
+      "concentrationImplication": {
+        "descriptiveOnlyNotPortfolioBacktest": true,
+        "top3PeriodReturnVolatilityAnnualizedSqrt12": 0.2897509309347276,
+        "ranks4To5PeriodReturnVolatilityAnnualizedSqrt12": 0.20394703705542486,
+        "top3AverageRankOutcomeCorrelation": 0.3138768277639151,
+        "top3WorstSingleNamePeriod": -0.34518517388237846,
+        "top3P10SingleNamePeriod": -0.074988273974842,
+        "interpretation": "Concentration is justified only if the return advantage is stable enough to compensate for fewer names and larger single-name exposure."
+      },
+      "drawdownBehavior": [
+        {
+          "start": "2021-12-29",
+          "end": "2022-06-17",
+          "rebalancePeriods": 7,
+          "top3MeanReturn": -0.005877544250699688,
+          "ranks4To5MeanReturn": -0.009209381383481485,
+          "ranks6To10MeanReturn": -0.010095863741923575
+        },
+        {
+          "start": "2022-11-30",
+          "end": "2023-05-31",
+          "rebalancePeriods": 7,
+          "top3MeanReturn": -0.014813710529946237,
+          "ranks4To5MeanReturn": -0.017861205006706016,
+          "ranks6To10MeanReturn": -0.007413679733799491
+        },
+        {
+          "start": "2025-02-19",
+          "end": "2025-04-08",
+          "rebalancePeriods": 3,
+          "top3MeanReturn": -0.0274798333970309,
+          "ranks4To5MeanReturn": -0.012003849731392477,
+          "ranks6To10MeanReturn": -0.015171164895674301
+        }
+      ],
+      "decision": {
+        "classifications": [
+          "Weak/descriptive edge concentration",
+          "Top-5 boundary unsupported",
+          "Non-monotonic ranking signal"
+        ],
+        "separateTopNExperimentJustified": false,
+        "recommendation": "Do not run a top-N portfolio experiment from this evidence. Keep canonical top-N=5 unchanged."
+      }
+    },
+    "Market-Residual Momentum": {
+      "canonical": {
+        "strategy": "Market-Residual Momentum",
+        "start": "2021-08-23",
+        "end": "2026-08-22",
+        "lookback": 126,
+        "topN": 5,
+        "rebalanceFrequency": "monthly"
+      },
+      "reconciliation": {
+        "canonicalRebalances": 61,
+        "completeForwardPeriods": 60,
+        "selectedSetMatches": 60,
+        "selectedSetsMatchCanonical": true,
+        "missingOutcomePrices": [],
+        "informationBoundary": "scores use closes strictly before decision; outcomes use exact rebalance opens"
+      },
+      "rankTable": [
+        {
+          "rank": 1,
+          "n": 60,
+          "meanReturn": 0.005235242798937672,
+          "medianReturn": 0.0006719252242409213,
+          "winRate": 0.5,
+          "volatility": 0.05709627392195053,
+          "downsideDeviation": 0.04653499713792793,
+          "worstReturn": -0.11765833934528169,
+          "bestReturn": 0.18354898604916192,
+          "p10": -0.05730743018963303,
+          "p90": 0.07460482894734653,
+          "beatSpy": 0.45,
+          "beatUniverseMedian": 0.4,
+          "futureTopQuartile": 0.16666666666666666,
+          "averageWinner": 0.04779162703881269,
+          "averageLoser": -0.03732114144093735,
+          "expectancy": 0.005235242798937672,
+          "averageMfe": 0.04123182908585183,
+          "averageMae": -0.04238276636811141
+        },
+        {
+          "rank": 2,
+          "n": 60,
+          "meanReturn": 0.009230840656001703,
+          "medianReturn": 0.0009871165556412653,
+          "winRate": 0.5,
+          "volatility": 0.06036390890003277,
+          "downsideDeviation": 0.048872158921586965,
+          "worstReturn": -0.11179006704072625,
+          "bestReturn": 0.15117789735350584,
+          "p10": -0.061531413591209394,
+          "p90": 0.08369763456897746,
+          "beatSpy": 0.5,
+          "beatUniverseMedian": 0.4666666666666667,
+          "futureTopQuartile": 0.26666666666666666,
+          "averageWinner": 0.05913896847253169,
+          "averageLoser": -0.04067728716052828,
+          "expectancy": 0.009230840656001703,
+          "averageMfe": 0.04630206063012133,
+          "averageMae": -0.03918263928438575
+        },
+        {
+          "rank": 3,
+          "n": 60,
+          "meanReturn": 0.012415915670613599,
+          "medianReturn": 0.009011532443310766,
+          "winRate": 0.5666666666666667,
+          "volatility": 0.05091069468706602,
+          "downsideDeviation": 0.041980548616961426,
+          "worstReturn": -0.10087240908201378,
+          "bestReturn": 0.13463263200100362,
+          "p10": -0.056385957121722376,
+          "p90": 0.08416644715873471,
+          "beatSpy": 0.4666666666666667,
+          "beatUniverseMedian": 0.5,
+          "futureTopQuartile": 0.21666666666666667,
+          "averageWinner": 0.04785635819425532,
+          "averageLoser": -0.033929278398764036,
+          "expectancy": 0.012415915670613599,
+          "averageMfe": 0.04694230492532733,
+          "averageMae": -0.04241904899978472
+        },
+        {
+          "rank": 4,
+          "n": 60,
+          "meanReturn": 0.018594652355368592,
+          "medianReturn": 0.016123855544970755,
+          "winRate": 0.6833333333333333,
+          "volatility": 0.058952905366561524,
+          "downsideDeviation": 0.059630059065803084,
+          "worstReturn": -0.1292878713465685,
+          "bestReturn": 0.13615948033777614,
+          "p10": -0.061954791816090204,
+          "p90": 0.09345315605734661,
+          "beatSpy": 0.5166666666666667,
+          "beatUniverseMedian": 0.6,
+          "futureTopQuartile": 0.35,
+          "averageWinner": 0.049089402580056306,
+          "averageLoser": -0.04720980865579962,
+          "expectancy": 0.018594652355368592,
+          "averageMfe": 0.054251637495703414,
+          "averageMae": -0.036184313545323095
+        },
+        {
+          "rank": 5,
+          "n": 60,
+          "meanReturn": 0.010757526941428302,
+          "medianReturn": 0.008952721244052664,
+          "winRate": 0.55,
+          "volatility": 0.0652917523857325,
+          "downsideDeviation": 0.05089008718461864,
+          "worstReturn": -0.10986892685678973,
+          "bestReturn": 0.1827598823644061,
+          "p10": -0.05728099618445773,
+          "p90": 0.10469619752862512,
+          "beatSpy": 0.38333333333333336,
+          "beatUniverseMedian": 0.43333333333333335,
+          "futureTopQuartile": 0.23333333333333334,
+          "averageWinner": 0.05514404883670562,
+          "averageLoser": -0.04349266648613287,
+          "expectancy": 0.010757526941428302,
+          "averageMfe": 0.050936158303413005,
+          "averageMae": -0.047179119369874074
+        },
+        {
+          "rank": 6,
+          "n": 60,
+          "meanReturn": 0.012464922716215724,
+          "medianReturn": 0.01147977740590489,
+          "winRate": 0.6166666666666667,
+          "volatility": 0.06763753898378728,
+          "downsideDeviation": 0.06369787561178825,
+          "worstReturn": -0.12703494674680582,
+          "bestReturn": 0.2021522506359139,
+          "p10": -0.07173866998669506,
+          "p90": 0.08606282497316237,
+          "beatSpy": 0.5166666666666667,
+          "beatUniverseMedian": 0.5166666666666667,
+          "futureTopQuartile": 0.35,
+          "averageWinner": 0.055445995585939406,
+          "averageLoser": -0.056678542335078894,
+          "expectancy": 0.012464922716215724,
+          "averageMfe": 0.053048005262721236,
+          "averageMae": -0.043744504214936517
+        },
+        {
+          "rank": 7,
+          "n": 60,
+          "meanReturn": 0.011963269972577047,
+          "medianReturn": -0.0005306954035603217,
+          "winRate": 0.5,
+          "volatility": 0.06023751581764928,
+          "downsideDeviation": 0.04431390821856504,
+          "worstReturn": -0.09912999633652952,
+          "bestReturn": 0.1810576900863421,
+          "p10": -0.05282584875475705,
+          "p90": 0.08596819798793578,
+          "beatSpy": 0.5,
+          "beatUniverseMedian": 0.48333333333333334,
+          "futureTopQuartile": 0.21666666666666667,
+          "averageWinner": 0.05895275072637906,
+          "averageLoser": -0.03502621078122497,
+          "expectancy": 0.011963269972577047,
+          "averageMfe": 0.05356583827287918,
+          "averageMae": -0.04281637888422544
+        },
+        {
+          "rank": 8,
+          "n": 60,
+          "meanReturn": 0.012292613052951883,
+          "medianReturn": 0.009972323154372242,
+          "winRate": 0.6,
+          "volatility": 0.06649150606649538,
+          "downsideDeviation": 0.05828191524450687,
+          "worstReturn": -0.1209771692685161,
+          "bestReturn": 0.21850726972894519,
+          "p10": -0.07377668280899832,
+          "p90": 0.09810296788201792,
+          "beatSpy": 0.48333333333333334,
+          "beatUniverseMedian": 0.48333333333333334,
+          "futureTopQuartile": 0.2833333333333333,
+          "averageWinner": 0.05428011332298542,
+          "averageLoser": -0.05068863735209842,
+          "expectancy": 0.012292613052951883,
+          "averageMfe": 0.05393862136650445,
+          "averageMae": -0.04826153317190675
+        },
+        {
+          "rank": 9,
+          "n": 60,
+          "meanReturn": 0.00875084843804607,
+          "medianReturn": 0.00521860229669624,
+          "winRate": 0.5166666666666667,
+          "volatility": 0.07018035917451532,
+          "downsideDeviation": 0.06191270949222401,
+          "worstReturn": -0.16773941931705283,
+          "bestReturn": 0.16488251860984815,
+          "p10": -0.06584051816268721,
+          "p90": 0.10102744750101811,
+          "beatSpy": 0.45,
+          "beatUniverseMedian": 0.5166666666666667,
+          "futureTopQuartile": 0.26666666666666666,
+          "averageWinner": 0.06319412680463542,
+          "averageLoser": -0.04944713878141151,
+          "expectancy": 0.00875084843804607,
+          "averageMfe": 0.05546288722386302,
+          "averageMae": -0.05289619567405966
+        },
+        {
+          "rank": 10,
+          "n": 60,
+          "meanReturn": 0.0019405450988839723,
+          "medianReturn": -0.006663411366256811,
+          "winRate": 0.48333333333333334,
+          "volatility": 0.061558200219982734,
+          "downsideDeviation": 0.057206146154384,
+          "worstReturn": -0.13339583147612877,
+          "bestReturn": 0.13905890521860909,
+          "p10": -0.06601981309905214,
+          "p90": 0.08292139928363927,
+          "beatSpy": 0.43333333333333335,
+          "beatUniverseMedian": 0.35,
+          "futureTopQuartile": 0.2,
+          "averageWinner": 0.05409112700398902,
+          "averageLoser": -0.04684548313492399,
+          "expectancy": 0.0019405450988839723,
+          "averageMfe": 0.046751768100969884,
+          "averageMae": -0.05448860619434662
+        }
+      ],
+      "groups": {
+        "elite": {
+          "n": 120,
+          "meanReturn": 0.007233041727469688,
+          "medianReturn": 0.0009666657465898232,
+          "winRate": 0.5,
+          "volatility": 0.05853981749729034,
+          "downsideDeviation": 0.04771788907885497,
+          "worstReturn": -0.11765833934528169,
+          "bestReturn": 0.18354898604916192,
+          "p10": -0.060895456385542404,
+          "p90": 0.08321490074794224,
+          "beatSpy": 0.475,
+          "beatUniverseMedian": 0.43333333333333335,
+          "futureTopQuartile": 0.21666666666666667,
+          "averageWinner": 0.053465297755672186,
+          "averageLoser": -0.038999214300732825,
+          "expectancy": 0.007233041727469688,
+          "averageMfe": 0.04376694485798657,
+          "averageMae": -0.04078270282624859
+        },
+        "upper": {
+          "n": 60,
+          "meanReturn": 0.012415915670613599,
+          "medianReturn": 0.009011532443310766,
+          "winRate": 0.5666666666666667,
+          "volatility": 0.05091069468706602,
+          "downsideDeviation": 0.041980548616961426,
+          "worstReturn": -0.10087240908201378,
+          "bestReturn": 0.13463263200100362,
+          "p10": -0.056385957121722376,
+          "p90": 0.08416644715873471,
+          "beatSpy": 0.4666666666666667,
+          "beatUniverseMedian": 0.5,
+          "futureTopQuartile": 0.21666666666666667,
+          "averageWinner": 0.04785635819425532,
+          "averageLoser": -0.033929278398764036,
+          "expectancy": 0.012415915670613599,
+          "averageMfe": 0.04694230492532733,
+          "averageMae": -0.04241904899978472
+        },
+        "lowerSelected": {
+          "n": 120,
+          "meanReturn": 0.014676089648398446,
+          "medianReturn": 0.01013016516136589,
+          "winRate": 0.6166666666666667,
+          "volatility": 0.06206608276243716,
+          "downsideDeviation": 0.05466971207175602,
+          "worstReturn": -0.1292878713465685,
+          "bestReturn": 0.1827598823644061,
+          "p10": -0.061954791816090204,
+          "p90": 0.09800295152322551,
+          "beatSpy": 0.45,
+          "beatUniverseMedian": 0.5166666666666667,
+          "futureTopQuartile": 0.2916666666666667,
+          "averageWinner": 0.051789447532345864,
+          "averageLoser": -0.04502800781708218,
+          "expectancy": 0.014676089648398446,
+          "averageMfe": 0.05259389789955822,
+          "averageMae": -0.041681716457598585
+        },
+        "nearMisses": {
+          "n": 300,
+          "meanReturn": 0.00948243985573494,
+          "medianReturn": 0.003981655259828076,
+          "winRate": 0.5433333333333333,
+          "volatility": 0.0650144088380584,
+          "downsideDeviation": 0.05708018695304904,
+          "worstReturn": -0.16773941931705283,
+          "bestReturn": 0.21850726972894519,
+          "p10": -0.0723532970368475,
+          "p90": 0.09253355589657557,
+          "beatSpy": 0.4766666666666667,
+          "beatUniverseMedian": 0.47,
+          "futureTopQuartile": 0.2633333333333333,
+          "averageWinner": 0.05706643590280972,
+          "averageLoser": -0.047132095587135055,
+          "expectancy": 0.00948243985573494,
+          "averageMfe": 0.05255342404538755,
+          "averageMae": -0.048441443627895
+        },
+        "top3": {
+          "n": 180,
+          "meanReturn": 0.008960666375184324,
+          "medianReturn": 0.003750659579770832,
+          "winRate": 0.5222222222222223,
+          "volatility": 0.056022682764091065,
+          "downsideDeviation": 0.04605877745113605,
+          "worstReturn": -0.11765833934528169,
+          "bestReturn": 0.18354898604916192,
+          "p10": -0.05748914284914275,
+          "p90": 0.08363262246678597,
+          "beatSpy": 0.4722222222222222,
+          "beatUniverseMedian": 0.45555555555555555,
+          "futureTopQuartile": 0.21666666666666667,
+          "averageWinner": 0.05143653238239374,
+          "averageLoser": -0.03746644298153295,
+          "expectancy": 0.008960666375184324,
+          "averageMfe": 0.04482539821376683,
+          "averageMae": -0.041328151550760625
+        },
+        "ranks3To5": {
+          "n": 180,
+          "meanReturn": 0.013922698322470166,
+          "medianReturn": 0.01013016516136589,
+          "winRate": 0.6,
+          "volatility": 0.05845009347816066,
+          "downsideDeviation": 0.05045697964673416,
+          "worstReturn": -0.1292878713465685,
+          "bestReturn": 0.1827598823644061,
+          "p10": -0.05739451992486721,
+          "p90": 0.09111228866661716,
+          "beatSpy": 0.45555555555555555,
+          "beatUniverseMedian": 0.5111111111111111,
+          "futureTopQuartile": 0.26666666666666666,
+          "averageWinner": 0.05055125274072476,
+          "averageLoser": -0.04102013330491174,
+          "expectancy": 0.013922698322470166,
+          "averageMfe": 0.05071003357481458,
+          "averageMae": -0.04192749397166062
+        },
+        "top5": {
+          "n": 300,
+          "meanReturn": 0.011246835684469972,
+          "medianReturn": 0.007144272026990972,
+          "winRate": 0.56,
+          "volatility": 0.058480263646371454,
+          "downsideDeviation": 0.0492308342598557,
+          "worstReturn": -0.1292878713465685,
+          "bestReturn": 0.18354898604916192,
+          "p10": -0.06084825903823616,
+          "p90": 0.08569584736768761,
+          "beatSpy": 0.4633333333333333,
+          "beatUniverseMedian": 0.48,
+          "futureTopQuartile": 0.24666666666666667,
+          "averageWinner": 0.05159198310320599,
+          "averageLoser": -0.04010153375755768,
+          "expectancy": 0.011246835684469972,
+          "averageMfe": 0.04793279808808338,
+          "averageMae": -0.04146957751349581
+        }
+      },
+      "comparisons": {
+        "top3VsRanks4To5": {
+          "leftRanks": [
+            1,
+            2,
+            3
+          ],
+          "rightRanks": [
+            4,
+            5
+          ],
+          "effectiveN": 60,
+          "meanReturnDifference": -0.005715423273214122,
+          "medianReturnDifference": -0.006379505581595057,
+          "winRateDifference": -0.09444444444444444,
+          "volatilityDifference": -0.006043399998346091,
+          "downsideDeviationDifference": -0.008610934620619973,
+          "p10Difference": 0.004465648966947455,
+          "beatSpyDifference": 0.0222222222222222,
+          "pairedMonthlyMeanDifference": -0.0057154232732141205,
+          "clusterCi95": [
+            -0.01760861809348231,
+            0.005791068797344008
+          ],
+          "pairedStandardizedEffect": -0.1252229860787611,
+          "method": "rebalance-cluster bootstrap, 2000 draws, seed 20260822"
+        },
+        "ranks1To2VsRanks3To5": {
+          "leftRanks": [
+            1,
+            2
+          ],
+          "rightRanks": [
+            3,
+            4,
+            5
+          ],
+          "effectiveN": 60,
+          "meanReturnDifference": -0.006689656595000478,
+          "medianReturnDifference": -0.009163499414776066,
+          "winRateDifference": -0.09999999999999998,
+          "volatilityDifference": 8.972401912968331e-05,
+          "downsideDeviationDifference": -0.0027390905678791877,
+          "p10Difference": -0.0035009364606751955,
+          "beatSpyDifference": 0.01944444444444443,
+          "pairedMonthlyMeanDifference": -0.006689656595000478,
+          "clusterCi95": [
+            -0.01854279149500131,
+            0.00553457027305071
+          ],
+          "pairedStandardizedEffect": -0.14209263724446416,
+          "method": "rebalance-cluster bootstrap, 2000 draws, seed 20260822"
+        },
+        "top5VsRanks6To10": {
+          "leftRanks": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "rightRanks": [
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "effectiveN": 60,
+          "meanReturnDifference": 0.0017643958287350322,
+          "medianReturnDifference": 0.0031626167671628957,
+          "winRateDifference": 0.01666666666666672,
+          "volatilityDifference": -0.006534145191686942,
+          "downsideDeviationDifference": -0.00784935269319334,
+          "p10Difference": 0.011505037998611335,
+          "beatSpyDifference": -0.013333333333333364,
+          "pairedMonthlyMeanDifference": 0.0017643958287350344,
+          "clusterCi95": [
+            -0.007871184170249611,
+            0.010797242388672638
+          ],
+          "pairedStandardizedEffect": 0.047752605556247836,
+          "method": "rebalance-cluster bootstrap, 2000 draws, seed 20260822"
+        }
+      },
+      "rankInference": {
+        "spearman": -0.011886263737176715,
+        "clusterCi95": [
+          -0.07789828792017352,
+          0.05780319385936816
+        ],
+        "effectiveN": 60,
+        "rawN": 600,
+        "decreasingAdjacentSteps": 4,
+        "totalAdjacentSteps": 9,
+        "strictlyMonotonicMeanCurve": false,
+        "method": "rebalance-cluster bootstrap, 2000 draws, seed 20260822"
+      },
+      "rankLabelNull": {
+        "H1Top3MinusRanks4To5": {
+          "observed": -0.005715423273214122,
+          "nullMean": -0.0001617795548172169,
+          "nullCi95": [
+            -0.012721203819416181,
+            0.012138201723342776
+          ],
+          "directionalEmpiricalP": 0.8025987006496752,
+          "twoSidedEmpiricalP": 0.36931534232883556
+        },
+        "H2Top5MinusRanks6To10": {
+          "observed": 0.0017643958287350322,
+          "nullMean": 6.176099195475096e-05,
+          "nullCi95": [
+            -0.008214333112396256,
+            0.008330469724503011
+          ],
+          "directionalEmpiricalP": 0.33983008495752126,
+          "twoSidedEmpiricalP": 0.6681659170414792
+        },
+        "H3RankReturnSpearman": {
+          "observed": -0.011886263737176715,
+          "nullMean": 0.00042677650049117224,
+          "nullCi95": [
+            -0.06767749790681751,
+            0.06783788541426315
+          ],
+          "directionalEmpiricalP": 0.3543228385807096,
+          "twoSidedEmpiricalP": 0.7176411794102948
+        },
+        "draws": 2000,
+        "seed": 20260822,
+        "method": "rank labels shuffled within each rebalance; future-return set preserved"
+      },
+      "cumulativeDepth": [
+        {
+          "depth": 1,
+          "n": 60,
+          "meanReturn": 0.005235242798937672,
+          "newRankMeanReturn": 0.005235242798937672,
+          "marginalVsHigherRanks": null
+        },
+        {
+          "depth": 2,
+          "n": 120,
+          "meanReturn": 0.007233041727469688,
+          "newRankMeanReturn": 0.009230840656001703,
+          "marginalVsHigherRanks": 0.003995597857064031
+        },
+        {
+          "depth": 3,
+          "n": 180,
+          "meanReturn": 0.008960666375184324,
+          "newRankMeanReturn": 0.012415915670613599,
+          "marginalVsHigherRanks": 0.005182873943143911
+        },
+        {
+          "depth": 4,
+          "n": 240,
+          "meanReturn": 0.011369162870230393,
+          "newRankMeanReturn": 0.018594652355368592,
+          "marginalVsHigherRanks": 0.009633985980184268
+        },
+        {
+          "depth": 5,
+          "n": 300,
+          "meanReturn": 0.011246835684469972,
+          "newRankMeanReturn": 0.010757526941428302,
+          "marginalVsHigherRanks": -0.0006116359288020918
+        },
+        {
+          "depth": 6,
+          "n": 360,
+          "meanReturn": 0.011449850189760932,
+          "newRankMeanReturn": 0.012464922716215724,
+          "marginalVsHigherRanks": 0.0012180870317457515
+        },
+        {
+          "depth": 10,
+          "n": 600,
+          "meanReturn": 0.010364637770102457,
+          "newRankMeanReturn": 0.0019405450988839723,
+          "marginalVsHigherRanks": -0.009360102968020537
+        }
+      ],
+      "scoreSpacing": [
+        {
+          "boundary": "1-2",
+          "n": 60,
+          "meanScoreGap": 0.0005931975643048704,
+          "medianScoreGap": 0.0003998644742123636,
+          "gapReturnDifferenceSpearman": 0.12431230897471522,
+          "meanReturnDifferenceSmallGap": -0.007589147425157165,
+          "meanReturnDifferenceLargeGap": -0.00040204828897089464
+        },
+        {
+          "boundary": "2-3",
+          "n": 60,
+          "meanScoreGap": 0.0004421776275588855,
+          "medianScoreGap": 0.00035675856127415084,
+          "gapReturnDifferenceSpearman": -0.19021950541817176,
+          "meanReturnDifferenceSmallGap": 0.004547514632762325,
+          "meanReturnDifferenceLargeGap": -0.01091766466198612
+        },
+        {
+          "boundary": "3-4",
+          "n": 60,
+          "meanScoreGap": 0.00037614614459909507,
+          "medianScoreGap": 0.00030268338439964904,
+          "gapReturnDifferenceSpearman": 0.10047235343150877,
+          "meanReturnDifferenceSmallGap": -0.011260266689089197,
+          "meanReturnDifferenceLargeGap": -0.0010972066804207888
+        },
+        {
+          "boundary": "4-5",
+          "n": 60,
+          "meanScoreGap": 0.0004313236509273862,
+          "medianScoreGap": 0.0002840203795068108,
+          "gapReturnDifferenceSpearman": 0.028452347874409565,
+          "meanReturnDifferenceSmallGap": -0.0004037602181226951,
+          "meanReturnDifferenceLargeGap": 0.016078011046003277
+        },
+        {
+          "boundary": "5-6",
+          "n": 60,
+          "meanScoreGap": 0.00042007409811135415,
+          "medianScoreGap": 0.00023371697274943148,
+          "gapReturnDifferenceSpearman": -0.11225340372325647,
+          "meanReturnDifferenceSmallGap": 0.012151043557848629,
+          "meanReturnDifferenceLargeGap": -0.015565835107423476
+        }
+      ],
+      "percentileGroups": [
+        {
+          "group": "top10pct",
+          "lower": 0.0,
+          "upper": 0.1,
+          "n": 180,
+          "meanReturn": 0.008960666375184324,
+          "medianReturn": 0.003750659579770832,
+          "winRate": 0.5222222222222223,
+          "volatility": 0.056022682764091065,
+          "downsideDeviation": 0.04605877745113605,
+          "worstReturn": -0.11765833934528169,
+          "bestReturn": 0.18354898604916192,
+          "p10": -0.05748914284914275,
+          "p90": 0.08363262246678597,
+          "beatSpy": 0.4722222222222222,
+          "beatUniverseMedian": 0.45555555555555555,
+          "futureTopQuartile": 0.21666666666666667,
+          "averageWinner": 0.05143653238239374,
+          "averageLoser": -0.03746644298153295,
+          "expectancy": 0.008960666375184324,
+          "averageMfe": 0.04482539821376683,
+          "averageMae": -0.041328151550760625
+        },
+        {
+          "group": "pct10To25",
+          "lower": 0.1,
+          "upper": 0.25,
+          "n": 240,
+          "meanReturn": 0.013445092996397416,
+          "medianReturn": 0.009413744240236777,
+          "winRate": 0.5875,
+          "volatility": 0.06280684262156745,
+          "downsideDeviation": 0.054096442152093416,
+          "worstReturn": -0.1292878713465685,
+          "bestReturn": 0.2021522506359139,
+          "p10": -0.06546251350410838,
+          "p90": 0.09605198772558787,
+          "beatSpy": 0.4791666666666667,
+          "beatUniverseMedian": 0.5083333333333333,
+          "futureTopQuartile": 0.2875,
+          "averageWinner": 0.054273074296912936,
+          "averageLoser": -0.04470385006797317,
+          "expectancy": 0.013445092996397416,
+          "averageMfe": 0.05295040983367922,
+          "averageMae": -0.042481079003589786
+        },
+        {
+          "group": "pct25To50",
+          "lower": 0.25,
+          "upper": 0.5,
+          "n": 420,
+          "meanReturn": 0.010358572463681902,
+          "medianReturn": 0.008009839523729578,
+          "winRate": 0.5642857142857143,
+          "volatility": 0.06828485751778747,
+          "downsideDeviation": 0.06210748549960453,
+          "worstReturn": -0.16773941931705283,
+          "bestReturn": 0.21850726972894519,
+          "p10": -0.0768037975766647,
+          "p90": 0.10509845055049186,
+          "beatSpy": 0.49047619047619045,
+          "beatUniverseMedian": 0.4785714285714286,
+          "futureTopQuartile": 0.2785714285714286,
+          "averageWinner": 0.05819249640641683,
+          "averageLoser": -0.051590279855597755,
+          "expectancy": 0.010358572463681902,
+          "averageMfe": 0.056746197912360116,
+          "averageMae": -0.05080495257733181
+        },
+        {
+          "group": "bottom50pct",
+          "lower": 0.5,
+          "upper": 1.0000001,
+          "n": 900,
+          "meanReturn": 0.009576691262098,
+          "medianReturn": 0.005798417589785387,
+          "winRate": 0.5377777777777778,
+          "volatility": 0.09873065267053106,
+          "downsideDeviation": 0.08632097765493865,
+          "worstReturn": -0.34518517388237846,
+          "bestReturn": 1.071111043294271,
+          "p10": -0.09961594243728576,
+          "p90": 0.11303908645612222,
+          "beatSpy": 0.4766666666666667,
+          "beatUniverseMedian": 0.48333333333333334,
+          "futureTopQuartile": 0.2833333333333333,
+          "averageWinner": 0.073474609877511,
+          "averageLoser": -0.06476607943468059,
+          "expectancy": 0.009576691262098,
+          "averageMfe": 0.07029016561953551,
+          "averageMae": -0.06420039525083929
+        }
+      ],
+      "stability": {
+        "splitDate": "2024-02-01",
+        "firstHalfTop3MinusRanks4To5": -0.0009558761800603995,
+        "secondHalfTop3MinusRanks4To5": -0.010474970366367846,
+        "yearlyTop3MinusRanks4To5": {
+          "2021": -0.029041005455072814,
+          "2022": 0.02409003879033705,
+          "2023": -0.010593555395329772,
+          "2024": 0.00021104534341527363,
+          "2025": -0.02066926821186443,
+          "2026": -0.016311356490882948
+        },
+        "leaveOneYearOutTop3MinusRanks4To5": {
+          "2021": -0.0035949158021360587,
+          "2022": -0.013166788789101913,
+          "2023": -0.004495890242685209,
+          "2024": -0.00719704042737147,
+          "2025": -0.001976962038551543,
+          "2026": -0.0043159603954088036
+        },
+        "leaveOneSecurityOutTop3MinusRanks4To5": {
+          "AAPL": -0.007929216344043631,
+          "AMGN": -0.006026381523986432,
+          "AXP": -0.005705924133732412,
+          "CAT": -0.0057154232732141205,
+          "CSCO": -0.006256751059230862,
+          "CVX": -0.0057154232732141205,
+          "DIS": -0.0057154232732141205,
+          "DOW": -0.0057154232732141205,
+          "GS": -0.004106581218927978,
+          "HD": -0.005970080431196108,
+          "HON": -0.002116904180486407,
+          "IBM": -0.0037895116360872946,
+          "JNJ": -0.008162275110566336,
+          "JPM": -0.006968736097092475,
+          "KO": -0.009981042532242284,
+          "MCD": -0.00662124659576457,
+          "MMM": -0.0057154232732141205,
+          "MRK": -0.0057154232732141205,
+          "MSFT": -0.0008355526896142122,
+          "PG": -0.007324527103314,
+          "TRV": -0.004907289612017719,
+          "UNH": -0.0057154232732141205,
+          "V": -0.0054926752995897495,
+          "VZ": -0.004752941895434398,
+          "WMT": -0.005929981454527317
+        },
+        "largestInfluenceSecurity": "MSFT",
+        "largestInfluenceResult": -0.0008355526896142122,
+        "allLeaveOneYearOutPositive": false,
+        "allLeaveOneSecurityOutPositive": false
+      },
+      "securityContributors": {
+        "byGroup": [
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "GS",
+            "n": 5,
+            "meanReturn": 0.06854978966949057,
+            "sumReturn": 0.34274894834745284
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "KO",
+            "n": 11,
+            "meanReturn": 0.022155070283984477,
+            "sumReturn": 0.24370577312382924
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "MSFT",
+            "n": 7,
+            "meanReturn": 0.03199724850545259,
+            "sumReturn": 0.2239807395381681
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "TRV",
+            "n": 4,
+            "meanReturn": 0.05416346566664135,
+            "sumReturn": 0.2166538626665654
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "IBM",
+            "n": 4,
+            "meanReturn": 0.05073063891159854,
+            "sumReturn": 0.20292255564639416
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "JPM",
+            "n": 2,
+            "meanReturn": 0.09556194530662665,
+            "sumReturn": 0.1911238906132533
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "HON",
+            "n": 15,
+            "meanReturn": 0.009669170725880302,
+            "sumReturn": 0.14503756088820452
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "PG",
+            "n": 13,
+            "meanReturn": 0.010107312381283364,
+            "sumReturn": 0.13139506095668374
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "JNJ",
+            "n": 12,
+            "meanReturn": 0.008396721205590254,
+            "sumReturn": 0.10076065446708304
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "AXP",
+            "n": 2,
+            "meanReturn": 0.0470738751039006,
+            "sumReturn": 0.0941477502078012
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "V",
+            "n": 12,
+            "meanReturn": 0.0070965333879195,
+            "sumReturn": 0.085158400655034
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "HD",
+            "n": 1,
+            "meanReturn": 0.008916729773830623,
+            "sumReturn": 0.008916729773830623
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "VZ",
+            "n": 3,
+            "meanReturn": -0.0021946052693560722,
+            "sumReturn": -0.006583815808068216
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "WMT",
+            "n": 3,
+            "meanReturn": -0.00406639127821636,
+            "sumReturn": -0.01219917383464908
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "AAPL",
+            "n": 9,
+            "meanReturn": -0.002227910682886019,
+            "sumReturn": -0.02005119614597417
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "CSCO",
+            "n": 7,
+            "meanReturn": -0.010604490085280336,
+            "sumReturn": -0.07423143059696236
+          },
+          {
+            "rankGroup": "ranks4To5",
+            "symbol": "MCD",
+            "n": 10,
+            "meanReturn": -0.011235555269083274,
+            "sumReturn": -0.11235555269083275
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "CAT",
+            "n": 5,
+            "meanReturn": 0.11148288579534135,
+            "sumReturn": 0.5574144289767068
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "GS",
+            "n": 11,
+            "meanReturn": 0.036940053204538574,
+            "sumReturn": 0.40634058524992434
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "CSCO",
+            "n": 17,
+            "meanReturn": 0.020644429449724926,
+            "sumReturn": 0.35095530064532376
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "AXP",
+            "n": 6,
+            "meanReturn": 0.057371946799161966,
+            "sumReturn": 0.3442316807949718
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "HON",
+            "n": 29,
+            "meanReturn": 0.010691333450896606,
+            "sumReturn": 0.31004867007600156
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "JNJ",
+            "n": 13,
+            "meanReturn": 0.023596754654809524,
+            "sumReturn": 0.3067578105125238
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "IBM",
+            "n": 10,
+            "meanReturn": 0.03056898497207,
+            "sumReturn": 0.3056898497207
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "V",
+            "n": 21,
+            "meanReturn": 0.011974420967091396,
+            "sumReturn": 0.2514628403089193
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "JPM",
+            "n": 11,
+            "meanReturn": 0.02125907846935716,
+            "sumReturn": 0.23384986316292877
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "WMT",
+            "n": 19,
+            "meanReturn": 0.008518330458980936,
+            "sumReturn": 0.16184827872063778
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "HD",
+            "n": 23,
+            "meanReturn": 0.0062453889194840845,
+            "sumReturn": 0.14364394514813394
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "MCD",
+            "n": 17,
+            "meanReturn": 0.008188282738021177,
+            "sumReturn": 0.13920080654636002
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "AMGN",
+            "n": 4,
+            "meanReturn": 0.0308801958529831,
+            "sumReturn": 0.1235207834119324
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "UNH",
+            "n": 3,
+            "meanReturn": 0.028969053345306122,
+            "sumReturn": 0.08690716003591836
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "AAPL",
+            "n": 23,
+            "meanReturn": 0.0031271577777781186,
+            "sumReturn": 0.07192462888889672
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "CVX",
+            "n": 3,
+            "meanReturn": 0.019836288437780958,
+            "sumReturn": 0.059508865313342874
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "VZ",
+            "n": 6,
+            "meanReturn": 0.00918015998140224,
+            "sumReturn": 0.05508095988841344
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "DIS",
+            "n": 2,
+            "meanReturn": -0.0013759781339352517,
+            "sumReturn": -0.0027519562678705034
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "KO",
+            "n": 11,
+            "meanReturn": -0.0029702049919062053,
+            "sumReturn": -0.03267225491096826
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "MRK",
+            "n": 4,
+            "meanReturn": -0.009811265779276018,
+            "sumReturn": -0.03924506311710407
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "PG",
+            "n": 28,
+            "meanReturn": -0.0014047756410924975,
+            "sumReturn": -0.03933371795058993
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "DOW",
+            "n": 4,
+            "meanReturn": -0.04304250384571778,
+            "sumReturn": -0.17217001538287113
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "MSFT",
+            "n": 18,
+            "meanReturn": -0.01294339583007238,
+            "sumReturn": -0.23298112494130285
+          },
+          {
+            "rankGroup": "ranks6To10",
+            "symbol": "MMM",
+            "n": 12,
+            "meanReturn": -0.04537503067587059,
+            "sumReturn": -0.5445003681104471
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "KO",
+            "n": 38,
+            "meanReturn": 0.011769100849305705,
+            "sumReturn": 0.4472258322736168
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "CSCO",
+            "n": 10,
+            "meanReturn": 0.027273044513942624,
+            "sumReturn": 0.27273044513942624
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "JPM",
+            "n": 10,
+            "meanReturn": 0.02615343708801151,
+            "sumReturn": 0.2615343708801151
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "V",
+            "n": 15,
+            "meanReturn": 0.016961907051539726,
+            "sumReturn": 0.2544286057730959
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "AXP",
+            "n": 5,
+            "meanReturn": 0.04585664313797535,
+            "sumReturn": 0.22928321568987675
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "MCD",
+            "n": 29,
+            "meanReturn": 0.00776151814998935,
+            "sumReturn": 0.22508402634969116
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "AAPL",
+            "n": 4,
+            "meanReturn": 0.04054035503162495,
+            "sumReturn": 0.1621614201264998
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "PG",
+            "n": 9,
+            "meanReturn": 0.014844399656495052,
+            "sumReturn": 0.13359959690845546
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "TRV",
+            "n": 2,
+            "meanReturn": 0.047026855987895855,
+            "sumReturn": 0.09405371197579171
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "WMT",
+            "n": 5,
+            "meanReturn": -0.0006062779376424076,
+            "sumReturn": -0.0030313896882120384
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "GS",
+            "n": 1,
+            "meanReturn": -0.005103153186641229,
+            "sumReturn": -0.005103153186641229
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "IBM",
+            "n": 1,
+            "meanReturn": -0.029791633602742507,
+            "sumReturn": -0.029791633602742507
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "VZ",
+            "n": 4,
+            "meanReturn": -0.010232192095508713,
+            "sumReturn": -0.04092876838203485
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "JNJ",
+            "n": 25,
+            "meanReturn": -0.0017965870710536923,
+            "sumReturn": -0.04491467677634231
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "AMGN",
+            "n": 1,
+            "meanReturn": -0.0532928890746317,
+            "sumReturn": -0.0532928890746317
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "MSFT",
+            "n": 17,
+            "meanReturn": -0.007228243409055107,
+            "sumReturn": -0.12288013795393682
+          },
+          {
+            "rankGroup": "top3",
+            "symbol": "HON",
+            "n": 4,
+            "meanReturn": -0.04180965722971225,
+            "sumReturn": -0.167238628918849
+          }
+        ],
+        "byRank": [
+          {
+            "rank": 1,
+            "symbol": "CSCO",
+            "n": 7,
+            "meanReturn": 0.02144743771946489,
+            "sumReturn": 0.15013206403625423
+          },
+          {
+            "rank": 1,
+            "symbol": "JNJ",
+            "n": 4,
+            "meanReturn": 0.012618861505284323,
+            "sumReturn": 0.050475446021137294
+          },
+          {
+            "rank": 1,
+            "symbol": "JPM",
+            "n": 3,
+            "meanReturn": 0.015762269896041053,
+            "sumReturn": 0.047286809688123155
+          },
+          {
+            "rank": 1,
+            "symbol": "AAPL",
+            "n": 3,
+            "meanReturn": 0.013366973660431306,
+            "sumReturn": 0.04010092098129392
+          },
+          {
+            "rank": 1,
+            "symbol": "V",
+            "n": 7,
+            "meanReturn": 0.005500223420845393,
+            "sumReturn": 0.03850156394591775
+          },
+          {
+            "rank": 1,
+            "symbol": "VZ",
+            "n": 2,
+            "meanReturn": 0.014177273255589262,
+            "sumReturn": 0.028354546511178524
+          },
+          {
+            "rank": 1,
+            "symbol": "MCD",
+            "n": 11,
+            "meanReturn": 0.0015838401416131383,
+            "sumReturn": 0.017422241557744522
+          },
+          {
+            "rank": 1,
+            "symbol": "KO",
+            "n": 21,
+            "meanReturn": 0.00018597197604981676,
+            "sumReturn": 0.0039054114970461518
+          },
+          {
+            "rank": 1,
+            "symbol": "MSFT",
+            "n": 1,
+            "meanReturn": -0.008291725765819491,
+            "sumReturn": -0.008291725765819491
+          },
+          {
+            "rank": 1,
+            "symbol": "WMT",
+            "n": 1,
+            "meanReturn": -0.0537727105366157,
+            "sumReturn": -0.0537727105366157
+          },
+          {
+            "rank": 2,
+            "symbol": "KO",
+            "n": 12,
+            "meanReturn": 0.03445241718979732,
+            "sumReturn": 0.41342900627756785
+          },
+          {
+            "rank": 2,
+            "symbol": "JPM",
+            "n": 4,
+            "meanReturn": 0.03598207876366269,
+            "sumReturn": 0.14392831505465076
+          },
+          {
+            "rank": 2,
+            "symbol": "AAPL",
+            "n": 1,
+            "meanReturn": 0.12206049914520589,
+            "sumReturn": 0.12206049914520589
+          },
+          {
+            "rank": 2,
+            "symbol": "TRV",
+            "n": 2,
+            "meanReturn": 0.047026855987895855,
+            "sumReturn": 0.09405371197579171
+          },
+          {
+            "rank": 2,
+            "symbol": "MCD",
+            "n": 11,
+            "meanReturn": 0.008432519370449178,
+            "sumReturn": 0.09275771307494096
+          },
+          {
+            "rank": 2,
+            "symbol": "PG",
+            "n": 4,
+            "meanReturn": 0.0140441183873741,
+            "sumReturn": 0.0561764735494964
+          },
+          {
+            "rank": 2,
+            "symbol": "AXP",
+            "n": 2,
+            "meanReturn": 0.020530835063723885,
+            "sumReturn": 0.04106167012744777
+          },
+          {
+            "rank": 2,
+            "symbol": "V",
+            "n": 4,
+            "meanReturn": 0.009653518001658645,
+            "sumReturn": 0.03861407200663458
+          },
+          {
+            "rank": 2,
+            "symbol": "CSCO",
+            "n": 1,
+            "meanReturn": -0.0030831184781600074,
+            "sumReturn": -0.0030831184781600074
+          },
+          {
+            "rank": 2,
+            "symbol": "HON",
+            "n": 1,
+            "meanReturn": -0.0042188893485222145,
+            "sumReturn": -0.0042188893485222145
+          },
+          {
+            "rank": 2,
+            "symbol": "GS",
+            "n": 1,
+            "meanReturn": -0.005103153186641229,
+            "sumReturn": -0.005103153186641229
+          },
+          {
+            "rank": 2,
+            "symbol": "AMGN",
+            "n": 1,
+            "meanReturn": -0.0532928890746317,
+            "sumReturn": -0.0532928890746317
+          },
+          {
+            "rank": 2,
+            "symbol": "VZ",
+            "n": 2,
+            "meanReturn": -0.03464165744660669,
+            "sumReturn": -0.06928331489321338
+          },
+          {
+            "rank": 2,
+            "symbol": "JNJ",
+            "n": 8,
+            "meanReturn": -0.011927434085293925,
+            "sumReturn": -0.0954194726823514
+          },
+          {
+            "rank": 2,
+            "symbol": "MSFT",
+            "n": 6,
+            "meanReturn": -0.03630503069801897,
+            "sumReturn": -0.21783018418811384
+          },
+          {
+            "rank": 3,
+            "symbol": "AXP",
+            "n": 3,
+            "meanReturn": 0.06274051518747632,
+            "sumReturn": 0.18822154556242898
+          },
+          {
+            "rank": 3,
+            "symbol": "V",
+            "n": 4,
+            "meanReturn": 0.04432824245513589,
+            "sumReturn": 0.17731296982054356
+          },
+          {
+            "rank": 3,
+            "symbol": "CSCO",
+            "n": 2,
+            "meanReturn": 0.062840749790666,
+            "sumReturn": 0.125681499581332
+          },
+          {
+            "rank": 3,
+            "symbol": "MCD",
+            "n": 7,
+            "meanReturn": 0.016414867388143666,
+            "sumReturn": 0.11490407171700567
+          },
+          {
+            "rank": 3,
+            "symbol": "MSFT",
+            "n": 10,
+            "meanReturn": 0.010324177199999651,
+            "sumReturn": 0.10324177199999651
+          },
+          {
+            "rank": 3,
+            "symbol": "PG",
+            "n": 5,
+            "meanReturn": 0.015484624671791814,
+            "sumReturn": 0.07742312335895907
+          },
+          {
+            "rank": 3,
+            "symbol": "JPM",
+            "n": 3,
+            "meanReturn": 0.023439748712447066,
+            "sumReturn": 0.0703192461373412
+          },
+          {
+            "rank": 3,
+            "symbol": "WMT",
+            "n": 4,
+            "meanReturn": 0.012685330212100915,
+            "sumReturn": 0.05074132084840366
+          },
+          {
+            "rank": 3,
+            "symbol": "KO",
+            "n": 5,
+            "meanReturn": 0.0059782828998005575,
+            "sumReturn": 0.02989141449900279
+          },
+          {
+            "rank": 3,
+            "symbol": "JNJ",
+            "n": 13,
+            "meanReturn": 2.2576834516768304e-06,
+            "sumReturn": 2.9349884871798793e-05
+          },
+          {
+            "rank": 3,
+            "symbol": "IBM",
+            "n": 1,
+            "meanReturn": -0.029791633602742507,
+            "sumReturn": -0.029791633602742507
+          },
+          {
+            "rank": 3,
+            "symbol": "HON",
+            "n": 3,
+            "meanReturn": -0.054339913190108925,
+            "sumReturn": -0.16301973957032678
+          },
+          {
+            "rank": 4,
+            "symbol": "HON",
+            "n": 9,
+            "meanReturn": 0.02835089849903348,
+            "sumReturn": 0.25515808649130134
+          },
+          {
+            "rank": 4,
+            "symbol": "TRV",
+            "n": 2,
+            "meanReturn": 0.09572957259283466,
+            "sumReturn": 0.1914591451856693
+          },
+          {
+            "rank": 4,
+            "symbol": "JPM",
+            "n": 2,
+            "meanReturn": 0.09556194530662665,
+            "sumReturn": 0.1911238906132533
+          },
+          {
+            "rank": 4,
+            "symbol": "KO",
+            "n": 7,
+            "meanReturn": 0.02708977748400278,
+            "sumReturn": 0.18962844238801946
+          },
+          {
+            "rank": 4,
+            "symbol": "GS",
+            "n": 3,
+            "meanReturn": 0.041078285041175645,
+            "sumReturn": 0.12323485512352694
+          },
+          {
+            "rank": 4,
+            "symbol": "IBM",
+            "n": 1,
+            "meanReturn": 0.10487276249137345,
+            "sumReturn": 0.10487276249137345
+          },
+          {
+            "rank": 4,
+            "symbol": "AXP",
+            "n": 1,
+            "meanReturn": 0.09339790665914571,
+            "sumReturn": 0.09339790665914571
+          },
+          {
+            "rank": 4,
+            "symbol": "WMT",
+            "n": 1,
+            "meanReturn": 0.07249848197283737,
+            "sumReturn": 0.07249848197283737
+          },
+          {
+            "rank": 4,
+            "symbol": "V",
+            "n": 8,
+            "meanReturn": 0.007607502108157443,
+            "sumReturn": 0.06086001686525955
+          },
+          {
+            "rank": 4,
+            "symbol": "JNJ",
+            "n": 4,
+            "meanReturn": 0.013341265815499048,
+            "sumReturn": 0.05336506326199619
+          },
+          {
+            "rank": 4,
+            "symbol": "VZ",
+            "n": 2,
+            "meanReturn": 0.019885664851139406,
+            "sumReturn": 0.03977132970227881
+          },
+          {
+            "rank": 4,
+            "symbol": "MCD",
+            "n": 5,
+            "meanReturn": 0.007851171789007582,
+            "sumReturn": 0.039255858945037914
+          },
+          {
+            "rank": 4,
+            "symbol": "CSCO",
+            "n": 4,
+            "meanReturn": 0.000532621285940782,
+            "sumReturn": 0.002130485143763128
+          },
+          {
+            "rank": 4,
+            "symbol": "PG",
+            "n": 7,
+            "meanReturn": -0.011425671584643582,
+            "sumReturn": -0.07997970109250507
+          },
+          {
+            "rank": 4,
+            "symbol": "AAPL",
+            "n": 1,
+            "meanReturn": -0.09246141624322257,
+            "sumReturn": -0.09246141624322257
+          },
+          {
+            "rank": 4,
+            "symbol": "MSFT",
+            "n": 3,
+            "meanReturn": -0.04287868872853976,
+            "sumReturn": -0.1286360661856193
+          },
+          {
+            "rank": 5,
+            "symbol": "MSFT",
+            "n": 4,
+            "meanReturn": 0.08815420143094685,
+            "sumReturn": 0.3526168057237874
+          },
+          {
+            "rank": 5,
+            "symbol": "GS",
+            "n": 2,
+            "meanReturn": 0.10975704661196295,
+            "sumReturn": 0.2195140932239259
+          },
+          {
+            "rank": 5,
+            "symbol": "PG",
+            "n": 6,
+            "meanReturn": 0.035229127008198136,
+            "sumReturn": 0.2113747620491888
+          },
+          {
+            "rank": 5,
+            "symbol": "IBM",
+            "n": 3,
+            "meanReturn": 0.032683264385006905,
+            "sumReturn": 0.09804979315502071
+          },
+          {
+            "rank": 5,
+            "symbol": "AAPL",
+            "n": 8,
+            "meanReturn": 0.00905127751215605,
+            "sumReturn": 0.0724102200972484
+          },
+          {
+            "rank": 5,
+            "symbol": "KO",
+            "n": 4,
+            "meanReturn": 0.013519332683952445,
+            "sumReturn": 0.05407733073580978
+          },
+          {
+            "rank": 5,
+            "symbol": "JNJ",
+            "n": 8,
+            "meanReturn": 0.005924448900635856,
+            "sumReturn": 0.04739559120508685
+          },
+          {
+            "rank": 5,
+            "symbol": "TRV",
+            "n": 2,
+            "meanReturn": 0.01259735874044804,
+            "sumReturn": 0.02519471748089608
+          },
+          {
+            "rank": 5,
+            "symbol": "V",
+            "n": 4,
+            "meanReturn": 0.006074595947443612,
+            "sumReturn": 0.024298383789774447
+          },
+          {
+            "rank": 5,
+            "symbol": "HD",
+            "n": 1,
+            "meanReturn": 0.008916729773830623,
+            "sumReturn": 0.008916729773830623
+          },
+          {
+            "rank": 5,
+            "symbol": "AXP",
+            "n": 1,
+            "meanReturn": 0.0007498435486554822,
+            "sumReturn": 0.0007498435486554822
+          },
+          {
+            "rank": 5,
+            "symbol": "VZ",
+            "n": 1,
+            "meanReturn": -0.04635514551034703,
+            "sumReturn": -0.04635514551034703
+          },
+          {
+            "rank": 5,
+            "symbol": "CSCO",
+            "n": 3,
+            "meanReturn": -0.025453971913575162,
+            "sumReturn": -0.07636191574072548
+          },
+          {
+            "rank": 5,
+            "symbol": "WMT",
+            "n": 2,
+            "meanReturn": -0.042348827903743225,
+            "sumReturn": -0.08469765580748645
+          },
+          {
+            "rank": 5,
+            "symbol": "HON",
+            "n": 6,
+            "meanReturn": -0.01835342093384947,
+            "sumReturn": -0.11012052560309682
+          },
+          {
+            "rank": 5,
+            "symbol": "MCD",
+            "n": 5,
+            "meanReturn": -0.030322282327174134,
+            "sumReturn": -0.15161141163587066
+          },
+          {
+            "rank": 6,
+            "symbol": "HON",
+            "n": 9,
+            "meanReturn": 0.025954019826704103,
+            "sumReturn": 0.2335861784403369
+          },
+          {
+            "rank": 6,
+            "symbol": "JPM",
+            "n": 3,
+            "meanReturn": 0.074674043765473,
+            "sumReturn": 0.224022131296419
+          },
+          {
+            "rank": 6,
+            "symbol": "JNJ",
+            "n": 4,
+            "meanReturn": 0.03860400457361657,
+            "sumReturn": 0.15441601829446627
+          },
+          {
+            "rank": 6,
+            "symbol": "CAT",
+            "n": 1,
+            "meanReturn": 0.1452006049483514,
+            "sumReturn": 0.1452006049483514
+          },
+          {
+            "rank": 6,
+            "symbol": "KO",
+            "n": 3,
+            "meanReturn": 0.03735273941243333,
+            "sumReturn": 0.1120582182373
+          },
+          {
+            "rank": 6,
+            "symbol": "WMT",
+            "n": 2,
+            "meanReturn": 0.05297153435318103,
+            "sumReturn": 0.10594306870636205
+          },
+          {
+            "rank": 6,
+            "symbol": "V",
+            "n": 4,
+            "meanReturn": 0.022354199176817663,
+            "sumReturn": 0.08941679670727065
+          },
+          {
+            "rank": 6,
+            "symbol": "MCD",
+            "n": 1,
+            "meanReturn": 0.07967718893235465,
+            "sumReturn": 0.07967718893235465
+          },
+          {
+            "rank": 6,
+            "symbol": "CSCO",
+            "n": 2,
+            "meanReturn": 0.03753459878219467,
+            "sumReturn": 0.07506919756438934
+          },
+          {
+            "rank": 6,
+            "symbol": "IBM",
+            "n": 1,
+            "meanReturn": 0.03541862396379236,
+            "sumReturn": 0.03541862396379236
+          },
+          {
+            "rank": 6,
+            "symbol": "UNH",
+            "n": 1,
+            "meanReturn": 0.03176071339100783,
+            "sumReturn": 0.03176071339100783
+          },
+          {
+            "rank": 6,
+            "symbol": "GS",
+            "n": 1,
+            "meanReturn": 0.0019006144815205683,
+            "sumReturn": 0.0019006144815205683
+          },
+          {
+            "rank": 6,
+            "symbol": "VZ",
+            "n": 1,
+            "meanReturn": -0.009901026120352374,
+            "sumReturn": -0.009901026120352374
+          },
+          {
+            "rank": 6,
+            "symbol": "PG",
+            "n": 10,
+            "meanReturn": -0.003851027664137097,
+            "sumReturn": -0.038510276641370966
+          },
+          {
+            "rank": 6,
+            "symbol": "HD",
+            "n": 2,
+            "meanReturn": -0.02537378344229496,
+            "sumReturn": -0.05074756688458992
+          },
+          {
+            "rank": 6,
+            "symbol": "DOW",
+            "n": 2,
+            "meanReturn": -0.028908544529665126,
+            "sumReturn": -0.05781708905933025
+          },
+          {
+            "rank": 6,
+            "symbol": "AAPL",
+            "n": 3,
+            "meanReturn": -0.052760616881413015,
+            "sumReturn": -0.15828185064423905
+          },
+          {
+            "rank": 6,
+            "symbol": "MSFT",
+            "n": 10,
+            "meanReturn": -0.022531618264074505,
+            "sumReturn": -0.22531618264074504
+          },
+          {
+            "rank": 7,
+            "symbol": "CAT",
+            "n": 3,
+            "meanReturn": 0.06456885143313673,
+            "sumReturn": 0.1937065542994102
+          },
+          {
+            "rank": 7,
+            "symbol": "AMGN",
+            "n": 1,
+            "meanReturn": 0.1810576900863421,
+            "sumReturn": 0.1810576900863421
+          },
+          {
+            "rank": 7,
+            "symbol": "AXP",
+            "n": 1,
+            "meanReturn": 0.16344099838765325,
+            "sumReturn": 0.16344099838765325
+          },
+          {
+            "rank": 7,
+            "symbol": "GS",
+            "n": 3,
+            "meanReturn": 0.03778043157843566,
+            "sumReturn": 0.11334129473530696
+          },
+          {
+            "rank": 7,
+            "symbol": "JPM",
+            "n": 3,
+            "meanReturn": 0.03291193802028377,
+            "sumReturn": 0.0987358140608513
+          },
+          {
+            "rank": 7,
+            "symbol": "HD",
+            "n": 1,
+            "meanReturn": 0.0923483089198025,
+            "sumReturn": 0.0923483089198025
+          },
+          {
+            "rank": 7,
+            "symbol": "MCD",
+            "n": 6,
+            "meanReturn": 0.012629738096744355,
+            "sumReturn": 0.07577842858046613
+          },
+          {
+            "rank": 7,
+            "symbol": "CSCO",
+            "n": 5,
+            "meanReturn": 0.01008704473241604,
+            "sumReturn": 0.0504352236620802
+          },
+          {
+            "rank": 7,
+            "symbol": "MMM",
+            "n": 1,
+            "meanReturn": 0.033439453790177875,
+            "sumReturn": 0.033439453790177875
+          },
+          {
+            "rank": 7,
+            "symbol": "IBM",
+            "n": 1,
+            "meanReturn": 0.027902151606054915,
+            "sumReturn": 0.027902151606054915
+          },
+          {
+            "rank": 7,
+            "symbol": "JNJ",
+            "n": 4,
+            "meanReturn": 0.006751369603282098,
+            "sumReturn": 0.027005478413128392
+          },
+          {
+            "rank": 7,
+            "symbol": "MSFT",
+            "n": 4,
+            "meanReturn": 0.004596178206270174,
+            "sumReturn": 0.018384712825080696
+          },
+          {
+            "rank": 7,
+            "symbol": "KO",
+            "n": 3,
+            "meanReturn": -0.0008847349936264385,
+            "sumReturn": -0.0026542049808793156
+          },
+          {
+            "rank": 7,
+            "symbol": "HON",
+            "n": 2,
+            "meanReturn": -0.005959317389657048,
+            "sumReturn": -0.011918634779314097
+          },
+          {
+            "rank": 7,
+            "symbol": "MRK",
+            "n": 1,
+            "meanReturn": -0.02146764484218766,
+            "sumReturn": -0.02146764484218766
+          },
+          {
+            "rank": 7,
+            "symbol": "PG",
+            "n": 7,
+            "meanReturn": -0.004949835388504005,
+            "sumReturn": -0.03464884771952803
+          },
+          {
+            "rank": 7,
+            "symbol": "WMT",
+            "n": 4,
+            "meanReturn": -0.012311427936888414,
+            "sumReturn": -0.049245711747553655
+          },
+          {
+            "rank": 7,
+            "symbol": "AAPL",
+            "n": 4,
+            "meanReturn": -0.015530990167878289,
+            "sumReturn": -0.062123960671513156
+          },
+          {
+            "rank": 7,
+            "symbol": "VZ",
+            "n": 1,
+            "meanReturn": -0.07729664690814508,
+            "sumReturn": -0.07729664690814508
+          },
+          {
+            "rank": 7,
+            "symbol": "V",
+            "n": 5,
+            "meanReturn": -0.019684851872522134,
+            "sumReturn": -0.09842425936261068
+          },
+          {
+            "rank": 8,
+            "symbol": "WMT",
+            "n": 4,
+            "meanReturn": 0.07443575612693376,
+            "sumReturn": 0.29774302450773504
+          },
+          {
+            "rank": 8,
+            "symbol": "GS",
+            "n": 3,
+            "meanReturn": 0.08506608630989043,
+            "sumReturn": 0.2551982589296713
+          },
+          {
+            "rank": 8,
+            "symbol": "CAT",
+            "n": 1,
+            "meanReturn": 0.21850726972894519,
+            "sumReturn": 0.21850726972894519
+          },
+          {
+            "rank": 8,
+            "symbol": "V",
+            "n": 6,
+            "meanReturn": 0.03567553391349922,
+            "sumReturn": 0.21405320348099532
+          },
+          {
+            "rank": 8,
+            "symbol": "PG",
+            "n": 7,
+            "meanReturn": 0.016386203748164335,
+            "sumReturn": 0.11470342623715035
+          },
+          {
+            "rank": 8,
+            "symbol": "IBM",
+            "n": 3,
+            "meanReturn": 0.03364317104877638,
+            "sumReturn": 0.10092951314632914
+          },
+          {
+            "rank": 8,
+            "symbol": "VZ",
+            "n": 2,
+            "meanReturn": 0.012893423556661565,
+            "sumReturn": 0.02578684711332313
+          },
+          {
+            "rank": 8,
+            "symbol": "CSCO",
+            "n": 3,
+            "meanReturn": 0.007323539402396495,
+            "sumReturn": 0.021970618207189485
+          },
+          {
+            "rank": 8,
+            "symbol": "HD",
+            "n": 7,
+            "meanReturn": 0.0019178946236087593,
+            "sumReturn": 0.013425262365261315
+          },
+          {
+            "rank": 8,
+            "symbol": "JNJ",
+            "n": 1,
+            "meanReturn": 0.012352185705468477,
+            "sumReturn": 0.012352185705468477
+          },
+          {
+            "rank": 8,
+            "symbol": "AXP",
+            "n": 1,
+            "meanReturn": 0.01185261712126473,
+            "sumReturn": 0.01185261712126473
+          },
+          {
+            "rank": 8,
+            "symbol": "MCD",
+            "n": 1,
+            "meanReturn": -0.01201878144024715,
+            "sumReturn": -0.01201878144024715
+          },
+          {
+            "rank": 8,
+            "symbol": "JPM",
+            "n": 3,
+            "meanReturn": -0.010422999553084455,
+            "sumReturn": -0.031268998659253366
+          },
+          {
+            "rank": 8,
+            "symbol": "MRK",
+            "n": 1,
+            "meanReturn": -0.041414808089672794,
+            "sumReturn": -0.041414808089672794
+          },
+          {
+            "rank": 8,
+            "symbol": "AAPL",
+            "n": 5,
+            "meanReturn": -0.011520084274775777,
+            "sumReturn": -0.057600421373878885
+          },
+          {
+            "rank": 8,
+            "symbol": "HON",
+            "n": 5,
+            "meanReturn": -0.011884629629739085,
+            "sumReturn": -0.059423148148695426
+          },
+          {
+            "rank": 8,
+            "symbol": "MSFT",
+            "n": 2,
+            "meanReturn": -0.036633619070212176,
+            "sumReturn": -0.07326723814042435
+          },
+          {
+            "rank": 8,
+            "symbol": "KO",
+            "n": 2,
+            "meanReturn": -0.05311310825427745,
+            "sumReturn": -0.1062262165085549
+          },
+          {
+            "rank": 8,
+            "symbol": "MMM",
+            "n": 3,
+            "meanReturn": -0.05591527700183119,
+            "sumReturn": -0.16774583100549356
+          },
+          {
+            "rank": 9,
+            "symbol": "AAPL",
+            "n": 4,
+            "meanReturn": 0.08967426889503122,
+            "sumReturn": 0.35869707558012487
+          },
+          {
+            "rank": 9,
+            "symbol": "HD",
+            "n": 6,
+            "meanReturn": 0.02986278574452052,
+            "sumReturn": 0.17917671446712313
+          },
+          {
+            "rank": 9,
+            "symbol": "IBM",
+            "n": 5,
+            "meanReturn": 0.02828791220090472,
+            "sumReturn": 0.1414395610045236
+          },
+          {
+            "rank": 9,
+            "symbol": "VZ",
+            "n": 1,
+            "meanReturn": 0.12113048599828935,
+            "sumReturn": 0.12113048599828935
+          },
+          {
+            "rank": 9,
+            "symbol": "V",
+            "n": 2,
+            "meanReturn": 0.058619955091381015,
+            "sumReturn": 0.11723991018276203
+          },
+          {
+            "rank": 9,
+            "symbol": "JNJ",
+            "n": 4,
+            "meanReturn": 0.02824603202486517,
+            "sumReturn": 0.11298412809946068
+          },
+          {
+            "rank": 9,
+            "symbol": "CVX",
+            "n": 2,
+            "meanReturn": 0.043427305990436926,
+            "sumReturn": 0.08685461198087385
+          },
+          {
+            "rank": 9,
+            "symbol": "HON",
+            "n": 6,
+            "meanReturn": 0.012946967198990337,
+            "sumReturn": 0.07768180319394202
+          },
+          {
+            "rank": 9,
+            "symbol": "GS",
+            "n": 4,
+            "meanReturn": 0.008975104275856377,
+            "sumReturn": 0.03590041710342551
+          },
+          {
+            "rank": 9,
+            "symbol": "MSFT",
+            "n": 1,
+            "meanReturn": 0.0288944352784819,
+            "sumReturn": 0.0288944352784819
+          },
+          {
+            "rank": 9,
+            "symbol": "MRK",
+            "n": 1,
+            "meanReturn": 0.02077441679739067,
+            "sumReturn": 0.02077441679739067
+          },
+          {
+            "rank": 9,
+            "symbol": "DIS",
+            "n": 2,
+            "meanReturn": -0.0013759781339352517,
+            "sumReturn": -0.0027519562678705034
+          },
+          {
+            "rank": 9,
+            "symbol": "MCD",
+            "n": 4,
+            "meanReturn": -0.0007048575296106085,
+            "sumReturn": -0.002819430118442434
+          },
+          {
+            "rank": 9,
+            "symbol": "UNH",
+            "n": 1,
+            "meanReturn": -0.0325623628669649,
+            "sumReturn": -0.0325623628669649
+          },
+          {
+            "rank": 9,
+            "symbol": "KO",
+            "n": 3,
+            "meanReturn": -0.011950017219611345,
+            "sumReturn": -0.03585005165883404
+          },
+          {
+            "rank": 9,
+            "symbol": "AMGN",
+            "n": 1,
+            "meanReturn": -0.05673168931219308,
+            "sumReturn": -0.05673168931219308
+          },
+          {
+            "rank": 9,
+            "symbol": "PG",
+            "n": 2,
+            "meanReturn": -0.04060957097696688,
+            "sumReturn": -0.08121914195393376
+          },
+          {
+            "rank": 9,
+            "symbol": "CSCO",
+            "n": 2,
+            "meanReturn": -0.044154456266637665,
+            "sumReturn": -0.08830891253327533
+          },
+          {
+            "rank": 9,
+            "symbol": "WMT",
+            "n": 5,
+            "meanReturn": -0.01811837832183074,
+            "sumReturn": -0.09059189160915371
+          },
+          {
+            "rank": 9,
+            "symbol": "DOW",
+            "n": 1,
+            "meanReturn": -0.09120381970375613,
+            "sumReturn": -0.09120381970375613
+          },
+          {
+            "rank": 9,
+            "symbol": "MMM",
+            "n": 3,
+            "meanReturn": -0.09122779912640318,
+            "sumReturn": -0.27368339737920955
+          },
+          {
+            "rank": 10,
+            "symbol": "CSCO",
+            "n": 5,
+            "meanReturn": 0.058357834748988015,
+            "sumReturn": 0.29178917374494007
+          },
+          {
+            "rank": 10,
+            "symbol": "AXP",
+            "n": 4,
+            "meanReturn": 0.042234516321513454,
+            "sumReturn": 0.16893806528605382
+          },
+          {
+            "rank": 10,
+            "symbol": "UNH",
+            "n": 1,
+            "meanReturn": 0.08770880951187543,
+            "sumReturn": 0.08770880951187543
+          },
+          {
+            "rank": 10,
+            "symbol": "HON",
+            "n": 7,
+            "meanReturn": 0.010017495909961736,
+            "sumReturn": 0.07012247136973215
+          },
+          {
+            "rank": 10,
+            "symbol": "MSFT",
+            "n": 1,
+            "meanReturn": 0.018323147736303946,
+            "sumReturn": 0.018323147736303946
+          },
+          {
+            "rank": 10,
+            "symbol": "MRK",
+            "n": 1,
+            "meanReturn": 0.002862973017365711,
+            "sumReturn": 0.002862973017365711
+          },
+          {
+            "rank": 10,
+            "symbol": "PG",
+            "n": 2,
+            "meanReturn": 0.00017056106354623735,
+            "sumReturn": 0.0003411221270924747
+          },
+          {
+            "rank": 10,
+            "symbol": "AMGN",
+            "n": 2,
+            "meanReturn": -0.0004026086811083074,
+            "sumReturn": -0.0008052173622166148
+          },
+          {
+            "rank": 10,
+            "symbol": "MCD",
+            "n": 5,
+            "meanReturn": -0.0002833198815542337,
+            "sumReturn": -0.0014165994077711686
+          },
+          {
+            "rank": 10,
+            "symbol": "VZ",
+            "n": 1,
+            "meanReturn": -0.004638700194701584,
+            "sumReturn": -0.004638700194701584
+          },
+          {
+            "rank": 10,
+            "symbol": "AAPL",
+            "n": 7,
+            "meanReturn": -0.0012523162859424358,
+            "sumReturn": -0.00876621400159705
+          },
+          {
+            "rank": 10,
+            "symbol": "DOW",
+            "n": 1,
+            "meanReturn": -0.023149106619784754,
+            "sumReturn": -0.023149106619784754
+          },
+          {
+            "rank": 10,
+            "symbol": "CVX",
+            "n": 1,
+            "meanReturn": -0.02734574666753098,
+            "sumReturn": -0.02734574666753098
+          },
+          {
+            "rank": 10,
+            "symbol": "JPM",
+            "n": 2,
+            "meanReturn": -0.028819541767544088,
+            "sumReturn": -0.057639083535088176
+          },
+          {
+            "rank": 10,
+            "symbol": "V",
+            "n": 4,
+            "meanReturn": -0.017705702674874507,
+            "sumReturn": -0.07082281069949803
+          },
+          {
+            "rank": 10,
+            "symbol": "HD",
+            "n": 7,
+            "meanReturn": -0.012936967674209012,
+            "sumReturn": -0.09055877371946308
+          },
+          {
+            "rank": 10,
+            "symbol": "WMT",
+            "n": 4,
+            "meanReturn": -0.025500052784187988,
+            "sumReturn": -0.10200021113675195
+          },
+          {
+            "rank": 10,
+            "symbol": "MMM",
+            "n": 5,
+            "meanReturn": -0.027302118703184376,
+            "sumReturn": -0.13651059351592187
+          }
+        ]
+      },
+      "extremeWinnerConcentration": {
+        "top3": {
+          "n": 180,
+          "top1PctObservationCount": 2,
+          "top1PctSharePositiveReturnSum": 0.07354005685802087,
+          "top5SharePositiveReturnSum": 0.1578974832572204,
+          "top10SharePositiveReturnSum": 0.2704957547050868,
+          "meanAfterRemovingTop1Pct": 0.007063771174331441,
+          "meanAfterRemovingTop5": 0.0048541728030358855,
+          "largestObservations": [
+            0.18354898604916192,
+            0.17201969245302084,
+            0.15117789735350584,
+            0.13463263200100362,
+            0.12206049914520589,
+            0.11174427869201775,
+            0.11097509115944293,
+            0.11023048005116687,
+            0.10600984708518069,
+            0.10545677875198756
+          ]
+        },
+        "ranks4To5": {
+          "n": 120,
+          "top1PctObservationCount": 2,
+          "top1PctSharePositiveReturnSum": 0.09322983871703973,
+          "top5SharePositiveReturnSum": 0.20355802066747483,
+          "top10SharePositiveReturnSum": 0.3512972138221242,
+          "meanAfterRemovingTop1Pct": 0.011896906284721263,
+          "meanAfterRemovingTop5": 0.008530531373069417,
+          "largestObservations": [
+            0.1827598823644061,
+            0.1745359338462984,
+            0.15070069252944007,
+            0.13615948033777614,
+            0.13596366082691014,
+            0.1277407504344079,
+            0.11625829810722665,
+            0.1113651184711053,
+            0.10596157873006962,
+            0.10487276249137345
+          ]
+        },
+        "top1PctTrimmedTop3MinusRanks4To5": -0.004833135110389822
+      },
+      "concentrationImplication": {
+        "descriptiveOnlyNotPortfolioBacktest": true,
+        "top3PeriodReturnVolatilityAnnualizedSqrt12": 0.15232260812679227,
+        "ranks4To5PeriodReturnVolatilityAnnualizedSqrt12": 0.17805167016570103,
+        "top3AverageRankOutcomeCorrelation": 0.4149124366329387,
+        "top3WorstSingleNamePeriod": -0.11765833934528169,
+        "top3P10SingleNamePeriod": -0.05748914284914275,
+        "interpretation": "Concentration is justified only if the return advantage is stable enough to compensate for fewer names and larger single-name exposure."
+      }
+    }
+  }
+}

@@ -9,13 +9,12 @@ there next to it, so "why does this strategy use a 2x ATR stop?" has an
 answer that doesn't depend on anyone's memory.
 
 These are deliberately NOT added to `strategies/registry.py`'s
-ALL_STRATEGY_NAMES. That list is checked 1:1 against
-strategy_tracker.xlsx's Day Trading / Swing Trading tabs
-(tests/test_engine/test_registry.py), and the tracker stays the source of
-truth for the established catalogue -- a strategy typed into the app at
-runtime has not been through that decision. Callers that want both sets ask
-for them explicitly (api/main.py's `_known_strategy_names`), so a custom
-strategy can never quietly become indistinguishable from a tracker entry.
+ALL_STRATEGY_NAMES. That list is limited to the tracker-backed established
+catalogue plus explicitly classified preregistered research names
+(tests/test_engine/test_registry.py); a strategy typed into the app at runtime
+belongs to neither category. Callers that want both sets ask for them
+explicitly (api/main.py's `_known_strategy_names`), so a custom strategy can
+never quietly become indistinguishable from a registered entry.
 
 Every custom strategy still runs on the standard per-symbol engine, logs to
 the same `runs` table, and is scored by the same `derive_status()` bar as

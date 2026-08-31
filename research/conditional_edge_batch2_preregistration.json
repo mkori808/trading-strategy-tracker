@@ -1,0 +1,77 @@
+{
+  "registeredAt": "2026-08-22",
+  "batchName": "conditional_edge_batch2_ema_breakout_pullback_oversold",
+  "purpose": "Test whether 9/21 EMA Crossover, Breakout from Consolidation, Pullback to 21 EMA, and Oversold Bounce (RSI<30) contain stable conditional substructure that survives dependence-aware discovery and genuinely unseen validation. Written before any discovery result for this batch was inspected.",
+  "excludedFromThisBatch": [
+    "Connors Mean Reversion (RSI2)",
+    "Internal Bar Strength (IBS)",
+    "Dual Momentum",
+    "Market-Residual Momentum"
+  ],
+  "excludedReason": "Already have completed Conditional Edge Discovery research histories (2026-08-22 discovery run + dependence audit). Not rerun in this batch.",
+  "strategies": {
+    "9/21 EMA Crossover": {
+      "engine": "standard",
+      "params": {"slope_lookback": 5, "stop_swing_lookback": 20, "stop_buffer_pct": 0.01},
+      "interval": "1d",
+      "universeSize": 29,
+      "window": {"start": "2021-08-23", "end": "2026-08-22"},
+      "priorResearchQuestion": "Is positive expectancy concentrated in particular trend/volatility/security-momentum states, or broadly distributed?"
+    },
+    "Breakout from Consolidation": {
+      "engine": "standard",
+      "params": {"consolidation_lookback": 20, "volume_multiple": 1.5, "stop_range_fraction": 0.5, "target_measured_move_multiple": 1.0},
+      "interval": "1d",
+      "universeSize": 29,
+      "window": {"start": "2021-08-23", "end": "2026-08-22"},
+      "priorResearchQuestion": "Do breakout outcomes depend materially on volatility, volume, prior trend, market regime, or relative strength in a way that survives OOS?"
+    },
+    "Pullback to 21 EMA": {
+      "engine": "standard",
+      "params": {"pullback_atr_tolerance": 0.5, "trend_lookback": 10, "stop_swing_lookback": 20, "stop_buffer_pct": 0.01},
+      "interval": "1d",
+      "universeSize": 29,
+      "window": {"start": "2021-08-23", "end": "2026-08-22"},
+      "priorResearchQuestion": "Does the weak positive baseline expectancy contain a materially stronger conditional subset that survives validation?"
+    },
+    "Oversold Bounce (RSI<30)": {
+      "engine": "standard",
+      "params": {"rsi_period": 14, "rsi_threshold": 30, "support_lookback": 20, "support_tolerance": 0.02, "target_risk_multiple": 2.0, "stop_buffer_pct": 0.01},
+      "interval": "1d",
+      "universeSize": 29,
+      "window": {"start": "2021-08-23", "end": "2026-08-22"},
+      "priorResearchQuestion": "Is the stronger apparent expectancy stable enough to condition further, or too weak once effective-N and adaptive-search corrections are applied?"
+    }
+  },
+  "methodologyVersion": "conditional_edge_stats_v2_dependence_aware",
+  "engineComponents": {
+    "featureSnapshots": "engine/pit_features.py -- point-in-time, unchanged from prior audit",
+    "featureUniverse": {"availableFeatures": 77, "discoveryEligibleFeatures": 69, "note": "No new features/thresholds/datasets added for this batch; discoveryEligible:false features (calendar, sector) remain excluded from candidate generation exactly as before."},
+    "clustering": "engine/conditional_dependence.py -- overlap_block clustering for these per-symbol strategies (rebalance_cluster does not apply; none of these four are cross-sectional)",
+    "sampleFloors": {"HYPOTHESIS_MIN_N": 30, "EXPLORATORY_N": 60, "WARN_N": 120, "THREE_WAY_MIN_N": 150},
+    "candidateRules": {"MAX_CONDITIONS": 3, "MAX_CANDIDATES": 12, "MAX_PAIRWISE_PAIRS": 60, "MAX_THREE_WAY": 10},
+    "split": {"discoveryValidationHoldout": [0.6, 0.2, 0.2], "embargoDays": 7, "purgeRule": "drop training rows whose exit falls at/after the next window opens minus embargo"},
+    "fdr": {"method": "Benjamini-Hochberg", "alpha": 0.10},
+    "nullCalibration": {"method": "cluster-preserving outcome shuffle, original (dependence_aware=False) pipeline replayed", "iterations": 150, "innerPermutations": 200, "seed": 20260822},
+    "freezeGate": "effective-N (cluster-based) projected onto validation-slice cluster count, not raw retained rows",
+    "holdoutPolicy": "sealed; opened only if validation passes; opening is ledger-recorded before results are read"
+  },
+  "primaryMetrics": ["expectancyR", "profitFactor", "downsideTailBehavior", "maxDrawdownContribution", "sharpeSortinoWhereMeaningful"],
+  "secondaryMetrics": ["winRate", "avgWinLoss", "signalRetention", "tradeFrequency"],
+  "priorityOrder": ["9/21 EMA Crossover", "Breakout from Consolidation", "Pullback to 21 EMA", "Oversold Bounce (RSI<30)"],
+  "constraintsDeclaredInAdvance": [
+    "No new indicators, thresholds, datasets, or strategy-specific handcrafted features.",
+    "No enabling of discoveryEligible:false features.",
+    "No cross-strategy retroactive selection of the 'best-looking' candidate as though preregistered -- each strategy is its own research family.",
+    "No holdout use to rescue a failed validation; a sign-reversed effect fails outright.",
+    "No fold-result retuning of walk-forward candidates.",
+    "Do not modify Conditional Edge engine unless a genuine bug blocks execution; if found, stop the affected strategy, document, fix with a regression test, rerun only what the fix invalidated."
+  ],
+  "acceptableOutcomes": [
+    "No conditional structure detected",
+    "Interesting discovery evidence, insufficient validation power",
+    "Discovery candidate failed validation",
+    "Conditional edge validated",
+    "Further data required"
+  ]
+}

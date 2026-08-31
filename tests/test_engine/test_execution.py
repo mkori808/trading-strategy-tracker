@@ -139,6 +139,12 @@ def _patch_client(monkeypatch, trading_days=None, is_open=True):
     trading_days = trading_days if trading_days is not None else _trading_days_through(TODAY)
     fake = _FakeClient(trading_days, is_open=is_open)
     monkeypatch.setattr(alpaca_trading, "trading_client", lambda: (fake, "ok"))
+    monkeypatch.setattr(
+        alpaca_trading, "get_account",
+        lambda: {"available": True, "accountNumber": "TEST-PAPER-ACCOUNT"},
+    )
+    monkeypatch.setattr(execution.execution_ownership, "bootstrap_current_owner", lambda account_id: {})
+    monkeypatch.setattr(execution.execution_ownership, "verify_execution_authority", lambda account_id, strategy_name: (True, None))
     return fake
 
 

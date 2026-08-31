@@ -65,6 +65,12 @@ export interface StrategySummary {
   edgeVerdict: string | null;
   lifecycleStage: string | null;
   validation: ValidationReport | null;
+  implementationStatus?: "implemented" | "unavailable";
+  unavailableReason?: string | null;
+  requestedStartDate?: string | null;
+  requestedEndDate?: string | null;
+  measuredStartDate?: string | null;
+  measuredEndDate?: string | null;
 }
 
 export interface Metrics {
@@ -466,6 +472,19 @@ export interface HistoryRow {
   edgeVerdict?: string | null;
   lifecycleStage?: string | null;
   validation?: ValidationReport | null;
+  interval?: string;
+  timing?: TimingContract;
+  requestedStartDate?: string | null;
+  requestedEndDate?: string | null;
+  measuredStartDate?: string | null;
+  measuredEndDate?: string | null;
+  slippageBps?: number | null;
+  commissionBps?: number | null;
+  searchFamily?: string | null;
+  familySearchNumber?: number | null;
+  familySearchCount?: number | null;
+  isPreregistered?: boolean | null;
+  selectedAfterResults?: boolean | null;
 }
 
 export interface RegimeLogEntry {
@@ -591,6 +610,13 @@ export interface LiveAccountResponse {
   account: LiveAccount;
   positions: LivePosition[];
   orders: LiveOrder[];
+  orderSummary: {
+    openPending: number;
+    filled: number;
+    canceled: number;
+    rejected: number;
+    recentHistory: number;
+  };
   clock: MarketClock;
 }
 
@@ -627,6 +653,68 @@ export interface ExecutionStrategyConfig {
   overrideReason: string | null;
   overrideBlockers: string[];
   inception: ExecutionInception;
+  identity: StrategyIdentity;
+}
+
+export interface StrategyIdentity {
+  key: string;
+  displayName: string;
+  shortName: string;
+  variant: "canonical" | "optimized" | "registered";
+  provenance: string;
+  selectionContext?: string;
+  selectionBiasNote?: string;
+  expectedConfig: Record<string, number | boolean | string>;
+  actualConfig: Record<string, number | boolean | string>;
+  expectedSymbolCount?: number | null;
+  actualSymbolCount?: number;
+  fingerprintMatches: boolean;
+  fingerprintReason: string | null;
+}
+
+export interface ForwardTestPromotionCandidate {
+  strategyName: string;
+  testMode: "automated_paper" | "research_shadow";
+  canPlaceOrders: boolean;
+  status: string;
+}
+
+export interface ForwardArchitectureRow {
+  key: string;
+  strategy: string;
+  mode: "BROKERAGE EXECUTION" | "SHADOW" | "PROP SHADOW" | "CLOSED / BLOCKED";
+  brokerage: string | null;
+  observations: number;
+  evidenceQuality: "Execution-observed" | "Prospective synthetic" | "Prop synthetic on observed parent stream" | "No active forward evidence";
+  parentStrategyId?: string | null;
+  parentFingerprint?: string | null;
+  positionsLabel: string;
+  backfillObservations?: number;
+}
+
+export interface ExecutionAccountStatus {
+  available: boolean;
+  reason?: string;
+  accountKey: string;
+  brokerageLabel: string;
+  accountId: string;
+  environment: "paper" | "live";
+  multiStrategyExecution: boolean;
+  executionIsolation: string;
+  owner: null | {
+    strategyId: string;
+    strategyName: string;
+    displayName: string;
+    strategyFingerprint: string;
+    ownershipStartedAt: string;
+    active: boolean;
+    fingerprintMatches: boolean;
+  };
+  actionRequired: boolean;
+  integrityIssues: { type: string; severity: string; detectedAt: string; symbol?: string | null; brokerOrderId?: string | null }[];
+  counts: Record<"BROKERAGE EXECUTION" | "SHADOW" | "PROP SHADOW", number>;
+  forwardStrategies: ForwardArchitectureRow[];
+  principle: string;
 }
 
 export interface ExecutionInception {
@@ -696,6 +784,29 @@ export interface DailyPerformanceToday extends DailyPerformanceRow {
   inProgress: boolean;
 }
 
+export interface AlignedGrowthPoint {
+  date: string;
+  account: number;
+  benchmark: number;
+  baseline: boolean;
+}
+
+export interface AlignedBenchmarkComparison {
+  available: boolean;
+  reason: string | null;
+  baselineDate?: string;
+  startDate?: string;
+  endDate?: string;
+  sessions?: number;
+  accountReturnPct?: number;
+  benchmarkReturnPct?: number;
+  differencePctPoints?: number;
+  accountMaxDrawdownPct?: number;
+  benchmarkMaxDrawdownPct?: number;
+  growth?: AlignedGrowthPoint[];
+  note?: string;
+}
+
 export interface DailyPerformance {
   available: boolean;
   reason: string | null;
@@ -706,6 +817,12 @@ export interface DailyPerformance {
   benchmarkSymbol: string;
   rows: DailyPerformanceRow[];
   today: DailyPerformanceToday | null;
+  forwardBaselineEquity: number | null;
+  forwardReturnPct: number | null;
+  forwardReturnSource: string | null;
+  maturity: { label: string; reached: string[]; next: { sessions: number; label: string } | null };
+  benchmarkComparison: { available: boolean; reason: string | null };
+  alignedBenchmarkComparison: AlignedBenchmarkComparison;
 }
 
 export interface ExecutionSummary {
@@ -866,6 +983,19 @@ export interface PortfolioHistoryRow {
   benchmarkReturnPct: number | null;
   benchmarkGapPct: number | null;
   benchmarkName: string;
+  interval?: string;
+  timing?: TimingContract;
+  requestedStartDate?: string | null;
+  requestedEndDate?: string | null;
+  measuredStartDate?: string | null;
+  measuredEndDate?: string | null;
+  slippageBps?: number | null;
+  commissionBps?: number | null;
+  searchFamily?: string | null;
+  familySearchNumber?: number | null;
+  familySearchCount?: number | null;
+  isPreregistered?: boolean | null;
+  selectedAfterResults?: boolean | null;
   // Verdict from engine/metrics.py:portfolio_status(); null on rows logged
   // before it existed, or on runs with no meaningful verdict (e.g. a Pairs
   // run that found no cointegrated pair).
@@ -1033,6 +1163,608 @@ async function runValidationSuite<T>(
   return job.result;
 }
 
+// ---------------------------------------------------------------------------
+// Conditional Edge Discovery -- see engine/conditional_edge.py for the
+// workflow this mirrors: discovery (in-sample, on the strategy's discovery
+// slice only) -> freeze -> validate -> (optional) final holdout ->
+// conditioned strategy + Prop Account Analysis. Every number returned from
+// `runConditionalDiscovery` alone is IN-SAMPLE; only a hypothesis that has
+// been through freeze + validate carries any out-of-sample evidence.
+// ---------------------------------------------------------------------------
+
+export type ConditionalJobStatus = "queued" | "running" | "completed" | "failed";
+
+export interface ConditionalJob<T = unknown> {
+  jobId: string;
+  status: ConditionalJobStatus;
+  stage: string;
+  progressPct: number;
+  createdAt: string;
+  completedAt: string | null;
+  error: string | null;
+  result: T | null;
+}
+
+export interface ConditionalStrategies {
+  initial: string[];
+  available: string[];
+  engineFor: Record<string, "standard" | "cross_sectional">;
+}
+
+export interface FeatureDefinition {
+  key: string;
+  label: string;
+  group: string;
+  kind: "continuous" | "categorical" | "boolean";
+  source: string;
+  lookbackBars: number;
+  description: string;
+  pitSafe: boolean;
+  pitNote: string;
+  missingPolicy: string;
+  discoveryEligible: boolean;
+  available: boolean;
+  unavailableReason: string | null;
+  engines: string[];
+  categories: string[];
+}
+
+export interface FeatureAvailability {
+  engine: string;
+  groups: Record<string, string>;
+  features: FeatureDefinition[];
+  availableCount: number;
+  unavailableCount: number;
+  discoveryEligibleCount: number;
+  warmupTradingDays: number;
+}
+
+export interface ConditionalDiscoveryRequest {
+  permutations?: number;
+  seed?: number;
+  includeModels?: boolean;
+  full?: boolean;
+  freezeTop?: number;
+  consumeHoldout?: boolean;
+  holdoutReason?: string;
+  includeConditioned?: boolean;
+  includeProp?: boolean;
+}
+
+export interface ConditionBucket {
+  label: string;
+  n: number;
+  mean: number;
+  median: number;
+  winRate: number;
+  profitFactor: number | null;
+  ciLow: number;
+  ciHigh: number;
+  lowEdge: number | null;
+  highEdge: number | null;
+}
+
+export interface UnivariateResult {
+  feature: string;
+  label: string;
+  group: string;
+  kind: string;
+  pitSafe: boolean;
+  discoveryEligible: boolean;
+  buckets: ConditionBucket[];
+  nUsed: number;
+  nMissing: number;
+  baselineMean: number;
+  bestLabel: string;
+  bestMean: number;
+  worstLabel: string;
+  worstMean: number;
+  spread: number;
+  effectSize: number;
+  permutationP: number | null;
+  welchP: number | null;
+  monotonic: { spearman: number | null; strictlyMonotonic: boolean; direction: string | null };
+  tier: "insufficient" | "exploratory" | "thin" | "adequate";
+  warnings: string[];
+  qValue: number | null;
+  fdrSignificant: boolean;
+  /** Independent clusters (rebalance dates, or overlap-based trade blocks)
+   * contributing to the BEST bucket -- vs. `nUsed`'s raw row count across all
+   * buckets. `null` only for a session computed before the 2026-08-22
+   * dependence audit (methodology v1). See ClusterStructure below. */
+  effectiveN: number | null;
+  inferenceMethod: string;
+  methodologyVersion: string;
+}
+
+/** How one discovery session's rows were grouped for dependence-aware
+ * inference -- see engine/conditional_dependence.py. `effectiveN` is what
+ * the freeze gate and every p-value/CI in the session are computed against;
+ * `nRaw` is the plain row count and must never be read as though it were an
+ * independent-observation count. */
+export interface ClusterStructure {
+  method: "iid" | "rebalance_cluster" | "overlap_block";
+  nRaw: number;
+  nClusters: number;
+  effectiveN: number;
+  clusterSizeMean: number;
+  clusterSizeMedian: number;
+  clusterSizeMin: number;
+  clusterSizeMax: number;
+  blockLength: number | null;
+  dependencyChains: { components: number; sizeMean: number; sizeMedian: number; sizeMax: number; note: string } | null;
+  notes: string[];
+}
+
+export interface InteractionCell {
+  labels: string[];
+  n: number;
+  mean: number;
+  winRate: number;
+  ciLow: number;
+  ciHigh: number;
+  tier: string;
+}
+
+export interface InteractionResult {
+  features: string[];
+  labels: string[];
+  groups: string[];
+  cells: InteractionCell[];
+  axisLabels: string[][];
+  baselineMean: number;
+  best: InteractionCell | null;
+  worst: InteractionCell | null;
+  permutationP: number | null;
+  effectSize: number;
+  nUsed: number;
+  cellsSuppressed: number;
+  order: number;
+  warnings: string[];
+  qValue: number | null;
+  fdrSignificant: boolean;
+  effectiveN: number | null;
+  inferenceMethod: string;
+  methodologyVersion: string;
+}
+
+export interface Condition {
+  feature: string;
+  op: string;
+  value: number | boolean | string;
+  rawEdge: number | null;
+  source: string;
+  description: string;
+}
+
+export interface CandidateHypothesis {
+  hypothesisId: string;
+  strategyName: string;
+  engine: string;
+  outcomeColumn: string;
+  conditions: Condition[];
+  origin: string;
+  nConditioned: number;
+  nTotal: number;
+  retentionPct: number;
+  baselineMean: number;
+  conditionalMean: number;
+  improvement: number;
+  ciLow: number;
+  ciHigh: number;
+  winRate: number;
+  baselineWinRate: number;
+  profitFactor: number | null;
+  effectSize: number;
+  permutationP: number | null;
+  qValue: number | null;
+  fdrSignificant: boolean;
+  tier: string;
+  groups: string[];
+  discoveryStart: string;
+  discoveryEnd: string;
+  warnings: string[];
+  status: string;
+  inSample: boolean;
+  description: string;
+  rawObservations: number | null;
+  effectiveN: number | null;
+  inferenceMethod: string;
+  methodologyVersion: string;
+}
+
+export interface DiscoverySession {
+  sessionId: string;
+  strategyName: string;
+  engine: string;
+  outcomeColumn: string;
+  outcomeLabel: string;
+  observations: number;
+  discoveryStart: string;
+  discoveryEnd: string;
+  univariate: UnivariateResult[];
+  interactions: InteractionResult[];
+  candidates: CandidateHypothesis[];
+  accounting: {
+    sessionId: string;
+    univariateTested: number;
+    pairwiseTested: number;
+    threeWayTested: number;
+    suppressedForSample: number;
+    totalExamined: number;
+    notes: string[];
+  };
+  fdr: {
+    alpha: number;
+    hypothesesTested: number;
+    testableHypotheses: number;
+    rawSignificant: number;
+    fdrSignificant: number;
+    method: string;
+  };
+  redundancy: {
+    pairs: { a: string; b: string; spearman: number }[];
+    clusters: string[][];
+    threshold: number;
+    method?: string;
+  };
+  coverage: {
+    key: string;
+    label: string;
+    group: string;
+    present: number;
+    total: number;
+    coveragePct: number;
+    pitSafe: boolean;
+    discoveryEligible: boolean;
+    missingPolicy: string;
+  }[];
+  baseline: {
+    n: number;
+    mean: number;
+    median: number;
+    std: number;
+    standardError: number;
+    winRate: number;
+    profitFactor: number | null;
+    ciLow: number;
+    ciHigh: number;
+    ciMethod: string;
+  };
+  concurrency: {
+    observations: number;
+    averageConcurrent: number;
+    maxConcurrent: number;
+    capitalUtilizationPct: number;
+    distinctEntryDays: number;
+    maxEntriesPerDay: number;
+    clusteringRatio: number | null;
+  };
+  warnings: string[];
+  seed: number;
+  createdAt: string;
+  /** `null` only for a session computed with dependence_aware=False (the
+   * null-experiment calibration replaying the original pre-audit
+   * procedure) -- every ordinary discovery run has this set. */
+  clusterStructure: ClusterStructure | null;
+  methodologyVersion: string;
+}
+
+export interface ResearchSplitSummary {
+  strategyName: string;
+  boundaries: Record<string, unknown>;
+  discoveryObservations: number;
+  validationObservations: number;
+  finalHoldoutObservations: number;
+  finalHoldoutRevealed: boolean;
+  finalHoldoutSealedNote: string;
+  embargoDays: number;
+}
+
+export interface HoldoutStatus {
+  strategyName: string;
+  consumed: boolean;
+  consumptionCount: number;
+  firstConsumedAt: string | null;
+  lastConsumedAt: string | null;
+  entries: { consumedAt: string; reason: string; hypothesisKey: string | null }[];
+}
+
+export interface ModelDiagnostic {
+  model: string;
+  target: string;
+  features: string[];
+  observations: number;
+  coefficients: Record<string, number>;
+  coefficientStability: Record<string, number>;
+  permutationImportance: Record<string, number>;
+  foldScores: number[];
+  meanScore: number | null;
+  scoreName: string;
+  notes: string[];
+}
+
+export interface ConditionalStudy {
+  strategyName: string;
+  engine: string;
+  totalObservations: number;
+  split: ResearchSplitSummary;
+  session: DiscoverySession;
+  featureAvailability: FeatureAvailability;
+  models: ModelDiagnostic[];
+  priorResults: Record<string, PreviouslyTested>;
+  warnings: string[];
+  holdoutConsumption: HoldoutStatus;
+  disclosure: { inSample: string; multipleTesting: string; sampleSize: string };
+}
+
+export interface PreviouslyTested {
+  hypothesisKey: string;
+  versions: number;
+  latestRowId: number;
+  latestVersion: number;
+  status: string;
+  reason: string | null;
+  frozenAt: string;
+  previouslyRejected: boolean;
+}
+
+export interface FrozenHypothesis {
+  rowId: number | null;
+  hypothesisKey: string;
+  version: number;
+  frozenAt: string;
+  strategyName: string;
+  engine: string;
+  outcomeColumn: string;
+  conditions: Condition[];
+  featureContract: Record<string, FeatureDefinition>;
+  discoverySessionId: string | null;
+  discoveryStart: string | null;
+  discoveryEnd: string | null;
+  discoveryObservations: number | null;
+  discoveryMean: number | null;
+  discoveryBaselineMean: number | null;
+  expectedDirection: "higher" | "lower";
+  primaryMetric: string;
+  minimumEffect: number;
+  minimumObservations: number;
+  validationStart: string | null;
+  validationEnd: string | null;
+  holdoutStart: string | null;
+  holdoutEnd: string | null;
+  status: string;
+  reason: string | null;
+  supersedes: number | null;
+  supersededBy: number | null;
+  contractHash: string;
+  description: string;
+}
+
+export interface ConditionalEvaluation {
+  label: string;
+  observations: number;
+  totalObservations?: number;
+  retentionPct?: number;
+  baselineMean: number | null;
+  conditionalMean: number | null;
+  improvement: number | null;
+  ciLow: number | null;
+  ciHigh: number | null;
+  ciMethod?: string | null;
+  winRate: number | null;
+  baselineWinRate?: number | null;
+  profitFactor: number | null;
+  medianOutcome?: number | null;
+  effectSize: number | null;
+  permutationP: number | null;
+  permutationMethod?: string | null;
+  minimumEffect?: number;
+  minimumObservations?: number;
+  expectedDirection?: string;
+  directionMatched?: boolean;
+  sampleTier?: string;
+  sampleWarning?: string | null;
+  passed: boolean;
+  conclusion: string;
+  windowStart?: string;
+  windowEnd?: string;
+  walkForward?: {
+    foldCount: number;
+    usableFolds: number;
+    positiveFolds: number;
+    positiveFoldPct: number | null;
+    meanImprovement: number | null;
+    medianImprovement: number | null;
+    worstFoldImprovement: number | null;
+    bestFoldImprovement: number | null;
+    improvementStd: number | null;
+    retentionMeanPct: number | null;
+    retentionStdPct: number | null;
+    directionStable: boolean;
+    embargoDays: number;
+    method: string;
+    folds: Record<string, unknown>[];
+  };
+  integrity?: {
+    contractHash: string;
+    recomputedHash: string;
+    intact: boolean;
+    featureDrift: string[];
+    featureDriftDetected: boolean;
+  };
+  decomposition?: FilterDecomposition;
+  consumptionReason?: string;
+}
+
+export interface FilterDecomposition {
+  available: boolean;
+  reason?: string;
+  mechanisms?: {
+    badTradeAvoidance: { lossRateChange: number; removedLosers: number; removedLoserMean: number | null; share: number };
+    winnerConcentration: { meanWinChange: number; removedWinners: number; removedWinnerMean: number | null; keptWinRate: number };
+    riskReduction: { p05Baseline: number; p05Conditioned: number; p05Change: number; worstBaseline: number; worstConditioned: number; stdBaseline: number; stdConditioned: number | null };
+  };
+  primaryMechanism?: string;
+  note?: string;
+}
+
+export interface ConditionedComparisonMetrics {
+  trades: number | null;
+  tradesPerYear: number | null;
+  expectancyR: number | null;
+  winRate: number | null;
+  profitFactor: number | null;
+  cagrPct: number | null;
+  sharpe: number | null;
+  sortino: number | null;
+  maxDrawdownPct: number | null;
+  exposurePct: number | null;
+  alphaPct: number | null;
+  buyHoldReturnPct: number | null;
+  p95DrawdownPct: number | null;
+  worstDayPct: number | null;
+  worst5dPct: number | null;
+  annualVolPct: number | null;
+  returnOverP95Dd: number | null;
+}
+
+export interface ConditionedComparison {
+  available: boolean;
+  reason?: string;
+  comparison?: {
+    original: ConditionedComparisonMetrics;
+    conditioned: ConditionedComparisonMetrics;
+    delta: Partial<Record<keyof ConditionedComparisonMetrics, number | null>>;
+    retention: { originalSignals: number; conditionedSignals: number; retentionPct: number | null; note: string };
+    concurrency: Record<string, unknown>;
+    sampleWarnings: string[];
+    costNote: string;
+  };
+  decomposition?: FilterDecomposition;
+  prop?: {
+    scenario: string;
+    accountRules: { name: string; accountSize: number; maxTotalLossPct: number; dailyLossLimitPct: number; riskBudget: number };
+    original: PropArmResult;
+    conditioned: PropArmResult;
+    delta: Record<string, number | null> | null;
+    note: string;
+  };
+}
+
+export interface PropArmResult {
+  label: string;
+  available: boolean;
+  reason?: string;
+  observations?: number;
+  sessionCoverage?: number;
+  headline?: {
+    safeRiskMultiplier: number | null;
+    safeFailureProb: number | null;
+    conservativeMultiplier: number | null;
+    expectedNetPayout: number | null;
+    survival12m: number | null;
+    dailyLimitFailureProb: number | null;
+    totalLossFailureProb: number | null;
+    p95DrawdownPct: number | null;
+    worstDayPct: number | null;
+  };
+}
+
+export interface ConditionalVerdict {
+  verdict: string;
+  headline: string;
+  reasons: string[];
+  blockers: string[];
+  gates: Record<string, unknown>;
+  hypothesesExamined?: number;
+  fdrSignificant?: number;
+  rawSignificant?: number;
+  discoveryObservations?: number;
+  validationObservations?: number;
+}
+
+export interface ConditionalWorkflowResult {
+  study: ConditionalStudy;
+  notFrozen: { hypothesisId: string; description: string; retentionPct: number; projectedValidationObservations: number; minimumObservations: number; reason: string }[];
+  hypotheses: {
+    candidate: CandidateHypothesis;
+    previouslyTested?: PreviouslyTested;
+    frozen?: FrozenHypothesis;
+    validation?: ConditionalEvaluation;
+    holdout?: ConditionalEvaluation | null;
+    conditioned?: ConditionedComparison | null;
+    verdict: ConditionalVerdict;
+  }[];
+  verdict: ConditionalVerdict;
+}
+
+export interface LedgerEntry extends FrozenHypothesis {
+  results: (ConditionalEvaluation & { stage: string; evaluatedAt: string; passed: number | null })[];
+  integrity: { contractHash: string; recomputedHash: string; intact: boolean; featureDrift: string[]; featureDriftDetected: boolean };
+  /** Dependence-audit records (see MethodologyAudit) that recomputed THIS
+   * hypothesis's evidence under the corrected statistics -- empty for a
+   * hypothesis frozen after methodology v2 became the default, or never
+   * re-scored. A non-empty list here means the row above may show evidence
+   * that was later found to be overstated; read the audit before trusting
+   * the original p/q value alone. */
+  methodologyAudits: MethodologyAudit[];
+}
+
+/** One "prior evidence -> corrected evidence" record from the 2026-08-22
+ * dependence audit -- see engine/conditional_ledger.py:record_methodology_audit.
+ * Permanent and append-only: never a replacement for the session/hypothesis
+ * row it is about. */
+export interface MethodologyAudit {
+  id: number;
+  auditedAt: string;
+  strategyName: string;
+  sessionId: string | null;
+  hypothesisRowId: number | null;
+  targetType: "session" | "candidate" | "univariate" | "interaction";
+  targetKey: string;
+  targetDescription: string | null;
+  priorMethodologyVersion: string | null;
+  priorInferenceMethod: string | null;
+  priorRawN: number | null;
+  priorEffectiveN: number | null;
+  priorPValue: number | null;
+  priorQValue: number | null;
+  priorCiLow: number | null;
+  priorCiHigh: number | null;
+  correctedMethodologyVersion: string;
+  correctedInferenceMethod: string;
+  correctedRawN: number | null;
+  correctedEffectiveN: number | null;
+  correctedPValue: number | null;
+  correctedQValue: number | null;
+  correctedCiLow: number | null;
+  correctedCiHigh: number | null;
+  materiallyWeakened: number;
+  reason: string;
+}
+
+async function runConditionalJob<T>(
+  strategyName: string,
+  body: ConditionalDiscoveryRequest,
+  onProgress?: (job: ConditionalJob<T>) => void,
+): Promise<T> {
+  let job = await request<ConditionalJob<T>>(`/conditional/jobs/${encodeURIComponent(strategyName)}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  onProgress?.(job);
+  while (job.status === "queued" || job.status === "running") {
+    await new Promise((resolve) => window.setTimeout(resolve, 750));
+    job = await request<ConditionalJob<T>>(`/conditional/jobs/${job.jobId}`);
+    onProgress?.(job);
+  }
+  if (job.status === "failed") throw new Error(job.error || "Conditional discovery failed");
+  if (job.result === null) throw new Error("Conditional discovery completed without a result");
+  return job.result;
+}
+
 
 /** A compiled spec rendered back to English by
  * strategies/spec.py:describe_spec. This -- never the model's own summary
@@ -1164,7 +1896,8 @@ export const api = {
   triggerScan: () =>
     request<{ newAlerts: unknown[] }>("/live/scan", { method: "POST" }),
   executionConfig: () => request<ExecutionStrategyConfig[]>("/live/execution/config"),
-  executionStrategies: () => request<{ strategyName: string }[]>("/live/execution/strategies"),
+  executionAccountOwnership: () => request<ExecutionAccountStatus>("/live/execution/account-ownership"),
+  executionStrategies: () => request<ForwardTestPromotionCandidate[]>("/live/execution/strategies"),
   setExecutionConfig: (
     strategyName: string,
     enabled: boolean,
@@ -1237,4 +1970,320 @@ export const api = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ result, messages }),
     }),
+
+  // -- Conditional Edge Discovery -- engine/conditional_edge.py -----------
+  conditionalStrategies: () => request<ConditionalStrategies>("/conditional/strategies"),
+  conditionalFeatures: (engine: "standard" | "cross_sectional" = "standard") =>
+    request<FeatureAvailability>(`/conditional/features?engine=${engine}`),
+  // `full=false` (discovery only) is fast enough (~10-30s) to poll every
+  // 750ms like a validation job; `full=true` re-runs the backtest twice more
+  // (conditioned arm + prop sweep) and can take noticeably longer -- same
+  // job/poll shape either way so the caller doesn't need to branch.
+  runConditionalDiscovery: (
+    strategyName: string,
+    request_: ConditionalDiscoveryRequest = {},
+    onProgress?: (job: ConditionalJob<ConditionalStudy>) => void,
+  ) => runConditionalJob<ConditionalStudy>(strategyName, request_, onProgress),
+  runConditionalWorkflow: (
+    strategyName: string,
+    request_: ConditionalDiscoveryRequest = {},
+    onProgress?: (job: ConditionalJob<ConditionalWorkflowResult>) => void,
+  ) => runConditionalJob<ConditionalWorkflowResult>(strategyName, { ...request_, full: true }, onProgress),
+  freezeConditionalHypothesis: (body: {
+    sessionId: string;
+    hypothesisId: string;
+    minimumEffect?: number;
+    minimumObservations?: number;
+  }) =>
+    request<FrozenHypothesis>("/conditional/hypotheses/freeze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  validateConditionalHypothesis: (rowId: number, body: { sessionId: string; permutations?: number }) =>
+    request<ConditionalEvaluation>(`/conditional/hypotheses/${rowId}/validate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  consumeConditionalHoldout: (
+    rowId: number,
+    body: { sessionId: string; reason: string; permutations?: number },
+  ) =>
+    request<ConditionalEvaluation>(`/conditional/hypotheses/${rowId}/holdout`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  conditionalConditionedComparison: (
+    rowId: number,
+    body: { propScenario?: string; propPaths?: number; includeProp?: boolean } = {},
+  ) =>
+    request<ConditionedComparison>(`/conditional/hypotheses/${rowId}/conditioned`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  conditionalLedger: (strategyName?: string) =>
+    request<{ hypotheses: LedgerEntry[] }>(
+      `/conditional/ledger${strategyName ? `?strategy=${encodeURIComponent(strategyName)}` : ""}`,
+    ),
+  conditionalRejected: (strategyName?: string) =>
+    request<{ rejected: LedgerEntry[] }>(
+      `/conditional/rejected${strategyName ? `?strategy=${encodeURIComponent(strategyName)}` : ""}`,
+    ),
+  conditionalHoldoutStatus: (strategyName: string) =>
+    request<HoldoutStatus>(`/conditional/holdout-status/${encodeURIComponent(strategyName)}`),
+  conditionalMethodologyAudits: (strategyName?: string) =>
+    request<{ audits: MethodologyAudit[] }>(
+      `/conditional/methodology-audits${strategyName ? `?strategy=${encodeURIComponent(strategyName)}` : ""}`,
+    ),
+
+  // -- Research Status + Data Blocker dashboard -- engine/research_status.py
+  researchStatus: () => request<ResearchStatusDashboard>("/research/status"),
+  researchConditionalStatus: (strategyName: string) =>
+    request<ResearchStatusRow>(`/research/conditional-status/${encodeURIComponent(strategyName)}`),
+  researchForwardStack: () => request<ForwardStackStatus>("/research/forward-stack"),
+  researchPropShadows: () => request<PropShadowStatus>("/research/prop-shadows"),
+  researchOptimizedDmHourlyShadow: () => request<OptimizedDmHourlyShadowStatus>("/research/optimized-dm-hourly-shadow"),
+  researchCapitalEfficiency: () => request<CapitalEfficiencyStatus>("/research/capital-efficiency"),
+  researchDataBlockers: () => request<{ blockers: DataBlockerRow[] }>("/research/data-blockers"),
 };
+
+/** One tracked research branch's current state -- see
+ * engine/research_status.py:ResearchStatusRow. Every field is read live from
+ * an existing source of truth (the conditional-edge ledger, the frozen
+ * DM/MRM forward-test protocol, universe/PIT status); nothing here is a
+ * second authoritative verdict store. */
+export interface ResearchStatusRow {
+  name: string;
+  researchType: string;
+  status: string;
+  evidenceStage: string | null;
+  lastCompletedAction: string;
+  developmentPeriod: string | null;
+  forwardTestStart: string | null;
+  validationStatus: string | null;
+  holdoutStatus: string | null;
+  primaryBlocker: string | null;
+  methodologyVersion: string | null;
+  methodologySuperseded: boolean;
+  notes: string[];
+  causalChain: string[];
+  nextAction: string;
+}
+
+export interface ResearchStatusSummary {
+  activeResearchRuns: number;
+  frozenForwardTestCandidates: number;
+  validatedStrategies: number;
+  rejectedHypotheses: number;
+  dataBlockedResearchItems: number;
+  methodologyCompleteSystems: number;
+}
+
+export interface ResearchStatusDashboard {
+  rows: ResearchStatusRow[];
+  summary: ResearchStatusSummary;
+  statusLabels: string[];
+}
+
+export interface ForwardStackSeries {
+  key: string;
+  series: string;
+  type: string;
+  status: string;
+  sessions: number;
+  nav: number | null;
+  returnPct: number | null;
+  drawdownPct: number | null;
+  lastUpdate: string | null;
+  history?: { date: string; nav: number }[];
+  positionHistory?: { date: string; holdings: Record<string, number>; source?: string }[];
+}
+
+export interface ForwardBlendState {
+  dmWeight: number;
+  mrmWeight: number;
+  dmTargetWeight: number;
+  mrmTargetWeight: number;
+  lastWeightResetDate: string | null;
+  nextScheduledReset: string | null;
+  combinedHoldings: Record<string, number>;
+  fixedCombinedHoldings?: Record<string, number>;
+  dmHoldings?: Record<string, number>;
+  mrmHoldings?: Record<string, number>;
+}
+
+export interface ForwardStackStatus {
+  series: ForwardStackSeries[];
+  currentBlend: ForwardBlendState | null;
+  maturity: { label: string; reached: string[]; next: { sessions: number; label: string } | null };
+  alerts: { code: string; severity: string; message: string; scope?: "research_shadow" | "live_execution"; liveExecutionAffected?: boolean }[];
+  paperAutomation: {
+    enabled: boolean;
+    canonicalConfig: boolean | null;
+    configuredParams?: Record<string, number | boolean | string>;
+    configuredSymbols?: string[];
+    validationRunId?: number | null;
+    lastCompletedRun?: {
+      date: string;
+      triggeredAt: string;
+      targetWeights: Record<string, number>;
+    } | null;
+    identity?: StrategyIdentity;
+  };
+  operations?: {
+    lastAttemptAt?: string | null;
+    lastSuccessAt?: string | null;
+    lastError?: string | null;
+    latestCompletedSession?: string | null;
+    latestFinalizedSession?: string | null;
+    lastSourceSession?: string | null;
+    finalizationLagSessions?: number;
+    advanceResult?: { status?: string; appendedSessions?: number };
+  };
+  reconciliation?: { confirmedAmendments: number; rawNavPreserved: boolean; finalizationLagSessions: number };
+  separation: { alpacaEquityLabel: string; researchNavLabel: string };
+}
+
+export interface PropShadowRow {
+  key: string;
+  label: string;
+  scale: number;
+  drawdownRule: "static" | "trailing_to_breakeven";
+  sessions: number;
+  state: string;
+  currentEquity: number;
+  netPayout: number;
+  grossPayout: number;
+  fees: number;
+  breaches: number;
+  attempts: number;
+  failures: number;
+  drawdownUtilization: number;
+  maximumObservedDrawdown: number;
+  dailyLimitUtilization: number;
+  annualizedBreachFrequency: number | null;
+  distanceToDailyBreach: number | null;
+  distanceToDrawdownBreach: number | null;
+  history?: { date: string; equity: number }[];
+}
+
+export interface SelfFundedShadowRow {
+  key: string;
+  label: string;
+  startingCapital: number;
+  fixedExposure: number;
+  observations: number;
+  sessions: number;
+  currentEquity: number;
+  netProfit: number;
+  returnOnCommittedCapital: number;
+  maximumObservedDrawdown: number;
+  drawdownPctCommitted: number;
+  worstIntradayLoss: number;
+  stopoutRule: null;
+  propFees: 0;
+  payoutSplit: 1;
+  history?: { date: string; equity: number }[];
+}
+
+export interface PropShadowStatus {
+  program: string;
+  evidenceClass: "prospective_prop_shadow";
+  historicalEvidenceKeptSeparate: boolean;
+  samplingIntervalSeconds: number;
+  lastSnapshot: string | null;
+  samplingAgeSeconds: number | null;
+  completedSessions: number;
+  maturity: string;
+  warnings: string[];
+  shadows: PropShadowRow[];
+  selfFundedShadows: SelfFundedShadowRow[];
+  controlsPreserved: string[];
+  fingerprintLocked: boolean;
+  selfFundedFingerprintLocked: boolean;
+  currentParentPositions?: (LivePosition & { weight?: number })[];
+}
+
+export interface OptimizedDmHourlyShadowStatus {
+  available: boolean;
+  reason?: string;
+  key: string;
+  strategy?: string;
+  activatedAt?: string;
+  backfillStart?: string;
+  backfillIntent?: string;
+  startingEquity?: number;
+  currentEquity?: number;
+  returnPct?: number;
+  lastUpdate?: string | null;
+  currentHoldings?: Record<string, number>;
+  dailyHistory?: { date: string; equity: number; evidenceClass: "blind_pre_activation_backfill" | "prospective_shadow" }[];
+  inProgress?: { date: string; equity: number; evidenceClass: "blind_pre_activation_backfill" | "prospective_shadow"; timestamp: string } | null;
+  positionHistory?: { date: string; holdings: Record<string, number>; source: "blind_pre_activation_backfill" | "prospective_shadow" }[];
+  backfillMarks?: number;
+  prospectiveMarks?: number;
+  backfillSessions?: number;
+  prospectiveSessions?: number;
+  totalTurnoverPct?: number;
+  lastAttemptAt?: string | null;
+  lastSuccessAt?: string | null;
+  lastError?: string | null;
+  methodology?: Record<string, string>;
+}
+
+export interface CapitalEfficiencyStatus {
+  available: boolean;
+  reason?: string;
+  classification?: {
+    result: "depends_on_available_capital" | "prop_clearly_superior" | "self_funded_clearly_superior" | "inconclusive";
+    historicalEvidenceGrade: string;
+    reason: string;
+    selfFundedComparatorB: string;
+  };
+  historicalClassification?: string;
+  prospectiveClassification?: string;
+  operatingPoints?: Record<string, {
+    key: string; scale: number; drawdownRule: string; effectiveExposure: number;
+    prop: {
+      netProfit: { expected: number; median: number; p05: number; p01: number };
+      fees: { expected: number; median: number; p05: number; p01: number };
+      breachProbability12m: number;
+    };
+    selfFundedA: {
+      netProfit: { expected: number; median: number; p05: number; p01: number };
+      probabilityAnnualLoss: number;
+    };
+    breakEven: {
+      minimumOwnCapitalToMatchExposure: number;
+      ownCapitalForExpectedSelfFundedProfitToEqualProp: number | null;
+      ownCapitalForExpectedSelfFundedProfitToReach35000: number | null;
+      expectedSelfFundedReturnPerDollar: number;
+    };
+  }>;
+  frontier?: Array<{
+    operatingPoint: string; structure: "prop" | "self_funded_a"; accounts: number;
+    aggregateEffectiveExposure: number; expectedCapitalCommitted: number;
+    expectedNetProfit: number; medianNetProfit: number; probabilityTarget35000: number;
+  }>;
+  reproductionChecks?: Array<{ operatingPoint: string; maxAbsoluteError: number; passed: boolean }>;
+}
+
+/** One declared dataset's actual availability -- see
+ * engine/research_status.py:DataBlockerRow. Coverage/PIT-safety facts come
+ * straight from engine/universe_registry.py; only `unlocks`/`severity` are
+ * this feature's own interpretive metadata. */
+export interface DataBlockerRow {
+  dataset: string;
+  status: string;
+  intendedCoverage: string | null;
+  actualAvailability: string;
+  pitSafe: boolean | null;
+  survivorshipFree: boolean | null;
+  missingArtifacts: string[];
+  unlocks: string[];
+  blocksResearch: string[];
+  severity: string;
+}

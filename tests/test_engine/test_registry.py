@@ -30,6 +30,7 @@ def test_registry_matches_tracker_swing_trading_names():
         OVERNIGHT_NAME,
         PAIRS_STRATEGY_NAMES,
         PEAD_NAME,
+        RESEARCH_ONLY_STRATEGY_NAMES,
         SECTOR_ROTATION_NAME,
         SWING_TRADING_STRATEGIES_NO_BENCHMARK,
         USER_DEFINED_STRATEGY_NAMES,
@@ -55,12 +56,24 @@ def test_registry_matches_tracker_swing_trading_names():
     # user-defined research variant can be UI-runnable before its rules are
     # promoted into that workbook; keep that small, explicit exception from
     # silently becoming an untracked strategy bucket.
-    assert registry_names == set(tracker_names) | set(USER_DEFINED_STRATEGY_NAMES)
+    assert registry_names - set(RESEARCH_ONLY_STRATEGY_NAMES) == (
+        set(tracker_names) | set(USER_DEFINED_STRATEGY_NAMES)
+    )
+    assert registry_names & set(RESEARCH_ONLY_STRATEGY_NAMES) == {
+        "52-Week-High Momentum", "Market-Residual Momentum",
+    }
 
 
-def test_all_strategy_names_has_twenty_five_entries():
-    assert len(ALL_STRATEGY_NAMES) == 25
-    assert len(set(ALL_STRATEGY_NAMES)) == 25
+def test_all_strategy_names_are_unique_and_classified():
+    from strategies.registry import RESEARCH_ONLY_STRATEGY_NAMES, USER_DEFINED_STRATEGY_NAMES
+
+    tracker_names = set(_tracker_strategy_names("Day Trading")) | set(
+        _tracker_strategy_names("Swing Trading")
+    )
+    expected = tracker_names | set(USER_DEFINED_STRATEGY_NAMES) | set(RESEARCH_ONLY_STRATEGY_NAMES)
+
+    assert set(ALL_STRATEGY_NAMES) == expected
+    assert len(ALL_STRATEGY_NAMES) == len(expected)
 
 
 def test_archived_strategy_names_are_a_subset_of_all_strategy_names():

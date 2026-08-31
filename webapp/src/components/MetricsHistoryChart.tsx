@@ -11,6 +11,7 @@ import type { HistoryRow } from "../api";
 
 interface MetricPoint {
   time: string;
+  runId: number;
   value: number;
 }
 
@@ -60,10 +61,6 @@ const METRICS: MetricSpec[] = [
   },
 ];
 
-function formatAxisDate(iso: string): string {
-  return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" });
-}
-
 function formatTooltipDate(iso: string): string {
   return new Date(iso).toLocaleString(undefined, {
     month: "short",
@@ -90,7 +87,7 @@ function MetricTooltip({
       className="rounded-md border px-3 py-2 text-xs shadow-sm"
       style={{ background: "var(--surface-1)", borderColor: "var(--border)" }}
     >
-      <div style={{ color: "var(--text-muted)" }}>{formatTooltipDate(point.time)}</div>
+      <div style={{ color: "var(--text-muted)" }}>Run #{point.runId} · {formatTooltipDate(point.time)}</div>
       <div
         className="mt-0.5 flex items-center gap-1.5 font-semibold tabular-nums"
         style={{ color: "var(--text-primary)" }}
@@ -109,7 +106,7 @@ function MetricFacet({ spec, rows }: { spec: MetricSpec; rows: HistoryRow[] }) {
   const points: MetricPoint[] = rows
     .map((r) => {
       const v = spec.accessor(r);
-      return v === null ? null : { time: r.runAt, value: v };
+      return v === null ? null : { time: r.runAt, runId: r.id, value: v };
     })
     .filter((p): p is MetricPoint => p !== null);
 
@@ -133,8 +130,8 @@ function MetricFacet({ spec, rows }: { spec: MetricSpec; rows: HistoryRow[] }) {
           <LineChart data={points} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
             <CartesianGrid stroke="var(--gridline)" strokeDasharray="0" vertical={false} />
             <XAxis
-              dataKey="time"
-              tickFormatter={formatAxisDate}
+              dataKey="runId"
+              tickFormatter={(id) => `Run #${id}`}
               stroke="var(--baseline)"
               tick={{ fill: "var(--text-muted)", fontSize: 10 }}
               tickLine={false}

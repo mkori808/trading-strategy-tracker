@@ -1,0 +1,2407 @@
+{
+  "studyName": "Dual Momentum Replacement-Quality Decomposition v1",
+  "preregistration": "research\\dm_replacement_quality_decomposition_preregistration.json",
+  "canonicalChanged": false,
+  "winnerGraceReopened": false,
+  "reconciliation": {
+    "Dual Momentum": {
+      "strategy": "Dual Momentum",
+      "rebalances": 61,
+      "allRemovals": 85,
+      "allAdditions": 85,
+      "completedPairs": 81,
+      "uniquePairRebalanceDates": 53,
+      "effectiveN": 53,
+      "censoredLastRebalancePairs": 1,
+      "excludedMissingPricePairs": 0,
+      "unpairedRemovalsFromCashChanges": 3,
+      "unpairedAdditionsFromCashChanges": 3,
+      "duplicatePairs": 0,
+      "identicalWindows": true,
+      "decisionLedger": [
+        {
+          "date": "2021-09-01",
+          "removals": 0,
+          "additions": 0,
+          "pairable": 0,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2021-10-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2021-11-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2021-12-01",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2022-01-03",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2022-02-01",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2022-03-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2022-04-01",
+          "removals": 3,
+          "additions": 3,
+          "pairable": 3,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2022-05-02",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2022-06-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2022-07-01",
+          "removals": 0,
+          "additions": 0,
+          "pairable": 0,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2022-08-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2022-09-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2022-10-03",
+          "removals": 3,
+          "additions": 0,
+          "pairable": 0,
+          "unpairedRemovals": 3,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2022-11-01",
+          "removals": 0,
+          "additions": 3,
+          "pairable": 0,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 3,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2022-12-01",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2023-01-03",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2023-02-01",
+          "removals": 4,
+          "additions": 4,
+          "pairable": 4,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2023-03-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2023-04-03",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2023-05-01",
+          "removals": 3,
+          "additions": 3,
+          "pairable": 3,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2023-06-01",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2023-07-03",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2023-08-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2023-09-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2023-10-02",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2023-11-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2023-12-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2024-01-02",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2024-02-01",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2024-03-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2024-04-01",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2024-05-01",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2024-06-03",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2024-07-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2024-08-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2024-09-03",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2024-10-01",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2024-11-01",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2024-12-02",
+          "removals": 0,
+          "additions": 0,
+          "pairable": 0,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2025-01-02",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2025-02-03",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2025-03-03",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2025-04-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2025-05-01",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2025-06-02",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2025-07-01",
+          "removals": 3,
+          "additions": 3,
+          "pairable": 3,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2025-08-01",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2025-09-02",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2025-10-01",
+          "removals": 3,
+          "additions": 3,
+          "pairable": 3,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2025-11-03",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2025-12-01",
+          "removals": 0,
+          "additions": 0,
+          "pairable": 0,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2026-01-02",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2026-02-02",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2026-03-02",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2026-04-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2026-05-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2026-06-01",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2026-07-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2026-08-03",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": true
+        }
+      ]
+    },
+    "Market-Residual Momentum": {
+      "strategy": "Market-Residual Momentum",
+      "rebalances": 61,
+      "allRemovals": 60,
+      "allAdditions": 60,
+      "completedPairs": 58,
+      "uniquePairRebalanceDates": 43,
+      "effectiveN": 43,
+      "censoredLastRebalancePairs": 2,
+      "excludedMissingPricePairs": 0,
+      "unpairedRemovalsFromCashChanges": 0,
+      "unpairedAdditionsFromCashChanges": 0,
+      "duplicatePairs": 0,
+      "identicalWindows": true,
+      "decisionLedger": [
+        {
+          "date": "2021-09-01",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2021-10-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2021-11-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2021-12-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2022-01-03",
+          "removals": 0,
+          "additions": 0,
+          "pairable": 0,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2022-02-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2022-03-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2022-04-01",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2022-05-02",
+          "removals": 0,
+          "additions": 0,
+          "pairable": 0,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2022-06-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2022-07-01",
+          "removals": 0,
+          "additions": 0,
+          "pairable": 0,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2022-08-01",
+          "removals": 0,
+          "additions": 0,
+          "pairable": 0,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2022-09-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2022-10-03",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2022-11-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2022-12-01",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2023-01-03",
+          "removals": 0,
+          "additions": 0,
+          "pairable": 0,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2023-02-01",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2023-03-01",
+          "removals": 3,
+          "additions": 3,
+          "pairable": 3,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2023-04-03",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2023-05-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2023-06-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2023-07-03",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2023-08-01",
+          "removals": 0,
+          "additions": 0,
+          "pairable": 0,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2023-09-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2023-10-02",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2023-11-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2023-12-01",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2024-01-02",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2024-02-01",
+          "removals": 0,
+          "additions": 0,
+          "pairable": 0,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2024-03-01",
+          "removals": 3,
+          "additions": 3,
+          "pairable": 3,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2024-04-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2024-05-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2024-06-03",
+          "removals": 3,
+          "additions": 3,
+          "pairable": 3,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2024-07-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2024-08-01",
+          "removals": 0,
+          "additions": 0,
+          "pairable": 0,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2024-09-03",
+          "removals": 0,
+          "additions": 0,
+          "pairable": 0,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2024-10-01",
+          "removals": 0,
+          "additions": 0,
+          "pairable": 0,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2024-11-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2024-12-02",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2025-01-02",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2025-02-03",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2025-03-03",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2025-04-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2025-05-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2025-06-02",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2025-07-01",
+          "removals": 0,
+          "additions": 0,
+          "pairable": 0,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2025-08-01",
+          "removals": 0,
+          "additions": 0,
+          "pairable": 0,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2025-09-02",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2025-10-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2025-11-03",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2025-12-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2026-01-02",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2026-02-02",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2026-03-02",
+          "removals": 0,
+          "additions": 0,
+          "pairable": 0,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2026-04-01",
+          "removals": 1,
+          "additions": 1,
+          "pairable": 1,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2026-05-01",
+          "removals": 0,
+          "additions": 0,
+          "pairable": 0,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2026-06-01",
+          "removals": 0,
+          "additions": 0,
+          "pairable": 0,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2026-07-01",
+          "removals": 0,
+          "additions": 0,
+          "pairable": 0,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": false
+        },
+        {
+          "date": "2026-08-03",
+          "removals": 2,
+          "additions": 2,
+          "pairable": 2,
+          "unpairedRemovals": 0,
+          "unpairedAdditions": 0,
+          "censoredNoNextRebalance": true
+        }
+      ]
+    }
+  },
+  "replacementDistribution": {
+    "rawN": 81,
+    "effectiveN": 53,
+    "meanPct": 0.9344228762719852,
+    "medianPct": 1.21082543845501,
+    "stdPct": 9.7956193668053,
+    "p10Pct": -10.968491518321244,
+    "p25Pct": -6.158424252805139,
+    "p75Pct": 5.79372762206588,
+    "p90Pct": 12.810653097709324,
+    "winRatePct": 54.32098765432099,
+    "clusterCi95Pct": [
+      -1.3308336768856703,
+      3.2429246691660896
+    ],
+    "incomingMeanPct": 0.8645797332392978,
+    "outgoingMeanPct": -0.06984314303268736,
+    "incomingMeanMfePct": 5.744438185506684,
+    "incomingMeanMaePct": -5.333316693549706,
+    "outgoingMeanMfePct": 5.810163427554162,
+    "outgoingMeanMaePct": -5.970827115012494,
+    "incomingMeanMaxDrawdownPct": -6.612692563443051,
+    "outgoingMeanMaxDrawdownPct": -7.249308418431843
+  },
+  "rankGapAnalysis": {
+    "small (1-2)": {
+      "rawN": 18,
+      "effectiveN": 17,
+      "meanAdvantagePct": 1.7338015407313476,
+      "medianAdvantagePct": 2.6359011833960553,
+      "winRatePct": 55.55555555555556,
+      "ci95Pct": [
+        -2.2320947571882908,
+        5.992087729354495
+      ],
+      "equalSlotContributionPct": 6.241685546632851
+    },
+    "medium (3-5)": {
+      "rawN": 36,
+      "effectiveN": 26,
+      "meanAdvantagePct": 0.04188004060559512,
+      "medianAdvantagePct": 0.01750867574286108,
+      "winRatePct": 50.0,
+      "ci95Pct": [
+        -3.4971649722351077,
+        2.990545135289502
+      ],
+      "equalSlotContributionPct": 0.3015362923602849
+    },
+    "large (6+)": {
+      "rawN": 27,
+      "effectiveN": 19,
+      "meanAdvantagePct": 1.5915608808542636,
+      "medianAdvantagePct": 2.1059119523041625,
+      "winRatePct": 59.25925925925925,
+      "ci95Pct": [
+        -2.4042501000525895,
+        5.753648153243949
+      ],
+      "equalSlotContributionPct": 8.594428756613024
+    }
+  },
+  "scoreSpreadAnalysis": {
+    "spearman": -0.08929539295392953,
+    "ci95": [
+      -0.32897528427457196,
+      0.14406001286608508
+    ],
+    "rawN": 81,
+    "effectiveN": 53,
+    "method": "cluster bootstrap of fixed full-sample ranks"
+  },
+  "scoreSpreadQuartiles": {
+    "Q1": {
+      "range": [
+        0.007025310191473677,
+        0.05922565027335969
+      ],
+      "rawN": 21,
+      "effectiveN": 20,
+      "meanAdvantagePct": 1.874280035979511,
+      "medianAdvantagePct": 1.8479616916124764,
+      "winRatePct": 52.38095238095239,
+      "ci95Pct": [
+        -1.5485177304149842,
+        5.365336332138229
+      ]
+    },
+    "Q2": {
+      "range": [
+        0.05950794608922805,
+        0.11709135098647816
+      ],
+      "rawN": 20,
+      "effectiveN": 19,
+      "meanAdvantagePct": -0.8083971151760572,
+      "medianAdvantagePct": 1.8496906515534872,
+      "winRatePct": 55.00000000000001,
+      "ci95Pct": [
+        -5.042220233246926,
+        3.6931394963006534
+      ]
+    },
+    "Q3": {
+      "range": [
+        0.11902898011591256,
+        0.16280394650064167
+      ],
+      "rawN": 20,
+      "effectiveN": 16,
+      "meanAdvantagePct": 3.2613963017856724,
+      "medianAdvantagePct": 1.4723213122349255,
+      "winRatePct": 60.0,
+      "ci95Pct": [
+        -1.2828777206896516,
+        8.522504359524206
+      ]
+    },
+    "Q4": {
+      "range": [
+        0.16415284862222013,
+        0.49234659346051335
+      ],
+      "rawN": 20,
+      "effectiveN": 17,
+      "meanAdvantagePct": -0.6365805754865622,
+      "medianAdvantagePct": 0.021179509753660453,
+      "winRatePct": 50.0,
+      "ci95Pct": [
+        -4.829516657136289,
+        4.387603672780487
+      ]
+    }
+  },
+  "rankDeteriorationAnalysis": {
+    "barely (<=2)": {
+      "rawN": 22,
+      "effectiveN": 22,
+      "meanAdvantagePct": 0.9486651052931677,
+      "medianAdvantagePct": 0.6216297391334558,
+      "winRatePct": 50.0,
+      "ci95Pct": [
+        -2.59903720331388,
+        4.541995009969955
+      ],
+      "equalSlotContributionPct": 4.174126463289938
+    },
+    "moderate (3-5)": {
+      "rawN": 31,
+      "effectiveN": 28,
+      "meanAdvantagePct": 0.6120237751360706,
+      "medianAdvantagePct": 0.639719564831287,
+      "winRatePct": 54.83870967741935,
+      "ci95Pct": [
+        -2.1795712935883333,
+        3.6333851121941145
+      ],
+      "equalSlotContributionPct": 3.794547405843638
+    },
+    "sharp (6+)": {
+      "rawN": 28,
+      "effectiveN": 23,
+      "meanAdvantagePct": 1.2801744154415329,
+      "medianAdvantagePct": 2.1589786170550687,
+      "winRatePct": 57.14285714285714,
+      "ci95Pct": [
+        -2.8771499842926707,
+        5.895033499606912
+      ],
+      "equalSlotContributionPct": 7.168976726472584
+    }
+  },
+  "incumbentStateAnalysis": {
+    "currently profitable": {
+      "rawN": 46,
+      "effectiveN": 35,
+      "meanAdvantagePct": 0.5398453496840727,
+      "medianAdvantagePct": -0.5284028111167516,
+      "winRatePct": 47.82608695652174,
+      "ci95Pct": [
+        -2.670752282364505,
+        4.366799005927026
+      ],
+      "equalSlotContributionPct": 4.9665772170934686
+    },
+    "currently unprofitable": {
+      "rawN": 35,
+      "effectiveN": 29,
+      "meanAdvantagePct": 1.4530104826446704,
+      "medianAdvantagePct": 1.6781566541395954,
+      "winRatePct": 62.857142857142854,
+      "ci95Pct": [
+        -1.0884469150179807,
+        3.985855635397216
+      ],
+      "equalSlotContributionPct": 10.171073378512691
+    },
+    "winner near MFE": {
+      "rawN": 18,
+      "effectiveN": 15,
+      "meanAdvantagePct": -1.6921960029545005,
+      "medianAdvantagePct": -1.4910296850360105,
+      "winRatePct": 38.88888888888889,
+      "ci95Pct": [
+        -4.884942825299231,
+        1.7644338475249117
+      ],
+      "equalSlotContributionPct": -6.091905610636202
+    },
+    "winner high giveback": {
+      "rawN": 19,
+      "effectiveN": 18,
+      "meanAdvantagePct": 4.379147031172409,
+      "medianAdvantagePct": 3.0596617382756874,
+      "winRatePct": 63.1578947368421,
+      "ci95Pct": [
+        -0.9847653705880182,
+        9.385679603943062
+      ],
+      "equalSlotContributionPct": 16.640758718455153
+    },
+    "loser meaningful recovery": {
+      "rawN": 14,
+      "effectiveN": 13,
+      "meanAdvantagePct": 0.27669894708614107,
+      "medianAdvantagePct": -0.1820036214127907,
+      "winRatePct": 50.0,
+      "ci95Pct": [
+        -2.35598334961253,
+        2.5690091734607767
+      ],
+      "equalSlotContributionPct": 0.774757051841195
+    },
+    "loser near MAE": {
+      "rawN": 18,
+      "effectiveN": 15,
+      "meanAdvantagePct": 2.6440677780779014,
+      "medianAdvantagePct": 1.892034303221879,
+      "winRatePct": 72.22222222222221,
+      "ci95Pct": [
+        -1.6415252677641545,
+        6.660364125307218
+      ],
+      "equalSlotContributionPct": 9.518644001080446
+    }
+  },
+  "recentPathAnalysis": {
+    "continuousRelationships": {
+      "outgoing_return_20d": {
+        "spearman": 0.03498193315266486,
+        "ci95": [
+          -0.16354620970448305,
+          0.2376174884238262
+        ],
+        "rawN": 81,
+        "effectiveN": 53,
+        "method": "cluster bootstrap of fixed full-sample ranks"
+      },
+      "incoming_return_20d": {
+        "spearman": -0.03622402890695573,
+        "ci95": [
+          -0.27365954018784405,
+          0.1925046861787771
+        ],
+        "rawN": 81,
+        "effectiveN": 53,
+        "method": "cluster bootstrap of fixed full-sample ranks"
+      },
+      "outgoing_return_60d": {
+        "spearman": -0.08902439024390245,
+        "ci95": [
+          -0.316366674021928,
+          0.14747827285696316
+        ],
+        "rawN": 81,
+        "effectiveN": 53,
+        "method": "cluster bootstrap of fixed full-sample ranks"
+      },
+      "incoming_return_60d": {
+        "spearman": -0.16540198735320685,
+        "ci95": [
+          -0.40575544616568676,
+          0.07815092775638532
+        ],
+        "rawN": 81,
+        "effectiveN": 53,
+        "method": "cluster bootstrap of fixed full-sample ranks"
+      },
+      "outgoing_acceleration": {
+        "spearman": 0.15112917795844624,
+        "ci95": [
+          -0.06404044016526997,
+          0.36233511928366996
+        ],
+        "rawN": 81,
+        "effectiveN": 53,
+        "method": "cluster bootstrap of fixed full-sample ranks"
+      },
+      "incoming_acceleration": {
+        "spearman": 0.06402439024390243,
+        "ci95": [
+          -0.1750339660843675,
+          0.30505604857379515
+        ],
+        "rawN": 81,
+        "effectiveN": 53,
+        "method": "cluster bootstrap of fixed full-sample ranks"
+      }
+    },
+    "incoming20dQuartiles": {
+      "Q1": {
+        "range": [
+          -0.09542426052189801,
+          0.02715453087633679
+        ],
+        "rawN": 21,
+        "effectiveN": 20,
+        "meanAdvantagePct": 1.049979985753183,
+        "medianAdvantagePct": -1.3734860790434955,
+        "winRatePct": 47.61904761904761,
+        "ci95Pct": [
+          -2.042417736558095,
+          4.227619404834406
+        ]
+      },
+      "Q2": {
+        "range": [
+          0.04063130669716197,
+          0.07556913989064307
+        ],
+        "rawN": 20,
+        "effectiveN": 16,
+        "meanAdvantagePct": 2.182385103264517,
+        "medianAdvantagePct": 3.4405613401010005,
+        "winRatePct": 75.0,
+        "ci95Pct": [
+          -2.9355387291010326,
+          6.923994803810367
+        ]
+      },
+      "Q3": {
+        "range": [
+          0.07653460480750973,
+          0.11131318520323341
+        ],
+        "rawN": 20,
+        "effectiveN": 17,
+        "meanAdvantagePct": -1.9414714025550812,
+        "medianAdvantagePct": -1.7308011653962674,
+        "winRatePct": 45.0,
+        "ci95Pct": [
+          -4.789765286519213,
+          1.3689933653072925
+        ]
+      },
+      "Q4": {
+        "range": [
+          0.11816890050771578,
+          0.3857910163482079
+        ],
+        "rawN": 20,
+        "effectiveN": 18,
+        "meanAdvantagePct": 2.441019963151262,
+        "medianAdvantagePct": 0.021179509753660453,
+        "winRatePct": 50.0,
+        "ci95Pct": [
+          -3.1505808335801992,
+          8.113636182729147
+        ]
+      }
+    },
+    "outgoingAccelerationQuartiles": {
+      "Q1": {
+        "range": [
+          -0.12750159589428997,
+          -0.0718907721068962
+        ],
+        "rawN": 21,
+        "effectiveN": 19,
+        "meanAdvantagePct": 1.3501967594712905,
+        "medianAdvantagePct": -1.8530290397640092,
+        "winRatePct": 42.857142857142854,
+        "ci95Pct": [
+          -3.031069340179297,
+          5.8989459223983705
+        ]
+      },
+      "Q2": {
+        "range": [
+          -0.07151936784154453,
+          -0.033319649602110424
+        ],
+        "rawN": 20,
+        "effectiveN": 17,
+        "meanAdvantagePct": -1.5302780825070066,
+        "medianAdvantagePct": 1.6583686953795862,
+        "winRatePct": 55.00000000000001,
+        "ci95Pct": [
+          -5.612073970059194,
+          2.1377518431304714
+        ]
+      },
+      "Q3": {
+        "range": [
+          -0.03144308926861664,
+          0.0050861272023995
+        ],
+        "rawN": 20,
+        "effectiveN": 17,
+        "meanAdvantagePct": 1.6871297828883143,
+        "medianAdvantagePct": 2.3425675767913265,
+        "winRatePct": 60.0,
+        "ci95Pct": [
+          -1.7828661124677088,
+          5.37422403379617
+        ]
+      },
+      "Q4": {
+        "range": [
+          0.009968376776541055,
+          0.08136379633277165
+        ],
+        "rawN": 20,
+        "effectiveN": 18,
+        "meanAdvantagePct": 2.2098543510753776,
+        "medianAdvantagePct": 3.74605433708437,
+        "winRatePct": 60.0,
+        "ci95Pct": [
+          -2.5385179634566164,
+          6.628833830529819
+        ]
+      }
+    }
+  },
+  "mfeGivebackQuartiles": {
+    "Q1": {
+      "range": [
+        0.0,
+        0.03072663875910364
+      ],
+      "rawN": 21,
+      "effectiveN": 17,
+      "meanAdvantagePct": 0.515491610984413,
+      "medianAdvantagePct": -1.3734860790434955,
+      "winRatePct": 47.61904761904761,
+      "ci95Pct": [
+        -3.674424989814247,
+        4.808406020386161
+      ]
+    },
+    "Q2": {
+      "range": [
+        0.031473880362883344,
+        0.07049857652755742
+      ],
+      "rawN": 20,
+      "effectiveN": 18,
+      "meanAdvantagePct": -0.0056335080976333,
+      "medianAdvantagePct": 1.2438406282218817,
+      "winRatePct": 55.00000000000001,
+      "ci95Pct": [
+        -3.648119040893522,
+        3.7109696080286816
+      ]
+    },
+    "Q3": {
+      "range": [
+        0.07052697929305396,
+        0.11615795550875996
+      ],
+      "rawN": 20,
+      "effectiveN": 18,
+      "meanAdvantagePct": 2.2755186304354256,
+      "medianAdvantagePct": 2.66130594869457,
+      "winRatePct": 60.0,
+      "ci95Pct": [
+        -2.2649323482377444,
+        7.282727904816733
+      ]
+    },
+    "Q4": {
+      "range": [
+        0.11930493809717357,
+        0.33546018472105743
+      ],
+      "rawN": 20,
+      "effectiveN": 18,
+      "meanAdvantagePct": 0.973261335030114,
+      "medianAdvantagePct": 0.6433527133271388,
+      "winRatePct": 55.00000000000001,
+      "ci95Pct": [
+        -3.71430467168794,
+        6.089290004429258
+      ]
+    }
+  },
+  "archetypes": {
+    "strong upgrade": {
+      "rawN": 22,
+      "effectiveN": 17,
+      "meanAdvantagePct": -0.12343167068629347,
+      "medianAdvantagePct": 1.4490774752815905,
+      "winRatePct": 54.54545454545454,
+      "ci95Pct": [
+        -4.093661933659632,
+        4.06329760817154
+      ],
+      "equalSlotContributionPct": -0.5430993510196913
+    },
+    "marginal churn": {
+      "rawN": 18,
+      "effectiveN": 17,
+      "meanAdvantagePct": 1.7338015407313476,
+      "medianAdvantagePct": 2.6359011833960553,
+      "winRatePct": 55.55555555555556,
+      "ci95Pct": [
+        -2.2320947571882908,
+        5.992087729354495
+      ],
+      "equalSlotContributionPct": 6.241685546632851
+    },
+    "hot entrant": {
+      "rawN": 21,
+      "effectiveN": 19,
+      "meanAdvantagePct": 2.362506774346869,
+      "medianAdvantagePct": 0.4944624283952592,
+      "winRatePct": 52.38095238095239,
+      "ci95Pct": [
+        -2.992666261921916,
+        8.151720741702833
+      ],
+      "equalSlotContributionPct": 9.922528452256852
+    },
+    "decaying incumbent": {
+      "rawN": 21,
+      "effectiveN": 18,
+      "meanAdvantagePct": 1.1420726411605868,
+      "medianAdvantagePct": 0.7922429982590184,
+      "winRatePct": 57.14285714285714,
+      "ci95Pct": [
+        -3.6521405885255787,
+        5.9409716903375775
+      ],
+      "equalSlotContributionPct": 4.796705092874465
+    },
+    "loser removal": {
+      "rawN": 31,
+      "effectiveN": 26,
+      "meanAdvantagePct": 1.0747696794364896,
+      "medianAdvantagePct": 1.6781566541395954,
+      "winRatePct": 61.29032258064516,
+      "ci95Pct": [
+        -1.7472932756166655,
+        3.8945789431556315
+      ],
+      "equalSlotContributionPct": 6.663572012506236
+    },
+    "definitions": {
+      "hotEntrant20dCutoff": 0.11131318520323341,
+      "decayingIncumbentGivebackCutoff": 0.11615795550875996
+    }
+  },
+  "goodVsBad": {
+    "goodN": 44,
+    "badN": 37,
+    "goodClusters": 32,
+    "badClusters": 29,
+    "features": {
+      "rank_gap": {
+        "goodMean": 4.954545454545454,
+        "badMean": 4.972972972972973,
+        "goodMedian": 4.5,
+        "badMedian": 5.0,
+        "goodMinusBadMean": -0.018427518427518663,
+        "ci95": [
+          -1.280556972789115,
+          1.2079114122592378
+        ],
+        "hedgesG": -0.00654227096541994
+      },
+      "outgoing_rank_deterioration": {
+        "goodMean": 5.0227272727272725,
+        "badMean": 4.5675675675675675,
+        "goodMedian": 5.0,
+        "badMedian": 4.0,
+        "goodMinusBadMean": 0.45515970515970494,
+        "ci95": [
+          -0.8250694444444446,
+          1.7816296183151217
+        ],
+        "hedgesG": 0.1414876098205155
+      },
+      "score_spread": {
+        "goodMean": 0.12230461327795665,
+        "badMean": 0.1360985841899976,
+        "goodMedian": 0.1173326963924044,
+        "badMedian": 0.11709135098647816,
+        "goodMinusBadMean": -0.013793970912040945,
+        "ci95": [
+          -0.06162582092525796,
+          0.029531506959749886
+        ],
+        "hedgesG": -0.13873914747096855
+      },
+      "score_percentile_spread": {
+        "goodMean": 0.176948051948052,
+        "badMean": 0.17760617760617767,
+        "goodMedian": 0.16071428571428575,
+        "badMedian": 0.1785714285714286,
+        "goodMinusBadMean": -0.0006581256581256745,
+        "ci95": [
+          -0.04573417759961128,
+          0.0431396932949728
+        ],
+        "hedgesG": -0.006542270965420019
+      },
+      "outgoing_return_20d": {
+        "goodMean": -0.024062999333755865,
+        "badMean": -0.024952430105509665,
+        "goodMedian": -0.023919368929126772,
+        "badMedian": -0.014027080287755234,
+        "goodMinusBadMean": 0.0008894307717537998,
+        "ci95": [
+          -0.02607598740664733,
+          0.027632381151098902
+        ],
+        "hedgesG": 0.014224857023292127
+      },
+      "incoming_return_20d": {
+        "goodMean": 0.07940302271502114,
+        "badMean": 0.07999501801857281,
+        "goodMedian": 0.0652566243678977,
+        "badMedian": 0.08737871320821267,
+        "goodMinusBadMean": -0.0005919953035516679,
+        "ci95": [
+          -0.0418386875330506,
+          0.03940677693840374
+        ],
+        "hedgesG": -0.006560471893861677
+      },
+      "outgoing_return_60d": {
+        "goodMean": 0.016438146983442384,
+        "badMean": 0.040711335620790545,
+        "goodMedian": 0.01686917438743185,
+        "badMedian": 0.0379484201574487,
+        "goodMinusBadMean": -0.02427318863734816,
+        "ci95": [
+          -0.07520943207255511,
+          0.03045043999702958
+        ],
+        "hedgesG": -0.20962197965913443
+      },
+      "incoming_return_60d": {
+        "goodMean": 0.1359727852020674,
+        "badMean": 0.17307867555322037,
+        "goodMedian": 0.11566794253269042,
+        "badMedian": 0.15442170030250013,
+        "goodMinusBadMean": -0.03710589035115297,
+        "ci95": [
+          -0.10169889589924357,
+          0.01779437685042038
+        ],
+        "hedgesG": -0.2803431394982389
+      },
+      "outgoing_acceleration": {
+        "goodMean": -0.029542381661569986,
+        "badMean": -0.03852287531243986,
+        "goodMedian": -0.0276716752886265,
+        "badMedian": -0.04364998058470826,
+        "goodMinusBadMean": 0.008980493650869871,
+        "ci95": [
+          -0.011312388749973461,
+          0.02941207798108798
+        ],
+        "hedgesG": 0.18582808239883758
+      },
+      "incoming_acceleration": {
+        "goodMean": 0.03407876098099869,
+        "badMean": 0.02230212616749935,
+        "goodMedian": 0.020537205287963507,
+        "badMedian": 0.02470528719644778,
+        "goodMinusBadMean": 0.011776634813499342,
+        "ci95": [
+          -0.02227749986134753,
+          0.046790828461955175
+        ],
+        "hedgesG": 0.1638323102307914
+      },
+      "outgoing_unrealized_return": {
+        "goodMean": 0.02526456802615409,
+        "badMean": 0.02714840824810985,
+        "goodMedian": -0.0014889538079117526,
+        "badMedian": 0.0282992813311993,
+        "goodMinusBadMean": -0.0018838402219557605,
+        "ci95": [
+          -0.05099211150656851,
+          0.05127336593520217
+        ],
+        "hedgesG": -0.014824527546328852
+      },
+      "outgoing_holding_sessions": {
+        "goodMean": 61.95454545454545,
+        "badMean": 68.86486486486487,
+        "goodMedian": 41.0,
+        "badMedian": 42.0,
+        "goodMinusBadMean": -6.910319410319417,
+        "ci95": [
+          -30.92175512310187,
+          16.115678271308514
+        ],
+        "hedgesG": -0.11623213406263004
+      },
+      "outgoing_mfe_to_date": {
+        "goodMean": 0.10684985981063004,
+        "badMean": 0.11163588879241192,
+        "goodMedian": 0.0504053392954954,
+        "badMedian": 0.0785030641021196,
+        "goodMinusBadMean": -0.004786028981781876,
+        "ci95": [
+          -0.057248860819914794,
+          0.04530567214943739
+        ],
+        "hedgesG": -0.0353197891926145
+      },
+      "outgoing_mae_to_date": {
+        "goodMean": -0.05811940597106637,
+        "badMean": -0.064471986633674,
+        "goodMedian": -0.05742365127012772,
+        "badMedian": -0.04028199220366646,
+        "goodMinusBadMean": 0.006352580662607625,
+        "ci95": [
+          -0.015808216482343748,
+          0.032113887733889256
+        ],
+        "hedgesG": 0.1147414273307827
+      },
+      "outgoing_giveback": {
+        "goodMean": 0.08158529178447593,
+        "badMean": 0.08448748054430207,
+        "goodMedian": 0.08136868603175257,
+        "badMedian": 0.06454208064719213,
+        "goodMinusBadMean": -0.0029021887598261326,
+        "ci95": [
+          -0.03468138480358526,
+          0.024716077933041612
+        ],
+        "hedgesG": -0.042375938000249504
+      },
+      "incoming_drawdown_from_60d_high": {
+        "goodMean": -0.022069083270206524,
+        "badMean": -0.02086292028229044,
+        "goodMedian": -0.018224791579971478,
+        "badMedian": -0.009950793641762767,
+        "goodMinusBadMean": -0.0012061629879160825,
+        "ci95": [
+          -0.010733609955508747,
+          0.0097753617902255
+        ],
+        "hedgesG": -0.04927093166994787
+      },
+      "incoming_distance_from_189d_high": {
+        "goodMean": -0.025111601909580582,
+        "badMean": -0.0229349758780223,
+        "goodMedian": -0.02130668386896495,
+        "badMedian": -0.010517845927747071,
+        "goodMinusBadMean": -0.0021766260315582812,
+        "ci95": [
+          -0.012783464496301456,
+          0.008537683508539968
+        ],
+        "hedgesG": -0.0839064851312597
+      }
+    }
+  },
+  "allContinuousRelationships": {
+    "rank_gap": {
+      "spearman": -0.05310828659401869,
+      "ci95": [
+        -0.2798757668030053,
+        0.1718261220947685
+      ],
+      "rawN": 81,
+      "effectiveN": 53,
+      "method": "cluster bootstrap of fixed full-sample ranks"
+    },
+    "outgoing_rank_deterioration": {
+      "spearman": 0.016515735065029794,
+      "ci95": [
+        -0.19056674853952357,
+        0.22594813597683708
+      ],
+      "rawN": 81,
+      "effectiveN": 53,
+      "method": "cluster bootstrap of fixed full-sample ranks"
+    },
+    "score_spread": {
+      "spearman": -0.08929539295392953,
+      "ci95": [
+        -0.32897528427457196,
+        0.14406001286608508
+      ],
+      "rawN": 81,
+      "effectiveN": 53,
+      "method": "cluster bootstrap of fixed full-sample ranks"
+    },
+    "score_percentile_spread": {
+      "spearman": -0.05430898843220705,
+      "ci95": [
+        -0.28003548872566053,
+        0.16921283752034083
+      ],
+      "rawN": 81,
+      "effectiveN": 53,
+      "method": "cluster bootstrap of fixed full-sample ranks"
+    },
+    "outgoing_return_20d": {
+      "spearman": 0.03498193315266486,
+      "ci95": [
+        -0.16354620970448305,
+        0.2376174884238262
+      ],
+      "rawN": 81,
+      "effectiveN": 53,
+      "method": "cluster bootstrap of fixed full-sample ranks"
+    },
+    "incoming_return_20d": {
+      "spearman": -0.03622402890695573,
+      "ci95": [
+        -0.27365954018784405,
+        0.1925046861787771
+      ],
+      "rawN": 81,
+      "effectiveN": 53,
+      "method": "cluster bootstrap of fixed full-sample ranks"
+    },
+    "outgoing_return_60d": {
+      "spearman": -0.08902439024390245,
+      "ci95": [
+        -0.316366674021928,
+        0.14747827285696316
+      ],
+      "rawN": 81,
+      "effectiveN": 53,
+      "method": "cluster bootstrap of fixed full-sample ranks"
+    },
+    "incoming_return_60d": {
+      "spearman": -0.16540198735320685,
+      "ci95": [
+        -0.40575544616568676,
+        0.07815092775638532
+      ],
+      "rawN": 81,
+      "effectiveN": 53,
+      "method": "cluster bootstrap of fixed full-sample ranks"
+    },
+    "outgoing_acceleration": {
+      "spearman": 0.15112917795844624,
+      "ci95": [
+        -0.06404044016526997,
+        0.36233511928366996
+      ],
+      "rawN": 81,
+      "effectiveN": 53,
+      "method": "cluster bootstrap of fixed full-sample ranks"
+    },
+    "incoming_acceleration": {
+      "spearman": 0.06402439024390243,
+      "ci95": [
+        -0.1750339660843675,
+        0.30505604857379515
+      ],
+      "rawN": 81,
+      "effectiveN": 53,
+      "method": "cluster bootstrap of fixed full-sample ranks"
+    },
+    "outgoing_unrealized_return": {
+      "spearman": -0.05867208672086721,
+      "ci95": [
+        -0.29017269657535993,
+        0.17002188991843364
+      ],
+      "rawN": 81,
+      "effectiveN": 53,
+      "method": "cluster bootstrap of fixed full-sample ranks"
+    },
+    "outgoing_holding_sessions": {
+      "spearman": -0.05601366120239769,
+      "ci95": [
+        -0.30402692612672955,
+        0.17254042064566003
+      ],
+      "rawN": 81,
+      "effectiveN": 53,
+      "method": "cluster bootstrap of fixed full-sample ranks"
+    },
+    "outgoing_mfe_to_date": {
+      "spearman": -0.044194406113518235,
+      "ci95": [
+        -0.2633717898941707,
+        0.17639515437144426
+      ],
+      "rawN": 81,
+      "effectiveN": 53,
+      "method": "cluster bootstrap of fixed full-sample ranks"
+    },
+    "outgoing_mae_to_date": {
+      "spearman": -0.0022358985976580516,
+      "ci95": [
+        -0.2521519861141542,
+        0.24107317609262854
+      ],
+      "rawN": 81,
+      "effectiveN": 53,
+      "method": "cluster bootstrap of fixed full-sample ranks"
+    },
+    "outgoing_giveback": {
+      "spearman": 0.018113037124462196,
+      "ci95": [
+        -0.2237682864748738,
+        0.24034780882971146
+      ],
+      "rawN": 81,
+      "effectiveN": 53,
+      "method": "cluster bootstrap of fixed full-sample ranks"
+    },
+    "incoming_drawdown_from_60d_high": {
+      "spearman": -0.1393369388690483,
+      "ci95": [
+        -0.33707575069100404,
+        0.057736400792604
+      ],
+      "rawN": 81,
+      "effectiveN": 53,
+      "method": "cluster bootstrap of fixed full-sample ranks"
+    },
+    "incoming_distance_from_189d_high": {
+      "spearman": -0.16784824486151215,
+      "ci95": [
+        -0.3522324836514606,
+        0.01685387054606038
+      ],
+      "rawN": 81,
+      "effectiveN": 53,
+      "method": "cluster bootstrap of fixed full-sample ranks"
+    }
+  },
+  "nullCalibration": {
+    "observedStrongestFeature": "incoming_distance_from_189d_high",
+    "observedAbsoluteSpearman": 0.16784824486151215,
+    "nullMedianMaxAbsoluteSpearman": 0.21610414490155994,
+    "nullP95MaxAbsoluteSpearman": 0.32346948200286724,
+    "familywiseEmpiricalP": 0.8115942028985508,
+    "draws": 2000,
+    "seed": 20260822,
+    "method": "same-size rebalance-cluster outcome-vector shuffle; maximum absolute Spearman across preregistered features"
+  },
+  "badReplacementConcentration": {
+    "badEvents": 37,
+    "meanBadPct": -7.325533488956702,
+    "medianBadPct": -6.757904433442019,
+    "totalNegativeEqualSlotPct": -54.2089478182796,
+    "worstFive": [
+      {
+        "rebalance_date": "2024-02-01",
+        "outgoing_symbol": "JPM",
+        "incoming_symbol": "AMGN",
+        "replacement_advantage": -0.18340784168031554,
+        "outgoing_subsequent_return": 0.06945396580855845,
+        "incoming_subsequent_return": -0.1139538758717571
+      },
+      {
+        "rebalance_date": "2023-04-03",
+        "outgoing_symbol": "MRK",
+        "incoming_symbol": "CSCO",
+        "replacement_advantage": -0.17951178144828328,
+        "outgoing_subsequent_return": 0.09296838703795207,
+        "incoming_subsequent_return": -0.08654339441033121
+      },
+      {
+        "rebalance_date": "2023-06-01",
+        "outgoing_symbol": "CAT",
+        "incoming_symbol": "CRM",
+        "replacement_advantage": -0.17298776128983917,
+        "outgoing_subsequent_return": 0.1842738450327568,
+        "incoming_subsequent_return": 0.011286083742917619
+      },
+      {
+        "rebalance_date": "2025-01-02",
+        "outgoing_symbol": "JPM",
+        "incoming_symbol": "AAPL",
+        "replacement_advantage": -0.16849073391290148,
+        "outgoing_subsequent_return": 0.09240512410805257,
+        "incoming_subsequent_return": -0.07608560980484891
+      },
+      {
+        "rebalance_date": "2026-06-01",
+        "outgoing_symbol": "JNJ",
+        "incoming_symbol": "CSCO",
+        "replacement_advantage": -0.16184462880407202,
+        "outgoing_subsequent_return": 0.13463263200100362,
+        "incoming_subsequent_return": -0.027211996803068406
+      }
+    ],
+    "worst1ClusterShareOfNegativePct": 10.755804923576735,
+    "worst3ClusterShareOfNegativePct": 29.297328721293432,
+    "worst5ClusterShareOfNegativePct": 45.040246677548865,
+    "leaveOneClusterOutMeanRangePct": [
+      0.4493265783054445,
+      1.277918930225657
+    ]
+  },
+  "drawdownPeriods": {
+    "2021-22": {
+      "start": "2021-12-29",
+      "end": "2022-06-17",
+      "events": 9,
+      "effectiveN": 6,
+      "meanAdvantagePct": 3.664408696085006,
+      "winRatePct": 55.55555555555556,
+      "equalSlotContributionPct": 6.5959356529530115
+    },
+    "2022-23": {
+      "start": "2022-11-30",
+      "end": "2023-05-31",
+      "events": 13,
+      "effectiveN": 6,
+      "meanAdvantagePct": -2.139066413059093,
+      "winRatePct": 46.15384615384615,
+      "equalSlotContributionPct": -5.561572673953641
+    },
+    "2025": {
+      "start": "2025-02-19",
+      "end": "2025-04-08",
+      "events": 2,
+      "effectiveN": 2,
+      "meanAdvantagePct": 0.5721372581292183,
+      "winRatePct": 50.0,
+      "equalSlotContributionPct": 0.22885490325168734
+    },
+    "2024": {
+      "start": "2024-04-05",
+      "end": "2024-06-11",
+      "events": 4,
+      "effectiveN": 2,
+      "meanAdvantagePct": 5.339477224190076,
+      "winRatePct": 75.0,
+      "equalSlotContributionPct": 4.2715817793520605
+    },
+    "2026": {
+      "start": "2026-05-11",
+      "end": "2026-07-29",
+      "events": 3,
+      "effectiveN": 2,
+      "meanAdvantagePct": -10.002526529758889,
+      "winRatePct": 0.0,
+      "equalSlotContributionPct": -6.0015159178553334
+    }
+  },
+  "dmVsMrm": {
+    "Dual Momentum": {
+      "distribution": {
+        "rawN": 81,
+        "effectiveN": 53,
+        "meanPct": 0.9344228762719852,
+        "medianPct": 1.21082543845501,
+        "stdPct": 9.7956193668053,
+        "p10Pct": -10.968491518321244,
+        "p25Pct": -6.158424252805139,
+        "p75Pct": 5.79372762206588,
+        "p90Pct": 12.810653097709324,
+        "winRatePct": 54.32098765432099,
+        "clusterCi95Pct": [
+          -1.3308336768856703,
+          3.2429246691660896
+        ],
+        "incomingMeanPct": 0.8645797332392978,
+        "outgoingMeanPct": -0.06984314303268736,
+        "incomingMeanMfePct": 5.744438185506684,
+        "incomingMeanMaePct": -5.333316693549706,
+        "outgoingMeanMfePct": 5.810163427554162,
+        "outgoingMeanMaePct": -5.970827115012494,
+        "incomingMeanMaxDrawdownPct": -6.612692563443051,
+        "outgoingMeanMaxDrawdownPct": -7.249308418431843
+      },
+      "scoreSpreadSpearman": {
+        "spearman": -0.08929539295392953,
+        "ci95": [
+          -0.32897528427457196,
+          0.14406001286608508
+        ],
+        "rawN": 81,
+        "effectiveN": 53,
+        "method": "cluster bootstrap of fixed full-sample ranks"
+      },
+      "rankGapSpearman": {
+        "spearman": -0.05310828659401869,
+        "ci95": [
+          -0.2798757668030053,
+          0.1718261220947685
+        ],
+        "rawN": 81,
+        "effectiveN": 53,
+        "method": "cluster bootstrap of fixed full-sample ranks"
+      },
+      "badReplacementPct": 45.67901234567901,
+      "worstReplacementPct": -18.340784168031554,
+      "p10ReplacementPct": -10.968491518321244
+    },
+    "Market-Residual Momentum": {
+      "distribution": {
+        "rawN": 58,
+        "effectiveN": 43,
+        "meanPct": 0.8298700743794604,
+        "medianPct": 1.822175357762379,
+        "stdPct": 8.066812110885222,
+        "p10Pct": -10.34031283824865,
+        "p25Pct": -3.5254202973119124,
+        "p75Pct": 5.351611702323325,
+        "p90Pct": 8.92355555958245,
+        "winRatePct": 62.06896551724138,
+        "clusterCi95Pct": [
+          -1.315286185472306,
+          2.8674583831817024
+        ],
+        "incomingMeanPct": 2.285368128558599,
+        "outgoingMeanPct": 1.4554980541791387,
+        "incomingMeanMfePct": 5.561384694941765,
+        "incomingMeanMaePct": -3.999711700312071,
+        "outgoingMeanMfePct": 5.333926223676425,
+        "outgoingMeanMaePct": -4.1860205507556225,
+        "incomingMeanMaxDrawdownPct": -4.916565035010686,
+        "outgoingMeanMaxDrawdownPct": -5.085638179780039
+      },
+      "scoreSpreadSpearman": {
+        "spearman": -0.13857700944353873,
+        "ci95": [
+          -0.4085185773890479,
+          0.12183137290833582
+        ],
+        "rawN": 58,
+        "effectiveN": 43,
+        "method": "cluster bootstrap of fixed full-sample ranks"
+      },
+      "rankGapSpearman": {
+        "spearman": -0.04961497612701341,
+        "ci95": [
+          -0.3070869434029675,
+          0.19532996755924226
+        ],
+        "rawN": 58,
+        "effectiveN": 43,
+        "method": "cluster bootstrap of fixed full-sample ranks"
+      },
+      "badReplacementPct": 37.93103448275862,
+      "worstReplacementPct": -16.087415807851812,
+      "p10ReplacementPct": -10.34031283824865
+    }
+  },
+  "economicMagnitude": {
+    "totalEqualSlotContributionPct": 15.13765059560616,
+    "annualizedArithmeticPct": 3.027530119121232,
+    "groupEconomics": {
+      "small (1-2)": {
+        "equalSlotContributionPct": 6.241685546632851,
+        "annualizedArithmeticPct": 1.2483371093265703,
+        "shareOfNetReplacementContributionPct": 41.23285517268153,
+        "effectiveN": 17
+      },
+      "medium (3-5)": {
+        "equalSlotContributionPct": 0.3015362923602849,
+        "annualizedArithmeticPct": 0.06030725847205698,
+        "shareOfNetReplacementContributionPct": 1.9919622959708723,
+        "effectiveN": 26
+      },
+      "large (6+)": {
+        "equalSlotContributionPct": 8.594428756613024,
+        "annualizedArithmeticPct": 1.7188857513226048,
+        "shareOfNetReplacementContributionPct": 56.77518253134759,
+        "effectiveN": 19
+      }
+    },
+    "caveat": "Arithmetic event attribution is not a compounded portfolio counterfactual; group shares are unstable when net contribution is near zero."
+  },
+  "decisionAssessment": {
+    "strongestFeature": "incoming_distance_from_189d_high",
+    "strongestSpearman": -0.16784824486151215,
+    "extremeGroupDifferencePct": -3.6660296157019876,
+    "nullDirectionallySupportive": false,
+    "economicallyMaterial": true,
+    "atLeast20Clusters": true,
+    "notDominatedByWorstCluster": true,
+    "followupCriteriaMet": false
+  },
+  "strongestFeatureQuartiles": {
+    "Q1": {
+      "range": [
+        -0.10109511665242987,
+        -0.03668794965322053
+      ],
+      "rawN": 21,
+      "effectiveN": 20,
+      "meanAdvantagePct": 2.041127383381705,
+      "medianAdvantagePct": 3.4572820050223663,
+      "winRatePct": 57.14285714285714,
+      "ci95Pct": [
+        -1.2764906389087474,
+        5.373793990700141
+      ]
+    },
+    "Q2": {
+      "range": [
+        -0.036207157589628,
+        -0.018827531106970108
+      ],
+      "rawN": 20,
+      "effectiveN": 18,
+      "meanAdvantagePct": 3.908832829010907,
+      "medianAdvantagePct": 3.4228024552806824,
+      "winRatePct": 60.0,
+      "ci95Pct": [
+        -1.0041427477920086,
+        9.153325586268943
+      ]
+    },
+    "Q3": {
+      "range": [
+        -0.017622052052972847,
+        -0.0011742450874389077
+      ],
+      "rawN": 20,
+      "effectiveN": 16,
+      "meanAdvantagePct": -0.6427017003398738,
+      "medianAdvantagePct": 0.8804741993627574,
+      "winRatePct": 55.00000000000001,
+      "ci95Pct": [
+        -3.2315570267480545,
+        2.1587860977987736
+      ]
+    },
+    "Q4": {
+      "range": [
+        -0.0011442718365296534,
+        0.0
+      ],
+      "rawN": 20,
+      "effectiveN": 17,
+      "meanAdvantagePct": -1.6249022323202826,
+      "medianAdvantagePct": -0.7279151082724034,
+      "winRatePct": 45.0,
+      "ci95Pct": [
+        -6.8717939525383285,
+        2.985270067589026
+      ]
+    }
+  },
+  "candidateMechanisms": [
+    {
+      "mechanism": "Replacement confidence matters",
+      "supported": false,
+      "evidence": "Rank gap Spearman and score-spread Spearman are near zero; bucket results are non-monotonic."
+    },
+    {
+      "mechanism": "Marginal churn is costly",
+      "supported": false,
+      "evidence": "Small rank-gap swaps have positive mean advantage rather than systematic harm."
+    },
+    {
+      "mechanism": "Hot-entry exhaustion",
+      "supported": false,
+      "evidence": "Incoming 20-session strength is non-monotonic and its continuous relationship is near zero."
+    },
+    {
+      "mechanism": "Incumbent deterioration matters",
+      "supported": "descriptive only",
+      "evidence": "Unprofitable and near-MAE incumbents show better replacement economics, but intervals cross zero and the familywise null is unsupportive."
+    },
+    {
+      "mechanism": "No useful replacement structure",
+      "supported": true,
+      "evidence": "No predeclared continuous feature exceeds ordinary strongest-relationship behavior under clustered null calibration."
+    }
+  ],
+  "candidateMechanism": "No simple PIT replacement feature cleared the combined interpretability, materiality, independent-cluster, tail-concentration, and familywise null-calibration standard.",
+  "conclusion": "No simple PIT replacement feature cleared the combined interpretability, materiality, independent-cluster, tail-concentration, and familywise null-calibration standard.",
+  "recommendation": "No narrow replacement modification is currently justified."
+}

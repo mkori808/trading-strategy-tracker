@@ -206,6 +206,32 @@ def test_params_endpoint_exposes_execution_timing_contract():
     assert overnight["exceptionReason"]
 
 
+def test_history_exposes_persisted_run_provenance_and_intraday_interval(monkeypatch):
+    row = {
+        "id": 104, "run_at": "2026-08-13T20:56:14", "start_date": "2026-05-13",
+        "end_date": "2026-08-13", "measured_start": "2026-06-15", "measured_end": "2026-08-12",
+        "trades_taken": 10, "win_rate": 0.5, "expectancy_r": 0.1, "profit_factor": 1.2,
+        "max_drawdown_pct": -2.0, "sharpe": 0.3, "alpha_pct": None,
+        "benchmark_gap_pct": -1.0, "benchmark_name": "SPY", "benchmark_window_start": "2026-06-15",
+        "benchmark_window_end": "2026-08-12", "status": "Backtested", "is_canonical": 0,
+        "universe_id": None, "symbols": '["AAPL"]', "params": '{}', "validation_json": None,
+        "edge_verdict": None, "lifecycle_stage": "preregistered", "slippage_bps": 5.0,
+        "commission_bps": 0.0, "research_search_family": "Opening Range Breakout (ORB):standard",
+        "research_family_search_number": 10, "research_family_search_count": 10,
+        "research_is_preregistered": 1,
+    }
+    monkeypatch.setattr(main, "run_history", lambda _name: [row])
+    [payload] = main.history("Opening Range Breakout (ORB)")
+    assert payload["interval"] == "5m"
+    assert payload["timing"]["execution"] == "NEXT_OPEN"
+    assert payload["requestedStartDate"] == "2026-05-13"
+    assert payload["measuredStartDate"] == "2026-06-15"
+    assert payload["searchFamily"] == "Opening Range Breakout (ORB):standard"
+    assert payload["familySearchNumber"] == 10
+    assert payload["isPreregistered"] is True
+    assert payload["selectedAfterResults"] is None
+
+
 def test_frozen_research_hypotheses_are_registered_before_execution():
     high = main.strategy_params("52-Week-High Momentum")
     assert high["implementationStatus"] == "implemented"

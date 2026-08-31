@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { api, type MarketResponse, type StrategySummary } from "./api";
 import { DashboardView } from "./components/DashboardView";
 import { StrategiesTab } from "./components/StrategiesTab";
-import { StrategySidebar } from "./components/StrategySidebar";
 import { TopBar } from "./components/TopBar";
 import type { Tab } from "./tabs";
 
@@ -63,10 +62,6 @@ function App() {
       <TopBar activeTab={tab} onSelectTab={setTab} />
 
       <div className="flex">
-        {/* Rendered only on Strategies, and in the same commit as the page
-          * itself, so StrategiesTab's portal finds the slot on mount. */}
-        {tab === "strategies" && <StrategySidebar />}
-
         {/* min-w-0 + flex-1: without them a `w-full` flex child refuses to
           * shrink below its content, and sidebar + main together overflowed
           * the viewport -- the whole PAGE scrolled sideways instead of the

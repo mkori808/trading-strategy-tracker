@@ -1,0 +1,108 @@
+{
+  "recordType": "strategy_modification_preregistration",
+  "registeredAt": "2026-08-22",
+  "strategyName": "Dual Momentum - One-Rebalance Winner Grace v1",
+  "statusAtRegistration": "preregistered_before_modified_strategy_results",
+  "researchQuestion": "Does giving an outgoing profitable incumbent exactly one additional monthly rebalance period improve canonical Dual Momentum without sacrificing useful loser replacement behavior?",
+  "canonicalControl": {
+    "name": "Dual Momentum",
+    "implementation": "strategies/swing/dual_momentum.py::DualMomentum and engine/cross_sectional.py::run_cross_sectional_backtest",
+    "configuration": {
+      "lookbackTradingDays": 189,
+      "topN": 5,
+      "rebalanceFrequency": "monthly",
+      "universe": "registered EQUITY_UNIVERSE resolved through the Dow point-in-time membership ledger",
+      "ranking": "189-session close-to-close trailing return; qualify only above the run-window risk-free rate",
+      "positionSizing": "equal weight across selected names, maximum five positions",
+      "transactionCosts": "the canonical per-symbol spread estimates plus the registered commission assumption",
+      "decisionTiming": "history strictly before the rebalance session",
+      "executionTiming": "rebalance-session open"
+    }
+  },
+  "developmentPeriod": {
+    "start": "2021-08-23",
+    "end": "2026-08-22",
+    "role": "development evidence only",
+    "reason": "The completed Trade Lifecycle / Exit-Efficiency Audit inspected this full period for winner exits and replacement behavior. No clean historical holdout remains and none will be manufactured by relabeling inspected dates."
+  },
+  "primaryModification": {
+    "name": "One-Rebalance Winner Grace",
+    "winnerDefinition": "At the pre-open rebalance decision timestamp, the last close available strictly before the rebalance session divided by the incumbent's actual lifecycle entry-open price minus one is strictly positive. The current rebalance open remains the execution price and is not used to decide eligibility because it is not yet known.",
+    "rule": [
+      "Compute the canonical qualifying top-five ranking without alteration.",
+      "A currently held name outside that canonical target is an outgoing incumbent.",
+      "If its last point-in-time close is strictly above its actual lifecycle entry-open price and it did not receive grace at the immediately preceding rebalance, retain it for exactly one additional rebalance period.",
+      "If multiple outgoing incumbents qualify, retain them in ascending current canonical momentum rank, with unrankable names last and symbol as the deterministic final tie-break.",
+      "Fill every remaining invested slot, in canonical rank order, from the normal canonical target, excluding retained grace names. On ordinary five-name rebalances portfolio capacity remains five; no sixth name, leverage, or additional capital is allowed. If the canonical absolute-momentum filter supplies fewer than five names, the modified target preserves that canonical invested-slot count and cash allocation; grace is limited to the number of actual canonical incoming names available to defer.",
+      "The canonical incoming name displaced from the fifth slot upward by each grace retention is the deferred incoming for event accounting, paired in retained-incumbent rank order against displaced names in canonical rank order.",
+      "At the next rebalance the grace expires. If the incumbent is independently in the canonical top five it becomes a normal holding; otherwise it exits and cannot receive chained grace for that exit event.",
+      "Zero-return and losing outgoing incumbents never receive grace and exit on the canonical schedule."
+    ],
+    "state": "Track actual lifecycle entry price and a one-period grace-active flag per held security. Reset the flag only after the security independently returns to the canonical target or exits.",
+    "prohibitedVariants": [
+      "alternate grace durations",
+      "minimum winner thresholds",
+      "MFE thresholds",
+      "rank buffers",
+      "stop losses",
+      "profit targets",
+      "volatility or regime filters",
+      "any post-result retuning"
+    ]
+  },
+  "capacityAndExecution": {
+    "targetPositions": "five when five names pass the canonical absolute filter; otherwise exactly the canonical target count, preserving canonical cash slots",
+    "weights": "equal weights using the canonical engine's target-weight convention; 20% when five securities are available, with canonical cash behavior preserved if fewer than five names qualify",
+    "priceForWinnerState": "last close strictly before the rebalance session versus actual lifecycle entry open; the current open is reserved for execution",
+    "futureEventWindow": "current rebalance open through next rebalance open for both incumbent and deferred incoming",
+    "costs": "apply canonical costs to actual modified-strategy traded deltas; counterfactual event returns are gross price comparisons over identical windows"
+  },
+  "metrics": {
+    "primary": "Mean incumbent-minus-deferred-incoming open-to-open return over the next rebalance period",
+    "secondary": [
+      "median event difference and event win rate",
+      "net cumulative return, CAGR, annualized volatility, Sharpe, Sortino, max drawdown and drawdown duration",
+      "worst day, rolling 5 sessions, rolling 20 sessions, worst month and positive-month share",
+      "turnover, costs, average completed-position holding period, entries and exits",
+      "winner MFE capture, winner giveback, post-exit continuation, replacement quality",
+      "concentration, pairwise correlation, sector concentration where point-in-time labels are usable",
+      "own-capital and standard prop-account outcomes"
+    ]
+  },
+  "dependenceAndRobustness": {
+    "clusterUnit": "rebalance date",
+    "effectiveN": "unique rebalance dates containing at least one grace event",
+    "confidenceInterval": "95% rebalance-cluster bootstrap, 2000 draws, seed 20260822",
+    "null": "zero mean incumbent-minus-deferred return; uncertainty is descriptive because no clean holdout remains",
+    "concentration": "top 1, top 3 and top 5 event contributions plus leave-one-rebalance-cluster-out mean and cumulative event impact",
+    "rankDiagnostics": ["rank 6-7", "rank 8-10", "rank >10 or unranked"],
+    "noRetuning": true
+  },
+  "successCriteria": {
+    "historicalCandidateRequiresForwardValidation": [
+      "mean and median grace-event incumbent-minus-deferred return are positive",
+      "modified net cumulative return exceeds canonical control",
+      "winner capture improves or winner giveback declines",
+      "loser replacements reconcile as unchanged",
+      "max drawdown deterioration is no more than 2 percentage points and worst-day deterioration is no more than 1 percentage point",
+      "at least 12 independent grace rebalance clusters",
+      "the largest single grace event supplies less than 50% of total positive event contribution"
+    ],
+    "interestingHistoricalCandidateInsufficientIndependentEvidence": "Mechanism economics are positive but one or more breadth, risk, lifecycle, or effective-N criteria fail.",
+    "modificationUnsupported": "Primary mean event economics are non-positive, net portfolio performance declines, loser replacement is not preserved, or tail-risk deterioration exceeds a preregistered limit without commensurate mechanism evidence.",
+    "validationPassed": "Unavailable on this historical sample because no genuinely unseen validation slice remains."
+  },
+  "forwardTest": {
+    "earliestEvidenceDate": "strictly after 2026-08-22 registration/development cutoff",
+    "canonicalReplacementAuthorized": false,
+    "frozenPortfolioReplacementAuthorized": false
+  },
+  "preResultAmendments": [
+    {
+      "date": "2026-08-22",
+      "stage": "first execution stopped before any modified performance result was produced",
+      "issue": "Canonical DM held only two qualifying names on 2022-10-03. Requiring five modified holdings would either admit three absolute-momentum failures or grace non-winners, violating higher-priority frozen rules.",
+      "resolution": "Preserve the canonical invested-slot count and cash allocation whenever fewer than five names qualify. Grace events require and are capped by actual canonical incoming names, so every event retains the intended incumbent-versus-deferred-incoming counterfactual."
+    }
+  ]
+}

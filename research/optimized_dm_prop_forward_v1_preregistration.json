@@ -1,0 +1,63 @@
+{
+  "program": "Optimized DM Prospective Prop Shadows v1",
+  "preregisteredAt": "2026-08-22T19:04:56.9247152-07:00",
+  "prospectiveObservationStart": "first regular-market snapshot strictly after preregisteredAt",
+  "strategy": {
+    "name": "Dual Momentum",
+    "displayName": "Dual Momentum · Optimized 63D/Daily",
+    "validationRunId": 33,
+    "parameters": {"lookback_trading_days": 63, "top_n": 5, "rebalance_frequency": "daily"},
+    "universe": ["AAMI", "ACIW", "AEO", "ALG", "AROC", "AWI", "BCPC", "BLFS", "BXMT", "CBRL", "CFFN", "CRC", "CXW", "DFIN", "EAT", "ENPH", "EVTC", "FCPT", "FORM", "GEO", "GRBK", "HCC", "HOPE", "HZO", "INVA", "JBSS"],
+    "historicalOptimizationBranch": "FROZEN_CLOSED",
+    "historicalDevelopmentSessions": 250
+  },
+  "methodologicalCaveat": "Monte Carlo paths describe implications of the observed approximately 250-session development process; they do not create additional independent historical evidence.",
+  "historicalEvidence": {
+    "preregistration": "research/prop_scaling_survival_v1_preregistration.json",
+    "results": "reports/prop_scaling_survival_v1/results.json",
+    "classification": "historical development plus synthetic Monte Carlo; never merged with prospective observations"
+  },
+  "sampling": {
+    "intervalSeconds": 300,
+    "hours": "regular market hours according to Alpaca clock",
+    "source": "Alpaca paper account-level equity and positions",
+    "appendOnly": true,
+    "offlinePolicy": "Do not backfill or fabricate missing snapshots; retain and report gaps."
+  },
+  "rules": {
+    "accountSize": 100000,
+    "dailyLossLimitPct": 0.03,
+    "maximumDrawdownPct": 0.06,
+    "evaluationProfitTargetPct": 0.08,
+    "payoutSplit": 0.80,
+    "challengeFee": 500,
+    "resetFee": 500,
+    "payoutCadenceCompletedSessions": 21,
+    "newAttemptAfterFailure": true
+  },
+  "shadows": [
+    {
+      "key": "optimized_dm_020_trailing",
+      "label": "Conservative",
+      "scale": 0.20,
+      "drawdownRule": "trailing_to_breakeven",
+      "reason": "Conservative scale supported by the preregistered trailing-to-breakeven historical sensitivity."
+    },
+    {
+      "key": "optimized_dm_025_static",
+      "label": "Static reference",
+      "scale": 0.25,
+      "drawdownRule": "static",
+      "reason": "Low-breach static-rule reference from the preregistered historical frontier."
+    }
+  ],
+  "checkpointsCompletedSessions": [20, 60, 126, 252],
+  "maturityLanguage": ["Not started", "Too early", "Forward collecting", "Interim descriptive evidence", "Mature enough for review"],
+  "prohibitions": [
+    "No new historical DM parameter, universe, leverage, timing, exit, reset, or risk-rule optimization.",
+    "No additional Alpaca orders or changes to actual paper sizing.",
+    "No retrospective edits, fabricated snapshots, erased breaches, or merged historical/forward statistics.",
+    "A future scale requires a new preregistration and cannot inherit these observations."
+  ],
+  "controlForwardSeriesPreserved": ["Canonical DM", "Canonical MRM", "Fixed 50/50 DM/MRM", "Frozen volatility-scaled DM/MRM"]
+}

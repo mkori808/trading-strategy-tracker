@@ -1,0 +1,93 @@
+{
+  "study": "Dual Momentum SPY-Underperformance Antecedent Audit v1",
+  "preregisteredAt": "2026-08-26",
+  "purpose": "Test whether a small frozen set of conditions known by T-1 predicts daily Dual Momentum underperformance versus SPY, while distinguishing relative misses from absolute account losses.",
+  "strategySources": [
+    {
+      "key": "dm_optimized_63d_daily",
+      "source": "portfolio_runs.id=33",
+      "configuration": "63-session lookback, top 5, daily rebalance, frozen 26-symbol universe",
+      "execution": "Use the execution overlay frozen in research/dm_regime_dependence_v1_preregistration.json.",
+      "evidenceCap": "exploratory_historical because the configuration was selected using this development period"
+    },
+    {
+      "key": "canonical_dm_189d_monthly",
+      "source": "portfolio_runs.id=26",
+      "configuration": "registered 189-session lookback, top 5, monthly rebalance, point-in-time Dow membership",
+      "execution": "Retain the canonical registered cost model."
+    }
+  ],
+  "dailyOutcomes": {
+    "primaryEvent": {
+      "key": "underperformed_spy",
+      "definition": "strategy close-to-close return at T minus aligned SPY close-to-close return at T is strictly below zero"
+    },
+    "quadrants": [
+      "strategy return < 0 and active return < 0: absolute loss plus SPY underperformance",
+      "strategy return < 0 and active return >= 0: absolute loss but SPY outperformance",
+      "strategy return >= 0 and active return < 0: profitable but opportunity-cost day",
+      "strategy return >= 0 and active return >= 0: profitable and SPY-outperforming day"
+    ],
+    "severeRelativeMiss": "The bottom-decile active-return cutoff estimated only from the earliest 60% of aligned observations, then frozen and evaluated descriptively on the final 40%.",
+    "absoluteLoss": "strategy daily return strictly below zero",
+    "jointDamagingEvent": "strategy daily return below zero and active return below zero",
+    "betaAdjustedSensitivity": "Residual return equals strategy return minus rolling 252-session beta, estimated through T-1, times SPY return T. Residual-underperformance rates are descriptive only."
+  },
+  "primaryQualifications": [
+    {
+      "key": "spy_trend",
+      "trueState": "SPY close at T-1 above its 200-session SMA through T-1",
+      "source": "identical frozen definition from the regime-dependence audit"
+    },
+    {
+      "key": "market_volatility",
+      "trueState": "SPY 21-session realized volatility through T-1 above the median of its preceding 252 estimates",
+      "source": "identical frozen definition from the regime-dependence audit"
+    },
+    {
+      "key": "cross_sectional_dispersion",
+      "trueState": "T-1 constituent return dispersion above its preceding 63-session median",
+      "source": "identical frozen definition from the regime-dependence audit"
+    },
+    {
+      "key": "prior_drawdown_5pct",
+      "trueState": "strategy equity through T-1 is at least 5% below its prior running peak",
+      "source": "fixed economically interpretable threshold; not searched"
+    },
+    {
+      "key": "strategy_volatility",
+      "trueState": "strategy 21-session realized volatility through T-1 above the median of its preceding 63 estimates",
+      "source": "point-in-time adaptive state; threshold history excludes the current estimate"
+    }
+  ],
+  "primaryInference": {
+    "testFamily": "10 tests: two strategies crossed with five qualifications; primary event only",
+    "estimand": "P(underperformed SPY | qualification true) minus P(underperformed SPY | qualification false)",
+    "reportedEffectMeasures": ["risk difference", "risk ratio", "odds ratio", "precision", "recall", "mean active-return severity"],
+    "movingBlockBootstrapReplications": 5000,
+    "blockLengthSessions": 21,
+    "seed": 20260826,
+    "confidenceLevel": 0.95,
+    "multipleTesting": "Benjamini-Hochberg correction across all 10 primary tests",
+    "leaveOneYearOut": true,
+    "minimumObservationsPerQualificationState": 63,
+    "minimumEvents": 30,
+    "minimumCalendarYearsForStableCandidate": 3,
+    "minimumLeaveOneYearOutDirectionalAgreement": 0.80,
+    "stableCandidateRule": "q <= 0.10, 95% block-bootstrap risk-difference CI excludes zero, both qualification states have at least 63 observations, at least 30 underperformance events occur, at least three calendar years contribute, and at least 80% of usable leave-one-year-out estimates share the full-sample direction"
+  },
+  "interpretationGuards": [
+    "Qualification values must be available no later than T-1; same-day losses, fills, contributions, and slippage cannot be predictive qualifications.",
+    "A high P(qualification | bad day) is never treated as predictive without comparison to the qualification's unconditional base rate.",
+    "Secondary outcomes and beta-adjusted sensitivity are descriptive and cannot rescue a failed primary test.",
+    "Optimized DM remains capped at exploratory historical evidence regardless of p-values.",
+    "No condition may suppress, resize, create, modify, or cancel a live order.",
+    "No threshold or qualification may be added after results are observed."
+  ],
+  "prospectiveExtension": {
+    "parent": "existing fingerprint-locked Optimized DM prospective regime ledger",
+    "start": "first completed session strictly after 2026-08-26",
+    "fields": ["strategy account return", "aligned SPY return", "active return", "absolute-loss flag", "SPY-underperformance flag", "joint-damaging flag"],
+    "separation": "prospective observations remain separate from all historical statistics"
+  }
+}

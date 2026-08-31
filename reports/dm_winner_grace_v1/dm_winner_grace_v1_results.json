@@ -1,0 +1,580 @@
+{
+  "strategyName": "Dual Momentum - One-Rebalance Winner Grace v1",
+  "preregistration": "research\\dm_winner_grace_v1_preregistration.json",
+  "developmentPeriod": {
+    "start": "2021-08-23",
+    "end": "2026-08-22",
+    "role": "development evidence only",
+    "reason": "The completed Trade Lifecycle / Exit-Efficiency Audit inspected this full period for winner exits and replacement behavior. No clean historical holdout remains and none will be manufactured by relabeling inspected dates."
+  },
+  "validationStatus": "No clean historical holdout remains",
+  "implementationAudit": {
+    "canonicalParameters": {
+      "lookbackTradingDays": 189,
+      "topN": 5,
+      "rebalanceFrequency": "monthly"
+    },
+    "sameDates": true,
+    "sameSymbols": true,
+    "sameMembership": true,
+    "sameCostVector": true,
+    "loserOutgoingCount": 28,
+    "loserGraceViolations": 0,
+    "loggedGraceEventsReconcile": true,
+    "eachGraceHasOneDeferredIncoming": true,
+    "allGraceStatesStrictlyPositive": true,
+    "targetCountMatchesCanonical": true,
+    "graceNeverChained": true
+  },
+  "performanceComparison": {
+    "annualizedVolatilityPct": {
+      "canonical": 19.950627648644183,
+      "winnerGrace": 20.549203692107273,
+      "difference": 0.5985760434630905
+    },
+    "maxDrawdownPct": {
+      "canonical": 20.538089163692106,
+      "winnerGrace": 21.623986956043932,
+      "difference": 1.085897792351826
+    },
+    "worstMonthPct": {
+      "canonical": -12.064619357767336,
+      "winnerGrace": -11.977707543518113,
+      "difference": 0.08691181424922334
+    },
+    "positiveMonthPct": {
+      "canonical": 56.666666666666664,
+      "winnerGrace": 55.00000000000001,
+      "difference": -1.6666666666666572
+    },
+    "totalTradedNotional": {
+      "canonical": 506545.25797724194,
+      "winnerGrace": 338966.0421619466,
+      "difference": -167579.21581529535
+    },
+    "sortino": {
+      "canonical": 1.1128130502497475,
+      "winnerGrace": 0.9674048504278528,
+      "difference": -0.14540819982189468
+    },
+    "cumulativeReturnPct": {
+      "canonical": 134.4353009424064,
+      "winnerGrace": 119.31893771364925,
+      "difference": -15.116363228757152
+    },
+    "entries": {
+      "canonical": 90,
+      "winnerGrace": 64,
+      "difference": -26
+    },
+    "annualizedTurnoverMultiple": {
+      "canonical": 7.4070852471629305,
+      "winnerGrace": 5.3572068727221875,
+      "difference": -2.049878374440743
+    },
+    "worstRolling20Pct": {
+      "canonical": -13.740174242740233,
+      "winnerGrace": -13.495089378596138,
+      "difference": 0.24508486414409525
+    },
+    "exits": {
+      "canonical": 85,
+      "winnerGrace": 59,
+      "difference": -26
+    },
+    "worstRolling5Pct": {
+      "canonical": -11.57541261897872,
+      "winnerGrace": -12.517520846664876,
+      "difference": -0.9421082276861554
+    },
+    "transactionCosts": {
+      "canonical": 118.2117985331762,
+      "winnerGrace": 79.44906107558569,
+      "difference": -38.762737457590504
+    },
+    "sharpe": {
+      "canonical": 0.7476479808927472,
+      "winnerGrace": 0.6490881196487013,
+      "difference": -0.09855986124404592
+    },
+    "cagrPct": {
+      "canonical": 18.515703670066543,
+      "winnerGrace": 16.944387370221815,
+      "difference": -1.571316299844728
+    },
+    "worstDayPct": {
+      "canonical": -6.592907296689898,
+      "winnerGrace": -6.619433475455494,
+      "difference": -0.026526178765596597
+    },
+    "open": {
+      "canonical": 5,
+      "winnerGrace": 5,
+      "difference": 0
+    },
+    "maxDrawdownDurationSessions": {
+      "canonical": 250,
+      "winnerGrace": 236,
+      "difference": -14
+    }
+  },
+  "lifecycleComparison": {
+    "loserReplacementWinRatePct": {
+      "canonical": 66.66666666666666,
+      "winnerGrace": 58.82352941176471,
+      "difference": -7.843137254901947
+    },
+    "loserReplacementAdvantagePct": {
+      "canonical": 2.32922421655348,
+      "winnerGrace": 1.4374871442868358,
+      "difference": -0.8917370722666442
+    },
+    "medianWinnerGivebackPct": {
+      "canonical": 5.912402922097915,
+      "winnerGrace": 7.0650551167075415,
+      "difference": 1.1526521946096269
+    },
+    "averageReplacementAdvantagePct": {
+      "canonical": 0.9344228762719852,
+      "winnerGrace": 0.18866295000145483,
+      "difference": -0.7457599262705303
+    },
+    "medianWinnerMfeCapturePct": {
+      "canonical": 62.79394468478866,
+      "winnerGrace": 58.62804303793059,
+      "difference": -4.1659016468580745
+    },
+    "replacementWinRatePct": {
+      "canonical": 54.32098765432099,
+      "winnerGrace": 53.57142857142857,
+      "difference": -0.7495590828924179
+    },
+    "meanWinnerGivebackPct": {
+      "canonical": 7.195695755714965,
+      "winnerGrace": 10.206809551961229,
+      "difference": 3.0111137962462635
+    },
+    "completedPositions": {
+      "canonical": 85,
+      "winnerGrace": 59,
+      "difference": -26
+    },
+    "meanPostExit20dPct": {
+      "canonical": 0.9170821623523385,
+      "winnerGrace": 0.9659841677507891,
+      "difference": 0.048902005398450576
+    },
+    "medianHoldingSessions": {
+      "canonical": 42.0,
+      "winnerGrace": 70.0,
+      "difference": 28.0
+    },
+    "loserReplacementN": {
+      "canonical": 39,
+      "winnerGrace": 34,
+      "difference": -5
+    },
+    "replacementN": {
+      "canonical": 81,
+      "winnerGrace": 56,
+      "difference": -25
+    }
+  },
+  "graceEconomics": {
+    "rawEvents": 42,
+    "effectiveN": 34,
+    "canonicalExitSharePct": 49.411764705882355,
+    "winRatePct": 47.61904761904761,
+    "meanDifferencePct": -0.8630631831927366,
+    "medianDifferencePct": -1.8496906515534872,
+    "ci95Pct": [
+      -3.6743593783886634,
+      1.9900077062469212
+    ],
+    "clusterBootstrap": {
+      "mean": -0.008630631831927365,
+      "ci95": [
+        -0.036743593783886634,
+        0.019900077062469212
+      ],
+      "effectiveN": 34,
+      "rawN": 42,
+      "method": "rebalance-cluster bootstrap, 2000 draws, seed 20260822"
+    },
+    "equalSlotCumulativePct": -7.249730738818987
+  },
+  "rankDiagnostics": {
+    "rank 6-7": {
+      "events": 23,
+      "clusters": 22,
+      "winRatePct": 43.47826086956522,
+      "meanDifferencePct": -0.6660634189653487,
+      "medianDifferencePct": -3.4238406751796346,
+      "incumbentReturnPct": 0.7439232780287957,
+      "deferredIncomingReturnPct": 1.4099866969941444
+    },
+    "rank 8-10": {
+      "events": 15,
+      "clusters": 13,
+      "winRatePct": 53.333333333333336,
+      "meanDifferencePct": -1.968077914713407,
+      "medianDifferencePct": 0.4521034088879383,
+      "incumbentReturnPct": -1.2120694035317494,
+      "deferredIncomingReturnPct": 0.7560085111816576
+    },
+    "rank >10 or unranked": {
+      "events": 4,
+      "clusters": 4,
+      "winRatePct": 50.0,
+      "meanDifferencePct": 2.1479934157022984,
+      "medianDifferencePct": 0.2324877552509763,
+      "incumbentReturnPct": 1.160464251110485,
+      "deferredIncomingReturnPct": -0.9875291645918133
+    }
+  },
+  "deferredIncomingDiagnostics": {
+    "events": 42,
+    "meanReturnPct": 0.948088215243403,
+    "medianReturnPct": 0.03285649581123429,
+    "canonicalIncomingMeanReturnPct": 0.9578605424956396,
+    "rank1SharePct": 2.380952380952381,
+    "topQuartileMomentumScoreSharePct": 30.952380952380953,
+    "laterLargeWinnerSharePct": 28.57142857142857,
+    "largeWinnerDefinition": "top quartile of next-period returns among all canonical incoming events",
+    "extremeMomentumDefinition": "top quartile of scores among all canonical incoming events"
+  },
+  "concentrationOfEvidence": {
+    "events": 42,
+    "positiveEvents": 20,
+    "negativeEvents": 22,
+    "top1ShareOfPositivePct": 11.440348469022373,
+    "top3ShareOfPositivePct": 31.890413356810026,
+    "top5ShareOfPositivePct": 50.31803034065244,
+    "top1Event": {
+      "date": "2025-01-02",
+      "incumbent_symbol": "JPM",
+      "incumbent_rank": 7,
+      "incumbent_score": 0.22664170886793,
+      "unrealized_return": 0.19873143578945363,
+      "deferred_incoming_symbol": "AAPL",
+      "incoming_rank": 2,
+      "incoming_score": 0.48854621570284995,
+      "entry_date": "2024-06-03",
+      "next_rebalance_date": "2025-02-03",
+      "incumbent_next_return": 0.09240512410805257,
+      "deferred_incoming_next_return": -0.07608560980484891,
+      "incumbent_minus_incoming": 0.16849073391290148,
+      "rank_category": "rank 6-7"
+    },
+    "worstEvent": {
+      "date": "2024-04-01",
+      "incumbent_symbol": "INTC",
+      "incumbent_rank": 9,
+      "incumbent_score": 0.3287170422838315,
+      "unrealized_return": 0.2481082172611364,
+      "deferred_incoming_symbol": "TRV",
+      "incoming_rank": 5,
+      "incoming_score": 0.3892835189114485,
+      "entry_date": "2023-10-02",
+      "next_rebalance_date": "2024-05-01",
+      "incumbent_next_return": -0.31880787301537483,
+      "deferred_incoming_next_return": -0.07680265172091794,
+      "incumbent_minus_incoming": -0.2420052212944569,
+      "rank_category": "rank 8-10"
+    },
+    "leaveOneClusterOutMeanRangePct": [
+      -1.3571536403566538,
+      -0.4551638954363596
+    ],
+    "leaveOneClusterOutCumulativeRangePct": [
+      -10.85722912285323,
+      -3.641311163490877
+    ]
+  },
+  "decomposition": {
+    "winnerGraceEqualSlotArithmeticPct": -7.249730738818987,
+    "loserReplacementDirectModificationPct": 0.0,
+    "actualNetReturnDifferencePct": -15.116363228757152,
+    "interactionCompoundingAndCostPct": -7.866632489938165,
+    "note": "Event arithmetic is gross and equal-slot; residual includes compounding, sizing drift, later path interactions, and cost differences."
+  },
+  "sideEffects": {
+    "canonical": {
+      "averageHoldings": 4.950819672131147,
+      "minimumHoldings": 2,
+      "maximumHoldings": 5,
+      "averageWeightHhi": 0.2049180327868852,
+      "effectiveEqualWeightNames": 4.880000000000001,
+      "averageWithinPortfolioPairwiseCorrelation": 0.3032130640837295,
+      "sectorConcentration": null,
+      "sectorCaveat": "No point-in-time historical sector-classification ledger is installed; current labels were not backfilled."
+    },
+    "winnerGrace": {
+      "averageHoldings": 4.950819672131147,
+      "minimumHoldings": 2,
+      "maximumHoldings": 5,
+      "averageWeightHhi": 0.2049180327868852,
+      "effectiveEqualWeightNames": 4.880000000000001,
+      "averageWithinPortfolioPairwiseCorrelation": 0.326812720690155,
+      "sectorConcentration": null,
+      "sectorCaveat": "No point-in-time historical sector-classification ledger is installed; current labels were not backfilled."
+    },
+    "higherLaterTurnover": false,
+    "transactionCostDifference": -38.762737457590504,
+    "worstDayDifferencePct": -0.026526178765596597
+  },
+  "ownCapital100k": {
+    "canonical": {
+      "startingValue": 100000.0,
+      "endingValue": 234435.3009424064,
+      "cumulativeProfit": 134435.3009424064,
+      "maxDrawdownDollars": 20538.089163692108,
+      "worstDayDollars": -6592.9072966898975
+    },
+    "winnerGrace": {
+      "startingValue": 100000.0,
+      "endingValue": 219318.93771364924,
+      "cumulativeProfit": 119318.93771364925,
+      "maxDrawdownDollars": 21623.986956043933,
+      "worstDayDollars": -6619.433475455494
+    }
+  },
+  "propAccount": {
+    "canonical": {
+      "series": {
+        "start": "2021-08-23",
+        "end": "2026-08-21",
+        "observations": 1254,
+        "sessionCoverage": 0.9616858237547893,
+        "source": "normalized:portfolio_equity"
+      },
+      "exposure": {
+        "peak_gross_notional": 10036.86267820932,
+        "avg_gross_notional": 10036.86267820932,
+        "median_gross_notional": 10036.86267820932,
+        "avg_net_notional": 10036.86267820932,
+        "max_concurrent_positions": 0,
+        "avg_concurrent_positions": 0.0,
+        "days_with_exposure_pct": 100.0,
+        "avg_utilization_while_active_pct": 100.0,
+        "annual_turnover_pct": NaN,
+        "capital_base": 10036.86267820932,
+        "basis": "portfolio_equity",
+        "p95_gross_notional": 10036.86267820932,
+        "avg_gross_while_active": 10036.86267820932,
+        "median_gross_while_active": 10036.86267820932
+      },
+      "decomposition": {
+        "trading_pnl": 13406.667416031323,
+        "equity_change": 13406.667416031323,
+        "non_trading_pnl": 0.0,
+        "non_trading_share_pct": 0.0,
+        "reconciled": true,
+        "note": "Portfolio-allocation engine: no discrete positions and no idle sleeve cash, so equity change is treated as trading P&L. This is an ASSUMPTION about the engine, not a measurement of its carry."
+      },
+      "accountScenario": {
+        "name": "Conservative",
+        "accountSize": 100000.0,
+        "maxTotalLossPct": 0.04,
+        "dailyLossLimitPct": 0.02
+      },
+      "conservativeSizing": {
+        "risk_multiplier": 0.1,
+        "n_paths": 5000,
+        "horizon_days": 252,
+        "failure_prob": 0.001,
+        "daily_limit_failure_prob": 0.0,
+        "total_loss_failure_prob": 0.001,
+        "pass_prob": 0.0032,
+        "median_days_to_failure": 219.0,
+        "median_days_to_pass": 227.0,
+        "survival_1m": 1.0,
+        "survival_3m": 1.0,
+        "survival_6m": 1.0,
+        "survival_12m": 0.999,
+        "expected_gross_profit": 1921.0757351067105,
+        "expected_payout": 1643.963946558097,
+        "expected_payout_given_survival": 1645.6095561142113,
+        "expected_net_payout": 1143.963946558097,
+        "median_max_drawdown": 541.2118082022498,
+        "p95_max_drawdown": 2066.920690795119,
+        "worst_day": -659.2907296689899,
+        "config_name": "Conservative"
+      },
+      "maxSurvivalSizing": {
+        "risk_multiplier": 0.1,
+        "n_paths": 5000,
+        "horizon_days": 252,
+        "failure_prob": 0.001,
+        "daily_limit_failure_prob": 0.0,
+        "total_loss_failure_prob": 0.001,
+        "pass_prob": 0.0032,
+        "median_days_to_failure": 219.0,
+        "median_days_to_pass": 227.0,
+        "survival_1m": 1.0,
+        "survival_3m": 1.0,
+        "survival_6m": 1.0,
+        "survival_12m": 0.999,
+        "expected_gross_profit": 1921.0757351067105,
+        "expected_payout": 1643.963946558097,
+        "expected_payout_given_survival": 1645.6095561142113,
+        "expected_net_payout": 1143.963946558097,
+        "median_max_drawdown": 541.2118082022498,
+        "p95_max_drawdown": 2066.920690795119,
+        "worst_day": -659.2907296689899,
+        "config_name": "Conservative"
+      },
+      "maxPayoutSizing": {
+        "risk_multiplier": 0.25,
+        "n_paths": 5000,
+        "horizon_days": 252,
+        "failure_prob": 0.102,
+        "daily_limit_failure_prob": 0.0,
+        "total_loss_failure_prob": 0.102,
+        "pass_prob": 0.3162,
+        "median_days_to_failure": 117.0,
+        "median_days_to_pass": 175.0,
+        "survival_1m": 1.0,
+        "survival_3m": 0.9806,
+        "survival_6m": 0.9442,
+        "survival_12m": 0.898,
+        "expected_gross_profit": 3941.8888560404375,
+        "expected_payout": 3580.8312200474115,
+        "expected_payout_given_survival": 3987.562605843443,
+        "expected_net_payout": 3080.8312200474115,
+        "median_max_drawdown": 1353.0295205056173,
+        "p95_max_drawdown": 4129.681282534127,
+        "worst_day": -1648.2268241724746,
+        "config_name": "Conservative"
+      },
+      "boundaryReached": false,
+      "unresolvedAtBoundary": []
+    },
+    "winnerGrace": {
+      "series": {
+        "start": "2021-08-23",
+        "end": "2026-08-21",
+        "observations": 1254,
+        "sessionCoverage": 0.9616858237547893,
+        "source": "normalized:portfolio_equity"
+      },
+      "exposure": {
+        "peak_gross_notional": 10036.86267820932,
+        "avg_gross_notional": 10036.86267820932,
+        "median_gross_notional": 10036.86267820932,
+        "avg_net_notional": 10036.86267820932,
+        "max_concurrent_positions": 0,
+        "avg_concurrent_positions": 0.0,
+        "days_with_exposure_pct": 100.0,
+        "avg_utilization_while_active_pct": 100.0,
+        "annual_turnover_pct": NaN,
+        "capital_base": 10036.86267820932,
+        "basis": "portfolio_equity",
+        "p95_gross_notional": 10036.86267820932,
+        "avg_gross_while_active": 10036.86267820932,
+        "median_gross_while_active": 10036.86267820932
+      },
+      "decomposition": {
+        "trading_pnl": 11895.031093155605,
+        "equity_change": 11895.031093155605,
+        "non_trading_pnl": 0.0,
+        "non_trading_share_pct": 0.0,
+        "reconciled": true,
+        "note": "Portfolio-allocation engine: no discrete positions and no idle sleeve cash, so equity change is treated as trading P&L. This is an ASSUMPTION about the engine, not a measurement of its carry."
+      },
+      "accountScenario": {
+        "name": "Conservative",
+        "accountSize": 100000.0,
+        "maxTotalLossPct": 0.04,
+        "dailyLossLimitPct": 0.02
+      },
+      "conservativeSizing": {
+        "risk_multiplier": 0.1,
+        "n_paths": 5000,
+        "horizon_days": 252,
+        "failure_prob": 0.0042,
+        "daily_limit_failure_prob": 0.0,
+        "total_loss_failure_prob": 0.0042,
+        "pass_prob": 0.004,
+        "median_days_to_failure": 204.0,
+        "median_days_to_pass": 223.5,
+        "survival_1m": 1.0,
+        "survival_3m": 1.0,
+        "survival_6m": 0.9996,
+        "survival_12m": 0.9958,
+        "expected_gross_profit": 1782.773361843529,
+        "expected_payout": 1585.1886799693127,
+        "expected_payout_given_survival": 1591.8745530923004,
+        "expected_net_payout": 1085.1886799693127,
+        "median_max_drawdown": 639.367702096526,
+        "p95_max_drawdown": 2389.5622416052774,
+        "worst_day": -661.9433475455494,
+        "config_name": "Conservative"
+      },
+      "maxSurvivalSizing": {
+        "risk_multiplier": 0.1,
+        "n_paths": 5000,
+        "horizon_days": 252,
+        "failure_prob": 0.0042,
+        "daily_limit_failure_prob": 0.0,
+        "total_loss_failure_prob": 0.0042,
+        "pass_prob": 0.004,
+        "median_days_to_failure": 204.0,
+        "median_days_to_pass": 223.5,
+        "survival_1m": 1.0,
+        "survival_3m": 1.0,
+        "survival_6m": 0.9996,
+        "survival_12m": 0.9958,
+        "expected_gross_profit": 1782.773361843529,
+        "expected_payout": 1585.1886799693127,
+        "expected_payout_given_survival": 1591.8745530923004,
+        "expected_net_payout": 1085.1886799693127,
+        "median_max_drawdown": 639.367702096526,
+        "p95_max_drawdown": 2389.5622416052774,
+        "worst_day": -661.9433475455494,
+        "config_name": "Conservative"
+      },
+      "maxPayoutSizing": {
+        "risk_multiplier": 0.25,
+        "n_paths": 5000,
+        "horizon_days": 252,
+        "failure_prob": 0.1594,
+        "daily_limit_failure_prob": 0.0,
+        "total_loss_failure_prob": 0.1594,
+        "pass_prob": 0.3108,
+        "median_days_to_failure": 109.0,
+        "median_days_to_pass": 169.0,
+        "survival_1m": 1.0,
+        "survival_3m": 0.9642,
+        "survival_6m": 0.9044,
+        "survival_12m": 0.8406,
+        "expected_gross_profit": 3442.657378712283,
+        "expected_payout": 3377.9440387708037,
+        "expected_payout_given_survival": 4018.491599774927,
+        "expected_net_payout": 2877.9440387708037,
+        "median_max_drawdown": 1598.4192552413588,
+        "p95_max_drawdown": 4225.306467949099,
+        "worst_day": -1654.8583688638735,
+        "config_name": "Conservative"
+      },
+      "boundaryReached": false,
+      "unresolvedAtBoundary": []
+    }
+  },
+  "evidenceChecks": {
+    "meanPositive": false,
+    "medianPositive": false,
+    "netReturnImproved": false,
+    "winnerLifecycleImproved": false,
+    "loserRulePreserved": true,
+    "maxDrawdownWithinLimit": true,
+    "worstDayWithinLimit": true,
+    "effectiveNAtLeast12": true,
+    "topEventBelowHalfPositiveContribution": true
+  },
+  "finalClassification": "Modification unsupported",
+  "verdictExplanation": "The modification failed at least one preregistered primary, net-performance, mechanism-preservation, or tail-risk condition.",
+  "forwardTestRecommendation": "Do not start a frozen forward test from this result.",
+  "canonicalChanged": false,
+  "frozenDmMrmPortfolioChanged": false
+}

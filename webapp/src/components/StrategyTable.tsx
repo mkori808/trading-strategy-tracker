@@ -28,6 +28,25 @@ function fmtParamValue(v: number | boolean | string): string {
   return typeof v === "number" ? String(v) : String(v);
 }
 
+function lifecycleLabel(s: StrategySummary): string {
+  if (s.implementationStatus === "unavailable") return "Data blocked";
+  if (s.archived) return "Closed";
+  if (s.lifecycleStage) return s.lifecycleStage.replace(/_/g, " ");
+  return s.lastRun ? "Exploratory" : "Not yet tested";
+}
+
+function powerLabel(s: StrategySummary): string {
+  if (s.implementationStatus === "unavailable") return "Unavailable";
+  const verdict = s.edgeVerdict;
+  if (!verdict) return s.lastRun ? "MDA unavailable" : "Not yet tested";
+  const lower = verdict.toLowerCase();
+  if (lower.includes("underpowered")) return "Underpowered";
+  if (lower.includes("adequate") || lower.includes("powered")) return "Adequately powered";
+  if (lower.includes("unresolved")) return "Power unresolved";
+  if (lower.includes("not applicable")) return "Not applicable";
+  return "MDA unavailable";
+}
+
 export function StrategyTable({
   strategies,
   selected,
@@ -87,8 +106,9 @@ export function StrategyTable({
                 "Type",
                 "Trades",
                 "Sharpe (vs rf)",
-                "Gap vs SPY",
-                "Edge verdict",
+                "Benchmark gap",
+                "Research lifecycle",
+                "Power",
                 "",
               ].map((h) => (
                 <th
@@ -170,20 +190,23 @@ export function StrategyTable({
                     <span
                       title={
                         s.benchmarkWindowStart && s.benchmarkWindowEnd
-                          ? `${s.benchmarkName} measured ${s.benchmarkWindowStart} to ${s.benchmarkWindowEnd} -- can move between runs, since a canonical run's end date defaults to "today"`
-                          : `Cumulative return gap vs ${s.benchmarkName} over identical dates`
+                          ? `Strategy return minus ${s.benchmarkName} return over the same test window (${s.benchmarkWindowStart} to ${s.benchmarkWindowEnd}). For short-horizon strategies this is not necessarily a capital-efficiency comparison.`
+                          : `Strategy return minus ${s.benchmarkName} return over the same test window. For short-horizon strategies this is not necessarily a capital-efficiency comparison.`
                       }
                     >
                       {s.benchmarkGapPct === null ? "—" : `${s.benchmarkGapPct >= 0 ? "+" : ""}${s.benchmarkGapPct.toFixed(1)}%`}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
-                    <StatusPill status={s.edgeVerdict ?? "Validation not recorded"} />
-                    {s.lifecycleStage && (
-                      <div className="mt-1 text-[10px] capitalize" style={{ color: "var(--text-muted)" }}>
-                        {s.lifecycleStage.replace(/_/g, " ")}
+                  <td className="px-4 py-3 capitalize">
+                    <StatusPill status={lifecycleLabel(s)} />
+                    {s.implementationStatus === "unavailable" && s.unavailableReason && (
+                      <div className="mt-1 max-w-[15rem] text-[10px]" title={s.unavailableReason} style={{ color: "var(--text-muted)" }}>
+                        {s.unavailableReason}
                       </div>
                     )}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span title={s.edgeVerdict ?? "No statistical-power result is recorded."}><StatusPill status={powerLabel(s)} /></span>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">
                     {hasDetails && (
@@ -209,7 +232,7 @@ export function StrategyTable({
                       background: "var(--surface-2, var(--surface-1))",
                     }}
                   >
-                    <td colSpan={7} className="px-4 py-3">
+                    <td colSpan={8} className="px-4 py-3">
                       <div className="flex flex-col gap-1 text-xs" style={{ color: "var(--text-secondary)" }}>
                         {s.archived && (
                           <div style={{ color: "var(--status-warning)" }}>

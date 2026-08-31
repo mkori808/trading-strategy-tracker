@@ -1,0 +1,1486 @@
+{
+  "interpretationGuards": [
+    "State tables are attribution diagnostics, not a backtest of switching a strategy on and off.",
+    "No best-state label may be interpreted as predictive when the five-test primary family fails.",
+    "Secondary contrasts and absolute-return summaries cannot rescue a failed primary active-return test.",
+    "No additional state, threshold, lookback, outcome, or interaction may be added after results are observed.",
+    "No condition may suppress, resize, create, modify, or cancel a live or paper order.",
+    "Optimized DM and both portfolio overlays remain exploratory historical evidence regardless of p-values."
+  ],
+  "preregistration": "research/momentum_persistence_reversal_v1_preregistration.json",
+  "preregistrationSha256": "099584428c5011ab3b5196387583a295c1d2ffbeb714885e5973f109a2539047",
+  "primaryTests": [
+    {
+      "bootstrap": {
+        "ciHigh": 0.002611894883970818,
+        "ciLow": -0.007427829407161661,
+        "replications": 5000,
+        "twoSidedP": 0.502
+      },
+      "calendarYears": [
+        2025,
+        2026
+      ],
+      "classification": "exploratory_historical",
+      "classificationReasons": [
+        "fewer than 63 observations on at least one primary side",
+        "fewer than three contributing calendar years",
+        "fewer than 21 observations in at least one displayed state",
+        "persistence-minus-transition active return is not positive",
+        "95% block-bootstrap interval includes zero",
+        "five-test BH q-value exceeds 0.10",
+        "leave-one-year-out directional agreement is below 80%",
+        "historical selection/design contamination caps this strategy at exploratory evidence"
+      ],
+      "differenceAnnualizedMeanActiveReturn": -0.37944273707941845,
+      "differenceMeanDailyActiveReturn": -0.0015057251471405494,
+      "leaveOneYearOut": {
+        "directionalAgreement": 0.5,
+        "folds": [
+          {
+            "differenceMeanDailyActiveReturn": 0.0004124492510051811,
+            "leftOutYear": 2025,
+            "nPersistence": 111,
+            "nTransition": 44
+          },
+          {
+            "differenceMeanDailyActiveReturn": -0.007284473787876979,
+            "leftOutYear": 2026,
+            "nPersistence": 82,
+            "nTransition": 13
+          }
+        ],
+        "usableFolds": 2
+      },
+      "minimumDisplayedStateN": 0,
+      "persistence": {
+        "meanDailyActiveReturn": 0.0012527106802564202,
+        "meanDailyReturn": 0.0019182628766865027,
+        "n": 193
+      },
+      "qValue": 0.9960000000000001,
+      "strategy": "dm_optimized_63d_daily",
+      "transition": {
+        "meanDailyActiveReturn": 0.0027584358273969696,
+        "meanDailyReturn": 0.004137299996132901,
+        "n": 57
+      },
+      "usableObservations": 250
+    },
+    {
+      "bootstrap": {
+        "ciHigh": 0.0009179726927721812,
+        "ciLow": -0.0010918208953843427,
+        "replications": 5000,
+        "twoSidedP": 0.8872
+      },
+      "calendarYears": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025,
+        2026
+      ],
+      "classification": "unsupported_or_unstable",
+      "classificationReasons": [
+        "persistence-minus-transition active return is not positive",
+        "95% block-bootstrap interval includes zero",
+        "five-test BH q-value exceeds 0.10",
+        "leave-one-year-out directional agreement is below 80%"
+      ],
+      "differenceAnnualizedMeanActiveReturn": -0.015372209588819947,
+      "differenceMeanDailyActiveReturn": -6.100083170166646e-05,
+      "leaveOneYearOut": {
+        "directionalAgreement": 0.5,
+        "folds": [
+          {
+            "differenceMeanDailyActiveReturn": 0.00015328452061868987,
+            "leftOutYear": 2021,
+            "nPersistence": 863,
+            "nTransition": 295
+          },
+          {
+            "differenceMeanDailyActiveReturn": -0.00012521065050084305,
+            "leftOutYear": 2022,
+            "nPersistence": 770,
+            "nTransition": 233
+          },
+          {
+            "differenceMeanDailyActiveReturn": -9.588138835139702e-05,
+            "leftOutYear": 2023,
+            "nPersistence": 749,
+            "nTransition": 255
+          },
+          {
+            "differenceMeanDailyActiveReturn": 0.00010036397914133373,
+            "leftOutYear": 2024,
+            "nPersistence": 716,
+            "nTransition": 286
+          },
+          {
+            "differenceMeanDailyActiveReturn": 0.0001464091850070196,
+            "leftOutYear": 2025,
+            "nPersistence": 721,
+            "nTransition": 283
+          },
+          {
+            "differenceMeanDailyActiveReturn": -0.0005161478029770377,
+            "leftOutYear": 2026,
+            "nPersistence": 816,
+            "nTransition": 283
+          }
+        ],
+        "usableFolds": 6
+      },
+      "minimumDisplayedStateN": 83,
+      "persistence": {
+        "meanDailyActiveReturn": 0.00019878986072377196,
+        "meanDailyReturn": 0.0007350130442028118,
+        "n": 927
+      },
+      "qValue": 0.9960000000000001,
+      "strategy": "canonical_dm_189d_monthly",
+      "transition": {
+        "meanDailyActiveReturn": 0.0002597906924254384,
+        "meanDailyReturn": 0.000859970948386728,
+        "n": 327
+      },
+      "usableObservations": 1254
+    },
+    {
+      "bootstrap": {
+        "ciHigh": 0.0011745226661015768,
+        "ciLow": -0.0010410328094928715,
+        "replications": 5000,
+        "twoSidedP": 0.8876
+      },
+      "calendarYears": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025,
+        2026
+      ],
+      "classification": "unsupported_or_unstable",
+      "classificationReasons": [
+        "95% block-bootstrap interval includes zero",
+        "five-test BH q-value exceeds 0.10",
+        "persistence-state mean active return is not positive"
+      ],
+      "differenceAnnualizedMeanActiveReturn": 0.016365741391962525,
+      "differenceMeanDailyActiveReturn": 6.494341822207351e-05,
+      "leaveOneYearOut": {
+        "directionalAgreement": 0.8333333333333334,
+        "folds": [
+          {
+            "differenceMeanDailyActiveReturn": -0.00012029604348135124,
+            "leftOutYear": 2021,
+            "nPersistence": 862,
+            "nTransition": 295
+          },
+          {
+            "differenceMeanDailyActiveReturn": 0.00020534146281324123,
+            "leftOutYear": 2022,
+            "nPersistence": 769,
+            "nTransition": 233
+          },
+          {
+            "differenceMeanDailyActiveReturn": 0.0002762252067440753,
+            "leftOutYear": 2023,
+            "nPersistence": 748,
+            "nTransition": 255
+          },
+          {
+            "differenceMeanDailyActiveReturn": 2.891096976787714e-05,
+            "leftOutYear": 2024,
+            "nPersistence": 715,
+            "nTransition": 286
+          },
+          {
+            "differenceMeanDailyActiveReturn": 5.0646996421788236e-05,
+            "leftOutYear": 2025,
+            "nPersistence": 720,
+            "nTransition": 283
+          },
+          {
+            "differenceMeanDailyActiveReturn": 1.4041152853243107e-05,
+            "leftOutYear": 2026,
+            "nPersistence": 816,
+            "nTransition": 283
+          }
+        ],
+        "usableFolds": 6
+      },
+      "minimumDisplayedStateN": 83,
+      "persistence": {
+        "meanDailyActiveReturn": -4.7202259802133216e-05,
+        "meanDailyReturn": 0.0004917379158257535,
+        "n": 926
+      },
+      "qValue": 0.9960000000000001,
+      "strategy": "canonical_mrm",
+      "transition": {
+        "meanDailyActiveReturn": -0.00011214567802420673,
+        "meanDailyReturn": 0.00048803457793708294,
+        "n": 327
+      },
+      "usableObservations": 1253
+    },
+    {
+      "bootstrap": {
+        "ciHigh": 0.0007185491830634483,
+        "ciLow": -0.0007415352834990353,
+        "replications": 5000,
+        "twoSidedP": 0.95
+      },
+      "calendarYears": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025,
+        2026
+      ],
+      "classification": "exploratory_historical",
+      "classificationReasons": [
+        "95% block-bootstrap interval includes zero",
+        "five-test BH q-value exceeds 0.10",
+        "historical selection/design contamination caps this strategy at exploratory evidence"
+      ],
+      "differenceAnnualizedMeanActiveReturn": 0.00425538548902096,
+      "differenceMeanDailyActiveReturn": 1.688645035325778e-05,
+      "leaveOneYearOut": {
+        "directionalAgreement": 0.8333333333333334,
+        "folds": [
+          {
+            "differenceMeanDailyActiveReturn": 3.0765429512636504e-05,
+            "leftOutYear": 2021,
+            "nPersistence": 862,
+            "nTransition": 295
+          },
+          {
+            "differenceMeanDailyActiveReturn": 6.410068812106568e-05,
+            "leftOutYear": 2022,
+            "nPersistence": 769,
+            "nTransition": 233
+          },
+          {
+            "differenceMeanDailyActiveReturn": 0.00010757876897707653,
+            "leftOutYear": 2023,
+            "nPersistence": 748,
+            "nTransition": 255
+          },
+          {
+            "differenceMeanDailyActiveReturn": 8.734846603676509e-05,
+            "leftOutYear": 2024,
+            "nPersistence": 715,
+            "nTransition": 286
+          },
+          {
+            "differenceMeanDailyActiveReturn": 0.00011813649951607184,
+            "leftOutYear": 2025,
+            "nPersistence": 720,
+            "nTransition": 283
+          },
+          {
+            "differenceMeanDailyActiveReturn": -0.0002568198629504271,
+            "leftOutYear": 2026,
+            "nPersistence": 816,
+            "nTransition": 283
+          }
+        ],
+        "usableFolds": 6
+      },
+      "minimumDisplayedStateN": 83,
+      "persistence": {
+        "meanDailyActiveReturn": 7.9670193147639e-05,
+        "meanDailyReturn": 0.0006186103687755258,
+        "n": 926
+      },
+      "qValue": 0.9960000000000001,
+      "strategy": "fixed_50_50_dm_mrm",
+      "transition": {
+        "meanDailyActiveReturn": 6.278374279438122e-05,
+        "meanDailyReturn": 0.0006629639987556709,
+        "n": 327
+      },
+      "usableObservations": 1253
+    },
+    {
+      "bootstrap": {
+        "ciHigh": 0.0007622557757213769,
+        "ciLow": -0.0008406030746237351,
+        "replications": 5000,
+        "twoSidedP": 0.996
+      },
+      "calendarYears": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025,
+        2026
+      ],
+      "classification": "exploratory_historical",
+      "classificationReasons": [
+        "persistence-minus-transition active return is not positive",
+        "95% block-bootstrap interval includes zero",
+        "five-test BH q-value exceeds 0.10",
+        "leave-one-year-out directional agreement is below 80%",
+        "historical selection/design contamination caps this strategy at exploratory evidence"
+      ],
+      "differenceAnnualizedMeanActiveReturn": -0.003044306590602149,
+      "differenceMeanDailyActiveReturn": -1.2080581708738687e-05,
+      "leaveOneYearOut": {
+        "directionalAgreement": 0.3333333333333333,
+        "folds": [
+          {
+            "differenceMeanDailyActiveReturn": -2.607578649488289e-05,
+            "leftOutYear": 2021,
+            "nPersistence": 862,
+            "nTransition": 295
+          },
+          {
+            "differenceMeanDailyActiveReturn": 2.6806099611833932e-05,
+            "leftOutYear": 2022,
+            "nPersistence": 769,
+            "nTransition": 233
+          },
+          {
+            "differenceMeanDailyActiveReturn": 9.081064401562496e-05,
+            "leftOutYear": 2023,
+            "nPersistence": 748,
+            "nTransition": 255
+          },
+          {
+            "differenceMeanDailyActiveReturn": 3.134963877711645e-05,
+            "leftOutYear": 2024,
+            "nPersistence": 715,
+            "nTransition": 286
+          },
+          {
+            "differenceMeanDailyActiveReturn": 7.253265593716381e-05,
+            "leftOutYear": 2025,
+            "nPersistence": 720,
+            "nTransition": 283
+          },
+          {
+            "differenceMeanDailyActiveReturn": -0.00021824216011856319,
+            "leftOutYear": 2026,
+            "nPersistence": 816,
+            "nTransition": 283
+          }
+        ],
+        "usableFolds": 6
+      },
+      "minimumDisplayedStateN": 83,
+      "persistence": {
+        "meanDailyActiveReturn": 5.398963798950287e-05,
+        "meanDailyReturn": 0.0005929298136173896,
+        "n": 926
+      },
+      "qValue": 0.9960000000000001,
+      "strategy": "vol_scaled_dm_mrm",
+      "transition": {
+        "meanDailyActiveReturn": 6.607021969824156e-05,
+        "meanDailyReturn": 0.0006662504756595313,
+        "n": 327
+      },
+      "usableObservations": 1253
+    }
+  ],
+  "regimeExecutionPreregistrationSha256": "72ee369e00abe5ab44755dae076c56e033972c7c9766eb64a1dfe6665b314ea9",
+  "simulation": {
+    "blockLength": 21,
+    "bootstrapReplications": 5000,
+    "seed": 20260827
+  },
+  "strategies": {
+    "canonical_dm_189d_monthly": {
+      "bestStateByMeanActiveReturn": "bearish_persistence",
+      "bestStateByMeanReturn": "bearish_persistence",
+      "evidenceCap": "candidate_for_independent_validation_only",
+      "label": "Canonical DM 189D/Monthly",
+      "primaryTest": {
+        "bootstrap": {
+          "ciHigh": 0.0009179726927721812,
+          "ciLow": -0.0010918208953843427,
+          "replications": 5000,
+          "twoSidedP": 0.8872
+        },
+        "calendarYears": [
+          2021,
+          2022,
+          2023,
+          2024,
+          2025,
+          2026
+        ],
+        "classification": "unsupported_or_unstable",
+        "classificationReasons": [
+          "persistence-minus-transition active return is not positive",
+          "95% block-bootstrap interval includes zero",
+          "five-test BH q-value exceeds 0.10",
+          "leave-one-year-out directional agreement is below 80%"
+        ],
+        "differenceAnnualizedMeanActiveReturn": -0.015372209588819947,
+        "differenceMeanDailyActiveReturn": -6.100083170166646e-05,
+        "leaveOneYearOut": {
+          "directionalAgreement": 0.5,
+          "folds": [
+            {
+              "differenceMeanDailyActiveReturn": 0.00015328452061868987,
+              "leftOutYear": 2021,
+              "nPersistence": 863,
+              "nTransition": 295
+            },
+            {
+              "differenceMeanDailyActiveReturn": -0.00012521065050084305,
+              "leftOutYear": 2022,
+              "nPersistence": 770,
+              "nTransition": 233
+            },
+            {
+              "differenceMeanDailyActiveReturn": -9.588138835139702e-05,
+              "leftOutYear": 2023,
+              "nPersistence": 749,
+              "nTransition": 255
+            },
+            {
+              "differenceMeanDailyActiveReturn": 0.00010036397914133373,
+              "leftOutYear": 2024,
+              "nPersistence": 716,
+              "nTransition": 286
+            },
+            {
+              "differenceMeanDailyActiveReturn": 0.0001464091850070196,
+              "leftOutYear": 2025,
+              "nPersistence": 721,
+              "nTransition": 283
+            },
+            {
+              "differenceMeanDailyActiveReturn": -0.0005161478029770377,
+              "leftOutYear": 2026,
+              "nPersistence": 816,
+              "nTransition": 283
+            }
+          ],
+          "usableFolds": 6
+        },
+        "minimumDisplayedStateN": 83,
+        "persistence": {
+          "meanDailyActiveReturn": 0.00019878986072377196,
+          "meanDailyReturn": 0.0007350130442028118,
+          "n": 927
+        },
+        "qValue": 0.9960000000000001,
+        "strategy": "canonical_dm_189d_monthly",
+        "transition": {
+          "meanDailyActiveReturn": 0.0002597906924254384,
+          "meanDailyReturn": 0.000859970948386728,
+          "n": 327
+        },
+        "usableObservations": 1254
+      },
+      "provenance": {
+        "executionCalibration": {
+          "applied": false,
+          "treatment": "registered canonical Dow costs retained; optimized small-cap calibration not transferred"
+        },
+        "loggedMetrics": {
+          "maxDrawdownPct": 20.53809417219469,
+          "metricsVersion": 2,
+          "returnPct": 139.62632249472824,
+          "sharpeVsRiskFree": 0.7787455337418879
+        },
+        "observationsBeforeConditions": 1254,
+        "parameters": {},
+        "pitDiagnostics": {},
+        "pitMembershipApplied": true,
+        "reconstructedMetrics": {
+          "maxDrawdownPct": 20.64421566180325,
+          "returnPct": 137.55690629256017,
+          "sharpeVsRiskFree": 0.7673039886034807
+        },
+        "requestedEnd": "2026-08-14",
+        "requestedStart": "2021-08-15",
+        "sourceRunId": 26,
+        "symbols": [
+          "AAPL",
+          "AMGN",
+          "AXP",
+          "BA",
+          "CAT",
+          "CRM",
+          "CSCO",
+          "CVX",
+          "DIS",
+          "DOW",
+          "GS",
+          "HD",
+          "HON",
+          "IBM",
+          "INTC",
+          "JNJ",
+          "JPM",
+          "KO",
+          "MCD",
+          "MMM",
+          "MRK",
+          "MSFT",
+          "NKE",
+          "PG",
+          "TRV",
+          "UNH",
+          "V",
+          "VZ",
+          "WMT"
+        ],
+        "totalCosts": 121.43897348720353,
+        "totalTradedNotional": 506497.529937906
+      },
+      "secondaryContrasts": {
+        "bearishPersistenceMinusPullback": {
+          "differenceMeanDailyActiveReturn": 0.0008243827464599833,
+          "differenceMeanDailyReturn": 0.0009139346061707995
+        },
+        "bullishPersistenceMinusRebound": {
+          "differenceMeanDailyActiveReturn": -0.00011886326461699374,
+          "differenceMeanDailyReturn": -0.0003454603567059802
+        },
+        "inference": "descriptive_only_cannot_rescue_primary_test"
+      },
+      "stateDiagnostics": {
+        "firstUsableState": "2021-08-17",
+        "informationCutoff": "T-1 close for both state inputs",
+        "missingStateObservations": 0,
+        "spyBars": 1550
+      },
+      "states": {
+        "bearish_persistence": {
+          "annualizedMeanActiveReturn": 0.2893743389765722,
+          "annualizedMeanReturn": 0.4516407739161276,
+          "calendarYears": [
+            2022,
+            2023,
+            2025,
+            2026
+          ],
+          "meanDailyActiveReturn": 0.0011483108689546518,
+          "meanDailyReturn": 0.0017922252933179666,
+          "n": 191,
+          "observationShare": 0.15231259968102073,
+          "positiveActiveReturnRate": 0.5602094240837696,
+          "positiveReturnRate": 0.5654450261780105,
+          "stateAttributedCumulativeReturn": 0.3746098091134267,
+          "stateAttributedMaximumDrawdown": -0.12625112577164477,
+          "worstDay": -0.06591618992937509
+        },
+        "bullish_persistence": {
+          "annualizedMeanActiveReturn": -0.012000532771751725,
+          "annualizedMeanReturn": 0.11608505347822458,
+          "calendarYears": [
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "meanDailyActiveReturn": -4.762116179266557e-05,
+          "meanDailyReturn": 0.0004606549741199388,
+          "n": 736,
+          "observationShare": 0.5869218500797448,
+          "positiveActiveReturnRate": 0.49320652173913043,
+          "positiveReturnRate": 0.5149456521739131,
+          "stateAttributedCumulativeReturn": 0.3383535434856213,
+          "stateAttributedMaximumDrawdown": -0.2498910258436995,
+          "worstDay": -0.05835210395449186
+        },
+        "pullback": {
+          "annualizedMeanActiveReturn": 0.08162988686865646,
+          "annualizedMeanReturn": 0.22132925316108612,
+          "calendarYears": [
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "meanDailyActiveReturn": 0.0003239281224946685,
+          "meanDailyReturn": 0.0008782906871471672,
+          "n": 244,
+          "observationShare": 0.19457735247208932,
+          "positiveActiveReturnRate": 0.5368852459016393,
+          "positiveReturnRate": 0.5532786885245902,
+          "stateAttributedCumulativeReturn": 0.2104254575509048,
+          "stateAttributedMaximumDrawdown": -0.12501648818661315,
+          "worstDay": -0.042222661362513736
+        },
+        "rebound": {
+          "annualizedMeanActiveReturn": 0.0179530099117307,
+          "annualizedMeanReturn": 0.2031410633681316,
+          "calendarYears": [
+            2022,
+            2023,
+            2025
+          ],
+          "meanDailyActiveReturn": 7.124210282432817e-05,
+          "meanDailyReturn": 0.000806115330825919,
+          "n": 83,
+          "observationShare": 0.06618819776714513,
+          "positiveActiveReturnRate": 0.6144578313253012,
+          "positiveReturnRate": 0.5903614457831325,
+          "stateAttributedCumulativeReturn": 0.06513490925244114,
+          "stateAttributedMaximumDrawdown": -0.054417708192606606,
+          "worstDay": -0.022110950634464333
+        }
+      },
+      "usableObservations": 1254
+    },
+    "canonical_mrm": {
+      "bestStateByMeanActiveReturn": "bullish_persistence",
+      "bestStateByMeanReturn": "bullish_persistence",
+      "evidenceCap": "candidate_for_independent_validation_only",
+      "label": "Canonical MRM",
+      "primaryTest": {
+        "bootstrap": {
+          "ciHigh": 0.0011745226661015768,
+          "ciLow": -0.0010410328094928715,
+          "replications": 5000,
+          "twoSidedP": 0.8876
+        },
+        "calendarYears": [
+          2021,
+          2022,
+          2023,
+          2024,
+          2025,
+          2026
+        ],
+        "classification": "unsupported_or_unstable",
+        "classificationReasons": [
+          "95% block-bootstrap interval includes zero",
+          "five-test BH q-value exceeds 0.10",
+          "persistence-state mean active return is not positive"
+        ],
+        "differenceAnnualizedMeanActiveReturn": 0.016365741391962525,
+        "differenceMeanDailyActiveReturn": 6.494341822207351e-05,
+        "leaveOneYearOut": {
+          "directionalAgreement": 0.8333333333333334,
+          "folds": [
+            {
+              "differenceMeanDailyActiveReturn": -0.00012029604348135124,
+              "leftOutYear": 2021,
+              "nPersistence": 862,
+              "nTransition": 295
+            },
+            {
+              "differenceMeanDailyActiveReturn": 0.00020534146281324123,
+              "leftOutYear": 2022,
+              "nPersistence": 769,
+              "nTransition": 233
+            },
+            {
+              "differenceMeanDailyActiveReturn": 0.0002762252067440753,
+              "leftOutYear": 2023,
+              "nPersistence": 748,
+              "nTransition": 255
+            },
+            {
+              "differenceMeanDailyActiveReturn": 2.891096976787714e-05,
+              "leftOutYear": 2024,
+              "nPersistence": 715,
+              "nTransition": 286
+            },
+            {
+              "differenceMeanDailyActiveReturn": 5.0646996421788236e-05,
+              "leftOutYear": 2025,
+              "nPersistence": 720,
+              "nTransition": 283
+            },
+            {
+              "differenceMeanDailyActiveReturn": 1.4041152853243107e-05,
+              "leftOutYear": 2026,
+              "nPersistence": 816,
+              "nTransition": 283
+            }
+          ],
+          "usableFolds": 6
+        },
+        "minimumDisplayedStateN": 83,
+        "persistence": {
+          "meanDailyActiveReturn": -4.7202259802133216e-05,
+          "meanDailyReturn": 0.0004917379158257535,
+          "n": 926
+        },
+        "qValue": 0.9960000000000001,
+        "strategy": "canonical_mrm",
+        "transition": {
+          "meanDailyActiveReturn": -0.00011214567802420673,
+          "meanDailyReturn": 0.00048803457793708294,
+          "n": 327
+        },
+        "usableObservations": 1253
+      },
+      "provenance": {
+        "executionCalibration": {
+          "applied": false,
+          "treatment": "registered canonical Dow costs retained; optimized small-cap calibration not transferred"
+        },
+        "loggedMetrics": {
+          "maxDrawdownPct": 16.330651804661798,
+          "metricsVersion": 2,
+          "returnPct": 84.80809517857881,
+          "sharpeVsRiskFree": 0.6488097403139137
+        },
+        "observationsBeforeConditions": 1253,
+        "parameters": {},
+        "pitDiagnostics": {},
+        "pitMembershipApplied": true,
+        "reconstructedMetrics": {
+          "maxDrawdownPct": 16.533345988307023,
+          "returnPct": 76.53291653352734,
+          "sharpeVsRiskFree": 0.5810737219107878
+        },
+        "requestedEnd": "2026-08-13",
+        "requestedStart": "2021-08-14",
+        "sourceRunId": 24,
+        "symbols": [
+          "AAPL",
+          "AMGN",
+          "AXP",
+          "BA",
+          "CAT",
+          "CRM",
+          "CSCO",
+          "CVX",
+          "DIS",
+          "DOW",
+          "GS",
+          "HD",
+          "HON",
+          "IBM",
+          "INTC",
+          "JNJ",
+          "JPM",
+          "KO",
+          "MCD",
+          "MMM",
+          "MRK",
+          "MSFT",
+          "NKE",
+          "PG",
+          "TRV",
+          "UNH",
+          "V",
+          "VZ",
+          "WMT"
+        ],
+        "totalCosts": 69.26406950084031,
+        "totalTradedNotional": 303225.54164814274
+      },
+      "secondaryContrasts": {
+        "bearishPersistenceMinusPullback": {
+          "differenceMeanDailyActiveReturn": -0.0003577294730223589,
+          "differenceMeanDailyReturn": -0.0002681776133115426
+        },
+        "bullishPersistenceMinusRebound": {
+          "differenceMeanDailyActiveReturn": 0.00029789303799228784,
+          "differenceMeanDailyReturn": 7.468096315808468e-05
+        },
+        "inference": "descriptive_only_cannot_rescue_primary_test"
+      },
+      "stateDiagnostics": {
+        "firstUsableState": "2021-08-17",
+        "informationCutoff": "T-1 close for both state inputs",
+        "missingStateObservations": 0,
+        "spyBars": 1549
+      },
+      "states": {
+        "bearish_persistence": {
+          "annualizedMeanActiveReturn": -0.1068318654921273,
+          "annualizedMeanReturn": 0.05543456944742807,
+          "calendarYears": [
+            2022,
+            2023,
+            2025,
+            2026
+          ],
+          "meanDailyActiveReturn": -0.0004239359741751083,
+          "meanDailyReturn": 0.00021997845018820663,
+          "n": 191,
+          "observationShare": 0.1524341580207502,
+          "positiveActiveReturnRate": 0.4869109947643979,
+          "positiveReturnRate": 0.518324607329843,
+          "stateAttributedCumulativeReturn": 0.024869268206202833,
+          "stateAttributedMaximumDrawdown": -0.15358874774845344,
+          "worstDay": -0.04921655497942434
+        },
+        "bullish_persistence": {
+          "annualizedMeanActiveReturn": 0.012775706911086968,
+          "annualizedMeanReturn": 0.14171431750926866,
+          "calendarYears": [
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "meanDailyActiveReturn": 5.069724964717051e-05,
+          "meanDailyReturn": 0.0005623584028145582,
+          "n": 735,
+          "observationShare": 0.5865921787709497,
+          "positiveActiveReturnRate": 0.5006802721088436,
+          "positiveReturnRate": 0.5523809523809524,
+          "stateAttributedCumulativeReturn": 0.48265280827362056,
+          "stateAttributedMaximumDrawdown": -0.08737931627362017,
+          "worstDay": -0.02800246885542801
+        },
+        "pullback": {
+          "annualizedMeanActiveReturn": -0.016684038290492854,
+          "annualizedMeanReturn": 0.1230153280019368,
+          "calendarYears": [
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "meanDailyActiveReturn": -6.620650115274942e-05,
+          "meanDailyReturn": 0.00048815606349974925,
+          "n": 244,
+          "observationShare": 0.19473264166001597,
+          "positiveActiveReturnRate": 0.46311475409836067,
+          "positiveReturnRate": 0.569672131147541,
+          "stateAttributedCumulativeReturn": 0.11782469346917424,
+          "stateAttributedMaximumDrawdown": -0.07760153484353816,
+          "worstDay": -0.023746300429637213
+        },
+        "rebound": {
+          "annualizedMeanActiveReturn": -0.06229333866296957,
+          "annualizedMeanReturn": 0.12289471479343132,
+          "calendarYears": [
+            2022,
+            2023,
+            2025
+          ],
+          "meanDailyActiveReturn": -0.00024719578834511734,
+          "meanDailyReturn": 0.0004876774396564735,
+          "n": 83,
+          "observationShare": 0.06624102154828412,
+          "positiveActiveReturnRate": 0.46987951807228917,
+          "positiveReturnRate": 0.4819277108433735,
+          "stateAttributedCumulativeReturn": 0.03438416970072966,
+          "stateAttributedMaximumDrawdown": -0.09039552670799389,
+          "worstDay": -0.03115721540685268
+        }
+      },
+      "usableObservations": 1253
+    },
+    "dm_optimized_63d_daily": {
+      "bestStateByMeanActiveReturn": "pullback",
+      "bestStateByMeanReturn": "pullback",
+      "evidenceCap": "exploratory_historical_selection_contaminated",
+      "label": "Optimized DM 63D/Daily",
+      "primaryTest": {
+        "bootstrap": {
+          "ciHigh": 0.002611894883970818,
+          "ciLow": -0.007427829407161661,
+          "replications": 5000,
+          "twoSidedP": 0.502
+        },
+        "calendarYears": [
+          2025,
+          2026
+        ],
+        "classification": "exploratory_historical",
+        "classificationReasons": [
+          "fewer than 63 observations on at least one primary side",
+          "fewer than three contributing calendar years",
+          "fewer than 21 observations in at least one displayed state",
+          "persistence-minus-transition active return is not positive",
+          "95% block-bootstrap interval includes zero",
+          "five-test BH q-value exceeds 0.10",
+          "leave-one-year-out directional agreement is below 80%",
+          "historical selection/design contamination caps this strategy at exploratory evidence"
+        ],
+        "differenceAnnualizedMeanActiveReturn": -0.37944273707941845,
+        "differenceMeanDailyActiveReturn": -0.0015057251471405494,
+        "leaveOneYearOut": {
+          "directionalAgreement": 0.5,
+          "folds": [
+            {
+              "differenceMeanDailyActiveReturn": 0.0004124492510051811,
+              "leftOutYear": 2025,
+              "nPersistence": 111,
+              "nTransition": 44
+            },
+            {
+              "differenceMeanDailyActiveReturn": -0.007284473787876979,
+              "leftOutYear": 2026,
+              "nPersistence": 82,
+              "nTransition": 13
+            }
+          ],
+          "usableFolds": 2
+        },
+        "minimumDisplayedStateN": 0,
+        "persistence": {
+          "meanDailyActiveReturn": 0.0012527106802564202,
+          "meanDailyReturn": 0.0019182628766865027,
+          "n": 193
+        },
+        "qValue": 0.9960000000000001,
+        "strategy": "dm_optimized_63d_daily",
+        "transition": {
+          "meanDailyActiveReturn": 0.0027584358273969696,
+          "meanDailyReturn": 0.004137299996132901,
+          "n": 57
+        },
+        "usableObservations": 250
+      },
+      "provenance": {
+        "executionCalibration": {
+          "applied": true,
+          "fills": 45,
+          "incrementalSlippageBps": 5.857763300760045,
+          "meanFillRatio": 0.9971572353512573,
+          "medianAdverseSlippageBps": 10.857763300760048,
+          "p95AdverseSlippageBps": 101.90973709000572,
+          "partialFillRate": 0.3333333333333333,
+          "treatment": "daily return multiplied by mean fill ratio; incremental slippage charged on turnover"
+        },
+        "loggedMetrics": {
+          "maxDrawdownPct": 13.477305227862876,
+          "metricsVersion": 2,
+          "returnPct": 78.83865936576046,
+          "sharpeVsRiskFree": 2.7367188037270003
+        },
+        "observationsBeforeConditions": 250,
+        "parameters": {
+          "lookback_trading_days": 63,
+          "rebalance_frequency": "daily"
+        },
+        "pitDiagnostics": {},
+        "pitMembershipApplied": false,
+        "reconstructedMetrics": {
+          "maxDrawdownPct": 13.477301965306122,
+          "returnPct": 78.58663465309743,
+          "sharpeVsRiskFree": 2.717931407177796
+        },
+        "requestedEnd": "2026-08-14",
+        "requestedStart": "2025-08-15",
+        "sourceRunId": 33,
+        "symbols": [
+          "AAMI",
+          "ACIW",
+          "AEO",
+          "ALG",
+          "AROC",
+          "AWI",
+          "BCPC",
+          "BLFS",
+          "BXMT",
+          "CBRL",
+          "CFFN",
+          "CRC",
+          "CXW",
+          "DFIN",
+          "EAT",
+          "ENPH",
+          "EVTC",
+          "FCPT",
+          "FORM",
+          "GEO",
+          "GRBK",
+          "HCC",
+          "HOPE",
+          "HZO",
+          "INVA",
+          "JBSS"
+        ],
+        "totalCosts": 390.6006821207131,
+        "totalTradedNotional": 624971.189743767
+      },
+      "secondaryContrasts": {
+        "bearishPersistenceMinusPullback": {
+          "differenceMeanDailyActiveReturn": -0.003224760755679294,
+          "differenceMeanDailyReturn": -0.001053529170154726
+        },
+        "bullishPersistenceMinusRebound": {
+          "differenceMeanDailyActiveReturn": null,
+          "differenceMeanDailyReturn": null
+        },
+        "inference": "descriptive_only_cannot_rescue_primary_test"
+      },
+      "stateDiagnostics": {
+        "firstUsableState": "2025-08-18",
+        "informationCutoff": "T-1 close for both state inputs",
+        "missingStateObservations": 0,
+        "spyBars": 543
+      },
+      "states": {
+        "bearish_persistence": {
+          "annualizedMeanActiveReturn": -0.1175138819271458,
+          "annualizedMeanReturn": 0.7771102481465,
+          "calendarYears": [
+            2026
+          ],
+          "meanDailyActiveReturn": -0.0004663249282823246,
+          "meanDailyReturn": 0.0030837708259781747,
+          "n": 12,
+          "observationShare": 0.048,
+          "positiveActiveReturnRate": 0.5,
+          "positiveReturnRate": 0.5833333333333334,
+          "stateAttributedCumulativeReturn": 0.035358493107786826,
+          "stateAttributedMaximumDrawdown": -0.069498099121314,
+          "worstDay": -0.028330585035776946
+        },
+        "bullish_persistence": {
+          "annualizedMeanActiveReturn": 0.34440333275180657,
+          "annualizedMeanReturn": 0.4639298911202583,
+          "calendarYears": [
+            2025,
+            2026
+          ],
+          "meanDailyActiveReturn": 0.0013666798918722483,
+          "meanDailyReturn": 0.0018409916314295965,
+          "n": 181,
+          "observationShare": 0.724,
+          "positiveActiveReturnRate": 0.5303867403314917,
+          "positiveReturnRate": 0.5248618784530387,
+          "stateAttributedCumulativeReturn": 0.35904066866282425,
+          "stateAttributedMaximumDrawdown": -0.13628954896283008,
+          "worstDay": -0.05876670194782867
+        },
+        "pullback": {
+          "annualizedMeanActiveReturn": 0.6951258285040364,
+          "annualizedMeanReturn": 1.042599599025491,
+          "calendarYears": [
+            2025,
+            2026
+          ],
+          "meanDailyActiveReturn": 0.0027584358273969696,
+          "meanDailyReturn": 0.004137299996132901,
+          "n": 57,
+          "observationShare": 0.228,
+          "positiveActiveReturnRate": 0.6140350877192983,
+          "positiveReturnRate": 0.6140350877192983,
+          "stateAttributedCumulativeReturn": 0.25060413801969394,
+          "stateAttributedMaximumDrawdown": -0.10872327043566254,
+          "worstDay": -0.05598927788028583
+        },
+        "rebound": {
+          "annualizedMeanActiveReturn": null,
+          "annualizedMeanReturn": null,
+          "calendarYears": [],
+          "meanDailyActiveReturn": null,
+          "meanDailyReturn": null,
+          "n": 0,
+          "observationShare": 0.0,
+          "positiveActiveReturnRate": null,
+          "positiveReturnRate": null,
+          "stateAttributedCumulativeReturn": null,
+          "stateAttributedMaximumDrawdown": null,
+          "worstDay": null
+        }
+      },
+      "usableObservations": 250
+    },
+    "fixed_50_50_dm_mrm": {
+      "bestStateByMeanActiveReturn": "bearish_persistence",
+      "bestStateByMeanReturn": "bearish_persistence",
+      "evidenceCap": "exploratory_historical_overlay_designed_on_analyzed_period",
+      "label": "Fixed 50/50 DM/MRM",
+      "primaryTest": {
+        "bootstrap": {
+          "ciHigh": 0.0007185491830634483,
+          "ciLow": -0.0007415352834990353,
+          "replications": 5000,
+          "twoSidedP": 0.95
+        },
+        "calendarYears": [
+          2021,
+          2022,
+          2023,
+          2024,
+          2025,
+          2026
+        ],
+        "classification": "exploratory_historical",
+        "classificationReasons": [
+          "95% block-bootstrap interval includes zero",
+          "five-test BH q-value exceeds 0.10",
+          "historical selection/design contamination caps this strategy at exploratory evidence"
+        ],
+        "differenceAnnualizedMeanActiveReturn": 0.00425538548902096,
+        "differenceMeanDailyActiveReturn": 1.688645035325778e-05,
+        "leaveOneYearOut": {
+          "directionalAgreement": 0.8333333333333334,
+          "folds": [
+            {
+              "differenceMeanDailyActiveReturn": 3.0765429512636504e-05,
+              "leftOutYear": 2021,
+              "nPersistence": 862,
+              "nTransition": 295
+            },
+            {
+              "differenceMeanDailyActiveReturn": 6.410068812106568e-05,
+              "leftOutYear": 2022,
+              "nPersistence": 769,
+              "nTransition": 233
+            },
+            {
+              "differenceMeanDailyActiveReturn": 0.00010757876897707653,
+              "leftOutYear": 2023,
+              "nPersistence": 748,
+              "nTransition": 255
+            },
+            {
+              "differenceMeanDailyActiveReturn": 8.734846603676509e-05,
+              "leftOutYear": 2024,
+              "nPersistence": 715,
+              "nTransition": 286
+            },
+            {
+              "differenceMeanDailyActiveReturn": 0.00011813649951607184,
+              "leftOutYear": 2025,
+              "nPersistence": 720,
+              "nTransition": 283
+            },
+            {
+              "differenceMeanDailyActiveReturn": -0.0002568198629504271,
+              "leftOutYear": 2026,
+              "nPersistence": 816,
+              "nTransition": 283
+            }
+          ],
+          "usableFolds": 6
+        },
+        "minimumDisplayedStateN": 83,
+        "persistence": {
+          "meanDailyActiveReturn": 7.9670193147639e-05,
+          "meanDailyReturn": 0.0006186103687755258,
+          "n": 926
+        },
+        "qValue": 0.9960000000000001,
+        "strategy": "fixed_50_50_dm_mrm",
+        "transition": {
+          "meanDailyActiveReturn": 6.278374279438122e-05,
+          "meanDailyReturn": 0.0006629639987556709,
+          "n": 327
+        },
+        "usableObservations": 1253
+      },
+      "provenance": {
+        "dmSource": "canonical_dm_189d_monthly",
+        "monthlyReset": true,
+        "mrmSource": "canonical_mrm",
+        "observations": 1253,
+        "overlayTransactionCost": "zero per frozen specifications",
+        "weightRule": "fixed 50/50"
+      },
+      "secondaryContrasts": {
+        "bearishPersistenceMinusPullback": {
+          "differenceMeanDailyActiveReturn": 0.0002401007280581424,
+          "differenceMeanDailyReturn": 0.00032965258776895877
+        },
+        "bullishPersistenceMinusRebound": {
+          "differenceMeanDailyActiveReturn": 9.640156938311798e-05,
+          "differenceMeanDailyReturn": -0.00012681050545108516
+        },
+        "inference": "descriptive_only_cannot_rescue_primary_test"
+      },
+      "stateDiagnostics": {
+        "firstUsableState": "2021-08-17",
+        "informationCutoff": "T-1 close for both state inputs",
+        "missingStateObservations": 0,
+        "spyBars": 1549
+      },
+      "states": {
+        "bearish_persistence": {
+          "annualizedMeanActiveReturn": 0.08925842137490411,
+          "annualizedMeanReturn": 0.2515248563144595,
+          "calendarYears": [
+            2022,
+            2023,
+            2025,
+            2026
+          ],
+          "meanDailyActiveReturn": 0.00035420008482104807,
+          "meanDailyReturn": 0.0009981145091843631,
+          "n": 191,
+          "observationShare": 0.1524341580207502,
+          "positiveActiveReturnRate": 0.5549738219895288,
+          "positiveReturnRate": 0.5549738219895288,
+          "stateAttributedCumulativeReturn": 0.18838810964498065,
+          "stateAttributedMaximumDrawdown": -0.10971565936719807,
+          "worstDay": -0.05745076704746366
+        },
+        "bullish_persistence": {
+          "annualizedMeanActiveReturn": 0.0020991026241920685,
+          "annualizedMeanReturn": 0.13103771322237376,
+          "calendarYears": [
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "meanDailyActiveReturn": 8.329772318222494e-06,
+          "meanDailyReturn": 0.0005199909254856101,
+          "n": 735,
+          "observationShare": 0.5865921787709497,
+          "positiveActiveReturnRate": 0.507482993197279,
+          "positiveReturnRate": 0.5374149659863946,
+          "stateAttributedCumulativeReturn": 0.4342493522377402,
+          "stateAttributedMaximumDrawdown": -0.14731688184848502,
+          "worstDay": -0.026485828254436017
+        },
+        "pullback": {
+          "annualizedMeanActiveReturn": 0.028753037904252227,
+          "annualizedMeanReturn": 0.1684524041966819,
+          "calendarYears": [
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "meanDailyActiveReturn": 0.00011409935676290567,
+          "meanDailyReturn": 0.0006684619214154043,
+          "n": 244,
+          "observationShare": 0.19473264166001597,
+          "positiveActiveReturnRate": 0.5122950819672131,
+          "positiveReturnRate": 0.5778688524590164,
+          "stateAttributedCumulativeReturn": 0.16545670965771686,
+          "stateAttributedMaximumDrawdown": -0.09209292478414055,
+          "worstDay": -0.021536707454145265
+        },
+        "rebound": {
+          "annualizedMeanActiveReturn": -0.022194092860353662,
+          "annualizedMeanReturn": 0.1629939605960472,
+          "calendarYears": [
+            2022,
+            2023,
+            2025
+          ],
+          "meanDailyActiveReturn": -8.807179706489548e-05,
+          "meanDailyReturn": 0.0006468014309366953,
+          "n": 83,
+          "observationShare": 0.06624102154828412,
+          "positiveActiveReturnRate": 0.5060240963855421,
+          "positiveReturnRate": 0.5421686746987951,
+          "stateAttributedCumulativeReturn": 0.05068602133228217,
+          "stateAttributedMaximumDrawdown": -0.07097589844997654,
+          "worstDay": -0.025718549657806844
+        }
+      },
+      "usableObservations": 1253
+    },
+    "vol_scaled_dm_mrm": {
+      "bestStateByMeanActiveReturn": "bearish_persistence",
+      "bestStateByMeanReturn": "bearish_persistence",
+      "evidenceCap": "exploratory_historical_overlay_designed_on_analyzed_period",
+      "label": "Vol-Scaled DM/MRM",
+      "primaryTest": {
+        "bootstrap": {
+          "ciHigh": 0.0007622557757213769,
+          "ciLow": -0.0008406030746237351,
+          "replications": 5000,
+          "twoSidedP": 0.996
+        },
+        "calendarYears": [
+          2021,
+          2022,
+          2023,
+          2024,
+          2025,
+          2026
+        ],
+        "classification": "exploratory_historical",
+        "classificationReasons": [
+          "persistence-minus-transition active return is not positive",
+          "95% block-bootstrap interval includes zero",
+          "five-test BH q-value exceeds 0.10",
+          "leave-one-year-out directional agreement is below 80%",
+          "historical selection/design contamination caps this strategy at exploratory evidence"
+        ],
+        "differenceAnnualizedMeanActiveReturn": -0.003044306590602149,
+        "differenceMeanDailyActiveReturn": -1.2080581708738687e-05,
+        "leaveOneYearOut": {
+          "directionalAgreement": 0.3333333333333333,
+          "folds": [
+            {
+              "differenceMeanDailyActiveReturn": -2.607578649488289e-05,
+              "leftOutYear": 2021,
+              "nPersistence": 862,
+              "nTransition": 295
+            },
+            {
+              "differenceMeanDailyActiveReturn": 2.6806099611833932e-05,
+              "leftOutYear": 2022,
+              "nPersistence": 769,
+              "nTransition": 233
+            },
+            {
+              "differenceMeanDailyActiveReturn": 9.081064401562496e-05,
+              "leftOutYear": 2023,
+              "nPersistence": 748,
+              "nTransition": 255
+            },
+            {
+              "differenceMeanDailyActiveReturn": 3.134963877711645e-05,
+              "leftOutYear": 2024,
+              "nPersistence": 715,
+              "nTransition": 286
+            },
+            {
+              "differenceMeanDailyActiveReturn": 7.253265593716381e-05,
+              "leftOutYear": 2025,
+              "nPersistence": 720,
+              "nTransition": 283
+            },
+            {
+              "differenceMeanDailyActiveReturn": -0.00021824216011856319,
+              "leftOutYear": 2026,
+              "nPersistence": 816,
+              "nTransition": 283
+            }
+          ],
+          "usableFolds": 6
+        },
+        "minimumDisplayedStateN": 83,
+        "persistence": {
+          "meanDailyActiveReturn": 5.398963798950287e-05,
+          "meanDailyReturn": 0.0005929298136173896,
+          "n": 926
+        },
+        "qValue": 0.9960000000000001,
+        "strategy": "vol_scaled_dm_mrm",
+        "transition": {
+          "meanDailyActiveReturn": 6.607021969824156e-05,
+          "meanDailyReturn": 0.0006662504756595313,
+          "n": 327
+        },
+        "usableObservations": 1253
+      },
+      "provenance": {
+        "dmSource": "canonical_dm_189d_monthly",
+        "monthlyReset": true,
+        "mrmSource": "canonical_mrm",
+        "observations": 1253,
+        "overlayTransactionCost": "zero per frozen specifications",
+        "weightRule": "frozen 60-session inverse volatility"
+      },
+      "secondaryContrasts": {
+        "bearishPersistenceMinusPullback": {
+          "differenceMeanDailyActiveReturn": 0.00012674866479054291,
+          "differenceMeanDailyReturn": 0.00021630052450135923
+        },
+        "bullishPersistenceMinusRebound": {
+          "differenceMeanDailyActiveReturn": 7.050335892193345e-05,
+          "differenceMeanDailyReturn": -0.00015270871591226967
+        },
+        "inference": "descriptive_only_cannot_rescue_primary_test"
+      },
+      "stateDiagnostics": {
+        "firstUsableState": "2021-08-17",
+        "informationCutoff": "T-1 close for both state inputs",
+        "missingStateObservations": 0,
+        "spyBars": 1549
+      },
+      "states": {
+        "bearish_persistence": {
+          "annualizedMeanActiveReturn": 0.059748439487292464,
+          "annualizedMeanReturn": 0.22201487442684784,
+          "calendarYears": [
+            2022,
+            2023,
+            2025,
+            2026
+          ],
+          "meanDailyActiveReturn": 0.00023709698209243042,
+          "meanDailyReturn": 0.0008810114064557454,
+          "n": 191,
+          "observationShare": 0.1524341580207502,
+          "positiveActiveReturnRate": 0.5497382198952879,
+          "positiveReturnRate": 0.5497382198952879,
+          "stateAttributedCumulativeReturn": 0.16340512194713952,
+          "stateAttributedMaximumDrawdown": -0.10730494935328938,
+          "worstDay": -0.05533443964625251
+        },
+        "bullish_persistence": {
+          "annualizedMeanActiveReturn": 0.0016144735538144391,
+          "annualizedMeanReturn": 0.13055308415199615,
+          "calendarYears": [
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "meanDailyActiveReturn": 6.406641086565234e-06,
+          "meanDailyReturn": 0.000518067794253953,
+          "n": 735,
+          "observationShare": 0.5865921787709497,
+          "positiveActiveReturnRate": 0.5047619047619047,
+          "positiveReturnRate": 0.5428571428571428,
+          "stateAttributedCumulativeReturn": 0.43615118502069317,
+          "stateAttributedMaximumDrawdown": -0.133915163823782,
+          "worstDay": -0.02633820895940875
+        },
+        "pullback": {
+          "annualizedMeanActiveReturn": 0.02780777596007565,
+          "annualizedMeanReturn": 0.16750714225250532,
+          "calendarYears": [
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "meanDailyActiveReturn": 0.0001103483173018875,
+          "meanDailyReturn": 0.0006647108819543861,
+          "n": 244,
+          "observationShare": 0.19473264166001597,
+          "positiveActiveReturnRate": 0.47540983606557374,
+          "positiveReturnRate": 0.5737704918032787,
+          "stateAttributedCumulativeReturn": 0.1658208379274071,
+          "stateAttributedMaximumDrawdown": -0.08894587275977461,
+          "worstDay": -0.02164893777344168
+        },
+        "rebound": {
+          "annualizedMeanActiveReturn": -0.016152372894512792,
+          "annualizedMeanReturn": 0.1690356805618881,
+          "calendarYears": [
+            2022,
+            2023,
+            2025
+          ],
+          "meanDailyActiveReturn": -6.409671783536822e-05,
+          "meanDailyReturn": 0.0006707765101662226,
+          "n": 83,
+          "observationShare": 0.06624102154828412,
+          "positiveActiveReturnRate": 0.5301204819277109,
+          "positiveReturnRate": 0.5421686746987951,
+          "stateAttributedCumulativeReturn": 0.05288792735991721,
+          "stateAttributedMaximumDrawdown": -0.07025744583079063,
+          "worstDay": -0.025333560723960202
+        }
+      },
+      "usableObservations": 1253
+    }
+  },
+  "study": "Momentum Persistence / Reversal Regime Audit v1"
+}

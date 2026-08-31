@@ -1,0 +1,64 @@
+{
+  "study": "Dual Momentum Rank-Depth / Edge-Decay Audit v1",
+  "frozenAt": "2026-08-22",
+  "status": "diagnostic_only",
+  "canonicalInputs": {
+    "primary": "registered canonical Dual Momentum defaults",
+    "secondary": "registered canonical Market-Residual Momentum defaults",
+    "dualMomentumLookbackSessions": 189,
+    "topNUnchanged": 5,
+    "decisionFrequency": "monthly",
+    "informationBoundary": "all scores use closes strictly before the rebalance session; outcomes use rebalance open through next rebalance open"
+  },
+  "primaryRanks": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+  "groups": {
+    "elite": [1, 2],
+    "upper": [3],
+    "lowerSelected": [4, 5],
+    "nearMisses": [6, 7, 8, 9, 10],
+    "top3": [1, 2, 3],
+    "ranks3To5": [3, 4, 5],
+    "top5": [1, 2, 3, 4, 5]
+  },
+  "primaryHypotheses": {
+    "H1": "ranks 1-3 outperform ranks 4-5",
+    "H2": "ranks 1-5 outperform ranks 6-10",
+    "H3": "forward edge decreases monotonically as numeric rank worsens"
+  },
+  "percentileGroups": {
+    "top10pct": [0.0, 0.1],
+    "pct10To25": [0.1, 0.25],
+    "pct25To50": [0.25, 0.5],
+    "bottom50pct": [0.5, 1.0]
+  },
+  "inference": {
+    "independentUnit": "rebalance date",
+    "clusterBootstrapDraws": 2000,
+    "rankShuffleDraws": 2000,
+    "seed": 20260822,
+    "null": "preserve each rebalance's securities and future returns while permuting score, rank and rank-derived labels within that rebalance",
+    "confidenceInterval": 0.95
+  },
+  "materiality": {
+    "top3MinusLowerSelectedMeanReturn": 0.01,
+    "strongEvidence": "H1 observed difference >= 1 percentage point per rebalance period, clustered CI lower bound > 0, first-half and second-half differences > 0, every leave-one-year-out and leave-one-security-out difference > 0, and H1 remains > 0 after removing its top 1 percent outcomes",
+    "weakEvidence": "H1 observed difference > 0 but one or more strong-evidence conditions fail",
+    "top5BoundaryUnsupported": "H2 observed difference <= 0 or its clustered confidence interval includes zero",
+    "nonMonotonic": "rank-level means do not decrease monotonically and H3 rank/return Spearman is not negative with a clustered confidence interval below zero"
+  },
+  "cumulativeDepths": [1, 2, 3, 4, 5, 6, 10],
+  "majorDmDrawdowns": [
+    ["2021-12-29", "2022-06-17"],
+    ["2022-11-30", "2023-05-31"],
+    ["2025-02-19", "2025-04-08"]
+  ],
+  "prohibited": [
+    "changing canonical DM or MRM",
+    "changing top N",
+    "building alternative top-N portfolio equity curves",
+    "searching additional rank-group definitions",
+    "creating a score-gap trading filter",
+    "modifying frozen forward tests or Alpaca automation"
+  ],
+  "followUpRule": "recommend exactly one separately preregistered top-N portfolio comparison only when the strong-evidence definition is met"
+}

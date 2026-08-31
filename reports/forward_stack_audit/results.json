@@ -1,0 +1,208 @@
+{
+  "auditedAt": "2026-08-22T20:13:02-04:00",
+  "developmentCutoff": "2026-08-21",
+  "firstEligibleForwardSessionRule": "first completed market session strictly after cutoff",
+  "preImplementationFinding": "No DM/MRM decisions, outcomes, or NAV ledger existed; all research shadows required manual code execution and had never advanced.",
+  "currentSeries": [
+    {
+      "key": "dm",
+      "series": "Canonical DM",
+      "type": "Normalized canonical shadow; Alpaca configuration mismatch",
+      "status": "Frozen \u2014 Forward Testing / No Forward Observations Yet",
+      "sessions": 0,
+      "nav": null,
+      "returnPct": null,
+      "drawdownPct": null,
+      "lastUpdate": null
+    },
+    {
+      "key": "mrm",
+      "series": "Canonical MRM",
+      "type": "Research shadow",
+      "status": "Frozen \u2014 Forward Testing / No Forward Observations Yet",
+      "sessions": 0,
+      "nav": null,
+      "returnPct": null,
+      "drawdownPct": null,
+      "lastUpdate": null
+    },
+    {
+      "key": "fiftyFifty",
+      "series": "Fixed 50/50 DM/MRM",
+      "type": "Research shadow",
+      "status": "Frozen \u2014 Forward Testing / No Forward Observations Yet",
+      "sessions": 0,
+      "nav": null,
+      "returnPct": null,
+      "drawdownPct": null,
+      "lastUpdate": null
+    },
+    {
+      "key": "volScaled",
+      "series": "Vol-Scaled DM/MRM",
+      "type": "Research shadow",
+      "status": "Frozen \u2014 Forward Testing / No Forward Observations Yet",
+      "sessions": 0,
+      "nav": null,
+      "returnPct": null,
+      "drawdownPct": null,
+      "lastUpdate": null
+    },
+    {
+      "key": "spy",
+      "series": "SPY",
+      "type": "Benchmark shadow",
+      "status": "Frozen \u2014 Forward Testing / No Forward Observations Yet",
+      "sessions": 0,
+      "nav": null,
+      "returnPct": null,
+      "drawdownPct": null,
+      "lastUpdate": null
+    }
+  ],
+  "paperAutomation": {
+    "enabled": true,
+    "canonicalConfig": false,
+    "configuredParams": {
+      "lookback_trading_days": 63,
+      "rebalance_frequency": "daily"
+    },
+    "configuredSymbols": [
+      "AAMI",
+      "ACIW",
+      "AEO",
+      "ALG",
+      "AROC",
+      "AWI",
+      "BCPC",
+      "BLFS",
+      "BXMT",
+      "CBRL",
+      "CFFN",
+      "CRC",
+      "CXW",
+      "DFIN",
+      "EAT",
+      "ENPH",
+      "EVTC",
+      "FCPT",
+      "FORM",
+      "GEO",
+      "GRBK",
+      "HCC",
+      "HOPE",
+      "HZO",
+      "INVA",
+      "JBSS"
+    ],
+    "validationRunId": 33,
+    "lastCompletedRun": {
+      "date": "2026-08-21",
+      "triggeredAt": "2026-08-21T10:18:54.850583",
+      "targetWeights": {
+        "CBRL": 0.2,
+        "EAT": 0.2,
+        "HZO": 0.2,
+        "BLFS": 0.2,
+        "CXW": 0.2
+      }
+    }
+  },
+  "paperAccount": {
+    "available": true,
+    "equity": 102749.96,
+    "portfolioValue": 102749.96
+  },
+  "automaticAdvancement": {
+    "implemented": true,
+    "cadence": "hourly check within existing API execution scheduler",
+    "completedSessionsOnly": true,
+    "exactlyOnce": true,
+    "limitation": "Runs only while the API/uvicorn process is running; restart catches up all missing completed sessions."
+  },
+  "immutability": {
+    "decisionsAppendOnly": true,
+    "navAppendOnly": true,
+    "sourceMutationFailsClosed": true,
+    "atomicWrites": true
+  },
+  "maturity": {
+    "label": "Too Early to Evaluate",
+    "reached": [],
+    "next": {
+      "sessions": 20,
+      "label": "Operational sanity only"
+    }
+  },
+  "comparisons": {
+    "dmMrmReturnCorrelation": null,
+    "dmMrmVolatilityDifferencePp": null,
+    "dmMrmDrawdownDifferencePp": null,
+    "volScaledOverlayTurnoverPct": 0.0,
+    "fixedOverlayTurnoverPct": 0.0,
+    "turnoverDifferencePct": 0.0,
+    "overlayCostDifferenceBps": 0.0,
+    "costNote": "Both frozen controls charge underlying sleeve costs and zero overlay-level reallocation cost."
+  },
+  "currentBlend": {
+    "dmWeight": 0.3800410711992999,
+    "mrmWeight": 0.6199589288007001,
+    "dmTargetWeight": 0.38095682077586757,
+    "mrmTargetWeight": 0.6190431792241324,
+    "lastWeightResetDate": "2026-08-03",
+    "nextScheduledReset": "2026-09-01",
+    "dmHoldings": {
+      "INTC": 0.19799997864937655,
+      "CAT": 0.19823658377715891,
+      "CSCO": 0.18829210017760228,
+      "MRK": 0.228265696499841,
+      "TRV": 0.18737158950198696
+    },
+    "mrmHoldings": {
+      "KO": 0.20360059699354904,
+      "MCD": 0.1943311756140346,
+      "JNJ": 0.20958796376535446,
+      "JPM": 0.1965321044285483,
+      "PG": 0.19615881727820847
+    },
+    "combinedHoldings": {
+      "JNJ": 0.1299359295054891,
+      "KO": 0.1262240080153037,
+      "JPM": 0.12184183293647013,
+      "PG": 0.12161041023461039,
+      "MCD": 0.12047734746625763,
+      "MRK": 0.08675033981585385,
+      "CAT": 0.07533804364956123,
+      "INTC": 0.07524812398334757,
+      "CSCO": 0.07155873144986186,
+      "TRV": 0.07120889958665062
+    },
+    "fixedCombinedHoldings": {
+      "MRK": 0.11391115039431957,
+      "JNJ": 0.10499753941602118,
+      "KO": 0.10199804093659211,
+      "CAT": 0.09892575912435363,
+      "INTC": 0.09880768635780061,
+      "JPM": 0.09845692954177734,
+      "PG": 0.0982699234199698,
+      "MCD": 0.09735432753256808,
+      "CSCO": 0.0939631756776388,
+      "TRV": 0.0935038143648466
+    }
+  },
+  "alerts": [
+    {
+      "code": "paper_config_mismatch",
+      "severity": "error",
+      "message": "Alpaca automation is enabled under 'Dual Momentum' but its persisted parameters do not match canonical 189-session/monthly DM."
+    }
+  ],
+  "strategyChanges": {
+    "canonicalDm": false,
+    "canonicalMrm": false,
+    "fixedFiftyFifty": false,
+    "volScaledSpec": false,
+    "alpacaAutomation": false,
+    "winnerGraceReopened": false
+  }
+}

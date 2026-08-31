@@ -1,0 +1,13 @@
+{
+  "strategyName": "Dual Momentum - One-Rebalance Winner Grace v1",
+  "strategyVersion": "v1",
+  "canonicalControl": "Dual Momentum canonical",
+  "preregistration": "research\\dm_winner_grace_v1_preregistration.json",
+  "developmentCutoff": "2026-08-22",
+  "historicalDevelopmentResult": "reports\\dm_winner_grace_v1\\dm_winner_grace_v1_results.json",
+  "validationStatus": "No clean historical holdout remains",
+  "effectiveN": 34,
+  "verdict": "Modification unsupported",
+  "forwardEvidenceBeginsAfter": "2026-08-22",
+  "canonicalReplacementAuthorized": false
+}

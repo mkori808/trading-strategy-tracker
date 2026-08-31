@@ -1,0 +1,1749 @@
+{
+  "interpretationGuards": [
+    "Qualification values must be available no later than T-1; same-day losses, fills, contributions, and slippage cannot be predictive qualifications.",
+    "A high P(qualification | bad day) is never treated as predictive without comparison to the qualification's unconditional base rate.",
+    "Secondary outcomes and beta-adjusted sensitivity are descriptive and cannot rescue a failed primary test.",
+    "Optimized DM remains capped at exploratory historical evidence regardless of p-values.",
+    "No condition may suppress, resize, create, modify, or cancel a live order.",
+    "No threshold or qualification may be added after results are observed."
+  ],
+  "preregistration": "research/dm_spy_underperformance_v1_preregistration.json",
+  "preregistrationSha256": "ffd046bdedb434ce43ef42f7f291dc80e06baa404548fbb0fcd8d07b4fc83c4c",
+  "primaryTests": [
+    {
+      "bootstrap": {
+        "ciHigh": 0.44573923223257406,
+        "ciLow": -0.2033547946458169,
+        "replications": 4045,
+        "twoSidedP": 0.44252163164400493
+      },
+      "calendarYears": [
+        2025,
+        2026
+      ],
+      "classification": "exploratory_historical",
+      "classificationReasons": [
+        "fewer than 63 observations in at least one qualification state",
+        "fewer than three contributing calendar years",
+        "95% block-bootstrap risk-difference interval includes zero",
+        "10-test BH q-value exceeds 0.10",
+        "optimized configuration is selection-contaminated and capped at exploratory historical evidence"
+      ],
+      "leaveOneYearOut": {
+        "directionalAgreement": 1.0,
+        "folds": [
+          {
+            "leftOutYear": 2025,
+            "nNotQualified": 12,
+            "nQualified": 143,
+            "riskDifference": -0.0874125874125874
+          },
+          {
+            "leftOutYear": 2026,
+            "nNotQualified": 0,
+            "nQualified": 95,
+            "riskDifference": null
+          }
+        ],
+        "usableFolds": 1
+      },
+      "meanActiveReturnNotQualified": -0.0004663249282823246,
+      "meanActiveReturnQualified": 0.0016999995907164044,
+      "meanEventSeverityNotQualified": -0.011738147769052054,
+      "meanEventSeverityQualified": -0.010990731184601475,
+      "notQualified": {
+        "eventRate": 0.5,
+        "events": 6,
+        "n": 12
+      },
+      "oddsRatio": 0.8174904942965779,
+      "precision": 0.4495798319327731,
+      "qValue": 0.9996,
+      "qualification": "spy_trend",
+      "qualificationBaseRate": 0.952,
+      "qualified": {
+        "eventRate": 0.4495798319327731,
+        "events": 107,
+        "n": 238
+      },
+      "recall": 0.9469026548672567,
+      "riskDifference": -0.05042016806722688,
+      "riskRatio": 0.8991596638655462,
+      "strategy": "dm_optimized_63d_daily",
+      "usableObservations": 250
+    },
+    {
+      "bootstrap": {
+        "ciHigh": 0.1604205644409169,
+        "ciLow": -0.12769206302858396,
+        "replications": 5000,
+        "twoSidedP": 0.9496
+      },
+      "calendarYears": [
+        2025,
+        2026
+      ],
+      "classification": "exploratory_historical",
+      "classificationReasons": [
+        "fewer than three contributing calendar years",
+        "95% block-bootstrap risk-difference interval includes zero",
+        "10-test BH q-value exceeds 0.10",
+        "leave-one-year-out directional agreement is below 80%",
+        "optimized configuration is selection-contaminated and capped at exploratory historical evidence"
+      ],
+      "leaveOneYearOut": {
+        "directionalAgreement": 0.5,
+        "folds": [
+          {
+            "leftOutYear": 2025,
+            "nNotQualified": 67,
+            "nQualified": 88,
+            "riskDifference": 0.10770013568521031
+          },
+          {
+            "leftOutYear": 2026,
+            "nNotQualified": 62,
+            "nQualified": 33,
+            "riskDifference": -0.12414467253176925
+          }
+        ],
+        "usableFolds": 2
+      },
+      "meanActiveReturnNotQualified": 0.0013292441262172387,
+      "meanActiveReturnQualified": 0.0018804257121412607,
+      "meanEventSeverityNotQualified": -0.010909929986268064,
+      "meanEventSeverityQualified": -0.011157476075693144,
+      "notQualified": {
+        "eventRate": 0.4496124031007752,
+        "events": 58,
+        "n": 129
+      },
+      "oddsRatio": 1.0200501253132832,
+      "precision": 0.45454545454545453,
+      "qValue": 0.9996,
+      "qualification": "market_volatility",
+      "qualificationBaseRate": 0.484,
+      "qualified": {
+        "eventRate": 0.45454545454545453,
+        "events": 55,
+        "n": 121
+      },
+      "recall": 0.48672566371681414,
+      "riskDifference": 0.004933051444679315,
+      "riskRatio": 1.0109717868338557,
+      "strategy": "dm_optimized_63d_daily",
+      "usableObservations": 250
+    },
+    {
+      "bootstrap": {
+        "ciHigh": 0.07375976265629966,
+        "ciLow": -0.11168114732950994,
+        "replications": 5000,
+        "twoSidedP": 0.7276
+      },
+      "calendarYears": [
+        2025,
+        2026
+      ],
+      "classification": "exploratory_historical",
+      "classificationReasons": [
+        "fewer than three contributing calendar years",
+        "95% block-bootstrap risk-difference interval includes zero",
+        "10-test BH q-value exceeds 0.10",
+        "leave-one-year-out directional agreement is below 80%",
+        "optimized configuration is selection-contaminated and capped at exploratory historical evidence"
+      ],
+      "leaveOneYearOut": {
+        "directionalAgreement": 0.5,
+        "folds": [
+          {
+            "leftOutYear": 2025,
+            "nNotQualified": 64,
+            "nQualified": 91,
+            "riskDifference": -0.004292582417582402
+          },
+          {
+            "leftOutYear": 2026,
+            "nNotQualified": 60,
+            "nQualified": 35,
+            "riskDifference": 0.014285714285714235
+          }
+        ],
+        "usableFolds": 2
+      },
+      "meanActiveReturnNotQualified": 0.0014668273408075495,
+      "meanActiveReturnQualified": 0.0017231540729442869,
+      "meanEventSeverityNotQualified": -0.008858617101360244,
+      "meanEventSeverityQualified": -0.013240999081948868,
+      "notQualified": {
+        "eventRate": 0.4596774193548387,
+        "events": 57,
+        "n": 124
+      },
+      "oddsRatio": 0.940795559666975,
+      "precision": 0.4444444444444444,
+      "qValue": 0.9996,
+      "qualification": "cross_sectional_dispersion",
+      "qualificationBaseRate": 0.504,
+      "qualified": {
+        "eventRate": 0.4444444444444444,
+        "events": 56,
+        "n": 126
+      },
+      "recall": 0.49557522123893805,
+      "riskDifference": -0.01523297491039427,
+      "riskRatio": 0.9668615984405458,
+      "strategy": "dm_optimized_63d_daily",
+      "usableObservations": 250
+    },
+    {
+      "bootstrap": {
+        "ciHigh": 0.15401898945674164,
+        "ciLow": -0.10707935012409231,
+        "replications": 5000,
+        "twoSidedP": 0.6212
+      },
+      "calendarYears": [
+        2025,
+        2026
+      ],
+      "classification": "exploratory_historical",
+      "classificationReasons": [
+        "fewer than three contributing calendar years",
+        "95% block-bootstrap risk-difference interval includes zero",
+        "10-test BH q-value exceeds 0.10",
+        "leave-one-year-out directional agreement is below 80%",
+        "optimized configuration is selection-contaminated and capped at exploratory historical evidence"
+      ],
+      "leaveOneYearOut": {
+        "directionalAgreement": 0.5,
+        "folds": [
+          {
+            "leftOutYear": 2025,
+            "nNotQualified": 112,
+            "nQualified": 43,
+            "riskDifference": -0.0010382059800664312
+          },
+          {
+            "leftOutYear": 2026,
+            "nNotQualified": 73,
+            "nQualified": 22,
+            "riskDifference": 0.11145703611457042
+          }
+        ],
+        "usableFolds": 2
+      },
+      "meanActiveReturnNotQualified": 0.0014827943924353825,
+      "meanActiveReturnQualified": 0.0019182621669318546,
+      "meanEventSeverityNotQualified": -0.01160857424934512,
+      "meanEventSeverityQualified": -0.009501097900657122,
+      "notQualified": {
+        "eventRate": 0.44324324324324327,
+        "events": 82,
+        "n": 185
+      },
+      "oddsRatio": 1.1454545454545455,
+      "precision": 0.47692307692307695,
+      "qValue": 0.9996,
+      "qualification": "prior_drawdown_5pct",
+      "qualificationBaseRate": 0.26,
+      "qualified": {
+        "eventRate": 0.47692307692307695,
+        "events": 31,
+        "n": 65
+      },
+      "recall": 0.2743362831858407,
+      "riskDifference": 0.03367983367983368,
+      "riskRatio": 1.075984990619137,
+      "strategy": "dm_optimized_63d_daily",
+      "usableObservations": 250
+    },
+    {
+      "bootstrap": {
+        "ciHigh": 0.12015081900621391,
+        "ciLow": -0.09561131716822732,
+        "replications": 5000,
+        "twoSidedP": 0.8908
+      },
+      "calendarYears": [
+        2025,
+        2026
+      ],
+      "classification": "exploratory_historical",
+      "classificationReasons": [
+        "fewer than three contributing calendar years",
+        "95% block-bootstrap risk-difference interval includes zero",
+        "10-test BH q-value exceeds 0.10",
+        "optimized configuration is selection-contaminated and capped at exploratory historical evidence"
+      ],
+      "leaveOneYearOut": {
+        "directionalAgreement": 1.0,
+        "folds": [
+          {
+            "leftOutYear": 2025,
+            "nNotQualified": 83,
+            "nQualified": 72,
+            "riskDifference": 0.046854082998661284
+          },
+          {
+            "leftOutYear": 2026,
+            "nNotQualified": 11,
+            "nQualified": 0,
+            "riskDifference": null
+          }
+        ],
+        "usableFolds": 1
+      },
+      "meanActiveReturnNotQualified": 0.0017451142293348134,
+      "meanActiveReturnQualified": 0.0005261882827656348,
+      "meanEventSeverityNotQualified": -0.009689250146777097,
+      "meanEventSeverityQualified": -0.014199656587202684,
+      "notQualified": {
+        "eventRate": 0.43617021276595747,
+        "events": 41,
+        "n": 94
+      },
+      "oddsRatio": 1.0345084039863157,
+      "precision": 0.4444444444444444,
+      "qValue": 0.9996,
+      "qualification": "strategy_volatility",
+      "qualificationBaseRate": 0.43373493975903615,
+      "qualified": {
+        "eventRate": 0.4444444444444444,
+        "events": 32,
+        "n": 72
+      },
+      "recall": 0.4383561643835616,
+      "riskDifference": 0.008274231678486954,
+      "riskRatio": 1.018970189701897,
+      "strategy": "dm_optimized_63d_daily",
+      "usableObservations": 166
+    },
+    {
+      "bootstrap": {
+        "ciHigh": 0.12861438917979856,
+        "ciLow": 0.014667043061563202,
+        "replications": 5000,
+        "twoSidedP": 0.0164
+      },
+      "calendarYears": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025,
+        2026
+      ],
+      "classification": "unsupported_or_unstable",
+      "classificationReasons": [
+        "10-test BH q-value exceeds 0.10"
+      ],
+      "leaveOneYearOut": {
+        "directionalAgreement": 0.8333333333333334,
+        "folds": [
+          {
+            "leftOutYear": 2021,
+            "nNotQualified": 274,
+            "nQualified": 884,
+            "riskDifference": 0.07664233576642338
+          },
+          {
+            "leftOutYear": 2022,
+            "nNotQualified": 71,
+            "nQualified": 932,
+            "riskDifference": -0.011334099014688959
+          },
+          {
+            "leftOutYear": 2023,
+            "nNotQualified": 257,
+            "nQualified": 747,
+            "riskDifference": 0.07738346381635491
+          },
+          {
+            "leftOutYear": 2024,
+            "nNotQualified": 274,
+            "nQualified": 728,
+            "riskDifference": 0.06977420389829153
+          },
+          {
+            "leftOutYear": 2025,
+            "nNotQualified": 232,
+            "nQualified": 772,
+            "riskDifference": 0.10389494371984997
+          },
+          {
+            "leftOutYear": 2026,
+            "nNotQualified": 262,
+            "nQualified": 837,
+            "riskDifference": 0.0597417165996334
+          }
+        ],
+        "usableFolds": 6
+      },
+      "meanActiveReturnNotQualified": 0.0008220455127910865,
+      "meanActiveReturnQualified": 4.488702735642577e-05,
+      "meanEventSeverityNotQualified": -0.00835726702219078,
+      "meanEventSeverityQualified": -0.006135159593979337,
+      "notQualified": {
+        "eventRate": 0.4233576642335766,
+        "events": 116,
+        "n": 274
+      },
+      "oddsRatio": 1.33850466721924,
+      "precision": 0.4959183673469388,
+      "qValue": 0.164,
+      "qualification": "spy_trend",
+      "qualificationBaseRate": 0.7814992025518341,
+      "qualified": {
+        "eventRate": 0.4959183673469388,
+        "events": 486,
+        "n": 980
+      },
+      "recall": 0.8073089700996677,
+      "riskDifference": 0.07256070311336216,
+      "riskRatio": 1.171393384940183,
+      "strategy": "canonical_dm_189d_monthly",
+      "usableObservations": 1254
+    },
+    {
+      "bootstrap": {
+        "ciHigh": 0.0011050651394133905,
+        "ciLow": -0.11618365143825145,
+        "replications": 5000,
+        "twoSidedP": 0.0528
+      },
+      "calendarYears": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025,
+        2026
+      ],
+      "classification": "unsupported_or_unstable",
+      "classificationReasons": [
+        "95% block-bootstrap risk-difference interval includes zero",
+        "10-test BH q-value exceeds 0.10"
+      ],
+      "leaveOneYearOut": {
+        "directionalAgreement": 1.0,
+        "folds": [
+          {
+            "leftOutYear": 2021,
+            "nNotQualified": 570,
+            "nQualified": 588,
+            "riskDifference": -0.05989974937343362
+          },
+          {
+            "leftOutYear": 2022,
+            "nNotQualified": 602,
+            "nQualified": 401,
+            "riskDifference": -0.058586921400816894
+          },
+          {
+            "leftOutYear": 2023,
+            "nNotQualified": 390,
+            "nQualified": 614,
+            "riskDifference": -0.03860352459700994
+          },
+          {
+            "leftOutYear": 2024,
+            "nNotQualified": 489,
+            "nQualified": 513,
+            "riskDifference": -0.06066802999318344
+          },
+          {
+            "leftOutYear": 2025,
+            "nNotQualified": 504,
+            "nQualified": 500,
+            "riskDifference": -0.053904761904761844
+          },
+          {
+            "leftOutYear": 2026,
+            "nNotQualified": 555,
+            "nQualified": 544,
+            "riskDifference": -0.07053524112347642
+          }
+        ],
+        "usableFolds": 6
+      },
+      "meanActiveReturnNotQualified": -8.982882923976536e-05,
+      "meanActiveReturnQualified": 0.0005144039384512484,
+      "meanEventSeverityNotQualified": -0.005844792007531156,
+      "meanEventSeverityQualified": -0.007362566564423551,
+      "notQualified": {
+        "eventRate": 0.5096463022508039,
+        "events": 317,
+        "n": 622
+      },
+      "oddsRatio": 0.7905307879680508,
+      "precision": 0.4509493670886076,
+      "qValue": 0.264,
+      "qualification": "market_volatility",
+      "qualificationBaseRate": 0.5039872408293461,
+      "qualified": {
+        "eventRate": 0.4509493670886076,
+        "events": 285,
+        "n": 632
+      },
+      "recall": 0.473421926910299,
+      "riskDifference": -0.05869693516219626,
+      "riskRatio": 0.8848280956754383,
+      "strategy": "canonical_dm_189d_monthly",
+      "usableObservations": 1254
+    },
+    {
+      "bootstrap": {
+        "ciHigh": 0.05505098963389498,
+        "ciLow": -0.06239152873817311,
+        "replications": 5000,
+        "twoSidedP": 0.944
+      },
+      "calendarYears": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025,
+        2026
+      ],
+      "classification": "unsupported_or_unstable",
+      "classificationReasons": [
+        "95% block-bootstrap risk-difference interval includes zero",
+        "10-test BH q-value exceeds 0.10",
+        "leave-one-year-out directional agreement is below 80%"
+      ],
+      "leaveOneYearOut": {
+        "directionalAgreement": 0.5,
+        "folds": [
+          {
+            "leftOutYear": 2021,
+            "nNotQualified": 560,
+            "nQualified": 598,
+            "riskDifference": 0.002920449116101287
+          },
+          {
+            "leftOutYear": 2022,
+            "nNotQualified": 466,
+            "nQualified": 537,
+            "riskDifference": -0.018542051294347106
+          },
+          {
+            "leftOutYear": 2023,
+            "nNotQualified": 466,
+            "nQualified": 538,
+            "riskDifference": -0.007131802734655468
+          },
+          {
+            "leftOutYear": 2024,
+            "nNotQualified": 484,
+            "nQualified": 518,
+            "riskDifference": 0.005759596668687583
+          },
+          {
+            "leftOutYear": 2025,
+            "nNotQualified": 479,
+            "nQualified": 525,
+            "riskDifference": -0.010605427974947845
+          },
+          {
+            "leftOutYear": 2026,
+            "nNotQualified": 535,
+            "nQualified": 564,
+            "riskDifference": 0.007599257639026968
+          }
+        ],
+        "usableFolds": 6
+      },
+      "meanActiveReturnNotQualified": 0.00019240233103477364,
+      "meanActiveReturnQualified": 0.00023502006609033585,
+      "meanEventSeverityNotQualified": -0.0063049971462174675,
+      "meanEventSeverityQualified": -0.006800290952667064,
+      "notQualified": {
+        "eventRate": 0.4816053511705686,
+        "events": 288,
+        "n": 598
+      },
+      "oddsRatio": 0.9882705663575757,
+      "precision": 0.47865853658536583,
+      "qValue": 0.9996,
+      "qualification": "cross_sectional_dispersion",
+      "qualificationBaseRate": 0.5231259968102073,
+      "qualified": {
+        "eventRate": 0.47865853658536583,
+        "events": 314,
+        "n": 656
+      },
+      "recall": 0.521594684385382,
+      "riskDifference": -0.0029468145852027394,
+      "riskRatio": 0.9938812669376693,
+      "strategy": "canonical_dm_189d_monthly",
+      "usableObservations": 1254
+    },
+    {
+      "bootstrap": {
+        "ciHigh": 0.05769271495383896,
+        "ciLow": -0.058163054673430886,
+        "replications": 5000,
+        "twoSidedP": 0.9996
+      },
+      "calendarYears": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025,
+        2026
+      ],
+      "classification": "unsupported_or_unstable",
+      "classificationReasons": [
+        "95% block-bootstrap risk-difference interval includes zero",
+        "10-test BH q-value exceeds 0.10",
+        "leave-one-year-out directional agreement is below 80%"
+      ],
+      "leaveOneYearOut": {
+        "directionalAgreement": 0.16666666666666666,
+        "folds": [
+          {
+            "leftOutYear": 2021,
+            "nNotQualified": 583,
+            "nQualified": 575,
+            "riskDifference": -0.00025057797002014937
+          },
+          {
+            "leftOutYear": 2022,
+            "nNotQualified": 586,
+            "nQualified": 417,
+            "riskDifference": -0.00018415301888180524
+          },
+          {
+            "leftOutYear": 2023,
+            "nNotQualified": 617,
+            "nQualified": 387,
+            "riskDifference": -0.014272611913107969
+          },
+          {
+            "leftOutYear": 2024,
+            "nNotQualified": 496,
+            "nQualified": 506,
+            "riskDifference": 0.020480045900803268
+          },
+          {
+            "leftOutYear": 2025,
+            "nNotQualified": 511,
+            "nQualified": 493,
+            "riskDifference": -0.0005358780262222917
+          },
+          {
+            "leftOutYear": 2026,
+            "nNotQualified": 582,
+            "nQualified": 517,
+            "riskDifference": -0.005493628985622889
+          }
+        ],
+        "usableFolds": 6
+      },
+      "meanActiveReturnNotQualified": 0.00010332389209312145,
+      "meanActiveReturnQualified": 0.00034453563065837305,
+      "meanEventSeverityNotQualified": -0.006767442787252907,
+      "meanEventSeverityQualified": -0.0063254642956048455,
+      "notQualified": {
+        "eventRate": 0.48,
+        "events": 324,
+        "n": 675
+      },
+      "oddsRatio": 1.0005723820548005,
+      "precision": 0.48013816925734026,
+      "qValue": 0.9996,
+      "qualification": "prior_drawdown_5pct",
+      "qualificationBaseRate": 0.46172248803827753,
+      "qualified": {
+        "eventRate": 0.48013816925734026,
+        "events": 278,
+        "n": 579
+      },
+      "recall": 0.46179401993355484,
+      "riskDifference": 0.00013816925734028151,
+      "riskRatio": 1.000287852619459,
+      "strategy": "canonical_dm_189d_monthly",
+      "usableObservations": 1254
+    },
+    {
+      "bootstrap": {
+        "ciHigh": 0.06624191176673107,
+        "ciLow": -0.06425550572135007,
+        "replications": 5000,
+        "twoSidedP": 0.9948
+      },
+      "calendarYears": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025,
+        2026
+      ],
+      "classification": "unsupported_or_unstable",
+      "classificationReasons": [
+        "95% block-bootstrap risk-difference interval includes zero",
+        "10-test BH q-value exceeds 0.10",
+        "leave-one-year-out directional agreement is below 80%"
+      ],
+      "leaveOneYearOut": {
+        "directionalAgreement": 0.5,
+        "folds": [
+          {
+            "leftOutYear": 2021,
+            "nNotQualified": 555,
+            "nQualified": 603,
+            "riskDifference": 0.0015059835955358314
+          },
+          {
+            "leftOutYear": 2022,
+            "nNotQualified": 423,
+            "nQualified": 496,
+            "riskDifference": -0.029479333485853687
+          },
+          {
+            "leftOutYear": 2023,
+            "nNotQualified": 413,
+            "nQualified": 507,
+            "riskDifference": 0.0069582742333720304
+          },
+          {
+            "leftOutYear": 2024,
+            "nNotQualified": 439,
+            "nQualified": 479,
+            "riskDifference": 0.04147783204378902
+          },
+          {
+            "leftOutYear": 2025,
+            "nNotQualified": 457,
+            "nQualified": 463,
+            "riskDifference": -0.0063518769701924604
+          },
+          {
+            "leftOutYear": 2026,
+            "nNotQualified": 488,
+            "nQualified": 527,
+            "riskDifference": -0.011120788876100407
+          }
+        ],
+        "usableFolds": 6
+      },
+      "meanActiveReturnNotQualified": 0.0003389082359775991,
+      "meanActiveReturnQualified": 9.101383693300271e-05,
+      "meanEventSeverityNotQualified": -0.006408376884972281,
+      "meanEventSeverityQualified": -0.007034336219986557,
+      "notQualified": {
+        "eventRate": 0.4810810810810811,
+        "events": 267,
+        "n": 555
+      },
+      "oddsRatio": 1.0008658388545186,
+      "precision": 0.4813008130081301,
+      "qValue": 0.9996,
+      "qualification": "strategy_volatility",
+      "qualificationBaseRate": 0.5256410256410257,
+      "qualified": {
+        "eventRate": 0.4813008130081301,
+        "events": 296,
+        "n": 615
+      },
+      "recall": 0.5257548845470693,
+      "riskDifference": 0.00021973192704899391,
+      "riskRatio": 1.0004567461404952,
+      "strategy": "canonical_dm_189d_monthly",
+      "usableObservations": 1170
+    }
+  ],
+  "regimePreregistrationSha256": "72ee369e00abe5ab44755dae076c56e033972c7c9766eb64a1dfe6665b314ea9",
+  "simulation": {
+    "blockLength": 21,
+    "bootstrapReplications": 5000,
+    "seed": 20260826
+  },
+  "strategies": {
+    "canonical_dm_189d_monthly": {
+      "conditionDiagnostics": {
+        "dispersionBars": 1447,
+        "dispersionUniversePolicy": "point-in-time membership",
+        "missingByCondition": {
+          "cross_sectional_dispersion": 0,
+          "market_volatility": 0,
+          "spy_trend": 0
+        },
+        "spyBars": 1875
+      },
+      "outcomes": {
+        "absoluteLossRate": 0.4649122807017544,
+        "activeReturn": {
+          "mean": 0.00021469677616750796,
+          "median": 0.00033218314358096634,
+          "p10": -0.009791877786891268,
+          "worst": -0.058714839143465536
+        },
+        "alignedObservations": 1254,
+        "betaAdjustedSensitivity": {
+          "meanResidualReturn": 0.00029159460092043933,
+          "observations": 1128,
+          "residualUnderperformanceRate": 0.4778368794326241
+        },
+        "jointDamagingRate": 0.31738437001594894,
+        "quadrants": {
+          "loss_and_underperformed": {
+            "n": 398,
+            "rate": 0.31738437001594894
+          },
+          "loss_but_outperformed": {
+            "n": 185,
+            "rate": 0.14752791068580542
+          },
+          "profit_and_outperformed": {
+            "n": 467,
+            "rate": 0.372408293460925
+          },
+          "profit_but_underperformed": {
+            "n": 204,
+            "rate": 0.16267942583732056
+          }
+        },
+        "severeRelativeMiss": {
+          "frozenTrainingP10Cutoff": -0.009298108465299337,
+          "holdoutEventRate": 0.13147410358565736,
+          "holdoutEvents": 66,
+          "holdoutObservations": 502,
+          "trainingObservations": 752
+        },
+        "underperformanceEvents": 602,
+        "underperformanceRate": 0.4800637958532695
+      },
+      "provenance": {
+        "executionCalibration": {
+          "applied": false,
+          "treatment": "registered canonical Dow costs retained; optimized small-cap calibration not transferred"
+        },
+        "loggedMetrics": {
+          "maxDrawdownPct": 20.53809417219469,
+          "metricsVersion": 2,
+          "returnPct": 139.62632249472824,
+          "sharpeVsRiskFree": 0.7787455337418879
+        },
+        "observationsBeforeConditions": 1254,
+        "parameters": {},
+        "pitDiagnostics": {},
+        "pitMembershipApplied": true,
+        "reconstructedMetrics": {
+          "maxDrawdownPct": 20.64421566180325,
+          "returnPct": 137.55690629256017,
+          "sharpeVsRiskFree": 0.7673039886034807
+        },
+        "requestedEnd": "2026-08-14",
+        "requestedStart": "2021-08-15",
+        "sourceRunId": 26,
+        "symbols": [
+          "AAPL",
+          "AMGN",
+          "AXP",
+          "BA",
+          "CAT",
+          "CRM",
+          "CSCO",
+          "CVX",
+          "DIS",
+          "DOW",
+          "GS",
+          "HD",
+          "HON",
+          "IBM",
+          "INTC",
+          "JNJ",
+          "JPM",
+          "KO",
+          "MCD",
+          "MMM",
+          "MRK",
+          "MSFT",
+          "NKE",
+          "PG",
+          "TRV",
+          "UNH",
+          "V",
+          "VZ",
+          "WMT"
+        ],
+        "totalCosts": 121.43897348720353,
+        "totalTradedNotional": 506497.529937906
+      },
+      "tests": [
+        {
+          "bootstrap": {
+            "ciHigh": 0.12861438917979856,
+            "ciLow": 0.014667043061563202,
+            "replications": 5000,
+            "twoSidedP": 0.0164
+          },
+          "calendarYears": [
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "classification": "unsupported_or_unstable",
+          "classificationReasons": [
+            "10-test BH q-value exceeds 0.10"
+          ],
+          "leaveOneYearOut": {
+            "directionalAgreement": 0.8333333333333334,
+            "folds": [
+              {
+                "leftOutYear": 2021,
+                "nNotQualified": 274,
+                "nQualified": 884,
+                "riskDifference": 0.07664233576642338
+              },
+              {
+                "leftOutYear": 2022,
+                "nNotQualified": 71,
+                "nQualified": 932,
+                "riskDifference": -0.011334099014688959
+              },
+              {
+                "leftOutYear": 2023,
+                "nNotQualified": 257,
+                "nQualified": 747,
+                "riskDifference": 0.07738346381635491
+              },
+              {
+                "leftOutYear": 2024,
+                "nNotQualified": 274,
+                "nQualified": 728,
+                "riskDifference": 0.06977420389829153
+              },
+              {
+                "leftOutYear": 2025,
+                "nNotQualified": 232,
+                "nQualified": 772,
+                "riskDifference": 0.10389494371984997
+              },
+              {
+                "leftOutYear": 2026,
+                "nNotQualified": 262,
+                "nQualified": 837,
+                "riskDifference": 0.0597417165996334
+              }
+            ],
+            "usableFolds": 6
+          },
+          "meanActiveReturnNotQualified": 0.0008220455127910865,
+          "meanActiveReturnQualified": 4.488702735642577e-05,
+          "meanEventSeverityNotQualified": -0.00835726702219078,
+          "meanEventSeverityQualified": -0.006135159593979337,
+          "notQualified": {
+            "eventRate": 0.4233576642335766,
+            "events": 116,
+            "n": 274
+          },
+          "oddsRatio": 1.33850466721924,
+          "precision": 0.4959183673469388,
+          "qValue": 0.164,
+          "qualification": "spy_trend",
+          "qualificationBaseRate": 0.7814992025518341,
+          "qualified": {
+            "eventRate": 0.4959183673469388,
+            "events": 486,
+            "n": 980
+          },
+          "recall": 0.8073089700996677,
+          "riskDifference": 0.07256070311336216,
+          "riskRatio": 1.171393384940183,
+          "strategy": "canonical_dm_189d_monthly",
+          "usableObservations": 1254
+        },
+        {
+          "bootstrap": {
+            "ciHigh": 0.0011050651394133905,
+            "ciLow": -0.11618365143825145,
+            "replications": 5000,
+            "twoSidedP": 0.0528
+          },
+          "calendarYears": [
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "classification": "unsupported_or_unstable",
+          "classificationReasons": [
+            "95% block-bootstrap risk-difference interval includes zero",
+            "10-test BH q-value exceeds 0.10"
+          ],
+          "leaveOneYearOut": {
+            "directionalAgreement": 1.0,
+            "folds": [
+              {
+                "leftOutYear": 2021,
+                "nNotQualified": 570,
+                "nQualified": 588,
+                "riskDifference": -0.05989974937343362
+              },
+              {
+                "leftOutYear": 2022,
+                "nNotQualified": 602,
+                "nQualified": 401,
+                "riskDifference": -0.058586921400816894
+              },
+              {
+                "leftOutYear": 2023,
+                "nNotQualified": 390,
+                "nQualified": 614,
+                "riskDifference": -0.03860352459700994
+              },
+              {
+                "leftOutYear": 2024,
+                "nNotQualified": 489,
+                "nQualified": 513,
+                "riskDifference": -0.06066802999318344
+              },
+              {
+                "leftOutYear": 2025,
+                "nNotQualified": 504,
+                "nQualified": 500,
+                "riskDifference": -0.053904761904761844
+              },
+              {
+                "leftOutYear": 2026,
+                "nNotQualified": 555,
+                "nQualified": 544,
+                "riskDifference": -0.07053524112347642
+              }
+            ],
+            "usableFolds": 6
+          },
+          "meanActiveReturnNotQualified": -8.982882923976536e-05,
+          "meanActiveReturnQualified": 0.0005144039384512484,
+          "meanEventSeverityNotQualified": -0.005844792007531156,
+          "meanEventSeverityQualified": -0.007362566564423551,
+          "notQualified": {
+            "eventRate": 0.5096463022508039,
+            "events": 317,
+            "n": 622
+          },
+          "oddsRatio": 0.7905307879680508,
+          "precision": 0.4509493670886076,
+          "qValue": 0.264,
+          "qualification": "market_volatility",
+          "qualificationBaseRate": 0.5039872408293461,
+          "qualified": {
+            "eventRate": 0.4509493670886076,
+            "events": 285,
+            "n": 632
+          },
+          "recall": 0.473421926910299,
+          "riskDifference": -0.05869693516219626,
+          "riskRatio": 0.8848280956754383,
+          "strategy": "canonical_dm_189d_monthly",
+          "usableObservations": 1254
+        },
+        {
+          "bootstrap": {
+            "ciHigh": 0.05505098963389498,
+            "ciLow": -0.06239152873817311,
+            "replications": 5000,
+            "twoSidedP": 0.944
+          },
+          "calendarYears": [
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "classification": "unsupported_or_unstable",
+          "classificationReasons": [
+            "95% block-bootstrap risk-difference interval includes zero",
+            "10-test BH q-value exceeds 0.10",
+            "leave-one-year-out directional agreement is below 80%"
+          ],
+          "leaveOneYearOut": {
+            "directionalAgreement": 0.5,
+            "folds": [
+              {
+                "leftOutYear": 2021,
+                "nNotQualified": 560,
+                "nQualified": 598,
+                "riskDifference": 0.002920449116101287
+              },
+              {
+                "leftOutYear": 2022,
+                "nNotQualified": 466,
+                "nQualified": 537,
+                "riskDifference": -0.018542051294347106
+              },
+              {
+                "leftOutYear": 2023,
+                "nNotQualified": 466,
+                "nQualified": 538,
+                "riskDifference": -0.007131802734655468
+              },
+              {
+                "leftOutYear": 2024,
+                "nNotQualified": 484,
+                "nQualified": 518,
+                "riskDifference": 0.005759596668687583
+              },
+              {
+                "leftOutYear": 2025,
+                "nNotQualified": 479,
+                "nQualified": 525,
+                "riskDifference": -0.010605427974947845
+              },
+              {
+                "leftOutYear": 2026,
+                "nNotQualified": 535,
+                "nQualified": 564,
+                "riskDifference": 0.007599257639026968
+              }
+            ],
+            "usableFolds": 6
+          },
+          "meanActiveReturnNotQualified": 0.00019240233103477364,
+          "meanActiveReturnQualified": 0.00023502006609033585,
+          "meanEventSeverityNotQualified": -0.0063049971462174675,
+          "meanEventSeverityQualified": -0.006800290952667064,
+          "notQualified": {
+            "eventRate": 0.4816053511705686,
+            "events": 288,
+            "n": 598
+          },
+          "oddsRatio": 0.9882705663575757,
+          "precision": 0.47865853658536583,
+          "qValue": 0.9996,
+          "qualification": "cross_sectional_dispersion",
+          "qualificationBaseRate": 0.5231259968102073,
+          "qualified": {
+            "eventRate": 0.47865853658536583,
+            "events": 314,
+            "n": 656
+          },
+          "recall": 0.521594684385382,
+          "riskDifference": -0.0029468145852027394,
+          "riskRatio": 0.9938812669376693,
+          "strategy": "canonical_dm_189d_monthly",
+          "usableObservations": 1254
+        },
+        {
+          "bootstrap": {
+            "ciHigh": 0.05769271495383896,
+            "ciLow": -0.058163054673430886,
+            "replications": 5000,
+            "twoSidedP": 0.9996
+          },
+          "calendarYears": [
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "classification": "unsupported_or_unstable",
+          "classificationReasons": [
+            "95% block-bootstrap risk-difference interval includes zero",
+            "10-test BH q-value exceeds 0.10",
+            "leave-one-year-out directional agreement is below 80%"
+          ],
+          "leaveOneYearOut": {
+            "directionalAgreement": 0.16666666666666666,
+            "folds": [
+              {
+                "leftOutYear": 2021,
+                "nNotQualified": 583,
+                "nQualified": 575,
+                "riskDifference": -0.00025057797002014937
+              },
+              {
+                "leftOutYear": 2022,
+                "nNotQualified": 586,
+                "nQualified": 417,
+                "riskDifference": -0.00018415301888180524
+              },
+              {
+                "leftOutYear": 2023,
+                "nNotQualified": 617,
+                "nQualified": 387,
+                "riskDifference": -0.014272611913107969
+              },
+              {
+                "leftOutYear": 2024,
+                "nNotQualified": 496,
+                "nQualified": 506,
+                "riskDifference": 0.020480045900803268
+              },
+              {
+                "leftOutYear": 2025,
+                "nNotQualified": 511,
+                "nQualified": 493,
+                "riskDifference": -0.0005358780262222917
+              },
+              {
+                "leftOutYear": 2026,
+                "nNotQualified": 582,
+                "nQualified": 517,
+                "riskDifference": -0.005493628985622889
+              }
+            ],
+            "usableFolds": 6
+          },
+          "meanActiveReturnNotQualified": 0.00010332389209312145,
+          "meanActiveReturnQualified": 0.00034453563065837305,
+          "meanEventSeverityNotQualified": -0.006767442787252907,
+          "meanEventSeverityQualified": -0.0063254642956048455,
+          "notQualified": {
+            "eventRate": 0.48,
+            "events": 324,
+            "n": 675
+          },
+          "oddsRatio": 1.0005723820548005,
+          "precision": 0.48013816925734026,
+          "qValue": 0.9996,
+          "qualification": "prior_drawdown_5pct",
+          "qualificationBaseRate": 0.46172248803827753,
+          "qualified": {
+            "eventRate": 0.48013816925734026,
+            "events": 278,
+            "n": 579
+          },
+          "recall": 0.46179401993355484,
+          "riskDifference": 0.00013816925734028151,
+          "riskRatio": 1.000287852619459,
+          "strategy": "canonical_dm_189d_monthly",
+          "usableObservations": 1254
+        },
+        {
+          "bootstrap": {
+            "ciHigh": 0.06624191176673107,
+            "ciLow": -0.06425550572135007,
+            "replications": 5000,
+            "twoSidedP": 0.9948
+          },
+          "calendarYears": [
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "classification": "unsupported_or_unstable",
+          "classificationReasons": [
+            "95% block-bootstrap risk-difference interval includes zero",
+            "10-test BH q-value exceeds 0.10",
+            "leave-one-year-out directional agreement is below 80%"
+          ],
+          "leaveOneYearOut": {
+            "directionalAgreement": 0.5,
+            "folds": [
+              {
+                "leftOutYear": 2021,
+                "nNotQualified": 555,
+                "nQualified": 603,
+                "riskDifference": 0.0015059835955358314
+              },
+              {
+                "leftOutYear": 2022,
+                "nNotQualified": 423,
+                "nQualified": 496,
+                "riskDifference": -0.029479333485853687
+              },
+              {
+                "leftOutYear": 2023,
+                "nNotQualified": 413,
+                "nQualified": 507,
+                "riskDifference": 0.0069582742333720304
+              },
+              {
+                "leftOutYear": 2024,
+                "nNotQualified": 439,
+                "nQualified": 479,
+                "riskDifference": 0.04147783204378902
+              },
+              {
+                "leftOutYear": 2025,
+                "nNotQualified": 457,
+                "nQualified": 463,
+                "riskDifference": -0.0063518769701924604
+              },
+              {
+                "leftOutYear": 2026,
+                "nNotQualified": 488,
+                "nQualified": 527,
+                "riskDifference": -0.011120788876100407
+              }
+            ],
+            "usableFolds": 6
+          },
+          "meanActiveReturnNotQualified": 0.0003389082359775991,
+          "meanActiveReturnQualified": 9.101383693300271e-05,
+          "meanEventSeverityNotQualified": -0.006408376884972281,
+          "meanEventSeverityQualified": -0.007034336219986557,
+          "notQualified": {
+            "eventRate": 0.4810810810810811,
+            "events": 267,
+            "n": 555
+          },
+          "oddsRatio": 1.0008658388545186,
+          "precision": 0.4813008130081301,
+          "qValue": 0.9996,
+          "qualification": "strategy_volatility",
+          "qualificationBaseRate": 0.5256410256410257,
+          "qualified": {
+            "eventRate": 0.4813008130081301,
+            "events": 296,
+            "n": 615
+          },
+          "recall": 0.5257548845470693,
+          "riskDifference": 0.00021973192704899391,
+          "riskRatio": 1.0004567461404952,
+          "strategy": "canonical_dm_189d_monthly",
+          "usableObservations": 1170
+        }
+      ]
+    },
+    "dm_optimized_63d_daily": {
+      "conditionDiagnostics": {
+        "dispersionBars": 318,
+        "dispersionUniversePolicy": "fixed frozen symbols",
+        "missingByCondition": {
+          "cross_sectional_dispersion": 0,
+          "market_volatility": 0,
+          "spy_trend": 0
+        },
+        "spyBars": 867
+      },
+      "outcomes": {
+        "absoluteLossRate": 0.452,
+        "activeReturn": {
+          "mean": 0.0015960160138044654,
+          "median": 0.0011134721491558724,
+          "p10": -0.018545488505620555,
+          "worst": -0.04717493835992668
+        },
+        "alignedObservations": 250,
+        "betaAdjustedSensitivity": {
+          "meanResidualReturn": 0.0005703906388584519,
+          "observations": 124,
+          "residualUnderperformanceRate": 0.4435483870967742
+        },
+        "jointDamagingRate": 0.364,
+        "quadrants": {
+          "loss_and_underperformed": {
+            "n": 91,
+            "rate": 0.364
+          },
+          "loss_but_outperformed": {
+            "n": 22,
+            "rate": 0.088
+          },
+          "profit_and_outperformed": {
+            "n": 115,
+            "rate": 0.46
+          },
+          "profit_but_underperformed": {
+            "n": 22,
+            "rate": 0.088
+          }
+        },
+        "severeRelativeMiss": {
+          "frozenTrainingP10Cutoff": -0.01670570033552679,
+          "holdoutEventRate": 0.11,
+          "holdoutEvents": 11,
+          "holdoutObservations": 100,
+          "trainingObservations": 150
+        },
+        "underperformanceEvents": 113,
+        "underperformanceRate": 0.452
+      },
+      "provenance": {
+        "executionCalibration": {
+          "applied": true,
+          "fills": 45,
+          "incrementalSlippageBps": 5.857763300760045,
+          "meanFillRatio": 0.9971572353512573,
+          "medianAdverseSlippageBps": 10.857763300760048,
+          "p95AdverseSlippageBps": 101.90973709000572,
+          "partialFillRate": 0.3333333333333333,
+          "treatment": "daily return multiplied by mean fill ratio; incremental slippage charged on turnover"
+        },
+        "loggedMetrics": {
+          "maxDrawdownPct": 13.477305227862876,
+          "metricsVersion": 2,
+          "returnPct": 78.83865936576046,
+          "sharpeVsRiskFree": 2.7367188037270003
+        },
+        "observationsBeforeConditions": 250,
+        "parameters": {
+          "lookback_trading_days": 63,
+          "rebalance_frequency": "daily"
+        },
+        "pitDiagnostics": {},
+        "pitMembershipApplied": false,
+        "reconstructedMetrics": {
+          "maxDrawdownPct": 13.477301965306122,
+          "returnPct": 78.58663465309743,
+          "sharpeVsRiskFree": 2.717931407177796
+        },
+        "requestedEnd": "2026-08-14",
+        "requestedStart": "2025-08-15",
+        "sourceRunId": 33,
+        "symbols": [
+          "AAMI",
+          "ACIW",
+          "AEO",
+          "ALG",
+          "AROC",
+          "AWI",
+          "BCPC",
+          "BLFS",
+          "BXMT",
+          "CBRL",
+          "CFFN",
+          "CRC",
+          "CXW",
+          "DFIN",
+          "EAT",
+          "ENPH",
+          "EVTC",
+          "FCPT",
+          "FORM",
+          "GEO",
+          "GRBK",
+          "HCC",
+          "HOPE",
+          "HZO",
+          "INVA",
+          "JBSS"
+        ],
+        "totalCosts": 390.6006821207131,
+        "totalTradedNotional": 624971.189743767
+      },
+      "tests": [
+        {
+          "bootstrap": {
+            "ciHigh": 0.44573923223257406,
+            "ciLow": -0.2033547946458169,
+            "replications": 4045,
+            "twoSidedP": 0.44252163164400493
+          },
+          "calendarYears": [
+            2025,
+            2026
+          ],
+          "classification": "exploratory_historical",
+          "classificationReasons": [
+            "fewer than 63 observations in at least one qualification state",
+            "fewer than three contributing calendar years",
+            "95% block-bootstrap risk-difference interval includes zero",
+            "10-test BH q-value exceeds 0.10",
+            "optimized configuration is selection-contaminated and capped at exploratory historical evidence"
+          ],
+          "leaveOneYearOut": {
+            "directionalAgreement": 1.0,
+            "folds": [
+              {
+                "leftOutYear": 2025,
+                "nNotQualified": 12,
+                "nQualified": 143,
+                "riskDifference": -0.0874125874125874
+              },
+              {
+                "leftOutYear": 2026,
+                "nNotQualified": 0,
+                "nQualified": 95,
+                "riskDifference": null
+              }
+            ],
+            "usableFolds": 1
+          },
+          "meanActiveReturnNotQualified": -0.0004663249282823246,
+          "meanActiveReturnQualified": 0.0016999995907164044,
+          "meanEventSeverityNotQualified": -0.011738147769052054,
+          "meanEventSeverityQualified": -0.010990731184601475,
+          "notQualified": {
+            "eventRate": 0.5,
+            "events": 6,
+            "n": 12
+          },
+          "oddsRatio": 0.8174904942965779,
+          "precision": 0.4495798319327731,
+          "qValue": 0.9996,
+          "qualification": "spy_trend",
+          "qualificationBaseRate": 0.952,
+          "qualified": {
+            "eventRate": 0.4495798319327731,
+            "events": 107,
+            "n": 238
+          },
+          "recall": 0.9469026548672567,
+          "riskDifference": -0.05042016806722688,
+          "riskRatio": 0.8991596638655462,
+          "strategy": "dm_optimized_63d_daily",
+          "usableObservations": 250
+        },
+        {
+          "bootstrap": {
+            "ciHigh": 0.1604205644409169,
+            "ciLow": -0.12769206302858396,
+            "replications": 5000,
+            "twoSidedP": 0.9496
+          },
+          "calendarYears": [
+            2025,
+            2026
+          ],
+          "classification": "exploratory_historical",
+          "classificationReasons": [
+            "fewer than three contributing calendar years",
+            "95% block-bootstrap risk-difference interval includes zero",
+            "10-test BH q-value exceeds 0.10",
+            "leave-one-year-out directional agreement is below 80%",
+            "optimized configuration is selection-contaminated and capped at exploratory historical evidence"
+          ],
+          "leaveOneYearOut": {
+            "directionalAgreement": 0.5,
+            "folds": [
+              {
+                "leftOutYear": 2025,
+                "nNotQualified": 67,
+                "nQualified": 88,
+                "riskDifference": 0.10770013568521031
+              },
+              {
+                "leftOutYear": 2026,
+                "nNotQualified": 62,
+                "nQualified": 33,
+                "riskDifference": -0.12414467253176925
+              }
+            ],
+            "usableFolds": 2
+          },
+          "meanActiveReturnNotQualified": 0.0013292441262172387,
+          "meanActiveReturnQualified": 0.0018804257121412607,
+          "meanEventSeverityNotQualified": -0.010909929986268064,
+          "meanEventSeverityQualified": -0.011157476075693144,
+          "notQualified": {
+            "eventRate": 0.4496124031007752,
+            "events": 58,
+            "n": 129
+          },
+          "oddsRatio": 1.0200501253132832,
+          "precision": 0.45454545454545453,
+          "qValue": 0.9996,
+          "qualification": "market_volatility",
+          "qualificationBaseRate": 0.484,
+          "qualified": {
+            "eventRate": 0.45454545454545453,
+            "events": 55,
+            "n": 121
+          },
+          "recall": 0.48672566371681414,
+          "riskDifference": 0.004933051444679315,
+          "riskRatio": 1.0109717868338557,
+          "strategy": "dm_optimized_63d_daily",
+          "usableObservations": 250
+        },
+        {
+          "bootstrap": {
+            "ciHigh": 0.07375976265629966,
+            "ciLow": -0.11168114732950994,
+            "replications": 5000,
+            "twoSidedP": 0.7276
+          },
+          "calendarYears": [
+            2025,
+            2026
+          ],
+          "classification": "exploratory_historical",
+          "classificationReasons": [
+            "fewer than three contributing calendar years",
+            "95% block-bootstrap risk-difference interval includes zero",
+            "10-test BH q-value exceeds 0.10",
+            "leave-one-year-out directional agreement is below 80%",
+            "optimized configuration is selection-contaminated and capped at exploratory historical evidence"
+          ],
+          "leaveOneYearOut": {
+            "directionalAgreement": 0.5,
+            "folds": [
+              {
+                "leftOutYear": 2025,
+                "nNotQualified": 64,
+                "nQualified": 91,
+                "riskDifference": -0.004292582417582402
+              },
+              {
+                "leftOutYear": 2026,
+                "nNotQualified": 60,
+                "nQualified": 35,
+                "riskDifference": 0.014285714285714235
+              }
+            ],
+            "usableFolds": 2
+          },
+          "meanActiveReturnNotQualified": 0.0014668273408075495,
+          "meanActiveReturnQualified": 0.0017231540729442869,
+          "meanEventSeverityNotQualified": -0.008858617101360244,
+          "meanEventSeverityQualified": -0.013240999081948868,
+          "notQualified": {
+            "eventRate": 0.4596774193548387,
+            "events": 57,
+            "n": 124
+          },
+          "oddsRatio": 0.940795559666975,
+          "precision": 0.4444444444444444,
+          "qValue": 0.9996,
+          "qualification": "cross_sectional_dispersion",
+          "qualificationBaseRate": 0.504,
+          "qualified": {
+            "eventRate": 0.4444444444444444,
+            "events": 56,
+            "n": 126
+          },
+          "recall": 0.49557522123893805,
+          "riskDifference": -0.01523297491039427,
+          "riskRatio": 0.9668615984405458,
+          "strategy": "dm_optimized_63d_daily",
+          "usableObservations": 250
+        },
+        {
+          "bootstrap": {
+            "ciHigh": 0.15401898945674164,
+            "ciLow": -0.10707935012409231,
+            "replications": 5000,
+            "twoSidedP": 0.6212
+          },
+          "calendarYears": [
+            2025,
+            2026
+          ],
+          "classification": "exploratory_historical",
+          "classificationReasons": [
+            "fewer than three contributing calendar years",
+            "95% block-bootstrap risk-difference interval includes zero",
+            "10-test BH q-value exceeds 0.10",
+            "leave-one-year-out directional agreement is below 80%",
+            "optimized configuration is selection-contaminated and capped at exploratory historical evidence"
+          ],
+          "leaveOneYearOut": {
+            "directionalAgreement": 0.5,
+            "folds": [
+              {
+                "leftOutYear": 2025,
+                "nNotQualified": 112,
+                "nQualified": 43,
+                "riskDifference": -0.0010382059800664312
+              },
+              {
+                "leftOutYear": 2026,
+                "nNotQualified": 73,
+                "nQualified": 22,
+                "riskDifference": 0.11145703611457042
+              }
+            ],
+            "usableFolds": 2
+          },
+          "meanActiveReturnNotQualified": 0.0014827943924353825,
+          "meanActiveReturnQualified": 0.0019182621669318546,
+          "meanEventSeverityNotQualified": -0.01160857424934512,
+          "meanEventSeverityQualified": -0.009501097900657122,
+          "notQualified": {
+            "eventRate": 0.44324324324324327,
+            "events": 82,
+            "n": 185
+          },
+          "oddsRatio": 1.1454545454545455,
+          "precision": 0.47692307692307695,
+          "qValue": 0.9996,
+          "qualification": "prior_drawdown_5pct",
+          "qualificationBaseRate": 0.26,
+          "qualified": {
+            "eventRate": 0.47692307692307695,
+            "events": 31,
+            "n": 65
+          },
+          "recall": 0.2743362831858407,
+          "riskDifference": 0.03367983367983368,
+          "riskRatio": 1.075984990619137,
+          "strategy": "dm_optimized_63d_daily",
+          "usableObservations": 250
+        },
+        {
+          "bootstrap": {
+            "ciHigh": 0.12015081900621391,
+            "ciLow": -0.09561131716822732,
+            "replications": 5000,
+            "twoSidedP": 0.8908
+          },
+          "calendarYears": [
+            2025,
+            2026
+          ],
+          "classification": "exploratory_historical",
+          "classificationReasons": [
+            "fewer than three contributing calendar years",
+            "95% block-bootstrap risk-difference interval includes zero",
+            "10-test BH q-value exceeds 0.10",
+            "optimized configuration is selection-contaminated and capped at exploratory historical evidence"
+          ],
+          "leaveOneYearOut": {
+            "directionalAgreement": 1.0,
+            "folds": [
+              {
+                "leftOutYear": 2025,
+                "nNotQualified": 83,
+                "nQualified": 72,
+                "riskDifference": 0.046854082998661284
+              },
+              {
+                "leftOutYear": 2026,
+                "nNotQualified": 11,
+                "nQualified": 0,
+                "riskDifference": null
+              }
+            ],
+            "usableFolds": 1
+          },
+          "meanActiveReturnNotQualified": 0.0017451142293348134,
+          "meanActiveReturnQualified": 0.0005261882827656348,
+          "meanEventSeverityNotQualified": -0.009689250146777097,
+          "meanEventSeverityQualified": -0.014199656587202684,
+          "notQualified": {
+            "eventRate": 0.43617021276595747,
+            "events": 41,
+            "n": 94
+          },
+          "oddsRatio": 1.0345084039863157,
+          "precision": 0.4444444444444444,
+          "qValue": 0.9996,
+          "qualification": "strategy_volatility",
+          "qualificationBaseRate": 0.43373493975903615,
+          "qualified": {
+            "eventRate": 0.4444444444444444,
+            "events": 32,
+            "n": 72
+          },
+          "recall": 0.4383561643835616,
+          "riskDifference": 0.008274231678486954,
+          "riskRatio": 1.018970189701897,
+          "strategy": "dm_optimized_63d_daily",
+          "usableObservations": 166
+        }
+      ]
+    }
+  },
+  "study": "Dual Momentum SPY-Underperformance Antecedent Audit v1"
+}

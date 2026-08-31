@@ -1,5 +1,6 @@
 import {
   api,
+  type ExecutionStrategyConfig,
   type KillSwitchStatus,
   type LiveAccountResponse,
   type MarketResponse,
@@ -56,12 +57,14 @@ export function StatusStrip({
 }) {
   const account = useResource<LiveAccountResponse>(KEYS.liveAccount, () => api.liveAccount());
   const kill = useResource<KillSwitchStatus>(KEYS.killSwitch, () => api.killSwitchStatus());
+  const config = useResource<ExecutionStrategyConfig[]>(KEYS.executionConfig, () => api.executionConfig());
 
   const clock = account.data?.clock ?? null;
   const acct = account.data?.account;
   const spy = marketData?.sectorPerformance.find((r) => r.symbol === "SPY");
   const regime = marketData?.regime.current ?? null;
   const breadth = marketData?.marketSignals.score ?? null;
+  const activeStrategy = config.data?.find((row) => row.enabled);
 
   // Alpaca's own prior-session-close equity is the same baseline the
   // daily-loss circuit breaker compares against -- deriving day P&L from
@@ -89,6 +92,8 @@ export function StatusStrip({
 
       <div className="h-8 w-px" style={{ background: "var(--gridline)" }} aria-hidden="true" />
 
+      <span className="text-[10px] font-semibold tracking-wide" style={{ color: "var(--text-muted)" }}>MARKET</span>
+
       <Stat
         label="SPY"
         value={marketLoading && !spy ? "…" : fmtPct(spy?.changePct ?? null)}
@@ -108,6 +113,8 @@ export function StatusStrip({
 
       <div className="h-8 w-px" style={{ background: "var(--gridline)" }} aria-hidden="true" />
 
+      <span className="text-[10px] font-semibold tracking-wide" style={{ color: "var(--text-muted)" }}>PAPER STRATEGY</span>
+
       <Stat
         label="PAPER EQUITY"
         value={acct?.available ? fmtMoney(acct.equity) : "—"}
@@ -123,6 +130,11 @@ export function StatusStrip({
               }`
         }
         color={changeColor(dayPnl)}
+      />
+      <Stat
+        label="ACTIVE"
+        value={activeStrategy?.identity.shortName ?? "Off"}
+        title={activeStrategy?.identity.displayName}
       />
 
       {kill.data?.active && (

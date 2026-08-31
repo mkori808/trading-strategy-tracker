@@ -112,6 +112,10 @@ def get_positions() -> list[dict[str, Any]]:
             "currentPrice": float(p.current_price) if p.current_price is not None else None,
             "marketValue": float(p.market_value) if p.market_value is not None else None,
             "unrealizedPl": float(p.unrealized_pl) if p.unrealized_pl is not None else None,
+            "unrealizedIntradayPl": (
+                float(p.unrealized_intraday_pl)
+                if getattr(p, "unrealized_intraday_pl", None) is not None else None
+            ),
             "unrealizedPlPct": (
                 float(p.unrealized_plpc) * 100 if p.unrealized_plpc is not None else None
             ),
@@ -129,9 +133,43 @@ def get_recent_orders(limit: int = 50) -> list[dict[str, Any]]:
 
     req = GetOrdersRequest(status=QueryOrderStatus.ALL, limit=limit)
     orders = client.get_orders(req)
-    return [
-        {
+    # Local submission rows hold the expected/reference values that Alpaca's
+    # order response does not echo back. Joining by broker order id preserves
+    # both raw broker facts and the causal pre-submit reference.
+    from engine import execution_db
+    conn = execution_db.get_connection()
+    local_rows = conn.execute(
+        """SELECT o.id AS local_order_id,o.alpaca_order_id,o.client_order_id,
+                  o.reference_price,o.expected_qty,r.strategy_name
+           FROM orders o JOIN rebalance_runs r ON r.id=o.rebalance_run_id"""
+    ).fetchall()
+    evidence_by_broker = {str(row["alpaca_order_id"]): dict(row) for row in local_rows if row["alpaca_order_id"]}
+    evidence_by_client = {str(row["client_order_id"]): dict(row) for row in local_rows if row["client_order_id"]}
+    conn.close()
+    output = []
+    for o in orders:
+        client_order_id = str(o.client_order_id) if o.client_order_id else None
+        local = evidence_by_broker.get(str(o.id)) or evidence_by_client.get(str(client_order_id)) or {}
+        attributed_strategy_id = None
+        if local.get("strategy_name"):
+            try:
+                from engine.execution_ownership import configured_identity
+                _, owner_payload = configured_identity(str(local["strategy_name"]))
+                attributed_strategy_id = owner_payload["identity"]["key"]
+            except Exception:  # attribution degrades visibly; it never authorizes an order
+                attributed_strategy_id = None
+        filled_price = float(o.filled_avg_price) if o.filled_avg_price else None
+        filled_qty = float(o.filled_qty) if getattr(o, "filled_qty", None) is not None else None
+        reference = local.get("reference_price")
+        expected = local.get("expected_qty")
+        direction = 1.0 if str(o.side).rsplit(".", maxsplit=1)[-1].lower() == "buy" else -1.0
+        adverse = (
+            direction * (filled_price / float(reference) - 1.0) * 10_000.0
+            if filled_price is not None and reference not in (None, 0) else None
+        )
+        output.append({
             "id": str(o.id),
+            "clientOrderId": client_order_id,
             "symbol": o.symbol,
             "side": str(o.side).rsplit(".", maxsplit=1)[-1].lower(),
             "qty": float(o.qty) if o.qty is not None else None,
@@ -139,10 +177,42 @@ def get_recent_orders(limit: int = 50) -> list[dict[str, Any]]:
             "status": str(o.status).rsplit(".", maxsplit=1)[-1].lower(),
             "submittedAt": o.submitted_at.isoformat() if o.submitted_at else None,
             "filledAt": o.filled_at.isoformat() if o.filled_at else None,
-            "filledAvgPrice": float(o.filled_avg_price) if o.filled_avg_price else None,
-        }
-        for o in orders
-    ]
+            "filledAvgPrice": filled_price,
+            "filledQty": filled_qty,
+            "expectedQty": expected,
+            "referencePrice": reference,
+            "adverseSlippageBps": adverse,
+            "partialFill": bool(
+                expected not in (None, 0) and filled_qty is not None
+                and filled_qty < float(expected) * 0.999
+            ) if expected not in (None, 0) and filled_qty is not None else None,
+            "attributed": bool(local and attributed_strategy_id),
+            "attributedStrategyId": attributed_strategy_id,
+            "attributedStrategyName": local.get("strategy_name"),
+            "localOrderId": local.get("local_order_id"),
+            "attributionReason": (
+                "Matched local execution ledger"
+                if local and attributed_strategy_id else
+                "Broker order has no matching local owner-attributed execution record"
+            ),
+        })
+    return output
+
+
+def summarize_order_states(orders: list[dict[str, Any]]) -> dict[str, int]:
+    """Separate genuinely outstanding orders from bounded recent history."""
+    filled = sum(1 for order in orders if order.get("status") == "filled")
+    canceled = sum(1 for order in orders if order.get("status") in {"canceled", "expired"})
+    rejected = sum(1 for order in orders if order.get("status") == "rejected")
+    terminal = {"filled", "canceled", "expired", "rejected", "replaced"}
+    pending = sum(1 for order in orders if order.get("status") not in terminal)
+    return {
+        "openPending": pending,
+        "filled": filled,
+        "canceled": canceled,
+        "rejected": rejected,
+        "recentHistory": len(orders),
+    }
 
 
 def get_clock() -> dict[str, Any]:
@@ -236,10 +306,12 @@ def get_portfolio_history(start: date, end: date | None = None) -> dict[str, Any
 
 def account_snapshot() -> dict[str, Any]:
     """Everything the Live Monitor tab needs in one call."""
+    orders = get_recent_orders()
     return {
         "account": get_account(),
         "positions": get_positions(),
-        "orders": get_recent_orders(),
+        "orders": orders,
+        "orderSummary": summarize_order_states(orders),
         "clock": get_clock(),
     }
 

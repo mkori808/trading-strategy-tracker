@@ -2839,3 +2839,59 @@ effects of the size actually on offer.
 exceeds what you would act on, the run cannot produce an interpretable result in
 either direction -- and a number that cannot be interpreted is worse than no
 number, because it will be interpreted anyway.
+
+
+---
+
+## 2026-08-22 — Idle-cash interest can BE the "edge" (Connors RSI2, IBS)
+
+**The invalid result, preserved deliberately.** The first Prop Account
+Analysis reported Connors RSI2 as a 37.74% annual capital-efficiency return
+on $31,641 of required capital, with 2.90% volatility, a -0.87% max drawdown
+and an expected $44,773/yr net payout. IBS looked similar (17.93%, $28,170).
+Both were **invalid**. They must not quietly reappear as favourable numbers
+after later implementation changes.
+
+**What was actually happening.** An independent reconstruction from trades
+and daily bars — deliberately not reusing the aggregation under audit —
+produced:
+
+| | Connors RSI2 | IBS |
+|---|---|---|
+| Reconstructed daily trading P&L | $2,927 | $10,154 |
+| Sum of trade-level P&L | $2,927 | $10,154 |
+| Pooled equity change (used as numerator) | $59,419 | $65,322 |
+| Non-trading component | **$56,492 (95.1%)** | **$55,168 (84.5%)** |
+
+The per-symbol engine gives each of 29 sleeves `DEFAULT_CASH = $10,000`, and
+`accrue_idle_cash` credits uninvested cash at the risk-free rate. Over five
+years that is ~$58,000 of T-bill interest on $290,000 of mostly-idle cash.
+Nearly all of the apparent edge was interest, and normalizing it against
+$31,641 of deployed trading capital *concentrated* the artifact rather than
+removing it.
+
+True capital efficiency on trading P&L alone: Connors **9.41% over five
+years (~1.8%/yr)**, IBS **13.91% (~2.6%/yr)**.
+
+**Three lessons, in order of how much each cost.**
+
+1. **Fixing a denominator does not validate a numerator.** The first bug was
+   a denominator artifact (29 x DEFAULT_CASH). Fixing it made the numbers
+   look *more* credible while the numerator stayed 95% interest — the
+   correction made the error harder to see, not easier.
+2. **Reconcile against the lowest-level records before believing an
+   aggregate.** Every check that reused `portfolio_equity_curve` agreed with
+   itself. Only a reconstruction from trades disagreed, and it disagreed by
+   95%. Agreement between an aggregate and itself is not evidence.
+3. **An extraordinary combination is a hypothesis about your accounting
+   first.** 37.74% return with 2.90% volatility and a -0.87% drawdown is not
+   a plausible edge; it is a plausible bug. The historical replay said so
+   independently — at 1.0x sizing the account gained $9,409 over five years,
+   not the ~$224k the bootstrap implied.
+
+**Guards now in place** (`tests/test_engine/test_prop_account.py`): prop P&L
+must reconcile to trade-level P&L; changing `DEFAULT_CASH` must not move it;
+adding idle sleeves must not move it; equity growth diverging from
+reconstructed trading P&L must be reported as an explicit non-trading
+component. `engine/prop_analysis.py:PnlDecomposition` makes the split a
+first-class output rather than an assumption.

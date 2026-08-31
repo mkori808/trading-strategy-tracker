@@ -255,6 +255,148 @@ _MATCHED_BENCHMARK_COLUMNS = [
     ("missing_benchmark_trades", "INTEGER"),
 ]
 
+# Conditional Edge Discovery's research ledger (engine/conditional_ledger.py).
+#
+# Kept in THIS database, beside research_experiments, rather than in a file of
+# its own: a conditional hypothesis is a research experiment with the same
+# lifecycle as any other in this app -- preregistered, validated out of
+# sample, accepted or rejected -- and splitting it into a second store would
+# mean two places to look for "what have we already tried". The schema lives
+# here because every schema in this project does; the behaviour lives in
+# engine/conditional_ledger.py.
+#
+# Rejected hypotheses are never deleted. A search that has already failed is
+# the most valuable row in the table: it is what stops the same subset being
+# rediscovered and re-reported six months later as a fresh finding.
+_CONDITIONAL_SCHEMA = """
+CREATE TABLE IF NOT EXISTS conditional_sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id TEXT NOT NULL UNIQUE,
+    created_at TEXT NOT NULL,
+    strategy_name TEXT NOT NULL,
+    engine TEXT NOT NULL,
+    seed INTEGER NOT NULL,
+    observations INTEGER NOT NULL,
+    discovery_start TEXT,
+    discovery_end TEXT,
+    hypotheses_examined INTEGER NOT NULL,
+    raw_significant INTEGER,
+    fdr_significant INTEGER,
+    fdr_alpha REAL,
+    split_json TEXT,
+    session_json TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS conditional_hypotheses (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    hypothesis_key TEXT NOT NULL,
+    version INTEGER NOT NULL,
+    frozen_at TEXT NOT NULL,
+    strategy_name TEXT NOT NULL,
+    engine TEXT NOT NULL,
+    outcome_column TEXT NOT NULL,
+    conditions_json TEXT NOT NULL,
+    feature_contract_json TEXT NOT NULL,
+    discovery_session_id TEXT,
+    discovery_start TEXT,
+    discovery_end TEXT,
+    discovery_observations INTEGER,
+    discovery_mean REAL,
+    discovery_baseline_mean REAL,
+    expected_direction TEXT NOT NULL,
+    primary_metric TEXT NOT NULL,
+    minimum_effect REAL NOT NULL,
+    minimum_observations INTEGER NOT NULL,
+    validation_start TEXT,
+    validation_end TEXT,
+    holdout_start TEXT,
+    holdout_end TEXT,
+    status TEXT NOT NULL,
+    reason TEXT,
+    supersedes INTEGER,
+    superseded_by INTEGER,
+    contract_hash TEXT NOT NULL,
+    UNIQUE(hypothesis_key, version)
+);
+
+CREATE TABLE IF NOT EXISTS conditional_validation_results (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    hypothesis_row_id INTEGER NOT NULL,
+    stage TEXT NOT NULL,
+    evaluated_at TEXT NOT NULL,
+    passed INTEGER,
+    observations INTEGER,
+    conditional_mean REAL,
+    baseline_mean REAL,
+    improvement REAL,
+    conclusion TEXT,
+    result_json TEXT NOT NULL,
+    FOREIGN KEY(hypothesis_row_id) REFERENCES conditional_hypotheses(id)
+);
+
+CREATE TABLE IF NOT EXISTS conditional_holdout_consumption (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    strategy_name TEXT NOT NULL,
+    hypothesis_key TEXT,
+    consumed_at TEXT NOT NULL,
+    reason TEXT NOT NULL
+);
+
+-- 2026-08-22 dependence audit (engine/conditional_dependence.py,
+-- engine/conditional_audit.py): appended, never overwritten -- see
+-- CLAUDE.md's Conditional Edge Discovery methodology-audit notes. A row here
+-- is a permanent record of "prior (possibly overstated) evidence -> what the
+-- dependence-aware recomputation found," for a target that may or may not
+-- have a `conditional_hypotheses` row of its own (a hypothesis that was
+-- generated during discovery but never frozen -- e.g. every DM/Market-
+-- Residual Momentum candidate blocked by the freezability gate -- still gets
+-- audited, identified by session_id + target_key instead of a hypothesis
+-- row id).
+CREATE TABLE IF NOT EXISTS conditional_methodology_audits (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    audited_at TEXT NOT NULL,
+    strategy_name TEXT NOT NULL,
+    session_id TEXT,
+    hypothesis_row_id INTEGER,
+    target_type TEXT NOT NULL,
+    target_key TEXT NOT NULL,
+    target_description TEXT,
+    prior_methodology_version TEXT,
+    prior_inference_method TEXT,
+    prior_raw_n INTEGER,
+    prior_effective_n INTEGER,
+    prior_p_value REAL,
+    prior_q_value REAL,
+    prior_ci_low REAL,
+    prior_ci_high REAL,
+    corrected_methodology_version TEXT NOT NULL,
+    corrected_inference_method TEXT NOT NULL,
+    corrected_raw_n INTEGER,
+    corrected_effective_n INTEGER,
+    corrected_p_value REAL,
+    corrected_q_value REAL,
+    corrected_ci_low REAL,
+    corrected_ci_high REAL,
+    materially_weakened INTEGER,
+    reason TEXT NOT NULL,
+    FOREIGN KEY(hypothesis_row_id) REFERENCES conditional_hypotheses(id)
+);
+"""
+
+# Added by the 2026-08-22 dependence audit. NULL on every row written before
+# this column existed -- NULL is itself the correct historical fact ("this
+# session/hypothesis was computed under the row-level methodology, before the
+# distinction existed"), not a value ever backfilled. See
+# engine/conditional_stats.py:METHODOLOGY_V1_ROW_LEVEL/
+# METHODOLOGY_V2_DEPENDENCE_AWARE.
+_CONDITIONAL_SESSION_NEW_COLUMNS = [
+    ("methodology_version", "TEXT"),
+]
+_CONDITIONAL_HYPOTHESIS_NEW_COLUMNS = [
+    ("methodology_version", "TEXT"),
+]
+
+
 _EXPERIMENT_SCHEMA = """
 CREATE TABLE IF NOT EXISTS research_experiments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -504,6 +646,19 @@ def get_connection() -> sqlite3.Connection:
     conn.execute(_SCHEMA)
     conn.execute(_PORTFOLIO_SCHEMA)
     conn.executescript(_EXPERIMENT_SCHEMA)
+    conn.executescript(_CONDITIONAL_SCHEMA)
+    conditional_session_columns = {
+        row[1] for row in conn.execute("PRAGMA table_info(conditional_sessions)")
+    }
+    for name, col_type in _CONDITIONAL_SESSION_NEW_COLUMNS:
+        if name not in conditional_session_columns:
+            conn.execute(f"ALTER TABLE conditional_sessions ADD COLUMN {name} {col_type}")
+    conditional_hypothesis_columns = {
+        row[1] for row in conn.execute("PRAGMA table_info(conditional_hypotheses)")
+    }
+    for name, col_type in _CONDITIONAL_HYPOTHESIS_NEW_COLUMNS:
+        if name not in conditional_hypothesis_columns:
+            conn.execute(f"ALTER TABLE conditional_hypotheses ADD COLUMN {name} {col_type}")
     experiment_columns = {
         row[1] for row in conn.execute("PRAGMA table_info(research_experiments)")
     }
@@ -776,8 +931,12 @@ def run_history(strategy_name: str) -> list[sqlite3.Row]:
     conn = get_connection()
     conn.row_factory = sqlite3.Row
     rows = conn.execute(
-        "SELECT * FROM runs WHERE strategy_name = ? AND metrics_version = ? "
-        "ORDER BY run_at DESC",
+        "SELECT r.*, e.search_family AS research_search_family, "
+        "e.family_search_number AS research_family_search_number, "
+        "e.family_search_count AS research_family_search_count, "
+        "e.is_preregistered AS research_is_preregistered "
+        "FROM runs r LEFT JOIN research_experiments e ON e.id = r.experiment_id "
+        "WHERE r.strategy_name = ? AND r.metrics_version = ? ORDER BY r.run_at DESC",
         (strategy_name, METRICS_VERSION),
     ).fetchall()
     conn.close()
@@ -950,8 +1109,12 @@ def portfolio_run_history(strategy_name: str) -> list[sqlite3.Row]:
         # id DESC as a tiebreaker: run_at has only second resolution, same
         # as `runs` above, so two runs in the same second would otherwise
         # sort arbitrarily rather than newest-insert-first.
-        "SELECT * FROM portfolio_runs WHERE strategy_name = ? AND metrics_version = ? "
-        "ORDER BY run_at DESC, id DESC",
+        "SELECT r.*, e.search_family AS research_search_family, "
+        "e.family_search_number AS research_family_search_number, "
+        "e.family_search_count AS research_family_search_count, "
+        "e.is_preregistered AS research_is_preregistered "
+        "FROM portfolio_runs r LEFT JOIN research_experiments e ON e.id = r.experiment_id "
+        "WHERE r.strategy_name = ? AND r.metrics_version = ? ORDER BY r.run_at DESC, r.id DESC",
         (strategy_name, METRICS_VERSION),
     ).fetchall()
     conn.close()

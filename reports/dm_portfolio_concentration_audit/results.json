@@ -1,0 +1,1889 @@
+{
+  "study": "Dual Momentum Portfolio Contribution / Concentration Audit v1",
+  "definitions": {
+    "risk_window": 60,
+    "pit": true,
+    "sector_analysis": "BLOCKED: no point-in-time sector classification ledger"
+  },
+  "strategies": {
+    "Dual Momentum": {
+      "canonical": {
+        "start": "2021-08-23",
+        "end": "2026-08-22",
+        "rebalances": 61,
+        "return_pct": 134.4353009424064,
+        "cagr_pct": 18.515703670066543,
+        "max_drawdown_pct": 20.538089163692106,
+        "sharpe": 0.7476479808927472,
+        "total_costs": 118.2117985331762
+      },
+      "rank": [
+        {
+          "rank": 1,
+          "observations": 61,
+          "mean_return": 0.031048257814167323,
+          "median_return": 0.012503939599813219,
+          "win_rate": 0.5737704918032787,
+          "cumulative_arithmetic_contribution": 0.44907122386036125,
+          "average_contribution": 0.0073618233419731356,
+          "worst_return": -0.34518517388237846,
+          "best_return": 1.071111043294271
+        },
+        {
+          "rank": 2,
+          "observations": 61,
+          "mean_return": 0.01743533209699108,
+          "median_return": 0.003124983507574841,
+          "win_rate": 0.5409836065573771,
+          "cumulative_arithmetic_contribution": 0.26090059446588054,
+          "average_contribution": 0.004277058925670173,
+          "worst_return": -0.21358950331344517,
+          "best_return": 0.24452550072355894
+        },
+        {
+          "rank": 3,
+          "observations": 60,
+          "mean_return": 0.003929787658980664,
+          "median_return": -0.001513398815801592,
+          "win_rate": 0.48333333333333334,
+          "cumulative_arithmetic_contribution": 0.04715745190776797,
+          "average_contribution": 0.0007859575317961328,
+          "worst_return": -0.15490300548311875,
+          "best_return": 0.24427630189323435
+        },
+        {
+          "rank": 4,
+          "observations": 60,
+          "mean_return": 0.013700105696350221,
+          "median_return": 0.01132891918011203,
+          "win_rate": 0.5333333333333333,
+          "cumulative_arithmetic_contribution": 0.16440126835620267,
+          "average_contribution": 0.0027400211392700443,
+          "worst_return": -0.15278760521812773,
+          "best_return": 0.21850726972894519
+        },
+        {
+          "rank": 5,
+          "observations": 60,
+          "mean_return": 0.004267811689276265,
+          "median_return": 0.005019791962445397,
+          "win_rate": 0.55,
+          "cumulative_arithmetic_contribution": 0.051213740271315186,
+          "average_contribution": 0.0008535623378552531,
+          "worst_return": -0.21751827045078698,
+          "best_return": 0.23954901370931858
+        }
+      ],
+      "rank_inference": {
+        "spearman": -0.03213764618146429,
+        "ci95": [
+          -0.147103552675753,
+          0.07922714855930192
+        ],
+        "rank1_minus_rank5_mean": 0.023393334948042733,
+        "rank1_minus_rank5_ci95": [
+          -0.01735842183221547,
+          0.0761262246199307
+        ],
+        "effective_n": 61,
+        "raw_n": 302,
+        "method": "rebalance-cluster bootstrap"
+      },
+      "security_contribution": [
+        {
+          "symbol": "INTC",
+          "months_held": 19,
+          "cumulative_contribution": 0.3486453116777455,
+          "average_monthly_contribution": 0.018349753246197132,
+          "total_positive": 0.46197413114838537,
+          "total_negative": -0.11332881947063989,
+          "worst_monthly": -0.0690370347764757
+        },
+        {
+          "symbol": "CAT",
+          "months_held": 25,
+          "cumulative_contribution": 0.16526337215627418,
+          "average_monthly_contribution": 0.006610534886250967,
+          "total_positive": 0.28169061261570416,
+          "total_negative": -0.11642724045942998,
+          "worst_monthly": -0.04271790066268904
+        },
+        {
+          "symbol": "CVX",
+          "months_held": 12,
+          "cumulative_contribution": 0.14604174535580222,
+          "average_monthly_contribution": 0.012170145446316852,
+          "total_positive": 0.2155036903906171,
+          "total_negative": -0.0694619450348149,
+          "worst_monthly": -0.03409719548682593
+        },
+        {
+          "symbol": "MRK",
+          "months_held": 17,
+          "cumulative_contribution": 0.14115218397861148,
+          "average_monthly_contribution": 0.008303069645800675,
+          "total_positive": 0.17939796652288498,
+          "total_negative": -0.038245782544273466,
+          "worst_monthly": -0.014146253750872795
+        },
+        {
+          "symbol": "JPM",
+          "months_held": 22,
+          "cumulative_contribution": 0.08599795850091266,
+          "average_monthly_contribution": 0.003908998113677848,
+          "total_positive": 0.1377244082352994,
+          "total_negative": -0.05172644973438674,
+          "worst_monthly": -0.017156945230600896
+        },
+        {
+          "symbol": "MMM",
+          "months_held": 11,
+          "cumulative_contribution": 0.07158804861865234,
+          "average_monthly_contribution": 0.006508004419877486,
+          "total_positive": 0.11030421996002074,
+          "total_negative": -0.038716171341368406,
+          "worst_monthly": -0.012604474709402581
+        },
+        {
+          "symbol": "GS",
+          "months_held": 23,
+          "cumulative_contribution": 0.06969088602917928,
+          "average_monthly_contribution": 0.0030300385230077947,
+          "total_positive": 0.16685726940949167,
+          "total_negative": -0.0971663833803124,
+          "worst_monthly": -0.02543376685738359
+        },
+        {
+          "symbol": "WMT",
+          "months_held": 13,
+          "cumulative_contribution": 0.05670604750223101,
+          "average_monthly_contribution": 0.00436200365401777,
+          "total_positive": 0.09647929127357138,
+          "total_negative": -0.03977324377134038,
+          "worst_monthly": -0.02081978285299653
+        },
+        {
+          "symbol": "CRM",
+          "months_held": 12,
+          "cumulative_contribution": 0.04901602705653435,
+          "average_monthly_contribution": 0.0040846689213778625,
+          "total_positive": 0.10651931158845095,
+          "total_negative": -0.0575032845319166,
+          "worst_monthly": -0.021658015876747094
+        },
+        {
+          "symbol": "AXP",
+          "months_held": 16,
+          "cumulative_contribution": 0.048890241924207725,
+          "average_monthly_contribution": 0.003055640120262983,
+          "total_positive": 0.09766636671532063,
+          "total_negative": -0.04877612479111291,
+          "worst_monthly": -0.021170828193293925
+        },
+        {
+          "symbol": "JNJ",
+          "months_held": 9,
+          "cumulative_contribution": 0.044686650354185516,
+          "average_monthly_contribution": 0.004965183372687279,
+          "total_positive": 0.06503282142254721,
+          "total_negative": -0.020346171068361694,
+          "worst_monthly": -0.013469067638200216
+        },
+        {
+          "symbol": "MSFT",
+          "months_held": 22,
+          "cumulative_contribution": 0.03804332666031907,
+          "average_monthly_contribution": 0.0017292421209235942,
+          "total_positive": 0.12910992074787,
+          "total_negative": -0.09106659408755095,
+          "worst_monthly": -0.014874068349307469
+        },
+        {
+          "symbol": "HD",
+          "months_held": 4,
+          "cumulative_contribution": 0.02841350889195209,
+          "average_monthly_contribution": 0.007103377222988022,
+          "total_positive": 0.05102676542026492,
+          "total_negative": -0.022613256528312833,
+          "worst_monthly": -0.022613256528312833
+        },
+        {
+          "symbol": "UNH",
+          "months_held": 12,
+          "cumulative_contribution": 0.007845613902740125,
+          "average_monthly_contribution": 0.0006538011585616771,
+          "total_positive": 0.04185067143626857,
+          "total_negative": -0.03400505753352845,
+          "worst_monthly": -0.00999999448594624
+        },
+        {
+          "symbol": "DIS",
+          "months_held": 3,
+          "cumulative_contribution": 0.006374751086446964,
+          "average_monthly_contribution": 0.0021249170288156548,
+          "total_positive": 0.020139612503951423,
+          "total_negative": -0.01376486141750446,
+          "worst_monthly": -0.012795392199071132
+        },
+        {
+          "symbol": "V",
+          "months_held": 3,
+          "cumulative_contribution": 0.0025892718586361784,
+          "average_monthly_contribution": 0.0008630906195453928,
+          "total_positive": 0.010297160283090535,
+          "total_negative": -0.007707888424454357,
+          "worst_monthly": -0.004934250583909616
+        },
+        {
+          "symbol": "MCD",
+          "months_held": 1,
+          "cumulative_contribution": -0.00042001045039625763,
+          "average_monthly_contribution": -0.00042001045039625763,
+          "total_positive": 0.0,
+          "total_negative": -0.00042001045039625763,
+          "worst_monthly": -0.00042001045039625763
+        },
+        {
+          "symbol": "HON",
+          "months_held": 1,
+          "cumulative_contribution": -0.007771769360016401,
+          "average_monthly_contribution": -0.007771769360016401,
+          "total_positive": 0.0,
+          "total_negative": -0.007771769360016401,
+          "worst_monthly": -0.007771769360016401
+        },
+        {
+          "symbol": "PG",
+          "months_held": 2,
+          "cumulative_contribution": -0.009084118127802344,
+          "average_monthly_contribution": -0.004542059063901172,
+          "total_positive": 0.0,
+          "total_negative": -0.009084118127802344,
+          "worst_monthly": -0.008060297688199337
+        },
+        {
+          "symbol": "BA",
+          "months_held": 11,
+          "cumulative_contribution": -0.010059040745858663,
+          "average_monthly_contribution": -0.0009144582496235148,
+          "total_positive": 0.061345581390965624,
+          "total_negative": -0.07140462213682429,
+          "worst_monthly": -0.03055752104362555
+        },
+        {
+          "symbol": "KO",
+          "months_held": 6,
+          "cumulative_contribution": -0.016118955431163418,
+          "average_monthly_contribution": -0.0026864925718605697,
+          "total_positive": 0.013031316590964261,
+          "total_negative": -0.02915027202212768,
+          "worst_monthly": -0.015619028386386558
+        },
+        {
+          "symbol": "AAPL",
+          "months_held": 11,
+          "cumulative_contribution": -0.02006867381853308,
+          "average_monthly_contribution": -0.0018244248925939164,
+          "total_positive": 0.05269054930439383,
+          "total_negative": -0.0727592231229269,
+          "worst_monthly": -0.019904576363453753
+        },
+        {
+          "symbol": "NKE",
+          "months_held": 1,
+          "cumulative_contribution": -0.02152449715003737,
+          "average_monthly_contribution": -0.02152449715003737,
+          "total_positive": 0.0,
+          "total_negative": -0.02152449715003737,
+          "worst_monthly": -0.02152449715003737
+        },
+        {
+          "symbol": "TRV",
+          "months_held": 9,
+          "cumulative_contribution": -0.030420192377527445,
+          "average_monthly_contribution": -0.0033800213752808272,
+          "total_positive": 0.025549257502267823,
+          "total_negative": -0.05596944987979527,
+          "worst_monthly": -0.015360530344183589
+        },
+        {
+          "symbol": "IBM",
+          "months_held": 14,
+          "cumulative_contribution": -0.03846118616936139,
+          "average_monthly_contribution": -0.0027472275835258133,
+          "total_positive": 0.06099079709965678,
+          "total_negative": -0.09945198326901818,
+          "worst_monthly": -0.029292123429045237
+        },
+        {
+          "symbol": "CSCO",
+          "months_held": 12,
+          "cumulative_contribution": -0.04900894422156957,
+          "average_monthly_contribution": -0.004084078685130797,
+          "total_positive": 0.02685979845975917,
+          "total_negative": -0.07586874268132873,
+          "worst_monthly": -0.017308678882066244
+        },
+        {
+          "symbol": "AMGN",
+          "months_held": 8,
+          "cumulative_contribution": -0.05765327423931638,
+          "average_monthly_contribution": -0.007206659279914547,
+          "total_positive": 0.018484209124657716,
+          "total_negative": -0.07613748336397408,
+          "worst_monthly": -0.02279077517435142
+        },
+        {
+          "symbol": "DOW",
+          "months_held": 3,
+          "cumulative_contribution": -0.07761000460132073,
+          "average_monthly_contribution": -0.025870001533773574,
+          "total_positive": 0.0,
+          "total_negative": -0.07761000460132073,
+          "worst_monthly": -0.0435036540901574
+        }
+      ],
+      "security_positive_concentration": {
+        "top_1_share_positive": 0.2659496211950341,
+        "top_3_share_positive": 0.5034158233934933,
+        "top_5_share_positive": 0.6766878919497031,
+        "top_10_share_positive": 0.902396265237389
+      },
+      "leave_one_security_out_attribution": [
+        {
+          "symbol": "AAPL",
+          "arithmetic_contribution_removed": -0.02006867381853308
+        },
+        {
+          "symbol": "AMGN",
+          "arithmetic_contribution_removed": -0.05765327423931638
+        },
+        {
+          "symbol": "AXP",
+          "arithmetic_contribution_removed": 0.048890241924207725
+        },
+        {
+          "symbol": "BA",
+          "arithmetic_contribution_removed": -0.010059040745858663
+        },
+        {
+          "symbol": "CAT",
+          "arithmetic_contribution_removed": 0.16526337215627418
+        },
+        {
+          "symbol": "CRM",
+          "arithmetic_contribution_removed": 0.04901602705653435
+        },
+        {
+          "symbol": "CSCO",
+          "arithmetic_contribution_removed": -0.04900894422156957
+        },
+        {
+          "symbol": "CVX",
+          "arithmetic_contribution_removed": 0.14604174535580222
+        },
+        {
+          "symbol": "DIS",
+          "arithmetic_contribution_removed": 0.006374751086446964
+        },
+        {
+          "symbol": "DOW",
+          "arithmetic_contribution_removed": -0.07761000460132073
+        },
+        {
+          "symbol": "GS",
+          "arithmetic_contribution_removed": 0.06969088602917928
+        },
+        {
+          "symbol": "HD",
+          "arithmetic_contribution_removed": 0.02841350889195209
+        },
+        {
+          "symbol": "HON",
+          "arithmetic_contribution_removed": -0.007771769360016401
+        },
+        {
+          "symbol": "IBM",
+          "arithmetic_contribution_removed": -0.03846118616936139
+        },
+        {
+          "symbol": "INTC",
+          "arithmetic_contribution_removed": 0.3486453116777455
+        },
+        {
+          "symbol": "JNJ",
+          "arithmetic_contribution_removed": 0.044686650354185516
+        },
+        {
+          "symbol": "JPM",
+          "arithmetic_contribution_removed": 0.08599795850091266
+        },
+        {
+          "symbol": "KO",
+          "arithmetic_contribution_removed": -0.016118955431163418
+        },
+        {
+          "symbol": "MCD",
+          "arithmetic_contribution_removed": -0.00042001045039625763
+        },
+        {
+          "symbol": "MMM",
+          "arithmetic_contribution_removed": 0.07158804861865234
+        },
+        {
+          "symbol": "MRK",
+          "arithmetic_contribution_removed": 0.14115218397861148
+        },
+        {
+          "symbol": "MSFT",
+          "arithmetic_contribution_removed": 0.03804332666031907
+        },
+        {
+          "symbol": "NKE",
+          "arithmetic_contribution_removed": -0.02152449715003737
+        },
+        {
+          "symbol": "PG",
+          "arithmetic_contribution_removed": -0.009084118127802344
+        },
+        {
+          "symbol": "TRV",
+          "arithmetic_contribution_removed": -0.030420192377527445
+        },
+        {
+          "symbol": "UNH",
+          "arithmetic_contribution_removed": 0.007845613902740125
+        },
+        {
+          "symbol": "V",
+          "arithmetic_contribution_removed": 0.0025892718586361784
+        },
+        {
+          "symbol": "WMT",
+          "arithmetic_contribution_removed": 0.05670604750223101
+        }
+      ],
+      "risk": {
+        "months": 61,
+        "average_max_single": 0.34223202964429056,
+        "average_top2": 0.5731909229882228,
+        "average_hhi": 0.2563843233691956,
+        "average_pairwise_correlation": 0.29300104812361355,
+        "average_ex_ante_volatility": 0.18596909596512437,
+        "mean_absolute_capital_risk_mismatch": 0.07304501363816977,
+        "median_absolute_capital_risk_mismatch": 0.05101679352087016,
+        "largest_absolute_capital_risk_mismatch": 0.4418690764220304,
+        "max_single_percentiles": {
+          "0.25": 0.26854316799815864,
+          "0.5": 0.29336351933404586,
+          "0.75": 0.3627098138371354,
+          "0.9": 0.5433802999917248,
+          "0.95": 0.6007737388848987
+        },
+        "frequency_months_one_holding_over_30": 0.47540983606557374,
+        "frequency_months_one_holding_over_40": 0.19672131147540983,
+        "frequency_months_one_holding_over_50": 0.16393442622950818,
+        "over_40_count_by_security": {
+          "INTC": 10,
+          "CVX": 1,
+          "MMM": 1
+        },
+        "risk_compensation_by_bucket": [
+          {
+            "variance_contribution": "(-inf, 0.2]",
+            "count": 158,
+            "mean": 0.007558159715170806
+          },
+          {
+            "variance_contribution": "(0.2, 0.3]",
+            "count": 115,
+            "mean": 0.00989534614081404
+          },
+          {
+            "variance_contribution": "(0.3, 0.4]",
+            "count": 17,
+            "mean": 0.022259619215269717
+          },
+          {
+            "variance_contribution": "(0.4, 0.5]",
+            "count": 2,
+            "mean": 0.5599752152209869
+          },
+          {
+            "variance_contribution": "(0.5, inf]",
+            "count": 10,
+            "mean": 0.04408432889649304
+          }
+        ]
+      },
+      "worst_20_days": [
+        {
+          "date": "2025-04-04",
+          "portfolio_return": -0.06592907296689914,
+          "holdings": [
+            "MMM",
+            "V",
+            "IBM",
+            "WMT",
+            "CSCO"
+          ],
+          "largest_contributor": "MMM",
+          "largest_loss_share": 0.2756422219985593,
+          "top2_loss_share": 0.510205312400005,
+          "spy_return": -0.05854299254528794,
+          "trailing_average_pairwise_correlation": 0.3618685379106862
+        },
+        {
+          "date": "2026-01-23",
+          "portfolio_return": -0.05835208927127352,
+          "holdings": [
+            "INTC",
+            "GS",
+            "CAT",
+            "AXP",
+            "JNJ"
+          ],
+          "largest_contributor": "INTC",
+          "largest_loss_share": 0.7196430362115314,
+          "top2_loss_share": 0.8385453127763186,
+          "spy_return": 0.00036273518897367296,
+          "trailing_average_pairwise_correlation": 0.18634649835556316
+        },
+        {
+          "date": "2026-06-05",
+          "portfolio_return": -0.047067492957248415,
+          "holdings": [
+            "INTC",
+            "CSCO",
+            "CAT",
+            "DOW",
+            "MRK"
+          ],
+          "largest_contributor": "INTC",
+          "largest_loss_share": 0.45901853998850484,
+          "top2_loss_share": 0.7369904940349723,
+          "spy_return": -0.025809371248925683,
+          "trailing_average_pairwise_correlation": 0.054115689305697545
+        },
+        {
+          "date": "2026-07-01",
+          "portfolio_return": -0.04222156499943054,
+          "holdings": [
+            "INTC",
+            "CAT",
+            "MRK",
+            "DOW",
+            "CSCO",
+            "JNJ"
+          ],
+          "largest_contributor": "INTC",
+          "largest_loss_share": 0.455560457861608,
+          "top2_loss_share": 0.8010617514688323,
+          "spy_return": -0.001352504438058455,
+          "trailing_average_pairwise_correlation": 0.09775883169644146
+        },
+        {
+          "date": "2026-02-12",
+          "portfolio_return": -0.042016725168503744,
+          "holdings": [
+            "CSCO",
+            "GS",
+            "INTC",
+            "CAT",
+            "JNJ"
+          ],
+          "largest_contributor": "CSCO",
+          "largest_loss_share": 0.5555302710514748,
+          "top2_loss_share": 0.7323977586748377,
+          "spy_return": -0.01544885969788623,
+          "trailing_average_pairwise_correlation": 0.19955236348206834
+        },
+        {
+          "date": "2024-08-02",
+          "portfolio_return": -0.041800778467057015,
+          "holdings": [
+            "AXP",
+            "GS",
+            "JPM",
+            "CAT",
+            "MMM"
+          ],
+          "largest_contributor": "AXP",
+          "largest_loss_share": 0.3164133330398176,
+          "top2_loss_share": 0.5995173995379294,
+          "spy_return": -0.018618371424376612,
+          "trailing_average_pairwise_correlation": 0.3725982589629827
+        },
+        {
+          "date": "2025-04-03",
+          "portfolio_return": -0.039032324681828955,
+          "holdings": [
+            "CSCO",
+            "MMM",
+            "WMT",
+            "IBM",
+            "V"
+          ],
+          "largest_contributor": "CSCO",
+          "largest_loss_share": 0.34165484092905335,
+          "top2_loss_share": 0.6213301509891839,
+          "spy_return": -0.04928069685329273,
+          "trailing_average_pairwise_correlation": 0.3618685379106862
+        },
+        {
+          "date": "2021-11-26",
+          "portfolio_return": -0.03581090664425273,
+          "holdings": [
+            "AXP",
+            "HD",
+            "MSFT",
+            "GS",
+            "UNH"
+          ],
+          "largest_contributor": "AXP",
+          "largest_loss_share": 0.46929691819560004,
+          "top2_loss_share": 0.6090466509826231,
+          "spy_return": -0.022303149387927212,
+          "trailing_average_pairwise_correlation": 0.31153625072428043
+        },
+        {
+          "date": "2022-05-18",
+          "portfolio_return": -0.03269582204309369,
+          "holdings": [
+            "KO",
+            "UNH",
+            "CVX",
+            "TRV",
+            "MRK"
+          ],
+          "largest_contributor": "KO",
+          "largest_loss_share": 0.4152401199103085,
+          "top2_loss_share": 0.6602954156966047,
+          "spy_return": -0.040311686781438816,
+          "trailing_average_pairwise_correlation": 0.34959867192037086
+        },
+        {
+          "date": "2024-04-25",
+          "portfolio_return": -0.03263536282879566,
+          "holdings": [
+            "IBM",
+            "CAT",
+            "CRM",
+            "JPM",
+            "TRV"
+          ],
+          "largest_contributor": "IBM",
+          "largest_loss_share": 0.5004338775150468,
+          "top2_loss_share": 0.9367178623751629,
+          "spy_return": -0.0037989601429470055,
+          "trailing_average_pairwise_correlation": 0.32436994666692126
+        },
+        {
+          "date": "2024-12-18",
+          "portfolio_return": -0.031915445768765344,
+          "holdings": [
+            "AXP",
+            "GS",
+            "JPM",
+            "WMT",
+            "MMM"
+          ],
+          "largest_contributor": "AXP",
+          "largest_loss_share": 0.28469787763163934,
+          "top2_loss_share": 0.5430207083590618,
+          "spy_return": -0.029803561159425507,
+          "trailing_average_pairwise_correlation": 0.37170146258500325
+        },
+        {
+          "date": "2025-02-20",
+          "portfolio_return": -0.031276908120103204,
+          "holdings": [
+            "WMT",
+            "JPM",
+            "GS",
+            "MMM",
+            "IBM"
+          ],
+          "largest_contributor": "WMT",
+          "largest_loss_share": 0.4211188210855907,
+          "top2_loss_share": 0.7065008107695111,
+          "spy_return": -0.0041602448320542385,
+          "trailing_average_pairwise_correlation": 0.3656826068142488
+        },
+        {
+          "date": "2022-09-13",
+          "portfolio_return": -0.02997412016181425,
+          "holdings": [
+            "AMGN",
+            "UNH",
+            "KO",
+            "MRK",
+            "CVX"
+          ],
+          "largest_contributor": "AMGN",
+          "largest_loss_share": 0.2922646048317165,
+          "top2_loss_share": 0.5109958727622499,
+          "spy_return": -0.04348252854944157,
+          "trailing_average_pairwise_correlation": 0.398999238441928
+        },
+        {
+          "date": "2026-07-29",
+          "portfolio_return": -0.029109897467281796,
+          "holdings": [
+            "CAT",
+            "INTC",
+            "CSCO",
+            "MRK",
+            "JNJ"
+          ],
+          "largest_contributor": "CAT",
+          "largest_loss_share": 0.42704897225200283,
+          "top2_loss_share": 0.6752331633327492,
+          "spy_return": -0.015387473482586067,
+          "trailing_average_pairwise_correlation": 0.09775883169644146
+        },
+        {
+          "date": "2023-08-24",
+          "portfolio_return": -0.028438822922967916,
+          "holdings": [
+            "BA",
+            "INTC",
+            "MSFT",
+            "CRM",
+            "CAT"
+          ],
+          "largest_contributor": "BA",
+          "largest_loss_share": 0.34576635399875655,
+          "top2_loss_share": 0.6295998140695835,
+          "spy_return": -0.013859142571017058,
+          "trailing_average_pairwise_correlation": 0.12583432037293746
+        },
+        {
+          "date": "2022-04-29",
+          "portfolio_return": -0.028373805542766646,
+          "holdings": [
+            "AAPL",
+            "CVX",
+            "UNH",
+            "KO",
+            "TRV"
+          ],
+          "largest_contributor": "AAPL",
+          "largest_loss_share": 0.24419024197379705,
+          "top2_loss_share": 0.4673413282598633,
+          "spy_return": -0.03695552393507817,
+          "trailing_average_pairwise_correlation": 0.15006946437791582
+        },
+        {
+          "date": "2026-05-15",
+          "portfolio_return": -0.027388701450303785,
+          "holdings": [
+            "INTC",
+            "CAT",
+            "JNJ",
+            "UNH",
+            "DOW"
+          ],
+          "largest_contributor": "INTC",
+          "largest_loss_share": 0.5295280267966008,
+          "top2_loss_share": 0.7747742369012296,
+          "spy_return": -0.012029343756796207,
+          "trailing_average_pairwise_correlation": 0.05922654238319989
+        },
+        {
+          "date": "2025-11-13",
+          "portfolio_return": -0.027131850522846945,
+          "holdings": [
+            "INTC",
+            "GS",
+            "CAT",
+            "MSFT",
+            "JNJ"
+          ],
+          "largest_contributor": "INTC",
+          "largest_loss_share": 0.3501480920366045,
+          "top2_loss_share": 0.6518775506432155,
+          "spy_return": -0.016593996414786205,
+          "trailing_average_pairwise_correlation": 0.022106658068192682
+        },
+        {
+          "date": "2024-03-05",
+          "portfolio_return": -0.02677684027494853,
+          "holdings": [
+            "INTC",
+            "CRM",
+            "CAT",
+            "AXP",
+            "IBM"
+          ],
+          "largest_contributor": "INTC",
+          "largest_loss_share": 0.41103498145264794,
+          "top2_loss_share": 0.7879900002113407,
+          "spy_return": -0.00999406890199206,
+          "trailing_average_pairwise_correlation": 0.24333744513249767
+        },
+        {
+          "date": "2025-03-10",
+          "portfolio_return": -0.025801634112764968,
+          "holdings": [
+            "GS",
+            "WMT",
+            "CSCO",
+            "IBM",
+            "MMM"
+          ],
+          "largest_contributor": "GS",
+          "largest_loss_share": 0.340368596873589,
+          "top2_loss_share": 0.6414147303750148,
+          "spy_return": -0.026635511651277977,
+          "trailing_average_pairwise_correlation": 0.29656587170998894
+        }
+      ],
+      "worst_10_summary": {
+        "mean_largest_loss_share": 0.45084336167015043,
+        "mean_top2_loss_share": 0.704610810893647
+      },
+      "single_name_tail": {
+        "worst_1pct_security_days_share_negative_pnl": 0.09763800414831308,
+        "frequency_one_name_over_half_daily_loss": 0.48717948717948717,
+        "worst_5_security_days": [
+          {
+            "date": "2026-01-23",
+            "period": "2026-01-02",
+            "symbol": "INTC",
+            "pnl": -871.5636869394883,
+            "return_contribution": -0.043000729496663864,
+            "security_close_return": -0.1702871879964567
+          },
+          {
+            "date": "2026-06-05",
+            "period": "2026-06-01",
+            "symbol": "INTC",
+            "pnl": -557.9922669152079,
+            "return_contribution": -0.021999957197459764,
+            "security_close_return": -0.11281088520361571
+          },
+          {
+            "date": "2026-02-12",
+            "period": "2026-02-02",
+            "symbol": "CSCO",
+            "pnl": -524.2622053964906,
+            "return_contribution": -0.025005538228171465,
+            "security_close_return": -0.12321718868855025
+          },
+          {
+            "date": "2026-07-01",
+            "period": "2026-07-01",
+            "symbol": "INTC",
+            "pnl": -507.53041713660673,
+            "return_contribution": -0.019433481124138553,
+            "security_close_return": -0.0903101611314081
+          },
+          {
+            "date": "2026-06-16",
+            "period": "2026-06-01",
+            "symbol": "INTC",
+            "pnl": -478.3421690016415,
+            "return_contribution": -0.01895673829156099,
+            "security_close_return": -0.08454557724848444
+          }
+        ],
+        "worst_5_monthly_single_name_contributions": [
+          {
+            "rebalance_date": "2026-07-01",
+            "symbol": "INTC",
+            "rank": 1,
+            "gross_return_contribution": -0.0690370347764757
+          },
+          {
+            "rebalance_date": "2026-06-01",
+            "symbol": "DOW",
+            "rank": 5,
+            "gross_return_contribution": -0.0435036540901574
+          },
+          {
+            "rebalance_date": "2026-07-01",
+            "symbol": "CAT",
+            "rank": 2,
+            "gross_return_contribution": -0.04271790066268904
+          },
+          {
+            "rebalance_date": "2022-06-01",
+            "symbol": "CVX",
+            "rank": 1,
+            "gross_return_contribution": -0.03409719548682593
+          },
+          {
+            "rebalance_date": "2026-05-01",
+            "symbol": "DOW",
+            "rank": 3,
+            "gross_return_contribution": -0.03098060109662375
+          }
+        ]
+      },
+      "weight_drift": {
+        "maximum_weight": 0.5181275832066524,
+        "average_daily_maximum_weight": 0.21672731535119044,
+        "frequency_days_over_25pct": 0.0350597609561753,
+        "frequency_days_over_30pct": 0.020717131474103586,
+        "mean_ending_weight_winners": 0.2109855892112315,
+        "mean_ending_weight_losers": 0.1916354840836478,
+        "ending_weight_return_spearman": 0.7393441440907639,
+        "subsequent_risk_note": "Drift is reset at the next monthly rebalance; it cannot mechanically carry into the next portfolio's target risk."
+      },
+      "correlation": {
+        "correlation_subsequent_volatility_spearman": -0.3901110523532523
+      },
+      "stability": {
+        "first_half_rank_spearman": 0.03037576364137478,
+        "second_half_rank_spearman": -0.09074261156524233,
+        "first_half_months_over_40_risk": 0.03333333333333333,
+        "second_half_months_over_40_risk": 0.3548387096774194,
+        "leave_one_year_out_rank_spearman": {
+          "2021": -0.06623509109405813,
+          "2022": -0.010936588411209872,
+          "2023": -0.03626503301397428,
+          "2024": -0.035448811596307,
+          "2025": -0.049141368771774725,
+          "2026": 0.009659989062229571
+        }
+      },
+      "reconciliation": {
+        "maximum_daily_dollar_error": 8.355982572538778e-12,
+        "passed": true,
+        "selected_sets_match_engine": true
+      },
+      "major_drawdowns": [
+        {
+          "start": "2021-12-29",
+          "end": "2022-06-17",
+          "by_security_pnl": {
+            "UNH": -375.89468997754983,
+            "AAPL": -264.85845032080863,
+            "NKE": -234.9674148705377,
+            "MSFT": -198.95469692106457,
+            "HD": -192.24109840645298,
+            "AMGN": -187.02543007184647,
+            "PG": -91.83278092864164,
+            "MRK": -77.30185534248179,
+            "KO": -75.66593811903552,
+            "TRV": -69.20638178240164,
+            "AXP": -66.89552692604708,
+            "CRM": -3.4415293425563407,
+            "CVX": 354.9324028284817
+          },
+          "by_rank_pnl": {
+            "1.0": 29.780291129962777,
+            "2.0": -220.1284522955448,
+            "3.0": -443.72835011702716,
+            "4.0": -514.182192617459,
+            "5.0": -358.2870787324615
+          },
+          "largest_loss_share": 0.20448109396644987,
+          "top2_loss_share": 0.3485601328884739,
+          "realized_average_pairwise_correlation": 0.3610130664114396,
+          "pre_drawdown_ex_ante_pairwise_correlation": 0.38895925061133
+        },
+        {
+          "start": "2022-11-30",
+          "end": "2023-05-31",
+          "by_security_pnl": {
+            "CAT": -382.7554776945011,
+            "AMGN": -281.48839705353475,
+            "IBM": -253.53528498098675,
+            "JPM": -225.71043911462326,
+            "CSCO": -190.72914383181967,
+            "MRK": -127.83366033451445,
+            "CVX": -122.73461963183034,
+            "HON": -91.21608179965058,
+            "TRV": -84.56240933975306,
+            "BA": -62.22774141539448,
+            "GS": -45.259820384357305,
+            "AAPL": 67.21420948097328,
+            "UNH": 102.27854903995986,
+            "WMT": 163.5302746857108
+          },
+          "by_rank_pnl": {
+            "1.0": -163.86966496815396,
+            "2.0": -364.6786705595077,
+            "3.0": -470.06613663460416,
+            "4.0": -218.7989771892062,
+            "5.0": -288.5348552916513
+          },
+          "largest_loss_share": 0.20489539761896963,
+          "top2_loss_share": 0.35558083623585246,
+          "realized_average_pairwise_correlation": 0.3341750631058395,
+          "pre_drawdown_ex_ante_pairwise_correlation": 0.4420224394904794
+        },
+        {
+          "start": "2025-02-19",
+          "end": "2025-04-08",
+          "by_security_pnl": {
+            "WMT": -707.2714304318076,
+            "GS": -633.5155688940464,
+            "CSCO": -521.189489153135,
+            "IBM": -504.99200827502193,
+            "MMM": -435.16639679423895,
+            "V": -352.13822252828805,
+            "JPM": -189.29320897023518
+          },
+          "by_rank_pnl": {
+            "1.0": -659.9293965803107,
+            "2.0": -608.5791213733543,
+            "3.0": -568.3472807413076,
+            "4.0": -715.9855685619817,
+            "5.0": -767.5827510683649
+          },
+          "largest_loss_share": 0.21153204742302023,
+          "top2_loss_share": 0.40100505537514575,
+          "realized_average_pairwise_correlation": 0.6357284785132903,
+          "pre_drawdown_ex_ante_pairwise_correlation": 0.3656826068142488
+        }
+      ]
+    },
+    "Market-Residual Momentum": {
+      "canonical": {
+        "start": "2021-08-23",
+        "end": "2026-08-22",
+        "rebalances": 61,
+        "return_pct": 87.18697266459658,
+        "cagr_pct": 13.3407019352213,
+        "max_drawdown_pct": 16.533346165749634,
+        "sharpe": 0.6758407332324665,
+        "total_costs": 68.87555198226949
+      },
+      "rank": [
+        {
+          "rank": 1,
+          "observations": 61,
+          "mean_return": 0.00563484792132058,
+          "median_return": 0.0021299571560173813,
+          "win_rate": 0.5081967213114754,
+          "cumulative_arithmetic_contribution": 0.06874514464011107,
+          "average_contribution": 0.0011269695842641158,
+          "worst_return": -0.11765833934528169,
+          "best_return": 0.18354898604916192
+        },
+        {
+          "rank": 2,
+          "observations": 61,
+          "mean_return": 0.008796491754546299,
+          "median_return": -0.00019662566283773497,
+          "win_rate": 0.4918032786885246,
+          "cumulative_arithmetic_contribution": 0.10731719940546486,
+          "average_contribution": 0.00175929835090926,
+          "worst_return": -0.11179006704072625,
+          "best_return": 0.15117789735350584
+        },
+        {
+          "rank": 3,
+          "observations": 61,
+          "mean_return": 0.013194168780560216,
+          "median_return": 0.0112313522678531,
+          "win_rate": 0.5737704918032787,
+          "cumulative_arithmetic_contribution": 0.16096885912283465,
+          "average_contribution": 0.0026388337561120434,
+          "worst_return": -0.10087240908201378,
+          "best_return": 0.13463263200100362
+        },
+        {
+          "rank": 4,
+          "observations": 61,
+          "mean_return": 0.018189259471237396,
+          "median_return": 0.013095290677169746,
+          "win_rate": 0.6721311475409836,
+          "cumulative_arithmetic_contribution": 0.22190896554909628,
+          "average_contribution": 0.00363785189424748,
+          "worst_return": -0.1292878713465685,
+          "best_return": 0.13615948033777614
+        },
+        {
+          "rank": 5,
+          "observations": 61,
+          "mean_return": 0.010449665318137012,
+          "median_return": 0.008916729773830623,
+          "win_rate": 0.5409836065573771,
+          "cumulative_arithmetic_contribution": 0.12748591688127156,
+          "average_contribution": 0.002089933063627403,
+          "worst_return": -0.10986892685678973,
+          "best_return": 0.1827598823644061
+        }
+      ],
+      "rank_inference": {
+        "spearman": 0.045395786235015494,
+        "ci95": [
+          -0.05039955952230036,
+          0.14398574184043728
+        ],
+        "rank1_minus_rank5_mean": -0.004814817396816433,
+        "rank1_minus_rank5_ci95": [
+          -0.022224960020653762,
+          0.011407415517001123
+        ],
+        "effective_n": 61,
+        "raw_n": 305,
+        "method": "rebalance-cluster bootstrap"
+      },
+      "security_contribution": [
+        {
+          "symbol": "KO",
+          "months_held": 50,
+          "cumulative_contribution": 0.14410855213234822,
+          "average_monthly_contribution": 0.0028821710426469643,
+          "total_positive": 0.26636960455457254,
+          "total_negative": -0.12226105242222432,
+          "worst_monthly": -0.018391156929316834
+        },
+        {
+          "symbol": "JPM",
+          "months_held": 13,
+          "cumulative_contribution": 0.08930478958334682,
+          "average_monthly_contribution": 0.006869599198718986,
+          "total_positive": 0.09805916504816908,
+          "total_negative": -0.008754375464822252,
+          "worst_monthly": -0.006598765093945924
+        },
+        {
+          "symbol": "V",
+          "months_held": 27,
+          "cumulative_contribution": 0.06791740128562598,
+          "average_monthly_contribution": 0.0025154593068750365,
+          "total_positive": 0.1286354954576369,
+          "total_negative": -0.060718094172010906,
+          "worst_monthly": -0.014733121862448507
+        },
+        {
+          "symbol": "GS",
+          "months_held": 6,
+          "cumulative_contribution": 0.06752915903216232,
+          "average_monthly_contribution": 0.01125485983869372,
+          "total_positive": 0.06854978966949057,
+          "total_negative": -0.001020630637328246,
+          "worst_monthly": -0.001020630637328246
+        },
+        {
+          "symbol": "AXP",
+          "months_held": 7,
+          "cumulative_contribution": 0.0646861931795356,
+          "average_monthly_contribution": 0.009240884739933657,
+          "total_positive": 0.07866887738593463,
+          "total_negative": -0.013982684206399032,
+          "worst_monthly": -0.013982684206399032
+        },
+        {
+          "symbol": "TRV",
+          "months_held": 6,
+          "cumulative_contribution": 0.06214151492847142,
+          "average_monthly_contribution": 0.010356919154745237,
+          "total_positive": 0.08367204059968808,
+          "total_negative": -0.021530525671216653,
+          "worst_monthly": -0.011424837075542827
+        },
+        {
+          "symbol": "PG",
+          "months_held": 23,
+          "cumulative_contribution": 0.051394525157159796,
+          "average_monthly_contribution": 0.002234544572050426,
+          "total_positive": 0.13966496748586718,
+          "total_negative": -0.08827044232870737,
+          "worst_monthly": -0.0258575742693137
+        },
+        {
+          "symbol": "CSCO",
+          "months_held": 17,
+          "cumulative_contribution": 0.03969980290849277,
+          "average_monthly_contribution": 0.0023352825240289866,
+          "total_positive": 0.09098455414681661,
+          "total_negative": -0.051284751238323836,
+          "worst_monthly": -0.017308678882066244
+        },
+        {
+          "symbol": "IBM",
+          "months_held": 5,
+          "cumulative_contribution": 0.03462618440873033,
+          "average_monthly_contribution": 0.006925236881746066,
+          "total_positive": 0.05039033652961949,
+          "total_negative": -0.015764152120889153,
+          "worst_monthly": -0.009805825400340652
+        },
+        {
+          "symbol": "AAPL",
+          "months_held": 13,
+          "cumulative_contribution": 0.028422044796105123,
+          "average_monthly_contribution": 0.0021863111381619327,
+          "total_positive": 0.11644011272264429,
+          "total_negative": -0.08801806792653917,
+          "worst_monthly": -0.02353166786905634
+        },
+        {
+          "symbol": "JNJ",
+          "months_held": 38,
+          "cumulative_contribution": 0.023147066613619594,
+          "average_monthly_contribution": 0.0006091333319373577,
+          "total_positive": 0.1830659711913129,
+          "total_negative": -0.1599189045776933,
+          "worst_monthly": -0.014952333446254906
+        },
+        {
+          "symbol": "MSFT",
+          "months_held": 24,
+          "cumulative_contribution": 0.020220120316846255,
+          "average_monthly_contribution": 0.0008425050132019273,
+          "total_positive": 0.14761868025498362,
+          "total_negative": -0.12739855993813737,
+          "worst_monthly": -0.02235801340814525
+        },
+        {
+          "symbol": "MCD",
+          "months_held": 40,
+          "cumulative_contribution": 0.019092806265216096,
+          "average_monthly_contribution": 0.0004773201566304024,
+          "total_positive": 0.1629159014596242,
+          "total_negative": -0.1438230951944081,
+          "worst_monthly": -0.01709804200782128
+        },
+        {
+          "symbol": "HD",
+          "months_held": 1,
+          "cumulative_contribution": 0.0017833459547661247,
+          "average_monthly_contribution": 0.0017833459547661247,
+          "total_positive": 0.0017833459547661247,
+          "total_negative": 0.0,
+          "worst_monthly": 0.0017833459547661247
+        },
+        {
+          "symbol": "WMT",
+          "months_held": 8,
+          "cumulative_contribution": -0.0030461127045722245,
+          "average_monthly_contribution": -0.00038076408807152806,
+          "total_positive": 0.02879850701219953,
+          "total_negative": -0.03184461971677175,
+          "worst_monthly": -0.011249725677849721
+        },
+        {
+          "symbol": "HON",
+          "months_held": 19,
+          "cumulative_contribution": -0.004440213606128899,
+          "average_monthly_contribution": -0.00023369545295415258,
+          "total_positive": 0.09160133483705324,
+          "total_negative": -0.09604154844318213,
+          "worst_monthly": -0.021973785371357947
+        },
+        {
+          "symbol": "VZ",
+          "months_held": 7,
+          "cumulative_contribution": -0.009502516838020614,
+          "average_monthly_contribution": -0.0013575024054315163,
+          "total_positive": 0.014172050085672796,
+          "total_negative": -0.023674566923693408,
+          "worst_monthly": -0.010293033813323228
+        },
+        {
+          "symbol": "AMGN",
+          "months_held": 1,
+          "cumulative_contribution": -0.01065857781492634,
+          "average_monthly_contribution": -0.01065857781492634,
+          "total_positive": 0.0,
+          "total_negative": -0.01065857781492634,
+          "worst_monthly": -0.01065857781492634
+        }
+      ],
+      "security_positive_concentration": {
+        "top_1_share_positive": 0.20181192945540236,
+        "top_3_share_positive": 0.4219884090812123,
+        "top_5_share_positive": 0.6071449104730466,
+        "top_10_share_positive": 0.9100325967004186
+      },
+      "leave_one_security_out_attribution": [
+        {
+          "symbol": "AAPL",
+          "arithmetic_contribution_removed": 0.028422044796105123
+        },
+        {
+          "symbol": "AMGN",
+          "arithmetic_contribution_removed": -0.01065857781492634
+        },
+        {
+          "symbol": "AXP",
+          "arithmetic_contribution_removed": 0.0646861931795356
+        },
+        {
+          "symbol": "CSCO",
+          "arithmetic_contribution_removed": 0.03969980290849277
+        },
+        {
+          "symbol": "GS",
+          "arithmetic_contribution_removed": 0.06752915903216232
+        },
+        {
+          "symbol": "HD",
+          "arithmetic_contribution_removed": 0.0017833459547661247
+        },
+        {
+          "symbol": "HON",
+          "arithmetic_contribution_removed": -0.004440213606128899
+        },
+        {
+          "symbol": "IBM",
+          "arithmetic_contribution_removed": 0.03462618440873033
+        },
+        {
+          "symbol": "JNJ",
+          "arithmetic_contribution_removed": 0.023147066613619594
+        },
+        {
+          "symbol": "JPM",
+          "arithmetic_contribution_removed": 0.08930478958334682
+        },
+        {
+          "symbol": "KO",
+          "arithmetic_contribution_removed": 0.14410855213234822
+        },
+        {
+          "symbol": "MCD",
+          "arithmetic_contribution_removed": 0.019092806265216096
+        },
+        {
+          "symbol": "MSFT",
+          "arithmetic_contribution_removed": 0.020220120316846255
+        },
+        {
+          "symbol": "PG",
+          "arithmetic_contribution_removed": 0.051394525157159796
+        },
+        {
+          "symbol": "TRV",
+          "arithmetic_contribution_removed": 0.06214151492847142
+        },
+        {
+          "symbol": "V",
+          "arithmetic_contribution_removed": 0.06791740128562598
+        },
+        {
+          "symbol": "VZ",
+          "arithmetic_contribution_removed": -0.009502516838020614
+        },
+        {
+          "symbol": "WMT",
+          "arithmetic_contribution_removed": -0.0030461127045722245
+        }
+      ],
+      "risk": {
+        "months": 61,
+        "average_max_single": 0.26787189384785426,
+        "average_top2": 0.5000569533064726,
+        "average_hhi": 0.21436354181853154,
+        "average_pairwise_correlation": 0.3724973338183694,
+        "average_ex_ante_volatility": 0.13531186551646918,
+        "mean_absolute_capital_risk_mismatch": 0.042135721215292445,
+        "median_absolute_capital_risk_mismatch": 0.03391958045611232,
+        "largest_absolute_capital_risk_mismatch": 0.179643066607183,
+        "max_single_percentiles": {
+          "0.25": 0.24750178152184021,
+          "0.5": 0.2602814511718499,
+          "0.75": 0.28346933451859185,
+          "0.9": 0.31020361863949636,
+          "0.95": 0.3186520348777586
+        },
+        "frequency_months_one_holding_over_30": 0.16393442622950818,
+        "frequency_months_one_holding_over_40": 0.0,
+        "frequency_months_one_holding_over_50": 0.0,
+        "over_40_count_by_security": {},
+        "risk_compensation_by_bucket": [
+          {
+            "variance_contribution": "(-inf, 0.2]",
+            "count": 164,
+            "mean": 0.0079565644009312
+          },
+          {
+            "variance_contribution": "(0.2, 0.3]",
+            "count": 131,
+            "mean": 0.015695100193039265
+          },
+          {
+            "variance_contribution": "(0.3, 0.4]",
+            "count": 10,
+            "mean": 0.00711957409530316
+          },
+          {
+            "variance_contribution": "(0.4, 0.5]",
+            "count": 0,
+            "mean": null
+          },
+          {
+            "variance_contribution": "(0.5, inf]",
+            "count": 0,
+            "mean": null
+          }
+        ]
+      },
+      "worst_20_days": [
+        {
+          "date": "2025-04-04",
+          "portfolio_return": -0.049208599164148714,
+          "holdings": [
+            "V",
+            "CSCO",
+            "KO",
+            "JNJ",
+            "MSFT"
+          ],
+          "largest_contributor": "V",
+          "largest_loss_share": 0.30956605181526853,
+          "top2_loss_share": 0.4972443765165145,
+          "spy_return": -0.05854299254528794,
+          "trailing_average_pairwise_correlation": 0.08962627328694647
+        },
+        {
+          "date": "2022-09-13",
+          "portfolio_return": -0.04437497591396311,
+          "holdings": [
+            "AAPL",
+            "MSFT",
+            "AMGN",
+            "HON",
+            "MCD"
+          ],
+          "largest_contributor": "AAPL",
+          "largest_loss_share": 0.26996529455723456,
+          "top2_loss_share": 0.519678691384685,
+          "spy_return": -0.04348252854944157,
+          "trailing_average_pairwise_correlation": 0.5985752106439766
+        },
+        {
+          "date": "2022-05-18",
+          "portfolio_return": -0.04066511273726756,
+          "holdings": [
+            "KO",
+            "MSFT",
+            "MCD",
+            "HON",
+            "JNJ"
+          ],
+          "largest_contributor": "KO",
+          "largest_loss_share": 0.34867512729849875,
+          "top2_loss_share": 0.5660747915636473,
+          "spy_return": -0.040311686781438816,
+          "trailing_average_pairwise_correlation": 0.391769439044371
+        },
+        {
+          "date": "2022-08-26",
+          "portfolio_return": -0.031157215413424953,
+          "holdings": [
+            "HON",
+            "AAPL",
+            "MSFT",
+            "MCD",
+            "JNJ"
+          ],
+          "largest_contributor": "HON",
+          "largest_loss_share": 0.2641748241326963,
+          "top2_loss_share": 0.515807657920965,
+          "spy_return": -0.033849079273241656,
+          "trailing_average_pairwise_correlation": 0.5673839681044762
+        },
+        {
+          "date": "2023-01-18",
+          "portfolio_return": -0.028002468857620488,
+          "holdings": [
+            "HON",
+            "MCD",
+            "KO",
+            "CSCO",
+            "JNJ"
+          ],
+          "largest_contributor": "HON",
+          "largest_loss_share": 0.28653860095489375,
+          "top2_loss_share": 0.5057758558806419,
+          "spy_return": -0.015787903143563153,
+          "trailing_average_pairwise_correlation": 0.6142789696971593
+        },
+        {
+          "date": "2022-06-10",
+          "portfolio_return": -0.027847058633081685,
+          "holdings": [
+            "MSFT",
+            "AAPL",
+            "HON",
+            "MCD",
+            "JNJ"
+          ],
+          "largest_contributor": "MSFT",
+          "largest_loss_share": 0.31866410400535006,
+          "top2_loss_share": 0.5918453097039187,
+          "spy_return": -0.02899562770097297,
+          "trailing_average_pairwise_correlation": 0.5199911334849636
+        },
+        {
+          "date": "2022-03-08",
+          "portfolio_return": -0.02665069768668507,
+          "holdings": [
+            "PG",
+            "KO",
+            "VZ",
+            "JNJ",
+            "MCD"
+          ],
+          "largest_contributor": "PG",
+          "largest_loss_share": 0.29558349890424734,
+          "top2_loss_share": 0.5891885436221014,
+          "spy_return": -0.007581573599507618,
+          "trailing_average_pairwise_correlation": 0.4669722916231767
+        },
+        {
+          "date": "2022-05-05",
+          "portfolio_return": -0.026418164496026332,
+          "holdings": [
+            "MSFT",
+            "HON",
+            "MCD",
+            "JNJ",
+            "KO"
+          ],
+          "largest_contributor": "MSFT",
+          "largest_loss_share": 0.3370351779510421,
+          "top2_loss_share": 0.6401892175397337,
+          "spy_return": -0.0355429472286507,
+          "trailing_average_pairwise_correlation": 0.391769439044371
+        },
+        {
+          "date": "2025-06-13",
+          "portfolio_return": -0.026041311724741292,
+          "holdings": [
+            "V",
+            "AXP",
+            "GS",
+            "CSCO",
+            "JPM"
+          ],
+          "largest_contributor": "V",
+          "largest_loss_share": 0.3817083254691747,
+          "top2_loss_share": 0.6421543932219853,
+          "spy_return": -0.011180059785133145,
+          "trailing_average_pairwise_correlation": 0.8435040150607926
+        },
+        {
+          "date": "2022-06-28",
+          "portfolio_return": -0.02413524495404725,
+          "holdings": [
+            "MSFT",
+            "JNJ",
+            "AAPL",
+            "MCD",
+            "HON"
+          ],
+          "largest_contributor": "MSFT",
+          "largest_loss_share": 0.26276098423566974,
+          "top2_loss_share": 0.511375957343765,
+          "spy_return": -0.020432874236847143,
+          "trailing_average_pairwise_correlation": 0.5199911334849636
+        },
+        {
+          "date": "2024-08-05",
+          "portfolio_return": -0.023746251209563328,
+          "holdings": [
+            "V",
+            "MSFT",
+            "HON",
+            "KO",
+            "PG"
+          ],
+          "largest_contributor": "V",
+          "largest_loss_share": 0.3168323558085656,
+          "top2_loss_share": 0.5806494928148702,
+          "spy_return": -0.029123810062021582,
+          "trailing_average_pairwise_correlation": 0.1826033135187743
+        },
+        {
+          "date": "2022-10-07",
+          "portfolio_return": -0.023341609461427167,
+          "holdings": [
+            "MSFT",
+            "AAPL",
+            "JNJ",
+            "KO",
+            "MCD"
+          ],
+          "largest_contributor": "MSFT",
+          "largest_loss_share": 0.450782426434843,
+          "top2_loss_share": 0.777482925598612,
+          "spy_return": -0.02789426088653857,
+          "trailing_average_pairwise_correlation": 0.5253099407292185
+        },
+        {
+          "date": "2021-11-30",
+          "portfolio_return": -0.02315379828768449,
+          "holdings": [
+            "KO",
+            "VZ",
+            "JNJ",
+            "MCD",
+            "CSCO"
+          ],
+          "largest_contributor": "KO",
+          "largest_loss_share": 0.2671929647920068,
+          "top2_loss_share": 0.4954642906451929,
+          "spy_return": -0.019457678688921454,
+          "trailing_average_pairwise_correlation": 0.3590356622159303
+        },
+        {
+          "date": "2026-03-18",
+          "portfolio_return": -0.0221913717534551,
+          "holdings": [
+            "MCD",
+            "PG",
+            "TRV",
+            "KO",
+            "JNJ"
+          ],
+          "largest_contributor": "MCD",
+          "largest_loss_share": 0.2928753139198877,
+          "top2_loss_share": 0.5640770471766742,
+          "spy_return": -0.013953644515257158,
+          "trailing_average_pairwise_correlation": 0.2770208125229555
+        },
+        {
+          "date": "2022-06-16",
+          "portfolio_return": -0.02162170930017464,
+          "holdings": [
+            "AAPL",
+            "HON",
+            "MSFT",
+            "MCD",
+            "JNJ"
+          ],
+          "largest_contributor": "AAPL",
+          "largest_loss_share": 0.35329223027949946,
+          "top2_loss_share": 0.6113734966495473,
+          "spy_return": -0.0330959776872618,
+          "trailing_average_pairwise_correlation": 0.5199911334849636
+        },
+        {
+          "date": "2022-09-29",
+          "portfolio_return": -0.021551127919547997,
+          "holdings": [
+            "AAPL",
+            "HON",
+            "MSFT",
+            "AMGN",
+            "MCD"
+          ],
+          "largest_contributor": "AAPL",
+          "largest_loss_share": 0.4631033449758772,
+          "top2_loss_share": 0.6596122274218323,
+          "spy_return": -0.020888998418720717,
+          "trailing_average_pairwise_correlation": 0.5985752106439766
+        },
+        {
+          "date": "2022-11-02",
+          "portfolio_return": -0.021359169061994195,
+          "holdings": [
+            "AAPL",
+            "MSFT",
+            "JNJ",
+            "HON",
+            "MCD"
+          ],
+          "largest_contributor": "AAPL",
+          "largest_loss_share": 0.3442552513305082,
+          "top2_loss_share": 0.6710282016396315,
+          "spy_return": -0.025096389075412784,
+          "trailing_average_pairwise_correlation": 0.6148519675261406
+        },
+        {
+          "date": "2026-07-30",
+          "portfolio_return": -0.020557915663099266,
+          "holdings": [
+            "TRV",
+            "JNJ",
+            "AAPL",
+            "MCD",
+            "KO"
+          ],
+          "largest_contributor": "TRV",
+          "largest_loss_share": 0.3489855973554481,
+          "top2_loss_share": 0.6900681057666107,
+          "spy_return": 0.01676579949601198,
+          "trailing_average_pairwise_correlation": 0.31770381493110905
+        },
+        {
+          "date": "2022-06-09",
+          "portfolio_return": -0.020167711748882194,
+          "holdings": [
+            "AAPL",
+            "MSFT",
+            "JNJ",
+            "MCD",
+            "HON"
+          ],
+          "largest_contributor": "AAPL",
+          "largest_loss_share": 0.3568520673149064,
+          "top2_loss_share": 0.5621910288324493,
+          "spy_return": -0.023782805313167676,
+          "trailing_average_pairwise_correlation": 0.5199911334849636
+        },
+        {
+          "date": "2025-09-05",
+          "portfolio_return": -0.020070725391790313,
+          "holdings": [
+            "JPM",
+            "MSFT",
+            "CSCO",
+            "GS",
+            "AXP"
+          ],
+          "largest_contributor": "JPM",
+          "largest_loss_share": 0.30994230243779924,
+          "top2_loss_share": 0.5654273395970054,
+          "spy_return": -0.002896288899897903,
+          "trailing_average_pairwise_correlation": 0.4991994633123128
+        }
+      ],
+      "worst_10_summary": {
+        "mean_largest_loss_share": 0.30746719893240765,
+        "mean_top2_loss_share": 0.5579334794697959
+      },
+      "single_name_tail": {
+        "worst_1pct_security_days_share_negative_pnl": 0.06916747857098259,
+        "frequency_one_name_over_half_daily_loss": 0.43130434782608695,
+        "worst_5_security_days": [
+          {
+            "date": "2026-01-29",
+            "period": "2026-01-02",
+            "symbol": "MSFT",
+            "pnl": -312.52930249370064,
+            "return_contribution": -0.01909944540970975,
+            "security_close_return": -0.09993152265519933
+          },
+          {
+            "date": "2026-07-31",
+            "period": "2026-07-01",
+            "symbol": "AAPL",
+            "pnl": -291.7361635471046,
+            "return_contribution": -0.015602382332790026,
+            "security_close_return": -0.07353858440208272
+          },
+          {
+            "date": "2026-06-25",
+            "period": "2026-06-01",
+            "symbol": "AAPL",
+            "pnl": -192.24765737155448,
+            "return_contribution": -0.011216977565911342,
+            "security_close_return": -0.06117774105404383
+          },
+          {
+            "date": "2025-04-01",
+            "period": "2025-04-01",
+            "symbol": "JNJ",
+            "pnl": -188.38723203644741,
+            "return_contribution": -0.015478905967565584,
+            "security_close_return": -0.07591659763584047
+          },
+          {
+            "date": "2025-04-04",
+            "period": "2025-04-01",
+            "symbol": "V",
+            "pnl": -181.18800289769152,
+            "return_contribution": -0.015233307839895906,
+            "security_close_return": -0.07737410364743702
+          }
+        ],
+        "worst_5_monthly_single_name_contributions": [
+          {
+            "rebalance_date": "2026-03-02",
+            "symbol": "PG",
+            "rank": 4,
+            "gross_return_contribution": -0.0258575742693137
+          },
+          {
+            "rebalance_date": "2022-09-01",
+            "symbol": "AAPL",
+            "rank": 1,
+            "gross_return_contribution": -0.02353166786905634
+          },
+          {
+            "rebalance_date": "2026-01-02",
+            "symbol": "MSFT",
+            "rank": 2,
+            "gross_return_contribution": -0.02235801340814525
+          },
+          {
+            "rebalance_date": "2022-06-01",
+            "symbol": "HON",
+            "rank": 5,
+            "gross_return_contribution": -0.021973785371357947
+          },
+          {
+            "rebalance_date": "2022-04-01",
+            "symbol": "MSFT",
+            "rank": 4,
+            "gross_return_contribution": -0.02046739912349802
+          }
+        ]
+      },
+      "weight_drift": {
+        "maximum_weight": 0.22384332477906463,
+        "average_daily_maximum_weight": 0.20722069911267352,
+        "frequency_days_over_25pct": 0.0,
+        "frequency_days_over_30pct": 0.0,
+        "mean_ending_weight_winners": 0.20386850044509083,
+        "mean_ending_weight_losers": 0.19517228840073628,
+        "ending_weight_return_spearman": 0.681295572586239,
+        "subsequent_risk_note": "Drift is reset at the next monthly rebalance; it cannot mechanically carry into the next portfolio's target risk."
+      },
+      "correlation": {
+        "correlation_subsequent_volatility_spearman": 0.3020095187731359
+      },
+      "stability": {
+        "first_half_rank_spearman": 0.02199146328426763,
+        "second_half_rank_spearman": 0.06148066828521475,
+        "first_half_months_over_40_risk": 0.0,
+        "second_half_months_over_40_risk": 0.0,
+        "leave_one_year_out_rank_spearman": {
+          "2021": 0.02602599449970833,
+          "2022": 0.09871495286088314,
+          "2023": 0.03117743860509083,
+          "2024": 0.06235487721018166,
+          "2025": 0.023179038125250774,
+          "2026": 0.03359025158399122
+        }
+      },
+      "reconciliation": {
+        "maximum_daily_dollar_error": 5.9969806898152456e-12,
+        "passed": true,
+        "selected_sets_match_engine": true
+      }
+    }
+  },
+  "dm_vs_mrm": {
+    "average_max_single": {
+      "DM": 0.34223202964429056,
+      "MRM": 0.26787189384785426
+    },
+    "average_hhi": {
+      "DM": 0.2563843233691956,
+      "MRM": 0.21436354181853154
+    },
+    "average_pairwise_correlation": {
+      "DM": 0.29300104812361355,
+      "MRM": 0.3724973338183694
+    },
+    "worst10_mean_top2_loss_share": {
+      "DM": 0.704610810893647,
+      "MRM": 0.5579334794697959
+    },
+    "drift_frequency_over_25pct": {
+      "DM": 0.0350597609561753,
+      "MRM": 0.0
+    }
+  },
+  "decision": {
+    "categories": [
+      "Equal weighting appears reasonable",
+      "No stable portfolio-construction inefficiency detected"
+    ],
+    "one_weighting_experiment_justified": false,
+    "recommended_concept": null,
+    "frozen_blend_interpretation": "MRM comparison is descriptive only; the frozen DM/MRM blend remains unchanged."
+  }
+}

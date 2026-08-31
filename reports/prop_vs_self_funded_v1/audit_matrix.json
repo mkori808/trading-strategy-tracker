@@ -1,0 +1,85 @@
+[
+  {
+    "requirement": "Frozen historical prop simulation",
+    "source": "reports/prop_scaling_survival_v1/results.json",
+    "status": "verified",
+    "active": false,
+    "observations": 5000,
+    "gap": null
+  },
+  {
+    "requirement": "Prop fees, payout split, challenge/funded transitions, reset lifecycle",
+    "source": "engine/prop_scaling_survival_study.py and engine/prop_forward.py",
+    "status": "implemented_and_tested",
+    "active": true,
+    "gap": null
+  },
+  {
+    "requirement": "Observed slippage and partial-fill calibration",
+    "source": "logs/execution.db via engine.execution_db.fill_calibration",
+    "status": "calibrated",
+    "active": true,
+    "observations": 30,
+    "gap": "Aggregate approximation, not an order-level historical replay."
+  },
+  {
+    "requirement": "Actual Alpaca account-equity stream",
+    "source": "logs/prop_forward.db.raw_equity_snapshots",
+    "status": "collector_active_not_started",
+    "active": true,
+    "observations": 0,
+    "gap": "No backfill; closed/offline intervals remain blank."
+  },
+  {
+    "requirement": "Locked strategy fingerprint and one-account ownership",
+    "source": "research/optimized_dm_prop_forward_v1_preregistration.json plus logs/execution.db",
+    "status": "verified",
+    "active": true,
+    "gap": null
+  },
+  {
+    "requirement": "Historical strategy return/exposure series",
+    "source": "portfolio_runs.id=33 rebuilt by frozen parameters",
+    "status": "available_selection_contaminated",
+    "active": false,
+    "observations": 250,
+    "gap": "One selected development year; not independent forward evidence."
+  },
+  {
+    "requirement": "Intraday breach path",
+    "source": "daily OHLC envelope historically; five-minute raw account marks prospectively",
+    "status": "approximate_historical_prospective_pending",
+    "active": true,
+    "observations": 0,
+    "gap": "Daily bars cannot identify cross-name simultaneity or high/low ordering."
+  },
+  {
+    "requirement": "Self-funded historical comparator",
+    "source": "engine/capital_efficiency_study.py",
+    "status": "implemented_by_this_study",
+    "active": false,
+    "gap": null
+  },
+  {
+    "requirement": "Self-funded prospective ledger",
+    "source": "logs/prop_forward.db self-funded tables",
+    "status": "implemented_not_started",
+    "active": true,
+    "observations": 0,
+    "gap": "Must accumulate strictly prospectively."
+  },
+  {
+    "requirement": "Correlated 1-to-10 account capital-efficiency frontier",
+    "source": "reports/prop_vs_self_funded_v1/frontier.csv",
+    "status": "implemented_by_this_study",
+    "active": false,
+    "gap": "Perfect correlation supplies no diversification."
+  },
+  {
+    "requirement": "Self-funded stop/restart comparator B",
+    "source": "none",
+    "status": "omitted",
+    "active": false,
+    "gap": "No legitimate preregistered restart rule exists; none was invented."
+  }
+]

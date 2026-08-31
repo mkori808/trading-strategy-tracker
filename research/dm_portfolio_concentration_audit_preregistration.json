@@ -1,0 +1,43 @@
+{
+  "study": "Dual Momentum Portfolio Contribution / Concentration Audit v1",
+  "frozen_at": "2026-08-22",
+  "status": "diagnostic_only",
+  "strategies": {
+    "primary": "registered canonical Dual Momentum defaults",
+    "comparator": "registered canonical Market-Residual Momentum defaults"
+  },
+  "prohibited": [
+    "strategy rule changes", "alternative weighting backtests", "top-N changes",
+    "ranking or rebalance changes", "modification of the frozen DM/MRM blend"
+  ],
+  "independent_unit": "rebalance period",
+  "return_attribution": {
+    "method": "exact engine position and cash replay; security P&L is allocated over prior-close/current-open/current-close intervals and costs and cash interest remain separate",
+    "rank": "selected rank at the opening rebalance",
+    "holding_period": "rebalance open through the next rebalance open; the final incomplete period ends at the sample close"
+  },
+  "ex_ante_risk": {
+    "window_sessions": 60,
+    "information_boundary": "closes strictly before rebalance",
+    "covariance": "ordinary sample covariance of aligned daily close returns",
+    "minimum_aligned_observations": 40,
+    "variance_contribution": "w_i * (Sigma w)_i / (w' Sigma w), signed",
+    "risk_hhi": "squared shares after normalizing absolute variance contributions to sum to one",
+    "portfolio_volatility": "sqrt(252 * w' Sigma w)",
+    "capital_weight": "canonical target weight"
+  },
+  "inference": {
+    "bootstrap_draws": 2000,
+    "seed": 20260822,
+    "cluster": "rebalance date",
+    "rank_statistic": "Spearman correlation between numeric rank and next-period return"
+  },
+  "stability": ["first versus second half", "leave-one-calendar-year-out", "leave-one-security-out attribution"],
+  "major_dm_drawdowns": [
+    ["2021-12-29", "2022-06-17"],
+    ["2022-11-30", "2023-05-31"],
+    ["2025-02-19", "2025-04-08"]
+  ],
+  "sector_rule": "blocked unless a genuine point-in-time sector classification ledger is present",
+  "decision_rule": "recommend exactly one future weighting concept only for a specific, material, time-stable mechanism supported across independent periods and not driven by one or two securities or events"
+}

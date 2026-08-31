@@ -1,0 +1,1823 @@
+{
+  "auditMatrix": [
+    {
+      "active": false,
+      "gap": null,
+      "observations": 5000,
+      "requirement": "Frozen historical prop simulation",
+      "source": "reports/prop_scaling_survival_v1/results.json",
+      "status": "verified"
+    },
+    {
+      "active": true,
+      "gap": null,
+      "requirement": "Prop fees, payout split, challenge/funded transitions, reset lifecycle",
+      "source": "engine/prop_scaling_survival_study.py and engine/prop_forward.py",
+      "status": "implemented_and_tested"
+    },
+    {
+      "active": true,
+      "gap": "Aggregate approximation, not an order-level historical replay.",
+      "observations": 30,
+      "requirement": "Observed slippage and partial-fill calibration",
+      "source": "logs/execution.db via engine.execution_db.fill_calibration",
+      "status": "calibrated"
+    },
+    {
+      "active": true,
+      "gap": "No backfill; closed/offline intervals remain blank.",
+      "observations": 0,
+      "requirement": "Actual Alpaca account-equity stream",
+      "source": "logs/prop_forward.db.raw_equity_snapshots",
+      "status": "collector_active_not_started"
+    },
+    {
+      "active": true,
+      "gap": null,
+      "requirement": "Locked strategy fingerprint and one-account ownership",
+      "source": "research/optimized_dm_prop_forward_v1_preregistration.json plus logs/execution.db",
+      "status": "verified"
+    },
+    {
+      "active": false,
+      "gap": "One selected development year; not independent forward evidence.",
+      "observations": 250,
+      "requirement": "Historical strategy return/exposure series",
+      "source": "portfolio_runs.id=33 rebuilt by frozen parameters",
+      "status": "available_selection_contaminated"
+    },
+    {
+      "active": true,
+      "gap": "Daily bars cannot identify cross-name simultaneity or high/low ordering.",
+      "observations": 0,
+      "requirement": "Intraday breach path",
+      "source": "daily OHLC envelope historically; five-minute raw account marks prospectively",
+      "status": "approximate_historical_prospective_pending"
+    },
+    {
+      "active": false,
+      "gap": null,
+      "requirement": "Self-funded historical comparator",
+      "source": "engine/capital_efficiency_study.py",
+      "status": "implemented_by_this_study"
+    },
+    {
+      "active": true,
+      "gap": "Must accumulate strictly prospectively.",
+      "observations": 0,
+      "requirement": "Self-funded prospective ledger",
+      "source": "logs/prop_forward.db self-funded tables",
+      "status": "implemented_not_started"
+    },
+    {
+      "active": false,
+      "gap": "Perfect correlation supplies no diversification.",
+      "requirement": "Correlated 1-to-10 account capital-efficiency frontier",
+      "source": "reports/prop_vs_self_funded_v1/frontier.csv",
+      "status": "implemented_by_this_study"
+    },
+    {
+      "active": false,
+      "gap": "No legitimate preregistered restart rule exists; none was invented.",
+      "requirement": "Self-funded stop/restart comparator B",
+      "source": "none",
+      "status": "omitted"
+    }
+  ],
+  "capitalDefinitions": {
+    "prop": {
+      "capitalAtRiskDefinition": "Cumulative non-refundable challenge and reset fees paid by the trader. Contractual rule risk and lost future opportunity are reported separately, not assigned a fabricated dollar capital base.",
+      "capitalCommittedDefinition": "Cumulative trader-paid challenge and reset fees; nominal account capacity is not treated as trader-owned capital.",
+      "challengeFee": 500,
+      "dailyLossLimitPct": 0.03,
+      "evaluationProfitTargetPct": 0.08,
+      "maximumDrawdownPct": 0.06,
+      "newAttemptAfterFailure": true,
+      "nominalAccount": 100000,
+      "payoutCadenceTradingDays": 21,
+      "payoutSplit": 0.8,
+      "resetFee": 500
+    },
+    "selfFundedA": {
+      "capitalAtRiskDefinition": "The self-funded account equity committed to the strategy.",
+      "exposure": "Fixed dollar exposure equal to the matched prop exposure; no compounding of position size.",
+      "fees": "No prop challenge/reset fees and no payout split. Strategy transaction costs and observed execution calibration remain embedded in the return path.",
+      "included": true,
+      "negativeEquityTreatment": "No artificial stopout; losses continue on the fixed exposure and may exceed starting capital in a simulated extreme path.",
+      "returnPath": "The same sampled, execution-calibrated Optimized DM daily return path used by the prop account.",
+      "startingAndCommittedCapital": "Exactly the effective exposure: nominalAccount multiplied by scale ($20,000 or $25,000).",
+      "stopout": "None"
+    },
+    "selfFundedB": {
+      "included": false,
+      "reason": "No legitimate, previously preregistered personal stop/restart rule exists. A restart rule will not be invented after seeing outcomes."
+    }
+  },
+  "classification": {
+    "historicalEvidenceGrade": "inconclusive_for_live_capital_allocation",
+    "reason": "Self-funding avoids prop fees, payout splits, and stopouts when enough own capital is available; prop accounts provide matched exposure with much less trader cash committed. The selected one-year historical sample cannot establish which advantage will dominate prospectively.",
+    "result": "depends_on_available_capital",
+    "selfFundedComparatorB": "omitted_no_preregistered_restart_rule"
+  },
+  "frontier": [
+    {
+      "accounts": 1,
+      "aggregateEffectiveExposure": 20000.0,
+      "breachProbabilityAtLeastOne": 0.0374,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "trailing_to_breakeven",
+      "expectedCapitalCommitted": 518.8,
+      "expectedFees": 518.8,
+      "expectedNetProfit": 2949.030825899602,
+      "expectedReturnOnCommittedCapital": 5.684330813222055,
+      "medianNetProfit": 2766.168059732421,
+      "operatingPoint": "020_trailing",
+      "p01NetProfit": -1000.0,
+      "p05NetProfit": -500.0,
+      "probabilityAnnualLoss": 0.2184,
+      "probabilityTarget35000": 0.0,
+      "scale": 0.2,
+      "structure": "prop",
+      "upfrontCapitalCommitted": 500.0
+    },
+    {
+      "accounts": 1,
+      "aggregateEffectiveExposure": 20000.0,
+      "breachProbabilityAtLeastOne": null,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "none",
+      "expectedCapitalCommitted": 20000.0,
+      "expectedFees": 0.0,
+      "expectedNetProfit": 12267.14299983857,
+      "expectedReturnOnCommittedCapital": 0.6133571499919285,
+      "medianNetProfit": 12504.92296627664,
+      "operatingPoint": "020_trailing",
+      "p01NetProfit": 1288.3991720838635,
+      "p05NetProfit": 4528.6322461566315,
+      "probabilityAnnualLoss": 0.0032,
+      "probabilityTarget35000": 0.0,
+      "scale": 0.2,
+      "structure": "self_funded_a",
+      "upfrontCapitalCommitted": 20000.0
+    },
+    {
+      "accounts": 2,
+      "aggregateEffectiveExposure": 40000.0,
+      "breachProbabilityAtLeastOne": 0.0374,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "trailing_to_breakeven",
+      "expectedCapitalCommitted": 1037.6,
+      "expectedFees": 1037.6,
+      "expectedNetProfit": 5898.061651799204,
+      "expectedReturnOnCommittedCapital": 5.684330813222055,
+      "medianNetProfit": 5532.336119464842,
+      "operatingPoint": "020_trailing",
+      "p01NetProfit": -2000.0,
+      "p05NetProfit": -1000.0,
+      "probabilityAnnualLoss": 0.2184,
+      "probabilityTarget35000": 0.0,
+      "scale": 0.2,
+      "structure": "prop",
+      "upfrontCapitalCommitted": 1000.0
+    },
+    {
+      "accounts": 2,
+      "aggregateEffectiveExposure": 40000.0,
+      "breachProbabilityAtLeastOne": null,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "none",
+      "expectedCapitalCommitted": 40000.0,
+      "expectedFees": 0.0,
+      "expectedNetProfit": 24534.28599967714,
+      "expectedReturnOnCommittedCapital": 0.6133571499919285,
+      "medianNetProfit": 25009.84593255328,
+      "operatingPoint": "020_trailing",
+      "p01NetProfit": 2576.798344167727,
+      "p05NetProfit": 9057.264492313263,
+      "probabilityAnnualLoss": 0.0032,
+      "probabilityTarget35000": 0.1176,
+      "scale": 0.2,
+      "structure": "self_funded_a",
+      "upfrontCapitalCommitted": 40000.0
+    },
+    {
+      "accounts": 3,
+      "aggregateEffectiveExposure": 60000.0,
+      "breachProbabilityAtLeastOne": 0.0374,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "trailing_to_breakeven",
+      "expectedCapitalCommitted": 1556.4,
+      "expectedFees": 1556.4,
+      "expectedNetProfit": 8847.092477698807,
+      "expectedReturnOnCommittedCapital": 5.684330813222055,
+      "medianNetProfit": 8298.504179197264,
+      "operatingPoint": "020_trailing",
+      "p01NetProfit": -3000.0,
+      "p05NetProfit": -1500.0,
+      "probabilityAnnualLoss": 0.2184,
+      "probabilityTarget35000": 0.0012,
+      "scale": 0.2,
+      "structure": "prop",
+      "upfrontCapitalCommitted": 1500.0
+    },
+    {
+      "accounts": 3,
+      "aggregateEffectiveExposure": 60000.0,
+      "breachProbabilityAtLeastOne": null,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "none",
+      "expectedCapitalCommitted": 60000.0,
+      "expectedFees": 0.0,
+      "expectedNetProfit": 36801.42899951571,
+      "expectedReturnOnCommittedCapital": 0.6133571499919285,
+      "medianNetProfit": 37514.76889882992,
+      "operatingPoint": "020_trailing",
+      "p01NetProfit": 3865.1975162515905,
+      "p05NetProfit": 13585.896738469894,
+      "probabilityAnnualLoss": 0.0032,
+      "probabilityTarget35000": 0.5736,
+      "scale": 0.2,
+      "structure": "self_funded_a",
+      "upfrontCapitalCommitted": 60000.0
+    },
+    {
+      "accounts": 4,
+      "aggregateEffectiveExposure": 80000.0,
+      "breachProbabilityAtLeastOne": 0.0374,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "trailing_to_breakeven",
+      "expectedCapitalCommitted": 2075.2,
+      "expectedFees": 2075.2,
+      "expectedNetProfit": 11796.123303598408,
+      "expectedReturnOnCommittedCapital": 5.684330813222055,
+      "medianNetProfit": 11064.672238929685,
+      "operatingPoint": "020_trailing",
+      "p01NetProfit": -4000.0,
+      "p05NetProfit": -2000.0,
+      "probabilityAnnualLoss": 0.2184,
+      "probabilityTarget35000": 0.028,
+      "scale": 0.2,
+      "structure": "prop",
+      "upfrontCapitalCommitted": 2000.0
+    },
+    {
+      "accounts": 4,
+      "aggregateEffectiveExposure": 80000.0,
+      "breachProbabilityAtLeastOne": null,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "none",
+      "expectedCapitalCommitted": 80000.0,
+      "expectedFees": 0.0,
+      "expectedNetProfit": 49068.57199935428,
+      "expectedReturnOnCommittedCapital": 0.6133571499919285,
+      "medianNetProfit": 50019.69186510656,
+      "operatingPoint": "020_trailing",
+      "p01NetProfit": 5153.596688335454,
+      "p05NetProfit": 18114.528984626526,
+      "probabilityAnnualLoss": 0.0032,
+      "probabilityTarget35000": 0.7928,
+      "scale": 0.2,
+      "structure": "self_funded_a",
+      "upfrontCapitalCommitted": 80000.0
+    },
+    {
+      "accounts": 5,
+      "aggregateEffectiveExposure": 100000.0,
+      "breachProbabilityAtLeastOne": 0.0374,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "trailing_to_breakeven",
+      "expectedCapitalCommitted": 2594.0,
+      "expectedFees": 2594.0,
+      "expectedNetProfit": 14745.154129498007,
+      "expectedReturnOnCommittedCapital": 5.684330813222053,
+      "medianNetProfit": 13830.840298662108,
+      "operatingPoint": "020_trailing",
+      "p01NetProfit": -5000.0,
+      "p05NetProfit": -2500.0,
+      "probabilityAnnualLoss": 0.2184,
+      "probabilityTarget35000": 0.088,
+      "scale": 0.2,
+      "structure": "prop",
+      "upfrontCapitalCommitted": 2500.0
+    },
+    {
+      "accounts": 5,
+      "aggregateEffectiveExposure": 100000.0,
+      "breachProbabilityAtLeastOne": null,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "none",
+      "expectedCapitalCommitted": 100000.0,
+      "expectedFees": 0.0,
+      "expectedNetProfit": 61335.714999192845,
+      "expectedReturnOnCommittedCapital": 0.6133571499919285,
+      "medianNetProfit": 62524.614831383195,
+      "operatingPoint": "020_trailing",
+      "p01NetProfit": 6441.995860419318,
+      "p05NetProfit": 22643.161230783156,
+      "probabilityAnnualLoss": 0.0032,
+      "probabilityTarget35000": 0.8774,
+      "scale": 0.2,
+      "structure": "self_funded_a",
+      "upfrontCapitalCommitted": 100000.0
+    },
+    {
+      "accounts": 6,
+      "aggregateEffectiveExposure": 120000.0,
+      "breachProbabilityAtLeastOne": 0.0374,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "trailing_to_breakeven",
+      "expectedCapitalCommitted": 3112.8,
+      "expectedFees": 3112.8,
+      "expectedNetProfit": 17694.184955397614,
+      "expectedReturnOnCommittedCapital": 5.684330813222055,
+      "medianNetProfit": 16597.008358394527,
+      "operatingPoint": "020_trailing",
+      "p01NetProfit": -6000.0,
+      "p05NetProfit": -3000.0,
+      "probabilityAnnualLoss": 0.2184,
+      "probabilityTarget35000": 0.1696,
+      "scale": 0.2,
+      "structure": "prop",
+      "upfrontCapitalCommitted": 3000.0
+    },
+    {
+      "accounts": 6,
+      "aggregateEffectiveExposure": 120000.0,
+      "breachProbabilityAtLeastOne": null,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "none",
+      "expectedCapitalCommitted": 120000.0,
+      "expectedFees": 0.0,
+      "expectedNetProfit": 73602.85799903142,
+      "expectedReturnOnCommittedCapital": 0.6133571499919285,
+      "medianNetProfit": 75029.53779765984,
+      "operatingPoint": "020_trailing",
+      "p01NetProfit": 7730.395032503181,
+      "p05NetProfit": 27171.793476939787,
+      "probabilityAnnualLoss": 0.0032,
+      "probabilityTarget35000": 0.9188,
+      "scale": 0.2,
+      "structure": "self_funded_a",
+      "upfrontCapitalCommitted": 120000.0
+    },
+    {
+      "accounts": 7,
+      "aggregateEffectiveExposure": 140000.0,
+      "breachProbabilityAtLeastOne": 0.0374,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "trailing_to_breakeven",
+      "expectedCapitalCommitted": 3631.6,
+      "expectedFees": 3631.6,
+      "expectedNetProfit": 20643.215781297215,
+      "expectedReturnOnCommittedCapital": 5.684330813222055,
+      "medianNetProfit": 19363.17641812695,
+      "operatingPoint": "020_trailing",
+      "p01NetProfit": -7000.0,
+      "p05NetProfit": -3500.0,
+      "probabilityAnnualLoss": 0.2184,
+      "probabilityTarget35000": 0.2484,
+      "scale": 0.2,
+      "structure": "prop",
+      "upfrontCapitalCommitted": 3500.0
+    },
+    {
+      "accounts": 7,
+      "aggregateEffectiveExposure": 140000.0,
+      "breachProbabilityAtLeastOne": null,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "none",
+      "expectedCapitalCommitted": 140000.0,
+      "expectedFees": 0.0,
+      "expectedNetProfit": 85870.00099886999,
+      "expectedReturnOnCommittedCapital": 0.6133571499919285,
+      "medianNetProfit": 87534.46076393647,
+      "operatingPoint": "020_trailing",
+      "p01NetProfit": 9018.794204587044,
+      "p05NetProfit": 31700.425723096418,
+      "probabilityAnnualLoss": 0.0032,
+      "probabilityTarget35000": 0.94,
+      "scale": 0.2,
+      "structure": "self_funded_a",
+      "upfrontCapitalCommitted": 140000.0
+    },
+    {
+      "accounts": 8,
+      "aggregateEffectiveExposure": 160000.0,
+      "breachProbabilityAtLeastOne": 0.0374,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "trailing_to_breakeven",
+      "expectedCapitalCommitted": 4150.4,
+      "expectedFees": 4150.4,
+      "expectedNetProfit": 23592.246607196816,
+      "expectedReturnOnCommittedCapital": 5.684330813222055,
+      "medianNetProfit": 22129.34447785937,
+      "operatingPoint": "020_trailing",
+      "p01NetProfit": -8000.0,
+      "p05NetProfit": -4000.0,
+      "probabilityAnnualLoss": 0.2184,
+      "probabilityTarget35000": 0.3138,
+      "scale": 0.2,
+      "structure": "prop",
+      "upfrontCapitalCommitted": 4000.0
+    },
+    {
+      "accounts": 8,
+      "aggregateEffectiveExposure": 160000.0,
+      "breachProbabilityAtLeastOne": null,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "none",
+      "expectedCapitalCommitted": 160000.0,
+      "expectedFees": 0.0,
+      "expectedNetProfit": 98137.14399870856,
+      "expectedReturnOnCommittedCapital": 0.6133571499919285,
+      "medianNetProfit": 100039.38373021311,
+      "operatingPoint": "020_trailing",
+      "p01NetProfit": 10307.193376670908,
+      "p05NetProfit": 36229.05796925305,
+      "probabilityAnnualLoss": 0.0032,
+      "probabilityTarget35000": 0.9532,
+      "scale": 0.2,
+      "structure": "self_funded_a",
+      "upfrontCapitalCommitted": 160000.0
+    },
+    {
+      "accounts": 9,
+      "aggregateEffectiveExposure": 180000.0,
+      "breachProbabilityAtLeastOne": 0.0374,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "trailing_to_breakeven",
+      "expectedCapitalCommitted": 4669.2,
+      "expectedFees": 4669.2,
+      "expectedNetProfit": 26541.277433096413,
+      "expectedReturnOnCommittedCapital": 5.684330813222054,
+      "medianNetProfit": 24895.512537591792,
+      "operatingPoint": "020_trailing",
+      "p01NetProfit": -9000.0,
+      "p05NetProfit": -4500.0,
+      "probabilityAnnualLoss": 0.2184,
+      "probabilityTarget35000": 0.3668,
+      "scale": 0.2,
+      "structure": "prop",
+      "upfrontCapitalCommitted": 4500.0
+    },
+    {
+      "accounts": 9,
+      "aggregateEffectiveExposure": 180000.0,
+      "breachProbabilityAtLeastOne": null,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "none",
+      "expectedCapitalCommitted": 180000.0,
+      "expectedFees": 0.0,
+      "expectedNetProfit": 110404.28699854712,
+      "expectedReturnOnCommittedCapital": 0.6133571499919285,
+      "medianNetProfit": 112544.30669648976,
+      "operatingPoint": "020_trailing",
+      "p01NetProfit": 11595.592548754772,
+      "p05NetProfit": 40757.690215409675,
+      "probabilityAnnualLoss": 0.0032,
+      "probabilityTarget35000": 0.9608,
+      "scale": 0.2,
+      "structure": "self_funded_a",
+      "upfrontCapitalCommitted": 180000.0
+    },
+    {
+      "accounts": 10,
+      "aggregateEffectiveExposure": 200000.0,
+      "breachProbabilityAtLeastOne": 0.0374,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "trailing_to_breakeven",
+      "expectedCapitalCommitted": 5188.0,
+      "expectedFees": 5188.0,
+      "expectedNetProfit": 29490.308258996014,
+      "expectedReturnOnCommittedCapital": 5.684330813222053,
+      "medianNetProfit": 27661.680597324215,
+      "operatingPoint": "020_trailing",
+      "p01NetProfit": -10000.0,
+      "p05NetProfit": -5000.0,
+      "probabilityAnnualLoss": 0.2184,
+      "probabilityTarget35000": 0.413,
+      "scale": 0.2,
+      "structure": "prop",
+      "upfrontCapitalCommitted": 5000.0
+    },
+    {
+      "accounts": 10,
+      "aggregateEffectiveExposure": 200000.0,
+      "breachProbabilityAtLeastOne": null,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "none",
+      "expectedCapitalCommitted": 200000.0,
+      "expectedFees": 0.0,
+      "expectedNetProfit": 122671.42999838569,
+      "expectedReturnOnCommittedCapital": 0.6133571499919285,
+      "medianNetProfit": 125049.22966276639,
+      "operatingPoint": "020_trailing",
+      "p01NetProfit": 12883.991720838636,
+      "p05NetProfit": 45286.32246156631,
+      "probabilityAnnualLoss": 0.0032,
+      "probabilityTarget35000": 0.966,
+      "scale": 0.2,
+      "structure": "self_funded_a",
+      "upfrontCapitalCommitted": 200000.0
+    },
+    {
+      "accounts": 1,
+      "aggregateEffectiveExposure": 25000.0,
+      "breachProbabilityAtLeastOne": 0.0288,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "static",
+      "expectedCapitalCommitted": 514.5,
+      "expectedFees": 514.5,
+      "expectedNetProfit": 5216.255273713146,
+      "expectedReturnOnCommittedCapital": 10.1384942151859,
+      "medianNetProfit": 5182.5497686524295,
+      "operatingPoint": "025_static",
+      "p01NetProfit": -500.0,
+      "p05NetProfit": -500.0,
+      "probabilityAnnualLoss": 0.1186,
+      "probabilityTarget35000": 0.0,
+      "scale": 0.25,
+      "structure": "prop",
+      "upfrontCapitalCommitted": 500.0
+    },
+    {
+      "accounts": 1,
+      "aggregateEffectiveExposure": 25000.0,
+      "breachProbabilityAtLeastOne": null,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "none",
+      "expectedCapitalCommitted": 25000.0,
+      "expectedFees": 0.0,
+      "expectedNetProfit": 15333.928749798188,
+      "expectedReturnOnCommittedCapital": 0.6133571499919275,
+      "medianNetProfit": 15631.153707845766,
+      "operatingPoint": "025_static",
+      "p01NetProfit": 1610.4989651047415,
+      "p05NetProfit": 5660.7903076956845,
+      "probabilityAnnualLoss": 0.0032,
+      "probabilityTarget35000": 0.0,
+      "scale": 0.25,
+      "structure": "self_funded_a",
+      "upfrontCapitalCommitted": 25000.0
+    },
+    {
+      "accounts": 2,
+      "aggregateEffectiveExposure": 50000.0,
+      "breachProbabilityAtLeastOne": 0.0288,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "static",
+      "expectedCapitalCommitted": 1029.0,
+      "expectedFees": 1029.0,
+      "expectedNetProfit": 10432.510547426293,
+      "expectedReturnOnCommittedCapital": 10.1384942151859,
+      "medianNetProfit": 10365.099537304859,
+      "operatingPoint": "025_static",
+      "p01NetProfit": -1000.0,
+      "p05NetProfit": -1000.0,
+      "probabilityAnnualLoss": 0.1186,
+      "probabilityTarget35000": 0.0004,
+      "scale": 0.25,
+      "structure": "prop",
+      "upfrontCapitalCommitted": 1000.0
+    },
+    {
+      "accounts": 2,
+      "aggregateEffectiveExposure": 50000.0,
+      "breachProbabilityAtLeastOne": null,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "none",
+      "expectedCapitalCommitted": 50000.0,
+      "expectedFees": 0.0,
+      "expectedNetProfit": 30667.857499596375,
+      "expectedReturnOnCommittedCapital": 0.6133571499919275,
+      "medianNetProfit": 31262.30741569153,
+      "operatingPoint": "025_static",
+      "p01NetProfit": 3220.997930209483,
+      "p05NetProfit": 11321.580615391369,
+      "probabilityAnnualLoss": 0.0032,
+      "probabilityTarget35000": 0.3568,
+      "scale": 0.25,
+      "structure": "self_funded_a",
+      "upfrontCapitalCommitted": 50000.0
+    },
+    {
+      "accounts": 3,
+      "aggregateEffectiveExposure": 75000.0,
+      "breachProbabilityAtLeastOne": 0.0288,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "static",
+      "expectedCapitalCommitted": 1543.5,
+      "expectedFees": 1543.5,
+      "expectedNetProfit": 15648.765821139437,
+      "expectedReturnOnCommittedCapital": 10.1384942151859,
+      "medianNetProfit": 15547.64930595729,
+      "operatingPoint": "025_static",
+      "p01NetProfit": -1500.0,
+      "p05NetProfit": -1500.0,
+      "probabilityAnnualLoss": 0.1186,
+      "probabilityTarget35000": 0.0478,
+      "scale": 0.25,
+      "structure": "prop",
+      "upfrontCapitalCommitted": 1500.0
+    },
+    {
+      "accounts": 3,
+      "aggregateEffectiveExposure": 75000.0,
+      "breachProbabilityAtLeastOne": null,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "none",
+      "expectedCapitalCommitted": 75000.0,
+      "expectedFees": 0.0,
+      "expectedNetProfit": 46001.786249394565,
+      "expectedReturnOnCommittedCapital": 0.6133571499919276,
+      "medianNetProfit": 46893.4611235373,
+      "operatingPoint": "025_static",
+      "p01NetProfit": 4831.496895314224,
+      "p05NetProfit": 16982.370923087055,
+      "probabilityAnnualLoss": 0.0032,
+      "probabilityTarget35000": 0.758,
+      "scale": 0.25,
+      "structure": "self_funded_a",
+      "upfrontCapitalCommitted": 75000.0
+    },
+    {
+      "accounts": 4,
+      "aggregateEffectiveExposure": 100000.0,
+      "breachProbabilityAtLeastOne": 0.0288,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "static",
+      "expectedCapitalCommitted": 2058.0,
+      "expectedFees": 2058.0,
+      "expectedNetProfit": 20865.021094852586,
+      "expectedReturnOnCommittedCapital": 10.1384942151859,
+      "medianNetProfit": 20730.199074609718,
+      "operatingPoint": "025_static",
+      "p01NetProfit": -2000.0,
+      "p05NetProfit": -2000.0,
+      "probabilityAnnualLoss": 0.1186,
+      "probabilityTarget35000": 0.185,
+      "scale": 0.25,
+      "structure": "prop",
+      "upfrontCapitalCommitted": 2000.0
+    },
+    {
+      "accounts": 4,
+      "aggregateEffectiveExposure": 100000.0,
+      "breachProbabilityAtLeastOne": null,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "none",
+      "expectedCapitalCommitted": 100000.0,
+      "expectedFees": 0.0,
+      "expectedNetProfit": 61335.71499919275,
+      "expectedReturnOnCommittedCapital": 0.6133571499919275,
+      "medianNetProfit": 62524.61483138306,
+      "operatingPoint": "025_static",
+      "p01NetProfit": 6441.995860418966,
+      "p05NetProfit": 22643.161230782738,
+      "probabilityAnnualLoss": 0.0032,
+      "probabilityTarget35000": 0.8774,
+      "scale": 0.25,
+      "structure": "self_funded_a",
+      "upfrontCapitalCommitted": 100000.0
+    },
+    {
+      "accounts": 5,
+      "aggregateEffectiveExposure": 125000.0,
+      "breachProbabilityAtLeastOne": 0.0288,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "static",
+      "expectedCapitalCommitted": 2572.5,
+      "expectedFees": 2572.5,
+      "expectedNetProfit": 26081.276368565726,
+      "expectedReturnOnCommittedCapital": 10.138494215185899,
+      "medianNetProfit": 25912.748843262147,
+      "operatingPoint": "025_static",
+      "p01NetProfit": -2500.0,
+      "p05NetProfit": -2500.0,
+      "probabilityAnnualLoss": 0.1186,
+      "probabilityTarget35000": 0.3262,
+      "scale": 0.25,
+      "structure": "prop",
+      "upfrontCapitalCommitted": 2500.0
+    },
+    {
+      "accounts": 5,
+      "aggregateEffectiveExposure": 125000.0,
+      "breachProbabilityAtLeastOne": null,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "none",
+      "expectedCapitalCommitted": 125000.0,
+      "expectedFees": 0.0,
+      "expectedNetProfit": 76669.64374899094,
+      "expectedReturnOnCommittedCapital": 0.6133571499919276,
+      "medianNetProfit": 78155.76853922883,
+      "operatingPoint": "025_static",
+      "p01NetProfit": 8052.494825523708,
+      "p05NetProfit": 28303.951538478424,
+      "probabilityAnnualLoss": 0.0032,
+      "probabilityTarget35000": 0.9252,
+      "scale": 0.25,
+      "structure": "self_funded_a",
+      "upfrontCapitalCommitted": 125000.0
+    },
+    {
+      "accounts": 6,
+      "aggregateEffectiveExposure": 150000.0,
+      "breachProbabilityAtLeastOne": 0.0288,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "static",
+      "expectedCapitalCommitted": 3087.0,
+      "expectedFees": 3087.0,
+      "expectedNetProfit": 31297.531642278875,
+      "expectedReturnOnCommittedCapital": 10.1384942151859,
+      "medianNetProfit": 31095.29861191458,
+      "operatingPoint": "025_static",
+      "p01NetProfit": -3000.0,
+      "p05NetProfit": -3000.0,
+      "probabilityAnnualLoss": 0.1186,
+      "probabilityTarget35000": 0.439,
+      "scale": 0.25,
+      "structure": "prop",
+      "upfrontCapitalCommitted": 3000.0
+    },
+    {
+      "accounts": 6,
+      "aggregateEffectiveExposure": 150000.0,
+      "breachProbabilityAtLeastOne": null,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "none",
+      "expectedCapitalCommitted": 150000.0,
+      "expectedFees": 0.0,
+      "expectedNetProfit": 92003.57249878913,
+      "expectedReturnOnCommittedCapital": 0.6133571499919276,
+      "medianNetProfit": 93786.9222470746,
+      "operatingPoint": "025_static",
+      "p01NetProfit": 9662.993790628449,
+      "p05NetProfit": 33964.74184617411,
+      "probabilityAnnualLoss": 0.0032,
+      "probabilityTarget35000": 0.947,
+      "scale": 0.25,
+      "structure": "self_funded_a",
+      "upfrontCapitalCommitted": 150000.0
+    },
+    {
+      "accounts": 7,
+      "aggregateEffectiveExposure": 175000.0,
+      "breachProbabilityAtLeastOne": 0.0288,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "static",
+      "expectedCapitalCommitted": 3601.5,
+      "expectedFees": 3601.5,
+      "expectedNetProfit": 36513.78691599202,
+      "expectedReturnOnCommittedCapital": 10.1384942151859,
+      "medianNetProfit": 36277.84838056701,
+      "operatingPoint": "025_static",
+      "p01NetProfit": -3500.0,
+      "p05NetProfit": -3500.0,
+      "probabilityAnnualLoss": 0.1186,
+      "probabilityTarget35000": 0.5162,
+      "scale": 0.25,
+      "structure": "prop",
+      "upfrontCapitalCommitted": 3500.0
+    },
+    {
+      "accounts": 7,
+      "aggregateEffectiveExposure": 175000.0,
+      "breachProbabilityAtLeastOne": null,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "none",
+      "expectedCapitalCommitted": 175000.0,
+      "expectedFees": 0.0,
+      "expectedNetProfit": 107337.50124858732,
+      "expectedReturnOnCommittedCapital": 0.6133571499919275,
+      "medianNetProfit": 109418.07595492036,
+      "operatingPoint": "025_static",
+      "p01NetProfit": 11273.49275573319,
+      "p05NetProfit": 39625.5321538698,
+      "probabilityAnnualLoss": 0.0032,
+      "probabilityTarget35000": 0.959,
+      "scale": 0.25,
+      "structure": "self_funded_a",
+      "upfrontCapitalCommitted": 175000.0
+    },
+    {
+      "accounts": 8,
+      "aggregateEffectiveExposure": 200000.0,
+      "breachProbabilityAtLeastOne": 0.0288,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "static",
+      "expectedCapitalCommitted": 4116.0,
+      "expectedFees": 4116.0,
+      "expectedNetProfit": 41730.04218970517,
+      "expectedReturnOnCommittedCapital": 10.1384942151859,
+      "medianNetProfit": 41460.398149219436,
+      "operatingPoint": "025_static",
+      "p01NetProfit": -4000.0,
+      "p05NetProfit": -4000.0,
+      "probabilityAnnualLoss": 0.1186,
+      "probabilityTarget35000": 0.5766,
+      "scale": 0.25,
+      "structure": "prop",
+      "upfrontCapitalCommitted": 4000.0
+    },
+    {
+      "accounts": 8,
+      "aggregateEffectiveExposure": 200000.0,
+      "breachProbabilityAtLeastOne": null,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "none",
+      "expectedCapitalCommitted": 200000.0,
+      "expectedFees": 0.0,
+      "expectedNetProfit": 122671.4299983855,
+      "expectedReturnOnCommittedCapital": 0.6133571499919275,
+      "medianNetProfit": 125049.22966276613,
+      "operatingPoint": "025_static",
+      "p01NetProfit": 12883.991720837932,
+      "p05NetProfit": 45286.322461565476,
+      "probabilityAnnualLoss": 0.0032,
+      "probabilityTarget35000": 0.966,
+      "scale": 0.25,
+      "structure": "self_funded_a",
+      "upfrontCapitalCommitted": 200000.0
+    },
+    {
+      "accounts": 9,
+      "aggregateEffectiveExposure": 225000.0,
+      "breachProbabilityAtLeastOne": 0.0288,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "static",
+      "expectedCapitalCommitted": 4630.5,
+      "expectedFees": 4630.5,
+      "expectedNetProfit": 46946.29746341831,
+      "expectedReturnOnCommittedCapital": 10.1384942151859,
+      "medianNetProfit": 46642.94791787186,
+      "operatingPoint": "025_static",
+      "p01NetProfit": -4500.0,
+      "p05NetProfit": -4500.0,
+      "probabilityAnnualLoss": 0.1186,
+      "probabilityTarget35000": 0.6192,
+      "scale": 0.25,
+      "structure": "prop",
+      "upfrontCapitalCommitted": 4500.0
+    },
+    {
+      "accounts": 9,
+      "aggregateEffectiveExposure": 225000.0,
+      "breachProbabilityAtLeastOne": null,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "none",
+      "expectedCapitalCommitted": 225000.0,
+      "expectedFees": 0.0,
+      "expectedNetProfit": 138005.35874818367,
+      "expectedReturnOnCommittedCapital": 0.6133571499919275,
+      "medianNetProfit": 140680.38337061187,
+      "operatingPoint": "025_static",
+      "p01NetProfit": 14494.490685942674,
+      "p05NetProfit": 50947.11276926116,
+      "probabilityAnnualLoss": 0.0032,
+      "probabilityTarget35000": 0.9728,
+      "scale": 0.25,
+      "structure": "self_funded_a",
+      "upfrontCapitalCommitted": 225000.0
+    },
+    {
+      "accounts": 10,
+      "aggregateEffectiveExposure": 250000.0,
+      "breachProbabilityAtLeastOne": 0.0288,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "static",
+      "expectedCapitalCommitted": 5145.0,
+      "expectedFees": 5145.0,
+      "expectedNetProfit": 52162.55273713145,
+      "expectedReturnOnCommittedCapital": 10.138494215185899,
+      "medianNetProfit": 51825.49768652429,
+      "operatingPoint": "025_static",
+      "p01NetProfit": -5000.0,
+      "p05NetProfit": -5000.0,
+      "probabilityAnnualLoss": 0.1186,
+      "probabilityTarget35000": 0.652,
+      "scale": 0.25,
+      "structure": "prop",
+      "upfrontCapitalCommitted": 5000.0
+    },
+    {
+      "accounts": 10,
+      "aggregateEffectiveExposure": 250000.0,
+      "breachProbabilityAtLeastOne": null,
+      "dependence": "perfectly_correlated_identical_paths",
+      "drawdownRule": "none",
+      "expectedCapitalCommitted": 250000.0,
+      "expectedFees": 0.0,
+      "expectedNetProfit": 153339.2874979819,
+      "expectedReturnOnCommittedCapital": 0.6133571499919276,
+      "medianNetProfit": 156311.53707845765,
+      "operatingPoint": "025_static",
+      "p01NetProfit": 16104.989651047415,
+      "p05NetProfit": 56607.90307695685,
+      "probabilityAnnualLoss": 0.0032,
+      "probabilityTarget35000": 0.9766,
+      "scale": 0.25,
+      "structure": "self_funded_a",
+      "upfrontCapitalCommitted": 250000.0
+    }
+  ],
+  "frozenArtifactHashesBeforeAndAfter": {
+    "reports/prop_scaling_survival_v1/frontier.csv": {
+      "after": "79415ac74d4b82d78a3f16d6395d6516cd00fd4b2448ede3db09de11bbbf7519",
+      "before": "79415ac74d4b82d78a3f16d6395d6516cd00fd4b2448ede3db09de11bbbf7519",
+      "unchanged": true
+    },
+    "reports/prop_scaling_survival_v1/report.md": {
+      "after": "de861f75782ecc1e80595fa11628a16619cc7a376054e581f7f020b7091ebee9",
+      "before": "de861f75782ecc1e80595fa11628a16619cc7a376054e581f7f020b7091ebee9",
+      "unchanged": true
+    },
+    "reports/prop_scaling_survival_v1/results.json": {
+      "after": "c26135c5ebe924f786b7d0458a2576dc35f2c683664c049d88c64088f93da437",
+      "before": "c26135c5ebe924f786b7d0458a2576dc35f2c683664c049d88c64088f93da437",
+      "unchanged": true
+    },
+    "research/optimized_dm_prop_forward_v1_preregistration.json": {
+      "after": "8c37e7ae75b6c6d105aa6ee03e8fe230f45d9297111e5ec54a1acabb63c9b063",
+      "before": "8c37e7ae75b6c6d105aa6ee03e8fe230f45d9297111e5ec54a1acabb63c9b063",
+      "unchanged": true
+    },
+    "research/prop_scaling_survival_v1_preregistration.json": {
+      "after": "e383b105cb793f9f34169f3d6e98aab7a0ac0734dc59ce7b4ad37eadac8ad19f",
+      "before": "e383b105cb793f9f34169f3d6e98aab7a0ac0734dc59ce7b4ad37eadac8ad19f",
+      "unchanged": true
+    }
+  },
+  "historicalClassification": "selected development sample plus synthetic moving-block Monte Carlo",
+  "preregistration": "research/prop_vs_self_funded_v1_preregistration.json",
+  "preregistrationSha256": "164eb0a47aada762c9e06175bd0b1fe66e5047701a0d246fd1c65467f397d94e",
+  "prospectiveClassification": "separate append-only ledgers; not merged into these results",
+  "reproductionChecks": [
+    {
+      "checks": {
+        "breachProbability12m": [
+          0.0374,
+          0.0374
+        ],
+        "expectedFees": [
+          518.8,
+          518.8
+        ],
+        "expectedNetPayout": [
+          2949.030825899602,
+          2949.030825899602
+        ],
+        "medianNetPayout": [
+          2766.168059732421,
+          2766.168059732421
+        ]
+      },
+      "maxAbsoluteError": 0.0,
+      "operatingPoint": "020_trailing",
+      "passed": true
+    },
+    {
+      "checks": {
+        "breachProbability12m": [
+          0.0288,
+          0.0288
+        ],
+        "expectedFees": [
+          514.5,
+          514.5
+        ],
+        "expectedNetPayout": [
+          5216.255273713146,
+          5216.255273713146
+        ],
+        "medianNetPayout": [
+          5182.5497686524295,
+          5182.5497686524295
+        ]
+      },
+      "maxAbsoluteError": 0.0,
+      "operatingPoint": "025_static",
+      "passed": true
+    }
+  ],
+  "scenarios": {
+    "observed_execution_overlay": {
+      "operatingPoints": {
+        "020_trailing": {
+          "breakEven": {
+            "expectedSelfFundedReturnPerDollar": 0.6133571499919285,
+            "minimumOwnCapitalToMatchExposure": 20000.0,
+            "ownCapitalForExpectedSelfFundedProfitToEqualProp": 4808.015731027852,
+            "ownCapitalForExpectedSelfFundedProfitToReach35000": 57063.00154887016
+          },
+          "drawdownRule": "trailing_to_breakeven",
+          "effectiveExposure": 20000.0,
+          "key": "020_trailing",
+          "prop": {
+            "breachProbability12m": 0.0374,
+            "dailyLimitBreachProbability": 0.0,
+            "drawdownBreachProbability": 0.0374,
+            "drawdownUtilization": {
+              "expected": 0.6550001978109198,
+              "median": 0.6188789996651879,
+              "p01": 0.39081838065591246,
+              "p05": 0.43751831014859877,
+              "p95": 0.973883796060896,
+              "p99": 1.0601779163288247
+            },
+            "expectedResets": 0.0376,
+            "fees": {
+              "expected": 518.8,
+              "median": 500.0,
+              "p01": 500.0,
+              "p05": 500.0,
+              "p95": 500.0,
+              "p99": 1000.0
+            },
+            "grossPayout": {
+              "expected": 3467.8308258996026,
+              "median": 3269.467560410313,
+              "p01": 0.0,
+              "p05": 0.0,
+              "p95": 8341.390292045897,
+              "p99": 10336.092597690358
+            },
+            "medianDaysToFirstPayoutConditional": 163.0,
+            "netProfit": {
+              "expected": 2949.030825899602,
+              "median": 2766.168059732421,
+              "p01": -1000.0,
+              "p05": -500.0,
+              "p95": 7841.390292045897,
+              "p99": 9836.092597690358
+            },
+            "probabilityAnnualLoss": 0.2184,
+            "probabilityAnyPayout": 0.8138
+          },
+          "propRuleSensitivity": {
+            "static": {
+              "breachProbability12m": 0.006,
+              "dailyLimitBreachProbability": 0.0,
+              "drawdownBreachProbability": 0.006,
+              "drawdownUtilization": {
+                "expected": 0.39017153233852203,
+                "median": 0.36678108174647905,
+                "p01": 0.09965857968742296,
+                "p05": 0.1588612063450888,
+                "p95": 0.6993236404497148,
+                "p99": 0.9131071714885356
+              },
+              "expectedResets": 0.006,
+              "fees": {
+                "expected": 503.0,
+                "median": 500.0,
+                "p01": 500.0,
+                "p05": 500.0,
+                "p95": 500.0,
+                "p99": 500.0
+              },
+              "grossPayout": {
+                "expected": 3461.2058015843736,
+                "median": 3267.6943216931077,
+                "p01": 0.0,
+                "p05": 0.0,
+                "p95": 8339.12037723745,
+                "p99": 10266.844378791942
+              },
+              "medianDaysToFirstPayoutConditional": 163.0,
+              "netProfit": {
+                "expected": 2958.2058015843736,
+                "median": 2765.4430532424767,
+                "p01": -500.0,
+                "p05": -500.0,
+                "p95": 7839.120377237451,
+                "p99": 9766.844378791942
+              },
+              "probabilityAnnualLoss": 0.22,
+              "probabilityAnyPayout": 0.8116
+            },
+            "trailing_to_breakeven": {
+              "breachProbability12m": 0.0374,
+              "dailyLimitBreachProbability": 0.0,
+              "drawdownBreachProbability": 0.0374,
+              "drawdownUtilization": {
+                "expected": 0.6550001978109198,
+                "median": 0.6188789996651879,
+                "p01": 0.39081838065591246,
+                "p05": 0.43751831014859877,
+                "p95": 0.973883796060896,
+                "p99": 1.0601779163288247
+              },
+              "expectedResets": 0.0376,
+              "fees": {
+                "expected": 518.8,
+                "median": 500.0,
+                "p01": 500.0,
+                "p05": 500.0,
+                "p95": 500.0,
+                "p99": 1000.0
+              },
+              "grossPayout": {
+                "expected": 3467.8308258996026,
+                "median": 3269.467560410313,
+                "p01": 0.0,
+                "p05": 0.0,
+                "p95": 8341.390292045897,
+                "p99": 10336.092597690358
+              },
+              "medianDaysToFirstPayoutConditional": 163.0,
+              "netProfit": {
+                "expected": 2949.030825899602,
+                "median": 2766.168059732421,
+                "p01": -1000.0,
+                "p05": -500.0,
+                "p95": 7841.390292045897,
+                "p99": 9836.092597690358
+              },
+              "probabilityAnnualLoss": 0.2184,
+              "probabilityAnyPayout": 0.8138
+            }
+          },
+          "scale": 0.2,
+          "selfFundedA": {
+            "endingEquity": {
+              "expected": 32267.14299983857,
+              "median": 32504.922966276637,
+              "p01": 21288.399172083864,
+              "p05": 24528.63224615663,
+              "p95": 39226.790320474865,
+              "p99": 41682.51429464691
+            },
+            "maxDrawdownDollars": {
+              "expected": 4028.410026948142,
+              "median": 3786.606717683222,
+              "p01": 2368.1711404065463,
+              "p05": 2810.9750887826735,
+              "p95": 5900.197605052567,
+              "p99": 7353.039848422448
+            },
+            "maxDrawdownPctCommitted": {
+              "expected": 0.2014205013474071,
+              "median": 0.1893303358841611,
+              "p01": 0.11840855702032732,
+              "p05": 0.1405487544391337,
+              "p95": 0.29500988025262836,
+              "p99": 0.3676519924211224
+            },
+            "netProfit": {
+              "expected": 12267.14299983857,
+              "median": 12504.92296627664,
+              "p01": 1288.3991720838635,
+              "p05": 4528.6322461566315,
+              "p95": 19226.790320474865,
+              "p99": 21682.514294646913
+            },
+            "probabilityAnnualLoss": 0.0032,
+            "probabilityCrossesEquivalent3000DailyLoss": 0.0,
+            "probabilityCrossesEquivalent6000Drawdown": 0.0454
+          }
+        },
+        "025_static": {
+          "breakEven": {
+            "expectedSelfFundedReturnPerDollar": 0.6133571499919275,
+            "minimumOwnCapitalToMatchExposure": 25000.0,
+            "ownCapitalForExpectedSelfFundedProfitToEqualProp": 8504.433793234168,
+            "ownCapitalForExpectedSelfFundedProfitToReach35000": 57063.00154887025
+          },
+          "drawdownRule": "static",
+          "effectiveExposure": 25000.0,
+          "key": "025_static",
+          "prop": {
+            "breachProbability12m": 0.0288,
+            "dailyLimitBreachProbability": 0.0,
+            "drawdownBreachProbability": 0.0288,
+            "drawdownUtilization": {
+              "expected": 0.5195583892945348,
+              "median": 0.499209948512158,
+              "p01": 0.15967444137630968,
+              "p05": 0.23460575630862732,
+              "p95": 0.9122086691893632,
+              "p99": 1.0409251502290224
+            },
+            "expectedResets": 0.029,
+            "fees": {
+              "expected": 514.5,
+              "median": 500.0,
+              "p01": 500.0,
+              "p05": 500.0,
+              "p95": 500.0,
+              "p99": 1000.0
+            },
+            "grossPayout": {
+              "expected": 5730.755273713146,
+              "median": 5690.7205075001875,
+              "p01": 0.0,
+              "p05": 0.0,
+              "p95": 12052.557514428621,
+              "p99": 14533.085695522284
+            },
+            "medianDaysToFirstPayoutConditional": 138.0,
+            "netProfit": {
+              "expected": 5216.255273713146,
+              "median": 5182.5497686524295,
+              "p01": -500.0,
+              "p05": -500.0,
+              "p95": 11552.557514428621,
+              "p99": 14014.836716236785
+            },
+            "probabilityAnnualLoss": 0.1186,
+            "probabilityAnyPayout": 0.8976
+          },
+          "propRuleSensitivity": {
+            "static": {
+              "breachProbability12m": 0.0288,
+              "dailyLimitBreachProbability": 0.0,
+              "drawdownBreachProbability": 0.0288,
+              "drawdownUtilization": {
+                "expected": 0.5195583892945348,
+                "median": 0.499209948512158,
+                "p01": 0.15967444137630968,
+                "p05": 0.23460575630862732,
+                "p95": 0.9122086691893632,
+                "p99": 1.0409251502290224
+              },
+              "expectedResets": 0.029,
+              "fees": {
+                "expected": 514.5,
+                "median": 500.0,
+                "p01": 500.0,
+                "p05": 500.0,
+                "p95": 500.0,
+                "p99": 1000.0
+              },
+              "grossPayout": {
+                "expected": 5730.755273713146,
+                "median": 5690.7205075001875,
+                "p01": 0.0,
+                "p05": 0.0,
+                "p95": 12052.557514428621,
+                "p99": 14533.085695522284
+              },
+              "medianDaysToFirstPayoutConditional": 138.0,
+              "netProfit": {
+                "expected": 5216.255273713146,
+                "median": 5182.5497686524295,
+                "p01": -500.0,
+                "p05": -500.0,
+                "p95": 11552.557514428621,
+                "p99": 14014.836716236785
+              },
+              "probabilityAnnualLoss": 0.1186,
+              "probabilityAnyPayout": 0.8976
+            },
+            "trailing_to_breakeven": {
+              "breachProbability12m": 0.1502,
+              "dailyLimitBreachProbability": 0.0,
+              "drawdownBreachProbability": 0.1502,
+              "drawdownUtilization": {
+                "expected": 0.7989247016548102,
+                "median": 0.7664492247141268,
+                "p01": 0.48219808629605054,
+                "p05": 0.5468978876857509,
+                "p95": 1.0602113433732137,
+                "p99": 1.1972458695255748
+              },
+              "expectedResets": 0.1604,
+              "fees": {
+                "expected": 580.2,
+                "median": 500.0,
+                "p01": 500.0,
+                "p05": 500.0,
+                "p95": 1000.0,
+                "p99": 1005.0000000001091
+              },
+              "grossPayout": {
+                "expected": 5757.666579893634,
+                "median": 5727.369402208255,
+                "p01": 0.0,
+                "p05": 0.0,
+                "p95": 12038.71220443872,
+                "p99": 14514.836716236785
+              },
+              "medianDaysToFirstPayoutConditional": 138.0,
+              "netProfit": {
+                "expected": 5177.466579893634,
+                "median": 5185.130072168384,
+                "p01": -1000.0,
+                "p05": -731.6245319625239,
+                "p95": 11538.71220443872,
+                "p99": 14014.836716236785
+              },
+              "probabilityAnnualLoss": 0.1188,
+              "probabilityAnyPayout": 0.9026
+            }
+          },
+          "scale": 0.25,
+          "selfFundedA": {
+            "endingEquity": {
+              "expected": 40333.92874979819,
+              "median": 40631.15370784576,
+              "p01": 26610.49896510474,
+              "p05": 30660.790307695686,
+              "p95": 49033.48790059359,
+              "p99": 52103.142868308576
+            },
+            "maxDrawdownDollars": {
+              "expected": 5035.512533685184,
+              "median": 4733.258397104048,
+              "p01": 2960.2139255081784,
+              "p05": 3513.7188609783466,
+              "p95": 7375.247006315721,
+              "p99": 9191.299810528084
+            },
+            "maxDrawdownPctCommitted": {
+              "expected": 0.20142050134740738,
+              "median": 0.1893303358841619,
+              "p01": 0.11840855702032714,
+              "p05": 0.14054875443913387,
+              "p95": 0.2950098802526288,
+              "p99": 0.3676519924211234
+            },
+            "netProfit": {
+              "expected": 15333.928749798188,
+              "median": 15631.153707845766,
+              "p01": 1610.4989651047415,
+              "p05": 5660.7903076956845,
+              "p95": 24033.487900593587,
+              "p99": 27103.142868308572
+            },
+            "probabilityAnnualLoss": 0.0032,
+            "probabilityCrossesEquivalent3000DailyLoss": 0.0,
+            "probabilityCrossesEquivalent6000Drawdown": 0.1864
+          }
+        }
+      },
+      "provenance": {
+        "executionCalibration": {
+          "applied": true,
+          "calibrated": true,
+          "fills": 30,
+          "historicalBacktestSlippageBps": 5.0000000000000036,
+          "incrementalObservedSlippageBps": 4.259420994183749,
+          "meanFillRatio": 0.9961919745362642,
+          "medianAdverseSlippageBps": 9.259420994183753,
+          "minimumFills": 5,
+          "p95AdverseSlippageBps": 217.50971779777473,
+          "partialFillApproximation": "market exposure multiplied by observed aggregate mean fill ratio",
+          "partialFillRate": 0.36666666666666664,
+          "reason": "observed aggregate execution overlay applied to the candidate that generated it",
+          "symbol": null
+        },
+        "historicalSelectionContaminated": true,
+        "parameters": {
+          "lookback_trading_days": 63,
+          "rebalance_frequency": "daily",
+          "top_n": 5
+        },
+        "sourceRunId": 33,
+        "symbols": [
+          "AAMI",
+          "ACIW",
+          "AEO",
+          "ALG",
+          "AROC",
+          "AWI",
+          "BCPC",
+          "BLFS",
+          "BXMT",
+          "CBRL",
+          "CFFN",
+          "CRC",
+          "CXW",
+          "DFIN",
+          "EAT",
+          "ENPH",
+          "EVTC",
+          "FCPT",
+          "FORM",
+          "GEO",
+          "GRBK",
+          "HCC",
+          "HOPE",
+          "HZO",
+          "INVA",
+          "JBSS"
+        ],
+        "totalCosts": 385.84061076108634,
+        "totalTradedNotional": 625078.5670051822
+      }
+    },
+    "registered_costs_only": {
+      "operatingPoints": {
+        "020_trailing": {
+          "breakEven": {
+            "expectedSelfFundedReturnPerDollar": 0.6343516218393878,
+            "minimumOwnCapitalToMatchExposure": 20000.0,
+            "ownCapitalForExpectedSelfFundedProfitToEqualProp": 5073.268023680643,
+            "ownCapitalForExpectedSelfFundedProfitToReach35000": 55174.447096884214
+          },
+          "drawdownRule": "trailing_to_breakeven",
+          "effectiveExposure": 20000.0,
+          "key": "020_trailing",
+          "prop": {
+            "breachProbability12m": 0.035,
+            "dailyLimitBreachProbability": 0.0,
+            "drawdownBreachProbability": 0.035,
+            "drawdownUtilization": {
+              "expected": 0.6497929144536568,
+              "median": 0.6143705667454027,
+              "p01": 0.38734178479302506,
+              "p05": 0.4376627314243838,
+              "p95": 0.9621462028120444,
+              "p99": 1.0554993464194529
+            },
+            "expectedResets": 0.0352,
+            "fees": {
+              "expected": 517.6,
+              "median": 500.0,
+              "p01": 500.0,
+              "p05": 500.0,
+              "p95": 500.0,
+              "p99": 1000.0
+            },
+            "grossPayout": {
+              "expected": 3735.8357988477214,
+              "median": 3578.950367399678,
+              "p01": 0.0,
+              "p05": 0.0,
+              "p95": 8684.610327656379,
+              "p99": 10754.887412959102
+            },
+            "medianDaysToFirstPayoutConditional": 161.0,
+            "netProfit": {
+              "expected": 3218.235798847721,
+              "median": 3062.3168946925143,
+              "p01": -1000.0,
+              "p05": -500.0,
+              "p95": 8184.610327656378,
+              "p99": 10236.072592176599
+            },
+            "probabilityAnnualLoss": 0.1868,
+            "probabilityAnyPayout": 0.8372
+          },
+          "propRuleSensitivity": {
+            "static": {
+              "breachProbability12m": 0.0046,
+              "dailyLimitBreachProbability": 0.0,
+              "drawdownBreachProbability": 0.0046,
+              "drawdownUtilization": {
+                "expected": 0.38875021826032596,
+                "median": 0.3640886075711387,
+                "p01": 0.10082300297128112,
+                "p05": 0.1607239876775532,
+                "p95": 0.6920915581045056,
+                "p99": 0.901433479384834
+              },
+              "expectedResets": 0.0046,
+              "fees": {
+                "expected": 502.3,
+                "median": 500.0,
+                "p01": 500.0,
+                "p05": 500.0,
+                "p95": 500.0,
+                "p99": 500.0
+              },
+              "grossPayout": {
+                "expected": 3730.471296980964,
+                "median": 3566.25359670964,
+                "p01": 0.0,
+                "p05": 0.0,
+                "p95": 8675.654181571364,
+                "p99": 10736.072592176599
+              },
+              "medianDaysToFirstPayoutConditional": 160.5,
+              "netProfit": {
+                "expected": 3228.1712969809637,
+                "median": 3062.3168946925143,
+                "p01": -500.0,
+                "p05": -500.0,
+                "p95": 8175.6541815713645,
+                "p99": 10236.072592176599
+              },
+              "probabilityAnnualLoss": 0.1876,
+              "probabilityAnyPayout": 0.836
+            },
+            "trailing_to_breakeven": {
+              "breachProbability12m": 0.035,
+              "dailyLimitBreachProbability": 0.0,
+              "drawdownBreachProbability": 0.035,
+              "drawdownUtilization": {
+                "expected": 0.6497929144536568,
+                "median": 0.6143705667454027,
+                "p01": 0.38734178479302506,
+                "p05": 0.4376627314243838,
+                "p95": 0.9621462028120444,
+                "p99": 1.0554993464194529
+              },
+              "expectedResets": 0.0352,
+              "fees": {
+                "expected": 517.6,
+                "median": 500.0,
+                "p01": 500.0,
+                "p05": 500.0,
+                "p95": 500.0,
+                "p99": 1000.0
+              },
+              "grossPayout": {
+                "expected": 3735.8357988477214,
+                "median": 3578.950367399678,
+                "p01": 0.0,
+                "p05": 0.0,
+                "p95": 8684.610327656379,
+                "p99": 10754.887412959102
+              },
+              "medianDaysToFirstPayoutConditional": 161.0,
+              "netProfit": {
+                "expected": 3218.235798847721,
+                "median": 3062.3168946925143,
+                "p01": -1000.0,
+                "p05": -500.0,
+                "p95": 8184.610327656378,
+                "p99": 10236.072592176599
+              },
+              "probabilityAnnualLoss": 0.1868,
+              "probabilityAnyPayout": 0.8372
+            }
+          },
+          "scale": 0.2,
+          "selfFundedA": {
+            "endingEquity": {
+              "expected": 32687.032436787747,
+              "median": 32914.235453584624,
+              "p01": 21682.69592127509,
+              "p05": 24944.838672941805,
+              "p95": 39661.624024057746,
+              "p99": 42108.47569087336
+            },
+            "maxDrawdownDollars": {
+              "expected": 3995.7356431001886,
+              "median": 3760.533400188133,
+              "p01": 2377.223668669827,
+              "p05": 2796.747289202637,
+              "p95": 5827.2547193239225,
+              "p99": 7194.763973206895
+            },
+            "maxDrawdownPctCommitted": {
+              "expected": 0.19978678215500942,
+              "median": 0.18802667000940665,
+              "p01": 0.11886118343349135,
+              "p05": 0.13983736446013187,
+              "p95": 0.2913627359661961,
+              "p99": 0.3597381986603448
+            },
+            "netProfit": {
+              "expected": 12687.032436787755,
+              "median": 12914.23545358462,
+              "p01": 1682.6959212750924,
+              "p05": 4944.838672941806,
+              "p95": 19661.624024057743,
+              "p99": 22108.475690873365
+            },
+            "probabilityAnnualLoss": 0.0024,
+            "probabilityCrossesEquivalent3000DailyLoss": 0.0,
+            "probabilityCrossesEquivalent6000Drawdown": 0.0418
+          }
+        },
+        "025_static": {
+          "breakEven": {
+            "expectedSelfFundedReturnPerDollar": 0.6343516218393881,
+            "minimumOwnCapitalToMatchExposure": 25000.0,
+            "ownCapitalForExpectedSelfFundedProfitToEqualProp": 8789.767220360087,
+            "ownCapitalForExpectedSelfFundedProfitToReach35000": 55174.447096884185
+          },
+          "drawdownRule": "static",
+          "effectiveExposure": 25000.0,
+          "key": "025_static",
+          "prop": {
+            "breachProbability12m": 0.0266,
+            "dailyLimitBreachProbability": 0.0,
+            "drawdownBreachProbability": 0.0266,
+            "drawdownUtilization": {
+              "expected": 0.5194127287520509,
+              "median": 0.49828622869932226,
+              "p01": 0.15805121333884756,
+              "p05": 0.23855408083689933,
+              "p95": 0.9119215513949714,
+              "p99": 1.035074317517101
+            },
+            "expectedResets": 0.0268,
+            "fees": {
+              "expected": 513.4,
+              "median": 500.0,
+              "p01": 500.0,
+              "p05": 500.0,
+              "p95": 500.0,
+              "p99": 1000.0
+            },
+            "grossPayout": {
+              "expected": 6089.203091826111,
+              "median": 6084.46038526335,
+              "p01": 0.0,
+              "p05": 0.0,
+              "p95": 12478.924395894612,
+              "p99": 14995.24588480781
+            },
+            "medianDaysToFirstPayoutConditional": 135.0,
+            "netProfit": {
+              "expected": 5575.803091826111,
+              "median": 5578.632451387815,
+              "p01": -500.0,
+              "p05": -500.0,
+              "p95": 11970.267879184888,
+              "p99": 14495.24588480781
+            },
+            "probabilityAnnualLoss": 0.1042,
+            "probabilityAnyPayout": 0.9112
+          },
+          "propRuleSensitivity": {
+            "static": {
+              "breachProbability12m": 0.0266,
+              "dailyLimitBreachProbability": 0.0,
+              "drawdownBreachProbability": 0.0266,
+              "drawdownUtilization": {
+                "expected": 0.5194127287520509,
+                "median": 0.49828622869932226,
+                "p01": 0.15805121333884756,
+                "p05": 0.23855408083689933,
+                "p95": 0.9119215513949714,
+                "p99": 1.035074317517101
+              },
+              "expectedResets": 0.0268,
+              "fees": {
+                "expected": 513.4,
+                "median": 500.0,
+                "p01": 500.0,
+                "p05": 500.0,
+                "p95": 500.0,
+                "p99": 1000.0
+              },
+              "grossPayout": {
+                "expected": 6089.203091826111,
+                "median": 6084.46038526335,
+                "p01": 0.0,
+                "p05": 0.0,
+                "p95": 12478.924395894612,
+                "p99": 14995.24588480781
+              },
+              "medianDaysToFirstPayoutConditional": 135.0,
+              "netProfit": {
+                "expected": 5575.803091826111,
+                "median": 5578.632451387815,
+                "p01": -500.0,
+                "p05": -500.0,
+                "p95": 11970.267879184888,
+                "p99": 14495.24588480781
+              },
+              "probabilityAnnualLoss": 0.1042,
+              "probabilityAnyPayout": 0.9112
+            },
+            "trailing_to_breakeven": {
+              "breachProbability12m": 0.1444,
+              "dailyLimitBreachProbability": 0.0,
+              "drawdownBreachProbability": 0.1444,
+              "drawdownUtilization": {
+                "expected": 0.7929993003770016,
+                "median": 0.7609165544399463,
+                "p01": 0.480457161057017,
+                "p05": 0.5400800547660631,
+                "p95": 1.05494312500371,
+                "p99": 1.1826409500777706
+              },
+              "expectedResets": 0.1536,
+              "fees": {
+                "expected": 576.8,
+                "median": 500.0,
+                "p01": 500.0,
+                "p05": 500.0,
+                "p95": 1000.0,
+                "p99": 1000.0
+              },
+              "grossPayout": {
+                "expected": 6111.868097749168,
+                "median": 6102.654863468326,
+                "p01": 0.0,
+                "p05": 0.0,
+                "p95": 12482.178105175057,
+                "p99": 15007.396704825716
+              },
+              "medianDaysToFirstPayoutConditional": 135.0,
+              "netProfit": {
+                "expected": 5535.0680977491675,
+                "median": 5553.330737408047,
+                "p01": -1000.0,
+                "p05": -500.0,
+                "p95": 11970.267879184888,
+                "p99": 14495.24588480781
+              },
+              "probabilityAnnualLoss": 0.1046,
+              "probabilityAnyPayout": 0.9152
+            }
+          },
+          "scale": 0.25,
+          "selfFundedA": {
+            "endingEquity": {
+              "expected": 40858.7905459847,
+              "median": 41142.7943169808,
+              "p01": 27103.369901593935,
+              "p05": 31181.048341177273,
+              "p95": 49577.03003007227,
+              "p99": 52635.59461359168
+            },
+            "maxDrawdownDollars": {
+              "expected": 4994.669553875232,
+              "median": 4700.666750235167,
+              "p01": 2971.529585837292,
+              "p05": 3495.9341115032985,
+              "p95": 7284.068399154887,
+              "p99": 8993.45496650861
+            },
+            "maxDrawdownPctCommitted": {
+              "expected": 0.19978678215500928,
+              "median": 0.18802667000940665,
+              "p01": 0.11886118343349168,
+              "p05": 0.13983736446013192,
+              "p95": 0.2913627359661955,
+              "p99": 0.35973819866034445
+            },
+            "netProfit": {
+              "expected": 15858.790545984702,
+              "median": 16142.794316980795,
+              "p01": 2103.3699015939333,
+              "p05": 6181.048341177272,
+              "p95": 24577.030030072263,
+              "p99": 27635.594613591682
+            },
+            "probabilityAnnualLoss": 0.0024,
+            "probabilityCrossesEquivalent3000DailyLoss": 0.0,
+            "probabilityCrossesEquivalent6000Drawdown": 0.1766
+          }
+        }
+      },
+      "provenance": {
+        "executionCalibration": {
+          "applied": false,
+          "calibrated": true,
+          "fills": 30,
+          "historicalBacktestSlippageBps": 5.0000000000000036,
+          "meanFillRatio": 0.9961919745362642,
+          "medianAdverseSlippageBps": 9.259420994183753,
+          "minimumFills": 5,
+          "p95AdverseSlippageBps": 217.50971779777473,
+          "partialFillRate": 0.36666666666666664,
+          "reason": "registered-cost-only sensitivity; observed execution overlay intentionally omitted",
+          "symbol": null
+        },
+        "historicalSelectionContaminated": true,
+        "parameters": {
+          "lookback_trading_days": 63,
+          "rebalance_frequency": "daily",
+          "top_n": 5
+        },
+        "sourceRunId": 33,
+        "symbols": [
+          "AAMI",
+          "ACIW",
+          "AEO",
+          "ALG",
+          "AROC",
+          "AWI",
+          "BCPC",
+          "BLFS",
+          "BXMT",
+          "CBRL",
+          "CFFN",
+          "CRC",
+          "CXW",
+          "DFIN",
+          "EAT",
+          "ENPH",
+          "EVTC",
+          "FCPT",
+          "FORM",
+          "GEO",
+          "GRBK",
+          "HCC",
+          "HOPE",
+          "HZO",
+          "INVA",
+          "JBSS"
+        ],
+        "totalCosts": 385.84061076108634,
+        "totalTradedNotional": 625078.5670051822
+      }
+    }
+  },
+  "simulation": {
+    "horizonTradingDays": 252,
+    "movingBlockLength": 21,
+    "paths": 5000,
+    "seed": 20260822,
+    "targetNetProfit": 35000.0
+  },
+  "study": "Optimized DM Prop versus Self-Funded Capital Efficiency v1"
+}

@@ -206,6 +206,34 @@ def test_before_the_first_trade_the_series_is_empty_not_an_error(monkeypatch):
         "benchmarkSymbol": api_main.BENCHMARK_SYMBOL,
         "rows": [],
         "today": None,
+        "forwardBaselineEquity": None,
+        "forwardReturnPct": None,
+        "forwardReturnSource": None,
+        "maturity": api_main.dm_mrm_forward.maturity_checkpoint(0),
+        "benchmarkComparison": {"available": False, "reason": "Paper forward test has not started."},
+        "alignedBenchmarkComparison": {"available": False, "reason": "Paper forward test has not started."},
+    }
+
+
+def test_strategy_only_forward_return_uses_locked_inception_equity(patch_endpoint, monkeypatch):
+    patch_endpoint(
+        [_row(f"2026-08-{day:02d}", 100_000.0 + day) for day in range(17, 22)],
+        _account(102_750.0, 102_000.0),
+    )
+    monkeypatch.setattr(api_main.execution_db, "automation_config", lambda: {"Dual Momentum": {"enabled": 1}})
+    monkeypatch.setattr(api_main.execution_db, "inception_for", lambda name: {
+        "status": "initialized", "inceptionAt": "2026-08-17T10:17:46", "equity": 101_535.0,
+    })
+
+    result = api_main.execution_daily()
+
+    assert result["forwardBaselineEquity"] == 101_535.0
+    assert result["forwardReturnPct"] == pytest.approx((102_750.0 / 101_535.0 - 1) * 100)
+    assert result["forwardReturnSource"] == "Alpaca paper equity / locked inception equity"
+    assert result["maturity"]["next"]["sessions"] == 20
+    assert result["benchmarkComparison"] == {
+        "available": False,
+        "reason": "The paper inception mark occurred intraday, without an aligned SPY baseline.",
     }
 
 
@@ -219,6 +247,40 @@ def test_benchmark_is_joined_per_session(patch_endpoint):
     rows = api_main.execution_daily()["rows"]
 
     assert [r["benchmarkPct"] for r in rows] == [pytest.approx(0.21), pytest.approx(-0.84)]
+
+
+def test_aligned_settled_comparison_excludes_intraday_inception_and_compounds_spy(patch_endpoint):
+    rows = [
+        _row("2026-08-17", 101_000.0),
+        _row("2026-08-18", 99_000.0),
+        _row("2026-08-19", 102_000.0),
+    ]
+    patch_endpoint(
+        rows, _account(102_500.0, 102_000.0),
+        benchmark={"2026-08-17": 5.0, "2026-08-18": -1.0, "2026-08-19": 2.0},
+    )
+    comparison = api_main.execution_daily()["alignedBenchmarkComparison"]
+    assert comparison["available"] is True
+    assert comparison["baselineDate"] == "2026-08-17"
+    assert comparison["startDate"] == "2026-08-18"
+    assert comparison["sessions"] == 2
+    assert comparison["accountReturnPct"] == pytest.approx(102_000 / 101_000 * 100 - 100)
+    assert comparison["benchmarkReturnPct"] == pytest.approx((0.99 * 1.02 - 1) * 100)
+    assert comparison["accountMaxDrawdownPct"] == pytest.approx((99_000 / 101_000 - 1) * 100)
+    assert comparison["benchmarkMaxDrawdownPct"] == pytest.approx(-1.0)
+    assert comparison["growth"][0] == {
+        "date": "2026-08-17", "account": 100.0, "benchmark": 100.0, "baseline": True,
+    }
+
+
+def test_aligned_comparison_fails_closed_when_a_benchmark_session_is_missing(patch_endpoint):
+    patch_endpoint(
+        [_row("2026-08-17", 101_000.0), _row("2026-08-18", 99_000.0)],
+        _account(100_000.0, 99_000.0), benchmark={"2026-08-17": 1.0},
+    )
+    comparison = api_main.execution_daily()["alignedBenchmarkComparison"]
+    assert comparison["available"] is False
+    assert "2026-08-18" in comparison["reason"]
 
 
 def test_a_session_without_a_benchmark_bar_is_none_not_zero(patch_endpoint):

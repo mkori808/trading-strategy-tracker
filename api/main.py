@@ -28,13 +28,20 @@ from pydantic import BaseModel
 
 from engine import (
     alpaca_trading,
+    capital_efficiency_study,
     chat_assistant,
+    conditional_edge,
+    conditional_ledger,
+    conditional_stats,
     custom_strategies,
     data_quality,
     data_edgar,
     digest as digest_module,
+    dm_mrm_forward,
+    dm_regime_forward,
     execution as execution_module,
     execution_db,
+    execution_ownership,
     forward_experiments,
     forward_tracking,
     kill_switch,
@@ -42,10 +49,15 @@ from engine import (
     logging_db,
     market_overview,
     movers as movers_module,
+    optimized_dm_hourly_shadow,
+    pit_features,
+    prop_forward,
+    research_status,
     screener as screener_module,
     signals_db,
     strategy_authoring,
 )
+from engine.strategy_identity import execution_fingerprint, identify_execution_config
 from engine import data as data_module
 from engine import quotes as quotes_module
 from engine.cross_sectional import InsufficientHistory
@@ -99,9 +111,12 @@ from strategies.params import apply_params, describe_params
 from strategies.spec import describe_spec, parse_spec
 from strategies.registry import (
     ALL_STRATEGY_NAMES,
+    ALPACA_PAPER_STRATEGY_NAMES,
     ARCHIVED_STRATEGY_NAMES,
     CROSS_SECTIONAL_STRATEGY_NAMES,
     DAY_TRADING_STRATEGIES,
+    FORWARD_TEST_PROMOTION_CANDIDATES,
+    FORWARD_STRATEGY_REGISTRY,
     FROZEN_EVENT_STRATEGY_NAMES,
     UNAVAILABLE_RESEARCH_STRATEGIES,
     build_cross_sectional_strategy,
@@ -181,6 +196,7 @@ _scan_task: asyncio.Task | None = None
 # different strategies (cross-sectional vs. day-trading), different
 # cadence, and one's failure must never affect the other.
 _execution_task: asyncio.Task | None = None
+_prop_snapshot_task: asyncio.Task | None = None
 
 # Validation can take minutes. Jobs make that work observable and keep a
 # dropped browser request from discarding an otherwise valid research run.
@@ -271,15 +287,50 @@ async def _start_execution_scheduler() -> None:
         while True:
             try:
                 await asyncio.to_thread(execution_module.reconcile_open_orders)
-                for name in CROSS_SECTIONAL_STRATEGY_NAMES:
+                for name in ALPACA_PAPER_STRATEGY_NAMES:
                     if execution_db.is_enabled(name):
                         await asyncio.to_thread(execution_module.execute_rebalance, name, "scheduled")
             except Exception:  # noqa: BLE001 -- one bad tick must not kill the server
                 logger.exception("execution scheduler tick failed")
+            # Research shadows share the completed-daily-data cadence but are
+            # an explicit no-order path. Alpaca failures above cannot prevent
+            # them from advancing, and shadow failures cannot place or cancel
+            # an order.
+            try:
+                await asyncio.to_thread(dm_mrm_forward.advance_completed_sessions)
+            except Exception:  # noqa: BLE001 -- persisted and surfaced as an implementation alert
+                logger.exception("DM/MRM shadow forward advancement failed")
+            try:
+                await asyncio.to_thread(dm_regime_forward.record_completed_sessions)
+            except Exception:  # noqa: BLE001 -- observation failure cannot stop execution scheduling
+                logger.exception("Optimized-DM prospective regime labeling failed")
+            try:
+                await asyncio.to_thread(optimized_dm_hourly_shadow.advance)
+            except Exception:  # noqa: BLE001 -- observation-only; surfaced by its status endpoint
+                logger.exception("Optimized-DM hourly shadow advancement failed")
             await asyncio.sleep(EXECUTION_CHECK_INTERVAL_SECONDS)
 
     global _execution_task
     _execution_task = asyncio.create_task(_loop())
+
+
+@app.on_event("startup")
+async def _start_prop_snapshot_collector() -> None:
+    """Five-minute, observation-only Alpaca account-equity sampling.
+
+    `engine.prop_forward` has no order-submission path. Closed-market and
+    offline intervals are intentionally left blank rather than backfilled.
+    """
+    async def _loop() -> None:
+        while True:
+            try:
+                await asyncio.to_thread(prop_forward.collect_once)
+            except Exception:  # noqa: BLE001 -- surfaced by status; task must survive
+                logger.exception("prospective prop equity snapshot failed")
+            await asyncio.sleep(prop_forward.SAMPLE_INTERVAL_SECONDS)
+
+    global _prop_snapshot_task
+    _prop_snapshot_task = asyncio.create_task(_loop())
 
 
 def _clean(value: Any) -> Any:
@@ -303,9 +354,9 @@ def _known_strategy_names() -> list[str]:
     404s immediately.
 
     Deliberately a function, not a module constant, and deliberately not
-    merged into ALL_STRATEGY_NAMES: that list is checked 1:1 against
-    strategy_tracker.xlsx, so a runtime-authored strategy must never join
-    it (see engine/custom_strategies.py's docstring)."""
+    merged into ALL_STRATEGY_NAMES: that list contains only tracker-backed or
+    explicitly classified research names, so a runtime-authored strategy must
+    never join it (see engine/custom_strategies.py's docstring)."""
     return [*ALL_STRATEGY_NAMES, *custom_strategies.custom_strategy_names()]
 
 
@@ -320,6 +371,17 @@ def _strategy_kind(name: str, custom: dict[str, Any] | None = None) -> str:
     if entry is not None:
         return entry.spec.kind
     return "Day Trading" if name in DAY_TRADING_STRATEGIES else "Swing Trading"
+
+
+def _implementation_fields(name: str) -> dict:
+    """Availability is strategy metadata, not evidence.  Put it on every
+    catalog row so an unrun, intentionally blocked strategy cannot be
+    mistaken for one whose validation merely has not been recorded."""
+    reason = UNAVAILABLE_RESEARCH_STRATEGIES.get(name)
+    return {
+        "implementationStatus": "unavailable" if reason else "implemented",
+        "unavailableReason": reason,
+    }
 
 
 def _custom_fields(name: str, entry: Any = None) -> dict:
@@ -755,6 +817,7 @@ def _portfolio_strategy_row(name: str, row: Any, custom: dict[str, Any] | None =
             **_validation_fields(None),
             **_archive_fields(name),
             **_custom_fields(name),
+            **_implementation_fields(name),
         }
     return {
         "name": name,
@@ -809,6 +872,34 @@ def _portfolio_strategy_row(name: str, row: Any, custom: dict[str, Any] | None =
         **_run_config_fields(row),
         **_archive_fields(name),
         **_custom_fields(name),
+        **_implementation_fields(name),
+    }
+
+
+def _history_provenance_fields(row: Any, *, interval: str, timing: Any) -> dict:
+    """Persisted run identity/configuration facts used only by Inspect UI.
+
+    Search-family fields come from the immutable research_experiments row
+    joined by logging_db; absence remains absence rather than being inferred
+    from canonical/non-canonical or lifecycle labels.
+    """
+    keys = row.keys()
+    return {
+        "interval": interval,
+        "timing": timing.to_dict(),
+        "requestedStartDate": row["start_date"],
+        "requestedEndDate": row["end_date"],
+        "measuredStartDate": row["measured_start"] if "measured_start" in keys else None,
+        "measuredEndDate": row["measured_end"] if "measured_end" in keys else None,
+        "slippageBps": row["slippage_bps"] if "slippage_bps" in keys else None,
+        "commissionBps": row["commission_bps"] if "commission_bps" in keys else None,
+        "searchFamily": row["research_search_family"] if "research_search_family" in keys else None,
+        "familySearchNumber": row["research_family_search_number"] if "research_family_search_number" in keys else None,
+        "familySearchCount": row["research_family_search_count"] if "research_family_search_count" in keys else None,
+        "isPreregistered": None if "research_is_preregistered" not in keys or row["research_is_preregistered"] is None else bool(row["research_is_preregistered"]),
+        # No persisted field currently records selection-after-results. Keep
+        # this explicitly null so the UI cannot invent a selection-bias label.
+        "selectedAfterResults": None,
     }
 
 
@@ -885,6 +976,7 @@ def list_strategies(universe_id: str | None = None) -> list[dict]:
                 **_validation_fields(None),
                 **_archive_fields(name),
                 **_custom_fields(name, stored_custom.get(name)),
+                **_implementation_fields(name),
             })
         else:
             portfolio_metrics = _canonical_portfolio_metrics(row)
@@ -925,6 +1017,7 @@ def list_strategies(universe_id: str | None = None) -> list[dict]:
                 **_run_config_fields(row),
                 **_archive_fields(name),
                 **_custom_fields(name, stored_custom.get(name)),
+                **_implementation_fields(name),
             })
     return _clean(rows)
 
@@ -1733,6 +1826,341 @@ def research_data_quality(strategy_name: str) -> dict:
     return _clean(data_quality.audit_universe(symbols, interval, start, end).to_dict())
 
 
+# ---------------------------------------------------------------------------
+# Conditional Edge Discovery -- see engine/conditional_edge.py for the full
+# workflow this section exposes: discovery runs only on a strategy's
+# DISCOVERY slice (never validation or the final holdout), a background job
+# because a discovery pass re-runs the strategy's own backtest plus a feature
+# scan (tens of seconds), and every mutating step (freeze / validate /
+# consume-holdout) writes to the same research ledger a CLI run would.
+#
+# A completed discovery job's ConditionalStudy (the real observation frames,
+# not just the JSON the job returns) is kept in `_conditional_studies` for
+# JOB_REUSE_WINDOW_SECONDS so a user can freeze one of several candidates
+# from the same session without re-running the backtest per click. Past that
+# window the session is gone and freezing 404s with a message to re-run
+# discovery -- the same trade-off `_validation_jobs` already makes.
+# ---------------------------------------------------------------------------
+
+_conditional_executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="conditional")
+_conditional_jobs: dict[str, dict[str, Any]] = {}
+_conditional_jobs_lock = Lock()
+_conditional_studies: dict[str, tuple[Any, float]] = {}
+
+
+class ConditionalDiscoveryRequest(BaseModel):
+    """Body for POST /api/conditional/jobs/{strategy_name}.
+
+    `full=False` (the default) runs discovery only, on the discovery slice,
+    and stops -- every number returned is in-sample and labelled as such.
+    `full=True` additionally freezes the top `freezeTop` candidate(s) and
+    measures them on the validation slice (and, if `consumeHoldout` is set
+    and validation passes, on the sealed final holdout too) -- this WRITES to
+    the research ledger and, if `consumeHoldout` is set, permanently marks
+    the holdout consumed.
+    """
+
+    permutations: int = 1_000
+    seed: int = conditional_stats.DEFAULT_SEED
+    includeModels: bool = False
+    full: bool = False
+    freezeTop: int = 1
+    consumeHoldout: bool = False
+    holdoutReason: str = ""
+    includeConditioned: bool = True
+    includeProp: bool = True
+
+
+class ConditionalFreezeRequest(BaseModel):
+    sessionId: str
+    hypothesisId: str
+    minimumEffect: float | None = None
+    minimumObservations: int = conditional_stats.HYPOTHESIS_MIN_N
+
+
+class ConditionalValidateRequest(BaseModel):
+    sessionId: str
+    permutations: int = 1_000
+
+
+class ConditionalHoldoutRequest(BaseModel):
+    sessionId: str
+    reason: str
+    permutations: int = 1_000
+
+
+class ConditionalConditionedRequest(BaseModel):
+    propScenario: str = "moderate"
+    propPaths: int = 2_000
+    includeProp: bool = True
+
+
+def _conditional_job_view(job: dict[str, Any]) -> dict:
+    return _clean({
+        "jobId": job["jobId"],
+        "status": job["status"],
+        "stage": job["stage"],
+        "progressPct": job["progressPct"],
+        "createdAt": job["createdAt"],
+        "completedAt": job.get("completedAt"),
+        "error": job.get("error"),
+        "result": job.get("result") if job["status"] == "completed" else None,
+    })
+
+
+def _store_conditional_study(session_id: str, study: Any) -> None:
+    now = monotonic()
+    with _conditional_jobs_lock:
+        _conditional_studies[session_id] = (study, now)
+        # Opportunistic cleanup so a long-running server doesn't accumulate
+        # every discovery session's observation frames forever.
+        expired = [
+            key for key, (_s, created) in _conditional_studies.items()
+            if now - created > JOB_REUSE_WINDOW_SECONDS
+        ]
+        for key in expired:
+            del _conditional_studies[key]
+
+
+def _get_conditional_study(session_id: str) -> Any:
+    with _conditional_jobs_lock:
+        entry = _conditional_studies.get(session_id)
+    if entry is None:
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                f"No cached discovery session {session_id!r}. Sessions are held for "
+                f"{JOB_REUSE_WINDOW_SECONDS // 60} minutes after a discovery job completes -- "
+                "re-run discovery to get a fresh session id."
+            ),
+        )
+    return entry[0]
+
+
+def _update_conditional_job(job_id: str, **fields: Any) -> None:
+    with _conditional_jobs_lock:
+        job = _conditional_jobs.get(job_id)
+        if job is not None:
+            job.update(fields)
+
+
+def _execute_conditional_job(job_id: str, strategy_name: str, req: ConditionalDiscoveryRequest) -> None:
+    try:
+        _update_conditional_job(job_id, status="running", stage="Running strategy backtest", progressPct=10)
+        if req.full:
+            _update_conditional_job(job_id, stage="Running discovery, freeze and validation", progressPct=30)
+            payload = conditional_edge.full_workflow(
+                strategy_name, seed=req.seed, permutations=req.permutations,
+                freeze_top=req.freezeTop, consume_holdout=req.consumeHoldout,
+                holdout_reason=req.holdoutReason, include_conditioned=req.includeConditioned,
+                include_prop=req.includeProp, include_models=req.includeModels, persist=True,
+            )
+            result = payload
+        else:
+            _update_conditional_job(job_id, stage="Building point-in-time observations", progressPct=25)
+            study = conditional_edge.analyze(
+                strategy_name, seed=req.seed, permutations=req.permutations,
+                include_models=req.includeModels, persist=True,
+            )
+            _store_conditional_study(study.session.session_id, study)
+            result = study.to_dict()
+        _update_conditional_job(
+            job_id, status="completed", stage="Complete", progressPct=100,
+            completedAt=datetime.now(timezone.utc).isoformat(), result=result, error=None,
+        )
+    except Exception as exc:  # pragma: no cover - final worker safety net
+        logger.exception("Conditional discovery job %s failed", job_id)
+        _update_conditional_job(
+            job_id, status="failed", stage="Failed",
+            completedAt=datetime.now(timezone.utc).isoformat(), error=str(exc),
+        )
+
+
+@app.get("/api/conditional/strategies")
+def conditional_strategies() -> dict:
+    """Strategies Conditional Edge Discovery can run against.
+
+    `initial` is the research brief's named starting set (large trade
+    samples, modest existing expectancy); `available` is every strategy
+    either the per-symbol or the cross-sectional engine can run, since the
+    feature is not restricted to the four -- it operates on top of any
+    existing strategy's already-computed signals."""
+    available = [
+        name for name in _known_strategy_names()
+        if is_cross_sectional(name) or (not is_pairs(name) and name not in UNAVAILABLE_RESEARCH_STRATEGIES)
+    ]
+    return _clean({
+        "initial": list(conditional_edge.INITIAL_STRATEGIES),
+        "available": sorted(available),
+        "engineFor": {name: conditional_edge.engine_for(name) for name in available},
+    })
+
+
+@app.get("/api/conditional/features")
+def conditional_features(engine: str = "standard") -> dict:
+    """The full feature contract: source, lookback, PIT status, missing-value
+    policy, discovery eligibility -- for every declared feature, including
+    the ones deliberately left unavailable. See engine/pit_features.py."""
+    return _clean(pit_features.availability_report(engine))
+
+
+@app.post("/api/conditional/jobs/{strategy_name:path}")
+def start_conditional_job(
+    strategy_name: str, req: ConditionalDiscoveryRequest | None = None,
+) -> dict:
+    if strategy_name not in _known_strategy_names():
+        raise HTTPException(status_code=404, detail=f"Unknown strategy {strategy_name!r}")
+    if is_pairs(strategy_name) or strategy_name in UNAVAILABLE_RESEARCH_STRATEGIES:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"{strategy_name!r} has no supported observation builder yet -- Conditional "
+                "Edge Discovery covers the per-symbol and cross-sectional engines."
+            ),
+        )
+    req = req or ConditionalDiscoveryRequest()
+    job_id = uuid4().hex
+    job = {
+        "jobId": job_id, "status": "queued", "stage": "Queued", "progressPct": 0,
+        "createdAt": datetime.now(timezone.utc).isoformat(), "completedAt": None,
+        "error": None, "result": None,
+    }
+    with _conditional_jobs_lock:
+        _conditional_jobs[job_id] = job
+    _conditional_executor.submit(_execute_conditional_job, job_id, strategy_name, req)
+    return _conditional_job_view(job)
+
+
+@app.get("/api/conditional/jobs/{job_id}")
+def conditional_job(job_id: str) -> dict:
+    with _conditional_jobs_lock:
+        job = _conditional_jobs.get(job_id)
+        if job is None:
+            raise HTTPException(status_code=404, detail="Conditional discovery job not found")
+        return _conditional_job_view(job)
+
+
+@app.post("/api/conditional/hypotheses/freeze")
+def conditional_freeze(req: ConditionalFreezeRequest) -> dict:
+    """Preregister one discovered candidate. Refuses an exact duplicate --
+    see engine/conditional_ledger.py:freeze."""
+    study = _get_conditional_study(req.sessionId)
+    try:
+        frozen = conditional_edge.freeze_candidate(
+            study, req.hypothesisId,
+            minimum_effect=req.minimumEffect, minimum_observations=req.minimumObservations,
+        )
+    except conditional_ledger.HypothesisFrozenError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return _clean(frozen.to_dict())
+
+
+@app.post("/api/conditional/hypotheses/{row_id}/validate")
+def conditional_validate(row_id: int, req: ConditionalValidateRequest) -> dict:
+    """Measure a frozen hypothesis on its validation slice, exactly once per
+    call -- repeated calls append additional result rows rather than
+    overwriting, since running validation twice against the same held-out
+    data is itself worth recording."""
+    hypothesis = conditional_ledger.get(row_id)
+    if hypothesis is None:
+        raise HTTPException(status_code=404, detail=f"No frozen hypothesis with id {row_id}")
+    study = _get_conditional_study(req.sessionId)
+    if study.strategy_name != hypothesis.strategy_name:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Session {req.sessionId!r} is for {study.strategy_name!r}, not "
+                f"{hypothesis.strategy_name!r}."
+            ),
+        )
+    return _clean(conditional_edge.validate_frozen(hypothesis, study, permutations=req.permutations))
+
+
+@app.post("/api/conditional/hypotheses/{row_id}/holdout")
+def conditional_holdout(row_id: int, req: ConditionalHoldoutRequest) -> dict:
+    """Open the FINAL holdout for one hypothesis. Permanently recorded in the
+    research ledger the moment it is opened -- see
+    engine/conditional_ledger.py:mark_holdout_consumed."""
+    hypothesis = conditional_ledger.get(row_id)
+    if hypothesis is None:
+        raise HTTPException(status_code=404, detail=f"No frozen hypothesis with id {row_id}")
+    study = _get_conditional_study(req.sessionId)
+    if study.strategy_name != hypothesis.strategy_name:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Session {req.sessionId!r} is for {study.strategy_name!r}, not "
+                f"{hypothesis.strategy_name!r}."
+            ),
+        )
+    try:
+        return _clean(conditional_edge.consume_final_holdout(
+            hypothesis, study, reason=req.reason, permutations=req.permutations,
+        ))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/api/conditional/hypotheses/{row_id}/conditioned")
+def conditional_conditioned(row_id: int, req: ConditionalConditionedRequest | None = None) -> dict:
+    """Build the conditioned strategy and compare it against the original,
+    including Prop Account Analysis. Re-runs both backtests (never
+    persisted) -- does not require a cached session, since it only needs the
+    frozen rule, not the discovery observations."""
+    hypothesis = conditional_ledger.get(row_id)
+    if hypothesis is None:
+        raise HTTPException(status_code=404, detail=f"No frozen hypothesis with id {row_id}")
+    req = req or ConditionalConditionedRequest()
+    return _clean(conditional_edge.conditioned_comparison(
+        hypothesis, prop_scenario=req.propScenario, prop_paths=req.propPaths,
+        include_prop=req.includeProp,
+    ))
+
+
+@app.get("/api/conditional/ledger")
+def conditional_ledger_view(strategy: str | None = None) -> dict:
+    """The full research ledger -- every frozen hypothesis, every version,
+    every out-of-sample result, never pruned. See
+    engine/conditional_ledger.py:ledger."""
+    return _clean({"hypotheses": conditional_ledger.ledger(strategy)})
+
+
+@app.get("/api/conditional/rejected")
+def conditional_rejected(strategy: str | None = None) -> dict:
+    """Every hypothesis that has failed validation or the final holdout, with
+    its reason -- so a repeat search shows "previously tested and rejected"
+    instead of offering the same subset as a fresh idea."""
+    return _clean({"rejected": conditional_ledger.rejected_hypotheses(strategy)})
+
+
+@app.get("/api/conditional/sessions/{strategy_name:path}")
+def conditional_sessions(strategy_name: str) -> dict:
+    """Past discovery sessions logged for this strategy (metadata only --
+    the underlying observation frames are not kept once the job's cache
+    window expires; re-run discovery to freeze from an old session)."""
+    return _clean({"sessions": conditional_ledger.sessions_for(strategy_name)})
+
+
+@app.get("/api/conditional/holdout-status/{strategy_name:path}")
+def conditional_holdout_status(strategy_name: str) -> dict:
+    return _clean(conditional_ledger.holdout_consumption(strategy_name))
+
+
+@app.get("/api/conditional/methodology-audits")
+def conditional_methodology_audits(strategy: str | None = None) -> dict:
+    """The permanent record of every prior-vs-corrected statistical
+    recomputation the 2026-08-22 dependence audit produced -- e.g. a
+    cross-sectional strategy's raw-row-level significance count next to what
+    the same hypotheses show once rebalance-cluster (or, for the per-symbol
+    engine, overlap-block) dependence is accounted for. Appended only, never
+    a replacement for the original `conditional_sessions`/
+    `conditional_hypotheses` row it is about -- see
+    engine/conditional_ledger.py:record_methodology_audit."""
+    return _clean({"audits": conditional_ledger.methodology_audits_for(strategy)})
+
+
 @app.get("/api/live/execution/calibration")
 def execution_fill_calibration(symbol: str | None = None) -> dict:
     return _clean(execution_db.fill_calibration(symbol))
@@ -1811,6 +2239,8 @@ def portfolio_history(strategy_name: str) -> list[dict]:
     (wrong) strategy_name."""
     if strategy_name not in _known_strategy_names():
         raise HTTPException(status_code=404, detail=f"Unknown strategy {strategy_name!r}")
+    interval, _, _, _ = run_config(strategy_name)
+    timing = timing_contract_for(strategy_class(strategy_name))
     rows = [
         {
             "id": row["id"],
@@ -1842,6 +2272,7 @@ def portfolio_history(strategy_name: str) -> list[dict]:
             ),
             "benchmarkName": "SPY",
             "status": row["status"],
+            **_history_provenance_fields(row, interval=interval, timing=timing),
         }
         for row in portfolio_run_history(strategy_name)
     ]
@@ -1852,6 +2283,8 @@ def portfolio_history(strategy_name: str) -> list[dict]:
 def history(strategy_name: str) -> list[dict]:
     if strategy_name not in _known_strategy_names():
         raise HTTPException(status_code=404, detail=f"Unknown strategy {strategy_name!r}")
+    interval, _, _, _ = run_config(strategy_name)
+    timing = timing_contract_for(strategy_class(strategy_name))
     rows = [
         {
             "id": row["id"],
@@ -1880,6 +2313,7 @@ def history(strategy_name: str) -> list[dict]:
             "universeId": row["universe_id"],
             "symbols": json.loads(row["symbols"]) if row["symbols"] else [],
             "params": json.loads(row["params"]) if row["params"] else {},
+            **_history_provenance_fields(row, interval=interval, timing=timing),
         }
         for row in run_history(strategy_name)
     ]
@@ -1911,6 +2345,100 @@ def live_account() -> dict:
     configured, rather than erroring -- same degrade-gracefully convention
     as /api/quotes."""
     return _clean(alpaca_trading.account_snapshot())
+
+
+@app.get("/api/live/execution/account-ownership")
+def execution_account_ownership() -> dict:
+    """Account owner, integrity state, and explicitly separated forward modes."""
+    bundle = alpaca_trading.account_snapshot()
+    account = bundle["account"]
+    if not account.get("available"):
+        return _clean({"available": False, "reason": account.get("reason")})
+    ownership = execution_ownership.monitor_account(
+        account["accountNumber"], bundle["orders"], bundle["positions"],
+        detected_at=bundle.get("clock", {}).get("timestamp"),
+    )
+    stack = dm_mrm_forward.forward_stack_status()
+    prop = prop_forward.status()
+    hourly = optimized_dm_hourly_shadow.status()
+    rows = [{
+        "key": ownership["owner"]["strategyId"] if ownership.get("owner") else "unassigned",
+        "strategy": ownership["owner"]["displayName"] if ownership.get("owner") else "Unassigned",
+        "mode": "BROKERAGE EXECUTION", "brokerage": "Alpaca Paper",
+        "observations": prop["completedSessions"], "evidenceQuality": "Execution-observed",
+        "positionsLabel": "Brokerage positions",
+    }]
+    for series in stack["series"]:
+        if series["key"] == "spy":
+            continue
+        rows.append({
+            "key": series["key"], "strategy": series["series"], "mode": "SHADOW",
+            "brokerage": None, "observations": series["sessions"],
+            "evidenceQuality": "Prospective synthetic", "positionsLabel": "Shadow holdings",
+        })
+    if hourly.get("available"):
+        rows.append({
+            "key": hourly["key"], "strategy": hourly["strategy"], "mode": "SHADOW",
+            "brokerage": None, "observations": hourly["prospectiveMarks"],
+            "evidenceQuality": "Prospective synthetic",
+            "parentStrategyId": "dm_optimized_63d_daily",
+            "parentFingerprint": prop["parentStrategyFingerprint"],
+            "positionsLabel": "Hourly simulated holdings",
+            "backfillObservations": hourly["backfillMarks"],
+        })
+    for shadow in prop["shadows"]:
+        rows.append({
+            "key": shadow["key"], "strategy": f"Optimized DM {shadow['scale']:.2f}x",
+            "mode": "PROP SHADOW", "brokerage": "Parent: Optimized DM",
+            "observations": shadow["sessions"],
+            "evidenceQuality": "Prop synthetic on observed parent stream",
+            "parentStrategyId": prop["parentStrategyId"],
+            "parentFingerprint": prop["parentStrategyFingerprint"],
+            "positionsLabel": "Synthetic prop account",
+        })
+    for shadow in prop.get("selfFundedShadows", []):
+        rows.append({
+            "key": shadow["key"], "strategy": shadow["label"], "mode": "SHADOW",
+            "brokerage": "Parent: Optimized DM", "observations": shadow["observations"],
+            "evidenceQuality": "Self-funded synthetic on observed parent stream",
+            "parentStrategyId": prop["parentStrategyId"],
+            "parentFingerprint": prop["parentStrategyFingerprint"],
+            "positionsLabel": "Synthetic self-funded account",
+        })
+    blocked = next(row for row in FORWARD_STRATEGY_REGISTRY if row["key"] == "earnings_momentum_gap_hold")
+    rows.append({
+        "key": blocked["key"], "strategy": blocked["strategyName"], "mode": blocked["mode"],
+        "brokerage": None, "observations": 0, "evidenceQuality": blocked["evidenceQuality"],
+        "positionsLabel": "No active positions", "status": blocked["status"],
+    })
+    counts = {mode: sum(row["mode"] == mode for row in rows) for mode in ("BROKERAGE EXECUTION", "SHADOW", "PROP SHADOW")}
+    return _clean({"available": True, **ownership, "counts": counts, "forwardStrategies": rows,
+                   "brokeragePositions": bundle["positions"],
+                   "positionSeparation": {"brokerage": "Brokerage positions", "shadow": "Shadow holdings"}})
+
+
+@app.get("/api/research/prop-shadows")
+def prop_shadow_status() -> dict:
+    """Prospective-only optimized-DM 0.20x/0.25x synthetic prop ledgers."""
+    return _clean(prop_forward.status())
+
+
+@app.get("/api/research/optimized-dm-hourly-shadow")
+def optimized_dm_hourly_shadow_status() -> dict:
+    """Blind-backfill + prospective hourly shadow; observation-only, no orders."""
+    return _clean(optimized_dm_hourly_shadow.status())
+
+
+@app.get("/api/research/capital-efficiency")
+def capital_efficiency_status() -> dict:
+    """Frozen historical comparison; prospective ledgers remain separate."""
+    return _clean(capital_efficiency_study.status())
+
+
+@app.get("/api/research/dm-regime-forward")
+def dm_regime_forward_status() -> dict:
+    """Prospective-only market-state labels for the locked live DM parent."""
+    return _clean(dm_regime_forward.status())
 
 
 @app.get("/api/live/signals")
@@ -1956,7 +2484,7 @@ def execution_config() -> list[dict]:
     config = execution_db.automation_config()
     rows = []
     for name, row in config.items():
-        if name not in CROSS_SECTIONAL_STRATEGY_NAMES:
+        if name not in ALPACA_PAPER_STRATEGY_NAMES:
             continue
         override_used = False
         override_blockers: list = []
@@ -1990,6 +2518,12 @@ def execution_config() -> list[dict]:
             "overrideReason": override_reason,
             "overrideBlockers": override_blockers,
             "inception": execution_db.inception_for(name),
+            "identity": identify_execution_config(
+                name,
+                json.loads(row["params"] or "{}"),
+                json.loads(row["symbols"] or "[]"),
+                row["validation_run_id"],
+            ),
         })
     return _clean(rows)
 
@@ -1998,7 +2532,7 @@ def execution_config() -> list[dict]:
 def set_execution_config(body: ExecutionConfigUpdate) -> dict:
     """The explicit, deliberate per-strategy opt-in -- CLAUDE.md: 'never a
     global switch, never the default for a newly added strategy.'"""
-    if body.strategyName not in CROSS_SECTIONAL_STRATEGY_NAMES:
+    if body.strategyName not in ALPACA_PAPER_STRATEGY_NAMES:
         raise HTTPException(
             status_code=400,
             detail=f"{body.strategyName!r} is not an automatable (cross-sectional) strategy.",
@@ -2009,6 +2543,13 @@ def set_execution_config(body: ExecutionConfigUpdate) -> dict:
     validation_run_id = None
     forward_experiment = None
     if body.enabled:
+        account = alpaca_trading.get_account()
+        if not account.get("available"):
+            raise HTTPException(status_code=409, detail=f"Brokerage ownership could not be verified: {account.get('reason')}.")
+        try:
+            execution_ownership.assert_strategy_slot(account["accountNumber"], body.strategyName)
+        except execution_ownership.OwnershipConflict as exc:
+            raise HTTPException(status_code=423, detail=str(exc)) from exc
         if body.inceptionPolicy is None:
             raise HTTPException(
                 status_code=400,
@@ -2038,6 +2579,16 @@ def set_execution_config(body: ExecutionConfigUpdate) -> dict:
         params = json.loads(selected_row["params"] or "{}")
         universe_id = selected_row["universe_id"]
         symbols = json.loads(selected_row["symbols"] or "[]")
+        candidate_fingerprint, candidate_payload = execution_fingerprint(
+            body.strategyName, params, symbols, validation_run_id,
+        )
+        try:
+            execution_ownership.assert_can_enable(
+                account["accountNumber"], body.strategyName, candidate_fingerprint,
+                candidate_payload["identity"]["key"],
+            )
+        except execution_ownership.OwnershipConflict as exc:
+            raise HTTPException(status_code=423, detail=str(exc)) from exc
         try:
             strategy = build_cross_sectional_strategy(body.strategyName, risk_free_rate=0.0)
             apply_params(strategy, params)
@@ -2089,6 +2640,50 @@ def set_execution_config(body: ExecutionConfigUpdate) -> dict:
     }
 
 
+@app.get("/api/research/status")
+def research_status_dashboard() -> dict:
+    """Research Status dashboard -- one row per tracked research branch
+    (Conditional Edge Discovery per strategy, the frozen DM/MRM vol-scaled
+    forward test, Conditional Edge v2 infrastructure), aggregated LIVE from
+    the app's existing sources of truth (the conditional-edge research
+    ledger, the frozen forward-test protocol's own append-only ledger,
+    universe/PIT status) -- see engine/research_status.py. Never triggers a
+    backtest; every field here is a fast read of already-persisted state."""
+    return _clean(research_status.build_status_dashboard())
+
+
+@app.get("/api/research/conditional-status/{strategy_name:path}")
+def research_conditional_status(strategy_name: str) -> dict:
+    """Authoritative Conditional Edge state for one strategy.
+
+    This is a ledger-only read and never starts discovery. It intentionally
+    works for strategies omitted from the dashboard's tracked subset so the
+    strategy workspace can distinguish never evaluated from retrieval error.
+    """
+    if strategy_name not in _known_strategy_names():
+        raise HTTPException(status_code=404, detail=f"Unknown strategy {strategy_name!r}")
+    return _clean(research_status.derive_conditional_status(strategy_name).to_dict())
+
+
+@app.get("/api/research/data-blockers")
+def research_data_blockers() -> dict:
+    """Which declared research datasets are actually installed and usable,
+    vs. merely declared -- see engine/research_status.py:data_blockers and
+    engine/universe_registry.py, which remains the one source of truth this
+    only re-presents."""
+    return _clean({"blockers": research_status.data_blockers()})
+
+
+@app.get("/api/research/forward-stack")
+def research_forward_stack() -> dict:
+    """Fast, read-only normalized forward NAV and frozen-blend state.
+
+    Alpaca account equity remains under /api/live/account; this endpoint is
+    research shadow state and has no order-placement capability.
+    """
+    return _clean(dm_mrm_forward.forward_stack_status())
+
+
 @app.get("/api/research/forward/{strategy_name:path}")
 def forward_experiment_status(strategy_name: str) -> list[dict]:
     if strategy_name not in _known_strategy_names():
@@ -2117,8 +2712,15 @@ def append_forward_observation(experiment_id: int, body: ForwardObservationInput
 
 @app.get("/api/live/execution/strategies")
 def execution_strategies() -> list[dict]:
-    """Strategies the paper-order engine can safely execute today."""
-    return [{"strategyName": name} for name in CROSS_SECTIONAL_STRATEGY_NAMES]
+    """Strategies eligible for a live forward test, with execution mode.
+
+    ``canPlaceOrders`` is the safety boundary.  Automated-paper candidates
+    remain subject to POST /live/execution/config and all of its validation
+    gates.  Research-shadow candidates are listed for promotion visibility
+    but that POST still rejects them, so adding the frozen DM/MRM overlay here
+    cannot create Alpaca orders.
+    """
+    return _clean(list(FORWARD_TEST_PROMOTION_CANDIDATES))
 
 
 @app.get("/api/live/execution/runs")
@@ -2248,6 +2850,63 @@ def _benchmark_intraday_pct(last_settled_date: str | None) -> float | None:
     return (float(price) / float(prior_close) - 1) * 100
 
 
+def _aligned_settled_benchmark(rows: list[dict], inception_date: date) -> dict:
+    """Normalize account and SPY to 100 at the close before the first full session."""
+    ordered = sorted(rows, key=lambda row: row["date"])
+    start_index = next(
+        (i for i, row in enumerate(ordered) if date.fromisoformat(row["date"]) > inception_date),
+        None,
+    )
+    if start_index is None:
+        return {"available": False, "reason": "No complete post-inception session is settled yet."}
+    if start_index == 0:
+        return {"available": False, "reason": "The prior settled account equity needed for an aligned baseline is unavailable."}
+    aligned = ordered[start_index:]
+    missing = [
+        row["date"] for row in aligned
+        if row.get("equity") is None or row.get("profitLossPct") is None or row.get("benchmarkPct") is None
+    ]
+    if missing:
+        return {"available": False, "reason": f"Aligned settled data is incomplete for {', '.join(missing)}."}
+    baseline = ordered[start_index - 1]
+    baseline_equity = float(baseline["equity"])
+    if baseline_equity <= 0:
+        return {"available": False, "reason": "The aligned account-equity baseline is not positive."}
+    spy_growth = 100.0
+    growth = [{"date": baseline["date"], "account": 100.0, "benchmark": 100.0, "baseline": True}]
+    for row in aligned:
+        spy_growth *= 1.0 + float(row["benchmarkPct"]) / 100.0
+        growth.append({
+            "date": row["date"],
+            "account": float(row["equity"]) / baseline_equity * 100.0,
+            "benchmark": spy_growth,
+            "baseline": False,
+        })
+    account_return = growth[-1]["account"] - 100.0
+    benchmark_return = growth[-1]["benchmark"] - 100.0
+
+    def maximum_drawdown(key: str) -> float:
+        peak = float(growth[0][key])
+        worst = 0.0
+        for point in growth:
+            level = float(point[key])
+            peak = max(peak, level)
+            worst = min(worst, level / peak - 1.0)
+        return worst * 100.0
+
+    return {
+        "available": True, "reason": None,
+        "baselineDate": baseline["date"], "startDate": aligned[0]["date"],
+        "endDate": aligned[-1]["date"], "sessions": len(aligned),
+        "accountReturnPct": account_return, "benchmarkReturnPct": benchmark_return,
+        "differencePctPoints": account_return - benchmark_return,
+        "accountMaxDrawdownPct": maximum_drawdown("account"),
+        "benchmarkMaxDrawdownPct": maximum_drawdown("benchmark"),
+        "growth": growth,
+        "note": "Settled full sessions only; the intraday inception session and current in-progress session are excluded.",
+    }
+
+
 @app.get("/api/live/execution/daily")
 def execution_daily() -> dict:
     """Day-by-day performance of the paper account since automated trading
@@ -2304,6 +2963,12 @@ def execution_daily() -> dict:
             "benchmarkSymbol": BENCHMARK_SYMBOL,
             "rows": [],
             "today": None,
+            "forwardBaselineEquity": None,
+            "forwardReturnPct": None,
+            "forwardReturnSource": None,
+            "maturity": dm_mrm_forward.maturity_checkpoint(0),
+            "benchmarkComparison": {"available": False, "reason": "Paper forward test has not started."},
+            "alignedBenchmarkComparison": {"available": False, "reason": "Paper forward test has not started."},
         }
 
     start_date = datetime.fromisoformat(started_at).date()
@@ -2316,12 +2981,19 @@ def execution_daily() -> dict:
             "benchmarkSymbol": BENCHMARK_SYMBOL,
             "rows": [],
             "today": None,
+            "forwardBaselineEquity": float(active_inception["equity"]) if inception_ready else None,
+            "forwardReturnPct": None,
+            "forwardReturnSource": "Alpaca paper equity / locked inception equity" if inception_ready else None,
+            "maturity": dm_mrm_forward.maturity_checkpoint(0),
+            "benchmarkComparison": {"available": False, "reason": "Paper performance history is unavailable."},
+            "alignedBenchmarkComparison": {"available": False, "reason": "Paper performance history is unavailable."},
         }
 
     rows = history["rows"]
     benchmark = _benchmark_daily_pct(start_date)
     for row in rows:
         row["benchmarkPct"] = benchmark.get(row["date"])
+    aligned_comparison = _aligned_settled_benchmark(rows, start_date)
 
     account = alpaca_trading.get_account()
     today = None
@@ -2347,6 +3019,12 @@ def execution_daily() -> dict:
                 "inProgress": True,
             }
 
+    forward_baseline = float(active_inception["equity"]) if inception_ready else None
+    forward_return_pct = (
+        (float(account["equity"]) / forward_baseline - 1.0) * 100
+        if account.get("available") and forward_baseline
+        else None
+    )
     return _clean({
         "available": True,
         "reason": None,
@@ -2354,6 +3032,15 @@ def execution_daily() -> dict:
         "benchmarkSymbol": BENCHMARK_SYMBOL,
         "rows": rows,
         "today": today,
+        "forwardBaselineEquity": forward_baseline,
+        "forwardReturnPct": forward_return_pct,
+        "forwardReturnSource": "Alpaca paper equity / locked inception equity",
+        "maturity": dm_mrm_forward.maturity_checkpoint(len(rows)),
+        "benchmarkComparison": {
+            "available": False,
+            "reason": "The paper inception mark occurred intraday, without an aligned SPY baseline.",
+        },
+        "alignedBenchmarkComparison": aligned_comparison,
     })
 
 
@@ -2423,7 +3110,7 @@ def rebalance_now(body: RebalanceNowRequest) -> dict:
     and the same one-real-attempt-per-day claim as the scheduled path;
     `force=True` only skips the "is today actually a rebalance day" check,
     so this can smoke-test the full pipeline on an off-day."""
-    if body.strategyName not in CROSS_SECTIONAL_STRATEGY_NAMES:
+    if body.strategyName not in ALPACA_PAPER_STRATEGY_NAMES:
         raise HTTPException(
             status_code=400,
             detail=f"{body.strategyName!r} is not an automatable (cross-sectional) strategy.",

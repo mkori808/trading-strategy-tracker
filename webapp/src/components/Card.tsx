@@ -34,6 +34,7 @@ export function Card({
   loading = false,
   error = null,
   skeletonRows,
+  className = "",
   children,
 }: {
   title: string;
@@ -46,6 +47,7 @@ export function Card({
   loading?: boolean;
   error?: string | null;
   skeletonRows?: number;
+  className?: string;
   children: ReactNode;
 }) {
   return (
@@ -53,7 +55,7 @@ export function Card({
       type="button"
       onClick={onOpen}
       aria-label={openLabel ?? `Open ${title}`}
-      className="group flex w-full flex-col rounded-xl border p-4 text-left transition-shadow hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2"
+      className={`group flex w-full flex-col rounded-xl border p-4 text-left transition-shadow hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 ${className}`}
       style={{
         borderColor: "var(--border)",
         background: "var(--surface-1)",

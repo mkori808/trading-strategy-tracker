@@ -1,0 +1,1277 @@
+{
+  "definitions": {
+    "meaningfulLoss": -0.02,
+    "meaningfulProfit": 0.01,
+    "captureMfeFloor": 0.01,
+    "materialRecovery": "max(1 percentage point, 25% of absolute MAE)",
+    "largeWinner": "top quartile of positive realized returns",
+    "largeLoser": "bottom quartile of negative realized returns",
+    "replacementPairing": "rank-priority deterministic pairing; set comparisons are pairing-independent"
+  },
+  "strategies": {
+    "Dual Momentum": {
+      "metadata": {
+        "strategy": "Dual Momentum",
+        "start": "2021-08-23",
+        "end": "2026-08-22",
+        "riskFreeRate": 0.03671085257605609,
+        "symbols": [
+          "AAPL",
+          "AMGN",
+          "AXP",
+          "BA",
+          "CAT",
+          "CRM",
+          "CSCO",
+          "CVX",
+          "DIS",
+          "DOW",
+          "GS",
+          "HD",
+          "HON",
+          "IBM",
+          "INTC",
+          "JNJ",
+          "JPM",
+          "KO",
+          "MCD",
+          "MMM",
+          "MRK",
+          "MSFT",
+          "NKE",
+          "PG",
+          "TRV",
+          "UNH",
+          "V",
+          "VZ",
+          "WMT"
+        ],
+        "canonicalParameters": {
+          "risk_free_rate": 0.03671085257605609,
+          "lookback_trading_days": 189,
+          "top_n": 5,
+          "rebalance_frequency": "monthly",
+          "pit_minimum_price": 5.0,
+          "pit_minimum_average_dollar_volume": 1000000.0,
+          "pit_liquidity_lookback_days": 60,
+          "pit_minimum_market_cap": 0.0,
+          "pit_max_adv_participation_pct": 1.0
+        },
+        "rebalances": 61,
+        "completedPositions": 85,
+        "openPositionsExcluded": 5,
+        "reconciliation": {
+          "firstRebalanceEntries": 5,
+          "laterEntries": 85,
+          "allEntries": 90,
+          "completedPlusOpen": 90,
+          "balances": true,
+          "replacementRows": 81,
+          "completedWithoutPairedReplacement": 4
+        },
+        "portfolioReturnPct": 134.4353009424064,
+        "cagrPct": 18.515703670066543,
+        "maxDrawdownPct": 20.538089163692106,
+        "totalCosts": 118.2117985331762,
+        "totalTradedNotional": 506545.25797724194,
+        "universeKey": "dow_jones_industrial_average",
+        "pitMembershipApplied": true,
+        "drawdownEpisodes": [
+          {
+            "peak_date": "2025-02-19",
+            "trough_date": "2025-04-08",
+            "end_date": "2025-10-02",
+            "drawdown": -0.20538089163692108
+          },
+          {
+            "peak_date": "2022-11-30",
+            "trough_date": "2023-05-31",
+            "end_date": "2023-11-30",
+            "drawdown": -0.1459494084459979
+          },
+          {
+            "peak_date": "2021-12-29",
+            "trough_date": "2022-06-17",
+            "end_date": "2022-10-21",
+            "drawdown": -0.13932587369806293
+          }
+        ],
+        "priceDataAudit": {
+          "symbolsWithBars": 29,
+          "duplicateSessions": 0,
+          "missingOhlcRows": 0,
+          "perSymbol": {
+            "AAPL": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "AMGN": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "AXP": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "BA": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "CAT": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "CRM": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "CSCO": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "CVX": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "DIS": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "DOW": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "GS": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "HD": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "HON": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "IBM": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "INTC": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "JNJ": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "JPM": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "KO": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "MCD": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "MMM": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "MRK": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "MSFT": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "NKE": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "PG": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "TRV": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "UNH": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "V": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "VZ": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "WMT": {
+              "rows": 1447,
+              "first": "2020-11-16",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            }
+          }
+        }
+      },
+      "strategySummary": {
+        "completedPositions": 85,
+        "medianHoldingSessions": 42.0,
+        "medianMfePct": 5.97664891365175,
+        "medianMaePct": -5.303802761567944,
+        "medianWinnerCapturePct": 62.79394468478866,
+        "medianWinnerGivebackPct": 5.912402922097915,
+        "postExit20dPct": 0.9170821623523385,
+        "replacementWinRatePct": 54.32098765432099,
+        "averageReplacementAdvantagePct": 0.9344228762719852
+      },
+      "winner": {
+        "n": 43,
+        "meanReturnPct": 10.577183721174324,
+        "medianMfePct": 11.826993301601973,
+        "medianTimeToMfeSessions": 47.0,
+        "captureDistributionPct": {
+          "p25": 18.83813395876842,
+          "median": 62.79394468478866,
+          "p75": 82.726364584093,
+          "p90": 92.33146412669552,
+          "mean": 56.17043126176063
+        },
+        "meanCapturePct": 56.17043126176063,
+        "meanGivebackPct": 7.195695755714965,
+        "exitWithin10PctOfMfePct": 16.27906976744186,
+        "givebackOver25PctOfMfePct": 69.76744186046511,
+        "givebackOver50PctOfMfePct": 34.883720930232556,
+        "givebackOver75PctOfMfePct": 30.23255813953488,
+        "mfeNearEndPct": 39.53488372093023,
+        "peakEarlyDecayPct": 4.651162790697675,
+        "exitStrongTrendPct": 18.6046511627907,
+        "patterns": {
+          "recovery winner": 24,
+          "volatile winner": 10,
+          "late acceleration": 5,
+          "steady winner": 4
+        }
+      },
+      "loser": {
+        "n": 42,
+        "medianRealizedLossPct": -5.765653448697261,
+        "medianMaePct": -8.975758563302394,
+        "medianFirstMeaningfulLossSessions": 5.5,
+        "medianTimeBelowEntryPct": 68.53535353535354,
+        "suddenPct": 83.33333333333334,
+        "onceProfitablePct": 61.904761904761905,
+        "materialRecoveryPct": 54.761904761904766,
+        "neverMateriallyRecoveredPct": 45.23809523809524,
+        "medianRecoveryAfterMaePct": 2.5585643830869476,
+        "medianSessionsMaeToExit": 6.0,
+        "medianLoserDelayPct": -2.2499735459142967,
+        "medianDamageRealizedPctOfMae": 73.21904040059451
+      },
+      "postExit": {
+        "5": {
+          "all": 0.12404160587495149,
+          "winners": -0.2928544256926597,
+          "losers": 0.5508637334322677,
+          "largeWinners": 0.7466482307145922,
+          "largeLosers": 1.7314900476443402
+        },
+        "10": {
+          "all": -0.04606600044442649,
+          "winners": -0.1966592373578053,
+          "losers": 0.10811278972879469,
+          "largeWinners": 0.5045409157486999,
+          "largeLosers": 3.73633869631627
+        },
+        "20": {
+          "all": 0.9170821623523385,
+          "winners": 1.2771526029733067,
+          "losers": 0.5570117217313703,
+          "largeWinners": 0.25831507476573384,
+          "largeLosers": 4.8833147291942245
+        },
+        "40": {
+          "all": 1.2061362215559215,
+          "winners": 2.4167358398144696,
+          "losers": -0.03399021666015242,
+          "largeWinners": -0.18907393715492055,
+          "largeLosers": 9.315625571908445
+        }
+      },
+      "postExitExcursions": {
+        "5": {
+          "all": {
+            "mfePct": 2.6851593805565157,
+            "maePct": -2.738267783344453
+          },
+          "winners": {
+            "mfePct": 2.5280021035455054,
+            "maePct": -2.9920430593053786
+          },
+          "losers": {
+            "mfePct": 2.846058497496358,
+            "maePct": -2.4784502389082674
+          },
+          "largeWinners": {
+            "mfePct": 3.5860339325694617,
+            "maePct": -2.7347458003589376
+          },
+          "largeLosers": {
+            "mfePct": 3.8079741017907653,
+            "maePct": -1.9706825104895964
+          }
+        },
+        "10": {
+          "all": {
+            "mfePct": 3.898205203050343,
+            "maePct": -3.9558934301840925
+          },
+          "winners": {
+            "mfePct": 3.69669180220237,
+            "maePct": -4.225380293249534
+          },
+          "losers": {
+            "mfePct": 4.104516542013744,
+            "maePct": -3.6799902132361404
+          },
+          "largeWinners": {
+            "mfePct": 4.899417606171124,
+            "maePct": -3.9080653439431545
+          },
+          "largeLosers": {
+            "mfePct": 6.709635701592606,
+            "maePct": -2.2187832640152836
+          }
+        },
+        "20": {
+          "all": {
+            "mfePct": 6.007787096301764,
+            "maePct": -5.560652397371026
+          },
+          "winners": {
+            "mfePct": 5.912141026006303,
+            "maePct": -5.5725431407048855
+          },
+          "losers": {
+            "mfePct": 6.1034331665972275,
+            "maePct": -5.548761654037166
+          },
+          "largeWinners": {
+            "mfePct": 6.418774857461247,
+            "maePct": -5.716643464319755
+          },
+          "largeLosers": {
+            "mfePct": 10.169530431209544,
+            "maePct": -3.3250102825675065
+          }
+        },
+        "40": {
+          "all": {
+            "mfePct": 8.524827042170646,
+            "maePct": -8.376232272896726
+          },
+          "winners": {
+            "mfePct": 9.388129599495832,
+            "maePct": -8.027042940560273
+          },
+          "losers": {
+            "mfePct": 7.6404683249107,
+            "maePct": -8.733938418216997
+          },
+          "largeWinners": {
+            "mfePct": 9.491261865147932,
+            "maePct": -9.32029364597596
+          },
+          "largeLosers": {
+            "mfePct": 13.137354359310516,
+            "maePct": -5.312943050575619
+          }
+        }
+      },
+      "replacement": {
+        "n": 81,
+        "winRatePct": 54.32098765432099,
+        "averageAdvantagePct": 0.9344228762719852,
+        "medianAdvantagePct": 1.21082543845501,
+        "p10Pct": -10.968491518321244,
+        "p90Pct": 12.810653097709324,
+        "clusterInference": {
+          "mean": 0.009344228762719852,
+          "ci95": [
+            -0.012806386598161223,
+            0.03185825280857059
+          ],
+          "effectiveN": 53,
+          "rawN": 81,
+          "method": "rebalance-cluster bootstrap, 2000 draws, seed 20260822"
+        },
+        "equalSlotCumulativeContributionPct": 15.13765059560616,
+        "equalSlotAnnualizedContributionPct": 3.0296037698877534,
+        "byOutgoingState": {
+          "loser": {
+            "n": 35,
+            "winRatePct": 62.857142857142854,
+            "averageAdvantagePct": 1.4323875584969845,
+            "medianAdvantagePct": 1.6781566541395954
+          },
+          "near-flat": {
+            "n": 5,
+            "winRatePct": 100.0,
+            "averageAdvantagePct": 10.652663187422421,
+            "medianAdvantagePct": 12.557136038920858
+          },
+          "winner": {
+            "n": 41,
+            "winRatePct": 41.46341463414634,
+            "averageAdvantagePct": -0.6758201830847749,
+            "medianAdvantagePct": -1.6085732910285255
+          }
+        }
+      },
+      "rankTransition": {
+        "just outside boundary": {
+          "n": 63,
+          "outgoingNextPct": -0.24646538181045213,
+          "incomingPct": 0.9664556253587517,
+          "advantagePct": 1.2129210071692038
+        },
+        "moderate deterioration": {
+          "n": 18,
+          "outgoingNextPct": 0.5483346926894894,
+          "incomingPct": 0.5080141108212094,
+          "advantagePct": -0.04032058186827996
+        }
+      },
+      "turnoverGroups": {
+        "new": {
+          "n": 89,
+          "meanPct": 1.033469427085678,
+          "medianPct": 0.3545254785701779
+        },
+        "outgoing": {
+          "n": 84,
+          "meanPct": 0.3382191112252369,
+          "medianPct": 0.5184219070842322
+        },
+        "retained": {
+          "n": 208,
+          "meanPct": 1.5407706324522323,
+          "medianPct": 0.2540094714663099
+        },
+        "universe_median": {
+          "n": 60,
+          "meanPct": 0.7951708196603964,
+          "medianPct": 0.800096105393111
+        }
+      },
+      "largeWinner": {
+        "n": 11,
+        "meanRealizedPct": 27.44987609684974,
+        "medianMfePct": 39.258142741003034,
+        "medianMaePct": -3.0818390477985402,
+        "medianCapturePct": 68.7292681658242,
+        "meanGivebackPct": 12.60494717580303,
+        "meanPostExit20dPct": 0.25831507476573384,
+        "medianExitRank": 9.0,
+        "replacementN": 11,
+        "meanReplacementReturnPct": -0.6520374947336907,
+        "meanOutgoingCounterfactualPct": -1.4166659659773928,
+        "meanReplacementAdvantagePct": 0.7646284712437021,
+        "replacementWinRatePct": 54.54545454545454
+      },
+      "largeLoser": {
+        "n": 11,
+        "meanRealizedPct": -12.96407954056237,
+        "medianMfePct": 0.46993600351357134,
+        "medianMaePct": -12.250998455609052,
+        "medianCapturePct": null,
+        "meanGivebackPct": 15.441415486230428,
+        "meanPostExit20dPct": 4.8833147291942245,
+        "medianExitRank": 11.0,
+        "replacementN": 10,
+        "meanReplacementReturnPct": 1.7963252227702156,
+        "meanOutgoingCounterfactualPct": 4.260374659731339,
+        "meanReplacementAdvantagePct": -2.4640494369611243,
+        "replacementWinRatePct": 40.0
+      },
+      "entryEfficiency": {
+        "meanFirst5ReturnPct": -0.008764706924744162,
+        "medianFirst5CloseMaePct": -1.2666427341819886,
+        "medianFirst5CloseMfePct": 1.2493488703309463,
+        "immediateAdverseOver2PctShare": 34.11764705882353
+      },
+      "drawdownAttribution": [
+        {
+          "peak_date": "2025-02-19",
+          "trough_date": "2025-04-08",
+          "end_date": "2025-10-02",
+          "drawdown": -0.20538089163692108,
+          "replacementEvents": 2,
+          "averageReplacementAdvantagePct": 0.5721372581292183,
+          "replacementWinRatePct": 50.0,
+          "averageWinnerGivebackPct": 15.245054531888147,
+          "worstPositionMaePct": -1.6919305697940756,
+          "justOutsideExitSharePct": 100.0,
+          "averagePostExit20dPct": -3.4838314701066353
+        },
+        {
+          "peak_date": "2022-11-30",
+          "trough_date": "2023-05-31",
+          "end_date": "2023-11-30",
+          "drawdown": -0.1459494084459979,
+          "replacementEvents": 13,
+          "averageReplacementAdvantagePct": -2.139066413059093,
+          "replacementWinRatePct": 46.15384615384615,
+          "averageWinnerGivebackPct": 4.136824431919565,
+          "worstPositionMaePct": -10.394711182668281,
+          "justOutsideExitSharePct": 61.53846153846154,
+          "averagePostExit20dPct": -0.03906661278458845
+        },
+        {
+          "peak_date": "2021-12-29",
+          "trough_date": "2022-06-17",
+          "end_date": "2022-10-21",
+          "drawdown": -0.13932587369806293,
+          "replacementEvents": 9,
+          "averageReplacementAdvantagePct": 3.664408696085006,
+          "replacementWinRatePct": 55.55555555555556,
+          "averageWinnerGivebackPct": 10.921489130367767,
+          "worstPositionMaePct": -18.256527918995623,
+          "justOutsideExitSharePct": 77.77777777777779,
+          "averagePostExit20dPct": -5.236489237301391
+        }
+      ],
+      "economicMagnitude": {
+        "winnerGivebackEqualSlotSumPct": 61.8829834991487,
+        "realizedEqualSlotWinnerProfitSumPct": 90.9637800020992,
+        "replacementEqualSlotAnnualizedPct": 3.0296037698877534
+      }
+    },
+    "Market-Residual Momentum": {
+      "metadata": {
+        "strategy": "Market-Residual Momentum",
+        "start": "2021-08-23",
+        "end": "2026-08-22",
+        "riskFreeRate": 0.03671085257605609,
+        "symbols": [
+          "AAPL",
+          "AMGN",
+          "AXP",
+          "BA",
+          "CAT",
+          "CRM",
+          "CSCO",
+          "CVX",
+          "DIS",
+          "DOW",
+          "GS",
+          "HD",
+          "HON",
+          "IBM",
+          "INTC",
+          "JNJ",
+          "JPM",
+          "KO",
+          "MCD",
+          "MMM",
+          "MRK",
+          "MSFT",
+          "NKE",
+          "PG",
+          "TRV",
+          "UNH",
+          "V",
+          "VZ",
+          "WMT"
+        ],
+        "canonicalParameters": {
+          "lookback": 126,
+          "skip_days": 5,
+          "top_n": 5,
+          "rebalance_frequency": "monthly"
+        },
+        "rebalances": 61,
+        "completedPositions": 60,
+        "openPositionsExcluded": 5,
+        "reconciliation": {
+          "firstRebalanceEntries": 5,
+          "laterEntries": 60,
+          "allEntries": 65,
+          "completedPlusOpen": 65,
+          "balances": true,
+          "replacementRows": 58,
+          "completedWithoutPairedReplacement": 2
+        },
+        "portfolioReturnPct": 87.18697266459658,
+        "cagrPct": 13.3407019352213,
+        "maxDrawdownPct": 16.533346165749634,
+        "totalCosts": 68.87555198226949,
+        "totalTradedNotional": 305134.7725665247,
+        "universeKey": "dow_jones_industrial_average",
+        "pitMembershipApplied": true,
+        "drawdownEpisodes": [
+          {
+            "peak_date": "2022-08-17",
+            "trough_date": "2022-10-11",
+            "end_date": "2024-01-25",
+            "drawdown": -0.1653334616574964
+          },
+          {
+            "peak_date": "2022-01-07",
+            "trough_date": "2022-06-16",
+            "end_date": "2022-08-12",
+            "drawdown": -0.12326960931235542
+          },
+          {
+            "peak_date": "2025-03-07",
+            "trough_date": "2025-04-08",
+            "end_date": "2025-05-02",
+            "drawdown": -0.09700184869972361
+          }
+        ],
+        "priceDataAudit": {
+          "symbolsWithBars": 29,
+          "duplicateSessions": 0,
+          "missingOhlcRows": 0,
+          "perSymbol": {
+            "AAPL": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "AMGN": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "AXP": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "BA": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "CAT": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "CRM": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "CSCO": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "CVX": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "DIS": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "DOW": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "GS": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "HD": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "HON": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "IBM": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "INTC": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "JNJ": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "JPM": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "KO": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "MCD": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "MMM": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "MRK": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "MSFT": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "NKE": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "PG": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "TRV": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "UNH": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "V": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "VZ": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            },
+            "WMT": {
+              "rows": 1392,
+              "first": "2021-02-05",
+              "last": "2026-08-21",
+              "duplicateSessions": 0,
+              "missingOhlcRows": 0
+            }
+          }
+        }
+      },
+      "strategySummary": {
+        "completedPositions": 60,
+        "medianHoldingSessions": 62.5,
+        "medianMfePct": 5.495341267286169,
+        "medianMaePct": -4.796186654435491,
+        "medianWinnerCapturePct": 78.26672975870439,
+        "medianWinnerGivebackPct": 2.572555075910299,
+        "postExit20dPct": 1.3262059296797646,
+        "replacementWinRatePct": 62.06896551724138,
+        "averageReplacementAdvantagePct": 0.8298700743794604
+      },
+      "winner": {
+        "n": 33,
+        "meanReturnPct": 12.961018387103001,
+        "medianMfePct": 13.365589216265672,
+        "medianTimeToMfeSessions": 55.0,
+        "captureDistributionPct": {
+          "p25": 40.218949142187356,
+          "median": 78.26672975870439,
+          "p75": 91.6323744868868,
+          "p90": 99.23839966272395,
+          "mean": 69.44382046594254
+        },
+        "meanCapturePct": 69.44382046594254,
+        "meanGivebackPct": 3.2574325163801308,
+        "exitWithin10PctOfMfePct": 30.303030303030305,
+        "givebackOver25PctOfMfePct": 42.42424242424242,
+        "givebackOver50PctOfMfePct": 27.27272727272727,
+        "givebackOver75PctOfMfePct": 12.121212121212121,
+        "mfeNearEndPct": 63.63636363636363,
+        "peakEarlyDecayPct": 6.0606060606060606,
+        "exitStrongTrendPct": 21.21212121212121,
+        "patterns": {
+          "recovery winner": 14,
+          "late acceleration": 10,
+          "steady winner": 4,
+          "volatile winner": 4,
+          "early spike then decay": 1
+        }
+      },
+      "loser": {
+        "n": 27,
+        "medianRealizedLossPct": -4.33908549280333,
+        "medianMaePct": -8.110404450127772,
+        "medianFirstMeaningfulLossSessions": 5.0,
+        "medianTimeBelowEntryPct": 75.80645161290323,
+        "suddenPct": 77.77777777777779,
+        "onceProfitablePct": 77.77777777777779,
+        "materialRecoveryPct": 74.07407407407408,
+        "neverMateriallyRecoveredPct": 25.925925925925924,
+        "medianRecoveryAfterMaePct": 6.359035599559726,
+        "medianSessionsMaeToExit": 11.0,
+        "medianLoserDelayPct": -1.714804808680892,
+        "medianDamageRealizedPctOfMae": 58.96499307649942
+      },
+      "postExit": {
+        "5": {
+          "all": -0.01536334545255702,
+          "winners": 0.09854524523984397,
+          "losers": -0.1545849562988249,
+          "largeWinners": 1.8376345017303182,
+          "largeLosers": -1.9820752532309416
+        },
+        "10": {
+          "all": 0.09145155946813015,
+          "winners": -0.225792504648624,
+          "losers": 0.47919430449971856,
+          "largeWinners": 2.3900011798609677,
+          "largeLosers": -0.9290567542316053
+        },
+        "20": {
+          "all": 1.3262059296797646,
+          "winners": 0.6012558742897551,
+          "losers": 2.1585559932757015,
+          "largeWinners": 3.942821120297043,
+          "largeLosers": 3.0692578942845623
+        },
+        "40": {
+          "all": 2.129167103534079,
+          "winners": 1.2488533974922504,
+          "losers": 3.139897654915437,
+          "largeWinners": 5.697848812955586,
+          "largeLosers": 4.13152789353586
+        }
+      },
+      "postExitExcursions": {
+        "5": {
+          "all": {
+            "mfePct": 2.0813104456998466,
+            "maePct": -2.182901074106134
+          },
+          "winners": {
+            "mfePct": 2.038328792718929,
+            "maePct": -2.1365833446646487
+          },
+          "losers": {
+            "mfePct": 2.133843577120968,
+            "maePct": -2.239511632312394
+          },
+          "largeWinners": {
+            "mfePct": 3.201888425832397,
+            "maePct": -1.7068992317082157
+          },
+          "largeLosers": {
+            "mfePct": 1.767696195511657,
+            "maePct": -3.2778866095395487
+          }
+        },
+        "10": {
+          "all": {
+            "mfePct": 3.1342815924711926,
+            "maePct": -3.0812424681230275
+          },
+          "winners": {
+            "mfePct": 3.0487685798958006,
+            "maePct": -3.3280974050498284
+          },
+          "losers": {
+            "mfePct": 3.238797496730007,
+            "maePct": -2.779530878545828
+          },
+          "largeWinners": {
+            "mfePct": 5.692109250842149,
+            "maePct": -2.2747861138121306
+          },
+          "largeLosers": {
+            "mfePct": 2.2066174364772224,
+            "maePct": -3.403860957260052
+          }
+        },
+        "20": {
+          "all": {
+            "mfePct": 5.236202975851933,
+            "maePct": -4.11681696752085
+          },
+          "winners": {
+            "mfePct": 4.4477359835639465,
+            "maePct": -4.206778346836454
+          },
+          "losers": {
+            "mfePct": 6.141479892923325,
+            "maePct": -4.013527976454786
+          },
+          "largeWinners": {
+            "mfePct": 7.934047175057805,
+            "maePct": -3.4478078967580963
+          },
+          "largeLosers": {
+            "mfePct": 6.005390255701177,
+            "maePct": -4.1965344343463755
+          }
+        },
+        "40": {
+          "all": {
+            "mfePct": 7.697342911571931,
+            "maePct": -5.716912697554929
+          },
+          "winners": {
+            "mfePct": 6.554405055688807,
+            "maePct": -5.738910303310277
+          },
+          "losers": {
+            "mfePct": 9.009604894252554,
+            "maePct": -5.691656187243234
+          },
+          "largeWinners": {
+            "mfePct": 10.443336313574411,
+            "maePct": -3.676076339714234
+          },
+          "largeLosers": {
+            "mfePct": 9.926953359012376,
+            "maePct": -5.859906955268891
+          }
+        }
+      },
+      "replacement": {
+        "n": 58,
+        "winRatePct": 62.06896551724138,
+        "averageAdvantagePct": 0.8298700743794604,
+        "medianAdvantagePct": 1.822175357762379,
+        "p10Pct": -10.34031283824865,
+        "p90Pct": 8.92355555958245,
+        "clusterInference": {
+          "mean": 0.008298700743794603,
+          "ci95": [
+            -0.012563584684621695,
+            0.02976702786733331
+          ],
+          "effectiveN": 43,
+          "rawN": 58,
+          "method": "rebalance-cluster bootstrap, 2000 draws, seed 20260822"
+        },
+        "equalSlotCumulativeContributionPct": 9.626492862801738,
+        "equalSlotAnnualizedContributionPct": 1.9266172702127862,
+        "byOutgoingState": {
+          "loser": {
+            "n": 25,
+            "winRatePct": 68.0,
+            "averageAdvantagePct": 0.36384483114551314,
+            "medianAdvantagePct": 1.6981019461472124
+          },
+          "near-flat": {
+            "n": 3,
+            "winRatePct": 66.66666666666666,
+            "averageAdvantagePct": -1.1487769637787157,
+            "medianAdvantagePct": 5.069335547435639
+          },
+          "winner": {
+            "n": 30,
+            "winRatePct": 56.666666666666664,
+            "averageAdvantagePct": 1.4160891475569004,
+            "medianAdvantagePct": 1.8472477973257628
+          }
+        }
+      },
+      "rankTransition": {
+        "just outside boundary": {
+          "n": 54,
+          "outgoingNextPct": 1.3581609926519176,
+          "incomingPct": 2.2536452490974686,
+          "advantagePct": 0.8954842564455511
+        },
+        "moderate deterioration": {
+          "n": 3,
+          "outgoingNextPct": 5.498584300967687,
+          "incomingPct": 3.7283538787086865,
+          "advantagePct": -1.7702304222590004
+        },
+        "severe/unranked": {
+          "n": 1,
+          "outgoingNextPct": -5.4175593637165615,
+          "incomingPct": -0.3305536309906265,
+          "advantagePct": 5.0870057327259355
+        }
+      },
+      "turnoverGroups": {
+        "new": {
+          "n": 63,
+          "meanPct": 2.075303084598624,
+          "medianPct": 1.0126407908318757
+        },
+        "outgoing": {
+          "n": 58,
+          "meanPct": 1.4554980541791387,
+          "medianPct": 1.669851516680565
+        },
+        "retained": {
+          "n": 237,
+          "meanPct": 0.8719872413687167,
+          "medianPct": 0.553962315281864
+        },
+        "universe_median": {
+          "n": 60,
+          "meanPct": 0.7951708196603964,
+          "medianPct": 0.800096105393111
+        }
+      },
+      "largeWinner": {
+        "n": 9,
+        "meanRealizedPct": 29.002463674140028,
+        "medianMfePct": 33.97090894241481,
+        "medianMaePct": -0.22827926724328096,
+        "medianCapturePct": 91.6323744868868,
+        "meanGivebackPct": 3.565338772680457,
+        "meanPostExit20dPct": 3.942821120297043,
+        "medianExitRank": 7.0,
+        "replacementN": 7,
+        "meanReplacementReturnPct": 2.3178609052047494,
+        "meanOutgoingCounterfactualPct": 4.369871558309855,
+        "meanReplacementAdvantagePct": -2.0520106531051057,
+        "replacementWinRatePct": 42.857142857142854
+      },
+      "largeLoser": {
+        "n": 7,
+        "meanRealizedPct": -10.725078242294373,
+        "medianMfePct": 1.7751218011798908,
+        "medianMaePct": -12.506932510481828,
+        "medianCapturePct": null,
+        "meanGivebackPct": 12.522684671605317,
+        "meanPostExit20dPct": 3.0692578942845623,
+        "medianExitRank": 7.0,
+        "replacementN": 7,
+        "meanReplacementReturnPct": 3.048764895007732,
+        "meanOutgoingCounterfactualPct": 2.879195173701778,
+        "meanReplacementAdvantagePct": 0.1695697213059542,
+        "replacementWinRatePct": 57.14285714285714
+      },
+      "entryEfficiency": {
+        "meanFirst5ReturnPct": 0.1551881463350633,
+        "medianFirst5CloseMaePct": -0.5016901479957869,
+        "medianFirst5CloseMfePct": 1.1994866514235092,
+        "immediateAdverseOver2PctShare": 25.0
+      },
+      "drawdownAttribution": [
+        {
+          "peak_date": "2022-08-17",
+          "trough_date": "2022-10-11",
+          "end_date": "2024-01-25",
+          "drawdown": -0.1653334616574964,
+          "replacementEvents": 3,
+          "averageReplacementAdvantagePct": -10.975183632328008,
+          "replacementWinRatePct": 0.0,
+          "averageWinnerGivebackPct": null,
+          "worstPositionMaePct": -13.902713571419545,
+          "justOutsideExitSharePct": 100.0,
+          "averagePostExit20dPct": 14.109974993237193
+        },
+        {
+          "peak_date": "2022-01-07",
+          "trough_date": "2022-06-16",
+          "end_date": "2022-08-12",
+          "drawdown": -0.12326960931235542,
+          "replacementEvents": 5,
+          "averageReplacementAdvantagePct": -5.472985584901864,
+          "replacementWinRatePct": 20.0,
+          "averageWinnerGivebackPct": 3.3994215356632274,
+          "worstPositionMaePct": -12.506932510481828,
+          "justOutsideExitSharePct": 100.0,
+          "averagePostExit20dPct": -0.48034203880160664
+        },
+        {
+          "peak_date": "2025-03-07",
+          "trough_date": "2025-04-08",
+          "end_date": "2025-05-02",
+          "drawdown": -0.09700184869972361,
+          "replacementEvents": 1,
+          "averageReplacementAdvantagePct": 15.04771266121805,
+          "replacementWinRatePct": 100.0,
+          "averageWinnerGivebackPct": 2.6646299945292995,
+          "worstPositionMaePct": -3.443578181361573,
+          "justOutsideExitSharePct": 100.0,
+          "averagePostExit20dPct": 0.45357544427808705
+        }
+      ],
+      "economicMagnitude": {
+        "winnerGivebackEqualSlotSumPct": 21.499054608108864,
+        "realizedEqualSlotWinnerProfitSumPct": 85.54272135487982,
+        "replacementEqualSlotAnnualizedPct": 1.9266172702127862
+      }
+    }
+  }
+}
