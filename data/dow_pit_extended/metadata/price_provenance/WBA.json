@@ -1,0 +1,51 @@
+{
+  "required": [
+    "2018-06-26",
+    "2024-02-25"
+  ],
+  "event": "same_security",
+  "lineage": "Walgreens Boots Alliance common stock (CUSIP 931427108), trading as WBA since 2014; no successor mapping is used.",
+  "identitySource": "https://www.sec.gov/Archives/edgar/data/1618921/000119312514457671/d843789d8k12b.htm",
+  "ticker": "WBA",
+  "priceDataStatus": "RECOVERED_PRICE_DATA",
+  "recovered": true,
+  "failClosed": false,
+  "firstRecoveredBar": "2017-05-01",
+  "lastRecoveredBar": "2024-02-23",
+  "rowCount": 1716,
+  "outputArtifact": "data/dow_pit_extended/prices/WBA.parquet",
+  "outputSha256": "a0218eba6aa81c236d0d72165b2dc1ca83bfea4c97a2db650c24aa6162a448d5",
+  "lookbackTreatment": "normal",
+  "retrieval": "CC0 Zenodo dataset download",
+  "sourceSymbol": "WBA",
+  "sourceUrl": "https://zenodo.org/records/12566460/files/WBA_stock_data.csv?download=1",
+  "doi": "10.5281/zenodo.12566460",
+  "license": "CC0-1.0",
+  "rawArtifact": "data/dow_pit_extended/metadata/raw/WBA_zenodo_12566460.csv",
+  "rawSha256": "eb8b800b62f8b161ae0b407752d9d47c50f4d08dd2549ec97212a46892fb7897",
+  "independentPriceCrossCheck": {
+    "source": "https://devyara.com/en-us/nasdaq/wba/price-history/",
+    "method": "three month-end unadjusted closes",
+    "checks": [
+      {
+        "month": "2023-01",
+        "expectedClose": 36.86,
+        "observedClose": 36.86,
+        "passed": true
+      },
+      {
+        "month": "2023-12",
+        "expectedClose": 26.11,
+        "observedClose": 26.11,
+        "passed": true
+      },
+      {
+        "month": "2024-02",
+        "expectedClose": 21.26,
+        "observedClose": 21.26,
+        "passed": true
+      }
+    ],
+    "passed": true
+  }
+}

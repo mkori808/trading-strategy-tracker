@@ -51,6 +51,7 @@ from engine import (
     movers as movers_module,
     optimized_dm_hourly_shadow,
     pit_features,
+    plain_vs_residual_momentum_forward,
     prop_forward,
     research_status,
     screener as screener_module,
@@ -308,6 +309,10 @@ async def _start_execution_scheduler() -> None:
                 await asyncio.to_thread(optimized_dm_hourly_shadow.advance)
             except Exception:  # noqa: BLE001 -- observation-only; surfaced by its status endpoint
                 logger.exception("Optimized-DM hourly shadow advancement failed")
+            try:
+                await asyncio.to_thread(plain_vs_residual_momentum_forward.advance_completed_sessions)
+            except Exception:  # noqa: BLE001 -- observation-only; surfaced by its status endpoint
+                logger.exception("Plain-vs-residual-momentum forward advancement failed")
             await asyncio.sleep(EXECUTION_CHECK_INTERVAL_SECONDS)
 
     global _execution_task
@@ -479,6 +484,28 @@ class ExecutionConfigUpdate(BaseModel):
     # the first real rebalance; "flatten" liquidates them first and records
     # the baseline only after the account is flat.
     inceptionPolicy: Literal["adopt", "flatten"] | None = None
+
+
+class ProposeForwardExperimentRequest(BaseModel):
+    """Body for POST /api/research/forward/propose -- the Strategies page's
+    'Propose for forward experiment' action. Deliberately NOT the same code
+    path as ExecutionConfigUpdate/set_execution_config: this endpoint calls
+    forward_experiments.start() and returns, and never touches
+    execution_db.set_config/configure_inception, so proposing an experiment
+    from an arbitrary historical run can never change which strategy Alpaca
+    is currently executing. Available for any cross_sectional/pairs run, not
+    only the two ALPACA_PAPER_STRATEGY_NAMES gated for live automation --
+    a forward experiment is a research record, not an execution grant."""
+
+    strategyName: str
+    validationRunId: int
+    # Required true: the caller must affirmatively acknowledge this
+    # configuration was selected from historical run results before a
+    # forward-experiment row is created for it (CLAUDE.md Strategies-page
+    # refactor: "acknowledgement that historical selection occurred").
+    acknowledgeSelection: bool = False
+    overridePassedGates: bool = False
+    overrideReason: str | None = None
 
 
 class ForwardObservationInput(BaseModel):
@@ -2429,6 +2456,27 @@ def optimized_dm_hourly_shadow_status() -> dict:
     return _clean(optimized_dm_hourly_shadow.status())
 
 
+@app.get("/api/research/shadow-live-marks")
+def shadow_live_marks() -> dict:
+    """A live 'right now' equity mark for every shadow strategy, on top of
+    whatever cadence each already advances on its own (once daily for
+    Canonical DM/MRM/blends, hourly for the hourly shadow, every 5 minutes
+    for the prop/self-funded shadows) -- see engine/shadow_live_mark.py.
+    Meant to be polled on the same cadence as GET /api/live/account (see
+    LiveMonitorView.tsx's POLL_MS) so every row in the Strategy accounts
+    list ticks the same way the real paper account already does.
+
+    Cheap: every ingredient here is already-persisted state plus one
+    TTL-cached (15s) batched quote lookup per poll -- no backtest replay,
+    no fresh broker snapshot beyond the one /api/live/account already
+    fetches this same poll cycle."""
+    marks = {}
+    marks.update(dm_mrm_forward.live_marks())
+    marks["dm_optimized_63d_hourly"] = optimized_dm_hourly_shadow.live_mark()
+    marks.update(prop_forward.live_marks())
+    return _clean(marks)
+
+
 @app.get("/api/research/capital-efficiency")
 def capital_efficiency_status() -> dict:
     """Frozen historical comparison; prospective ledgers remain separate."""
@@ -2640,6 +2688,45 @@ def set_execution_config(body: ExecutionConfigUpdate) -> dict:
     }
 
 
+@app.post("/api/research/forward/propose")
+def propose_forward_experiment(body: ProposeForwardExperimentRequest) -> dict:
+    """Create (or idempotently return) a forward experiment for a historical
+    portfolio run WITHOUT enabling live paper execution -- the safe
+    replacement for promoting an arbitrary historical row straight into
+    POST /api/live/execution/config's coupled enable-trading path. This never
+    calls execution_db.set_config/configure_inception, so the strategy
+    currently assigned to Alpaca paper execution (if any) is left exactly as
+    it was. Enabling live paper orders remains its own separate, explicit
+    action at /api/live/execution/config."""
+    if _strategy_engine(body.strategyName) not in {"cross_sectional", "pairs"}:
+        raise HTTPException(
+            status_code=400,
+            detail=f"{body.strategyName!r} does not run on the portfolio engine forward experiments are recorded against.",
+        )
+    if not body.acknowledgeSelection:
+        raise HTTPException(
+            status_code=400,
+            detail="Proposing a forward experiment requires acknowledging that this configuration was selected from historical run results.",
+        )
+    eligible, reason, validation_run_id = paper_execution_eligibility(
+        body.strategyName, body.validationRunId
+    )
+    if not eligible and (not body.overridePassedGates or validation_run_id is None):
+        raise HTTPException(
+            status_code=409,
+            detail=f"Forward experiment blocked by validation: {reason}.",
+        )
+    try:
+        experiment = forward_experiments.start(
+            body.strategyName, validation_run_id,
+            override=body.overridePassedGates and not eligible,
+            override_reason=body.overrideReason,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return _clean(experiment)
+
+
 @app.get("/api/research/status")
 def research_status_dashboard() -> dict:
     """Research Status dashboard -- one row per tracked research branch
@@ -2682,6 +2769,21 @@ def research_forward_stack() -> dict:
     research shadow state and has no order-placement capability.
     """
     return _clean(dm_mrm_forward.forward_stack_status())
+
+
+@app.get("/api/research/plain-vs-residual-forward")
+def research_plain_vs_residual_forward() -> dict:
+    """Fast, read-only prospective shadow state for Plain Momentum (C) vs
+    Market-Residual Momentum (D) -- see
+    research/plain_vs_residual_momentum_forward_preregistration.json.
+
+    Distinct from /api/research/forward-stack (Dual Momentum vs MRM): C is
+    not even a registered, tradable strategy, and this ledger has its own
+    calendar-month (not session-count) checkpoint schedule. No order-
+    placement capability; Alpaca account equity remains under
+    /api/live/account.
+    """
+    return _clean(plain_vs_residual_momentum_forward.forward_stack_status())
 
 
 @app.get("/api/research/forward/{strategy_name:path}")

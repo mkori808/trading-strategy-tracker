@@ -160,3 +160,18 @@ export function CardEmpty({ children }: { children: ReactNode }) {
     </div>
   );
 }
+
+/** The dashboard's four-mode status pill: green (paper/live orders placed),
+ * orange (research shadow, no orders), yellow (frozen/needs attention), gray
+ * (closed/off). Shared by every card and popup that needs to say which of
+ * those a piece of evidence is, so the same word never gets two different
+ * colors in two different places. */
+export function StatusBadge({ mode, children }: { mode: "paper" | "shadow" | "frozen" | "closed"; children: string }) {
+  const palette = {
+    paper: { color: "var(--status-good)", background: "var(--status-good-bg)" },
+    shadow: { color: "var(--series-1)", background: "var(--series-1-wash)" },
+    frozen: { color: "var(--status-warning)", background: "var(--status-warning-bg)" },
+    closed: { color: "var(--text-muted)", background: "var(--gridline)" },
+  }[mode];
+  return <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold whitespace-nowrap" style={palette}>{children}</span>;
+}

@@ -925,6 +925,74 @@ def forward_stack_status(nav_path: Path = NAV_PATH, decisions_path: Path = DECIS
                            "researchNavLabel": "Normalized strategy forward NAV"}}
 
 
+def live_marks(nav_path: Path = NAV_PATH, amendments_path: Path | None = None,
+               operations_path: Path = OPERATIONS_PATH) -> dict[str, dict[str, Any]]:
+    """A live 'today' equity mark for dm/mrm/fiftyFifty/volScaled, reusing
+    only already-persisted state (never a fresh backtest replay -- safe to
+    call on every dashboard poll). See engine/shadow_live_mark.py.
+
+    `dm` prefers the real Alpaca paper account's own live equity growth
+    factor when it is the account currently executing this exact canonical
+    configuration (the same condition `forward_stack_status` already checks
+    to label that row "Operational paper..."); every other series, and `dm`
+    itself whenever that condition fails, is reconstructed from live quotes
+    on its current frozen holdings.
+    """
+    from engine.shadow_live_mark import compute_live_mark, compute_live_mark_from_broker
+
+    amendments_path = amendments_path or (
+        AMENDMENTS_PATH if nav_path == NAV_PATH else nav_path.with_name(f"{nav_path.stem}_amendments.json")
+    )
+    nav = load_effective_forward_nav(nav_path, amendments_path)
+    operations = _read_json(operations_path, {})
+    current_blend = operations.get("currentBlend") or {}
+    holdings_by_key = {
+        "dm": current_blend.get("dmHoldings") or {},
+        "mrm": current_blend.get("mrmHoldings") or {},
+        "fiftyFifty": current_blend.get("fixedCombinedHoldings") or {},
+        "volScaled": current_blend.get("combinedHoldings") or {},
+    }
+    baseline_date = nav.index[-1].date() if len(nav) else None
+
+    dm_from_broker = False
+    account_equity = account_last_equity = None
+    try:
+        from engine import alpaca_trading, execution_db
+        from engine.strategy_identity import identify_execution_config
+
+        config = execution_db.automation_config().get("Dual Momentum")
+        if config and config["enabled"]:
+            params = json.loads(config["params"]) if config["params"] else {}
+            symbols = execution_db.selected_symbols_for("Dual Momentum") or []
+            identity = identify_execution_config("Dual Momentum", params, symbols, config["validation_run_id"])
+            if identity.get("fingerprintMatches"):
+                account = alpaca_trading.get_account()
+                if account.get("available"):
+                    account_equity = account.get("equity")
+                    account_last_equity = account.get("lastEquity")
+                    dm_from_broker = True
+    except Exception:  # noqa: BLE001 -- a live mark degrading to quote-based is never fatal
+        dm_from_broker = False
+
+    marks: dict[str, dict[str, Any]] = {}
+    for key in ("dm", "mrm", "fiftyFifty", "volScaled"):
+        baseline_equity = float(nav[key].iloc[-1]) if len(nav) else None
+        if key == "dm" and dm_from_broker:
+            marks[key] = compute_live_mark_from_broker(
+                key, baseline_series_equity=baseline_equity,
+                account_equity=account_equity, account_last_equity=account_last_equity,
+            )
+        else:
+            marks[key] = compute_live_mark(key, holdings_by_key[key], baseline_equity, baseline_date)
+    # SPY itself, on the same live-mark shape -- the shared external
+    # benchmark every series in COMPARISON_SET is already judged against,
+    # so a shadow's live "today" figure has a same-instant benchmark
+    # comparison rather than only a settled prior-day one.
+    spy_baseline = float(nav["spy"].iloc[-1]) if len(nav) else None
+    marks["spy"] = compute_live_mark("spy", {"SPY": 1.0}, spy_baseline, baseline_date)
+    return marks
+
+
 def write_operational_audit(output_dir: Path = Path("reports/forward_stack_audit")) -> dict[str, Any]:
     """Persist the current implementation audit without advancing or trading."""
     status = forward_stack_status()

@@ -1,0 +1,60 @@
+{
+  "study": "Plain Momentum (C) vs Market-Residual Momentum (D) prospective shadow test v1",
+  "frozenAt": "2026-08-31",
+  "status": "awaiting_first_forward_session",
+  "purpose": "research/mrm_attribution_ladder_preregistration.json already isolated the incremental HISTORICAL effect of residualization (D minus C) on the same five-year window every other MRM study in this project has used. This study tests the same comparison PROSPECTIVELY, on data that did not exist when C and D's parameters were chosen, using only information available in real time. It is the direct answer to 'does this hold up out of sample', which no amount of further historical re-analysis of the same window can provide.",
+  "hypothesisUnderTest": "Residualization may sacrifice some raw return but improve downside/risk quality relative to plain momentum.",
+  "hypothesisSource": "Stated verbatim by the user when commissioning this study (2026-08-31); preserved as the frozen null this study exists to test, not restated or reworded post hoc.",
+  "frozenEntities": {
+    "C": {
+      "class": "engine.mrm_attribution_ladder.PlainMomentumControl",
+      "name": "Plain Momentum (Attribution Control)",
+      "params": {"lookback": 126, "skip_days": 5, "top_n": 5, "rebalance_frequency": "monthly"},
+      "note": "Deliberately NOT registered in strategies/registry.py (ALL_STRATEGY_NAMES, the leaderboard, the params UI) -- it exists only as a diagnostic control class. This study imports and runs that class UNCHANGED; it does not fork, copy, or redefine it. Freezing it here means: no lookback/skip/topN/rebalance-frequency edit to PlainMomentumControl for the life of this study, for any reason, including a forward result that looks surprising."
+    },
+    "D": {
+      "class": "strategies.swing.frozen_research.MarketResidualMomentum",
+      "name": "Market-Residual Momentum",
+      "params": {"lookback": 126, "skip_days": 5, "top_n": 5, "rebalance_frequency": "monthly", "factorModel": "market_only"},
+      "note": "The already-canonical, registered strategy. research/frozen_v1_protocol.json already freezes these exact parameters; this study adds no new freeze, it only cites the existing one and commits to not touching it."
+    },
+    "universe": "dow_pit (identical to the historical ladder study; NOT dow_pit_extended_v1, which remains unactivated -- see research/dow_pit_extended_v1_preregistration.json)",
+    "benchmark": "SPY",
+    "costModel": "identical per-symbol spread_for_universe estimate and commission convention the canonical runs already use; unchanged"
+  },
+  "dataDiscipline": {
+    "developmentCutoff": "2026-08-31",
+    "rule": "No session on or before the development cutoff may enter the forward ledger. The forward test begins with the first completed market session strictly after the cutoff -- matching engine/dm_mrm_forward.py's DEVELOPMENT_CUTOFF convention exactly, applied to a new, independent ledger for C and D.",
+    "lookaheadGuard": "Each forward session's C/D/SPY return is computed by replaying engine.mrm_attribution_ladder.compute_rungs() through exactly that completed session and no further -- the same function the historical ladder study already uses, never reimplemented. A completed session's already-recorded return is reconciled against every later replay and must not silently drift (matches the corruption check already proven necessary for the DM/MRM forward ledger's 2026-08-30 incident)."
+  },
+  "trackedMetrics": [
+    "benchmarkRelativeReturnPct (each of C, D vs SPY, cumulative and per-checkpoint)",
+    "sharpe", "sortino",
+    "maxDrawdownPct",
+    "turnoverPct and totalCosts per rebalance and cumulative",
+    "hitRateByRebalance (fraction of rebalance periods with a positive period return, computed separately for C and D)",
+    "pairedHitRate (fraction of rebalance periods where D's period return exceeded C's -- the direct forward analogue of the historical ladder's paired bootstrap)",
+    "realizedHoldings (actual symbols and weights held by C and D at every rebalance, not a backtest replay)",
+    "regimeBehavior (each rebalance period tagged with engine.regime.classify()'s Bullish/Neutral/Bearish label as of that period's start date, joined the same way research/mrm_regime_drawdown_attribution_preregistration.json already does for the historical study)"
+  ],
+  "checkpoints": {
+    "unit": "calendar months elapsed since the first recorded forward session (not session count -- deliberately different from the DM/MRM forward ledger's 20/63/126/252-session ladder, per the user's explicit request for calendar-based checkpoints)",
+    "schedule": [
+      {"months": 6, "label": "First descriptive checkpoint"},
+      {"months": 12, "label": "First checkpoint eligible for a real comparison against this preregistration's expectations"},
+      {"months": 24, "label": "Second full comparison checkpoint"}
+    ],
+    "preCheckpointRule": "Before a scheduled checkpoint is reached, every number this study produces is OBSERVATIONAL ONLY -- reported for transparency, never interpreted, never used to justify a parameter change, a redesign, or an early verdict. The scorecard function itself refuses to emit anything stronger than an observational label before 6 months, and restricts comparative language (e.g. 'supports'/'contradicts' the hypothesis) to the 12- and 24-month checkpoints only.",
+    "atCheckpointRule": "At each scheduled checkpoint, compare realized C-vs-D behavior against the hypothesisUnderTest and against research/mrm_attribution_ladder_preregistration.json's historical paired-bootstrap distribution (does the forward paired return-difference distribution look like a plausible draw from the same historical distribution, or has it shifted). This comparison is written up by a human, not auto-concluded; the scorecard supplies the numbers, not the verdict."
+  },
+  "prohibited": [
+    "editing PlainMomentumControl's or MarketResidualMomentum's parameters for the life of this study, for any reason, including a forward result that looks weird",
+    "tuning the lookback, skip_days, top_n, rebalance_frequency, or factor model of either strategy based on any forward observation before or after a checkpoint",
+    "changing the universe (dow_pit), benchmark (SPY), or cost model mid-study",
+    "treating a pre-checkpoint observation as grounds for redesign, early stopping, or reweighting confidence in the hypothesis",
+    "backfilling or splicing any pre-cutoff (on or before 2026-08-31) data into the forward ledger",
+    "silently rewriting an already-recorded forward session's return; any correction must be a disclosed, append-only amendment with cited evidence, mirroring engine/dm_mrm_forward.py's NavAmendment mechanism",
+    "activating dow_pit_extended_v1 for this study before it separately passes its own 100% coverage gate -- this study runs on dow_pit only, unconditionally"
+  ],
+  "interpretationRule": "Supportive: at a checkpoint, D shows a materially better max-drawdown and/or Sharpe/Sortino than C while C's raw cumulative return is equal to or better than D's -- the exact shape the hypothesis predicts. Contradicted: D's drawdown/risk-adjusted metrics are equal to or worse than C's despite giving up raw return, or D simply dominates or is dominated by C on every axis (a materially different, not merely a null, result). Inconclusive: too few forward rebalance periods at that checkpoint to distinguish signal from noise (fewer than 6 paired rebalance periods at the 6-month checkpoint, fewer than 10 at 12 months, fewer than 20 at 24 months -- matching this project's existing small-sample-caution convention). Inconclusive is reported as inconclusive, not rounded to either verdict."
+}

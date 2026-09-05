@@ -263,6 +263,7 @@ def run_backtest(
     result = run_strategy_backtest(
         strategy_name, strategy, symbols, interval, start, end, risk_free_rate=rf,
         **({"spread": fixed_spread} if fixed_spread is not None else {}),
+        **_universe_backtest_kwargs(request),
     )
     if persist:
         result.run_id = log_run(
@@ -299,6 +300,7 @@ def _run_pead(request: RunRequest | None = None, *, persist: bool = True) -> Str
     result = run_strategy_backtest_seeded(
         PEAD_NAME, factory, symbols, "1d", start, end, risk_free_rate=rf,
         **({"spread": fixed_spread} if fixed_spread is not None else {}),
+        **_universe_backtest_kwargs(request),
     )
     if persist:
         result.run_id = log_run(
@@ -341,6 +343,7 @@ def _run_dual_momentum_pullback(request: RunRequest | None = None, *, persist: b
         DUAL_MOMENTUM_PULLBACK_NAME, factory, symbols, "1d", start, end,
         risk_free_rate=rf,
         **({"spread": fixed_spread} if fixed_spread is not None else {}),
+        **_universe_backtest_kwargs(request),
     )
     if persist:
         result.run_id = log_run(
@@ -386,6 +389,7 @@ def _run_avwap_breakout(request: RunRequest | None = None, *, persist: bool = Tr
     result = run_strategy_backtest_seeded(
         AVWAP_BREAKOUT_NAME, strategy_for, symbols, "1d", start, end, risk_free_rate=rf,
         **({"spread": fixed_spread} if fixed_spread is not None else {}),
+        **_universe_backtest_kwargs(request),
     )
     if persist:
         result.run_id = log_run(
@@ -505,6 +509,27 @@ def _fixed_universe_spread(
         spread_for_universe(symbol, start, end, request.universe_id) for symbol in symbols
     }
     return next(iter(spreads)) if len(spreads) == 1 else None
+
+
+def _universe_backtest_kwargs(request: RunRequest | None) -> dict[str, float]:
+    """A futures universe's own contract multiplier and (if declared)
+    starting cash, as extra kwargs for run_strategy_backtest(_seeded) --
+    forwarded through **kwargs into run_symbol_backtest. Empty for every
+    equity/ETF/crypto universe (and for no universe at all), reproducing
+    the engine's own defaults (multiplier 1.0, DEFAULT_CASH) exactly. See
+    engine/universe_registry.py:UniverseDefinition and
+    engine/backtest.py:run_symbol_backtest's scaling comment for why a
+    futures contract needs both.
+    """
+    if not request or not request.universe_id:
+        return {}
+    definition = registered_universe(request.universe_id)
+    kwargs: dict[str, float] = {}
+    if definition.contract_multiplier != 1.0:
+        kwargs["contract_multiplier"] = definition.contract_multiplier
+    if definition.starting_cash is not None:
+        kwargs["cash"] = definition.starting_cash
+    return kwargs
 
 
 def mean_spread_bps(

@@ -1,9 +1,10 @@
 import { useState } from "react";
 import type { BacktestOverrides, HistoryRow, ValidationReport } from "../api";
 import { EdgeValidationPanel } from "./EdgeValidationPanel";
+import { ProvenanceBadge } from "./ProvenanceBadge";
 import { ExecutionSemantics } from "./RunConfigPanel";
 import { StatusPill } from "./StatusPill";
-import { allChecks, gateCounts, searchFamilyNote } from "./researchPresentation";
+import { PROVENANCE_GROUP_ORDER, PROVENANCE_GROUP_TITLE, SELECTED_AFTER_SEARCH_DISCLOSURE, allChecks, classifyProvenance, gateCounts, groupByProvenance, searchFamilyNote } from "./researchPresentation";
 
 const day = (iso: string) => new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" });
 function power(report: ValidationReport | null | undefined, fallback: string | null | undefined): string {
@@ -40,24 +41,40 @@ export function RunHistory({ rows, onReplay, currentOverrides, currentParams, re
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
   if (!rows.length) return <p className="text-sm" style={{ color: "var(--text-muted)" }}>No prior runs logged.</p>;
   const familyNote = searchFamilyNote(rows);
-  const columns = "md:grid-cols-[100px_minmax(190px,1.5fr)_70px_95px_90px_120px_120px_70px]";
+  const groups = groupByProvenance(rows);
+  const columns = "md:grid-cols-[100px_minmax(190px,1.5fr)_70px_95px_90px_150px_120px_70px]";
   return <div>
     {familyNote && <p className="mb-2 text-xs" style={{ color: "var(--text-muted)" }}>{familyNote}</p>}
-    <div className="rounded-lg border" style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}>
-      <div className={`hidden gap-3 border-b px-3 py-2 text-xs font-medium md:grid ${columns}`} style={{ borderColor: "var(--gridline)", color: "var(--text-muted)" }}><span>Run</span><span>Window</span><span className="text-right">Trades</span><span className="text-right">Expectancy</span><span className="text-right">Profit factor</span><span title="Provenance of this individual historical run, independent of the strategy's current lifecycle.">Run provenance</span><span>Power</span><span /></div>
-      {rows.map((row) => { const open = expanded.has(row.id); return <div key={row.id} className="border-b last:border-b-0" style={{ borderColor: "var(--gridline)" }}>
-        <div className={`grid grid-cols-2 gap-3 px-3 py-3 text-sm md:items-center md:gap-3 ${columns}`}>
-          <div><strong>Run #{row.id}</strong><div className="text-[10px]" style={{ color: "var(--text-muted)" }}>{day(row.runAt)}</div></div>
-          <div><span className="md:hidden text-[10px] uppercase" style={{ color: "var(--text-muted)" }}>Window<br /></span>{row.startDate} → {row.endDate}</div>
-          <div className="md:text-right"><span className="md:hidden text-[10px] uppercase" style={{ color: "var(--text-muted)" }}>Trades<br /></span>{row.tradesTaken}</div>
-          <div className="md:text-right"><span className="md:hidden text-[10px] uppercase" style={{ color: "var(--text-muted)" }}>Expectancy<br /></span>{row.expectancyR === null ? "—" : `${row.expectancyR.toFixed(3)} R`}</div>
-          <div className="md:text-right"><span className="md:hidden text-[10px] uppercase" style={{ color: "var(--text-muted)" }}>Profit factor<br /></span>{row.profitFactor === null ? "—" : row.profitFactor.toFixed(2)}</div>
-          <div><span className="md:hidden text-[10px] uppercase" style={{ color: "var(--text-muted)" }}>Run provenance<br /></span><StatusPill status={row.lifecycleStage?.replace(/_/g, " ") ?? (row.isCanonical ? "Preregistered" : "Exploratory")} /></div>
-          <div><span className="md:hidden text-[10px] uppercase" style={{ color: "var(--text-muted)" }}>Power<br /></span><StatusPill status={power(row.validation, row.edgeVerdict)} /></div>
-          <button type="button" onClick={() => setExpanded((previous) => { const next = new Set(previous); if (next.has(row.id)) next.delete(row.id); else next.add(row.id); return next; })} className="text-left text-xs font-medium md:text-right" style={{ color: "var(--series-1)" }}>{open ? "Hide" : "Inspect"}</button>
-        </div>
-        {open && <RunEvidenceDetails row={row} currentOverrides={currentOverrides} currentParams={currentParams} registeredParams={registeredParams} onReplay={onReplay} />}
-      </div>; })}
-    </div>
+    {PROVENANCE_GROUP_ORDER.map((group) => {
+      const groupRows = groups.get(group);
+      if (!groupRows?.length && group !== "selected_after_search") return null;
+      return <div key={group} className="mb-4 last:mb-0">
+        <h3 className="mb-1.5 text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>{PROVENANCE_GROUP_TITLE[group]}</h3>
+        {group === "selected_after_search" && !groupRows?.length
+          ? <p className="mb-2 text-xs italic" style={{ color: "var(--text-muted)" }}>{SELECTED_AFTER_SEARCH_DISCLOSURE}</p>
+          : <div className="rounded-lg border" style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}>
+              <div className={`hidden gap-3 border-b px-3 py-2 text-xs font-medium md:grid ${columns}`} style={{ borderColor: "var(--gridline)", color: "var(--text-muted)" }}><span>Run</span><span>Window</span><span className="text-right">Trades</span><span className="text-right">Expectancy</span><span className="text-right">Profit factor</span><span>Provenance</span><span>Power</span><span /></div>
+              {(groupRows ?? []).map((row) => {
+                const open = expanded.has(row.id);
+                const provenance = classifyProvenance(row);
+                const deEmphasize = provenance.group === "exploratory" || provenance.group === "selected_after_search";
+                const figureStyle = { color: deEmphasize ? "var(--text-muted)" : "var(--text-primary)", fontWeight: deEmphasize ? 400 : 600 } as const;
+                return <div key={row.id} className="border-b last:border-b-0" style={{ borderColor: "var(--gridline)" }}>
+                  <div className={`grid grid-cols-2 gap-3 px-3 py-3 text-sm md:items-center md:gap-3 ${columns}`}>
+                    <div><strong>Run #{row.id}</strong><div className="text-[10px]" style={{ color: "var(--text-muted)" }}>{day(row.runAt)}</div></div>
+                    <div><span className="md:hidden text-[10px] uppercase" style={{ color: "var(--text-muted)" }}>Window<br /></span>{row.startDate} → {row.endDate}</div>
+                    <div className="md:text-right" style={figureStyle}><span className="md:hidden text-[10px] uppercase" style={{ color: "var(--text-muted)" }}>Trades<br /></span>{row.tradesTaken}</div>
+                    <div className="md:text-right" style={figureStyle}><span className="md:hidden text-[10px] uppercase" style={{ color: "var(--text-muted)" }}>Expectancy<br /></span>{row.expectancyR === null ? "—" : `${row.expectancyR.toFixed(3)} R`}</div>
+                    <div className="md:text-right" style={figureStyle}><span className="md:hidden text-[10px] uppercase" style={{ color: "var(--text-muted)" }}>Profit factor<br /></span>{row.profitFactor === null ? "—" : row.profitFactor.toFixed(2)}</div>
+                    <div className="flex flex-wrap items-center gap-1.5"><span className="md:hidden text-[10px] uppercase" style={{ color: "var(--text-muted)" }}>Provenance<br /></span><ProvenanceBadge badge={provenance.badge} /></div>
+                    <div><span className="md:hidden text-[10px] uppercase" style={{ color: "var(--text-muted)" }}>Power<br /></span><StatusPill status={power(row.validation, row.edgeVerdict)} /></div>
+                    <button type="button" onClick={() => setExpanded((previous) => { const next = new Set(previous); if (next.has(row.id)) next.delete(row.id); else next.add(row.id); return next; })} className="text-left text-xs font-medium md:text-right" style={{ color: "var(--series-1)" }}>{open ? "Hide" : "Inspect"}</button>
+                  </div>
+                  {open && <RunEvidenceDetails row={row} currentOverrides={currentOverrides} currentParams={currentParams} registeredParams={registeredParams} onReplay={onReplay} />}
+                </div>;
+              })}
+            </div>}
+      </div>;
+    })}
   </div>;
 }

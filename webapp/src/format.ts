@@ -8,6 +8,11 @@
  * fmtCompactMoney below). This file is for the new shell, not a
  * migration. */
 
+export function fmtDate(value: string | null | undefined): string {
+  if (!value) return "—";
+  return new Date(`${value.slice(0, 10)}T12:00:00`).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+}
+
 export function fmtPct(v: number | null | undefined, digits = 2): string {
   if (v === null || v === undefined || Number.isNaN(v)) return "—";
   return `${v >= 0 ? "+" : ""}${v.toFixed(digits)}%`;

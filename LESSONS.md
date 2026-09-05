@@ -2979,3 +2979,89 @@ adding idle sleeves must not move it; equity growth diverging from
 reconstructed trading P&L must be reported as an explicit non-trading
 component. `engine/prop_analysis.py:PnlDecomposition` makes the split a
 first-class output rather than an assumption.
+
+---
+
+## 2026-08-31 — Free point-in-time survivorship-free data: membership is
+tractable, prices are the wall
+
+**The undertaking.** Two separate attempts this session to build free,
+survivorship-safe historical universes: `sp500_pit_free_v1` (two independent
+GitHub membership trackers, qzzcl + leandroloi, cross-checked against each
+other) and `dow_pit_extended_v1` (extending the existing 30-name Dow ledger
+back to 2000 with full price/identity coverage). Both are preserved as real,
+useful research output even though neither cleared its own pre-registered
+activation gate — `research/sp500_pit_free_coverage_preregistration.json`'s
+98% bar and `research/dow_pit_extended_v1_preregistration.json`'s 100% bar
+respectively. Four lessons, each now enforced by a permanent test, not just
+prose.
+
+1. **Free point-in-time membership reconstruction actually works.** Two
+   independently maintained open trackers, cross-checked against each other,
+   agreed on 98.4% of add/remove events over 1996-2023
+   (`data/sp500_pit_free/audits/membership_audit.json`), and the Dow
+   membership ledger (`engine/build_dow_pit_extended_membership.py`) reached
+   exactly 30 members on every rebalance date back to 2000 with zero gaps.
+   Membership is not the bottleneck. See `engine/triage_sp500_pit_free_missing_prices.py`'s
+   survivorship-bias check for the sharpest evidence of the SECOND lesson
+   below: 97.8% of the S&P free bundle's missing-price tickers were later
+   removed from the index, vs. 23.2% of the covered tickers — a 74.6-point
+   gap, in exactly the direction that would flatter a naive backtest.
+
+2. **Free survivorship-safe historical PRICING is the actual bottleneck.**
+   542 of 1,181 historical S&P tickers (46%) and 3 of 9 Dow blockers (EK,
+   GM, SBC) had literally zero fetchable price data from yfinance — not
+   wrong data, no data at all — after exhausting every free channel tried:
+   Stooq (blocked by a JS proof-of-work challenge), the Wayback Machine (no
+   archived CSV snapshots for these tickers), Kaggle (requires
+   authentication not configured here), community annual-summary sites
+   (real but daily-bar-free). This is a data-availability wall, not an
+   engineering gap — see `data/sp500_pit_free/audits/missing_price_triage.json`'s
+   verdict and `research/dow_pit_extended_v1_preregistration.json`'s
+   `unavailableReason`.
+
+3. **Naive adjusted-close handling silently contaminates PRE-EVENT
+   history — even when the fetch window ends before the event.** Yahoo's
+   `Adj Close` (and even a raw fetch bounded by an `end` date before a known
+   future corporate action) reflects a security's *entire* adjustment
+   history through today, not through the requested window. Slicing KFT's
+   required 2007-2012 tenure from MDLZ's own cache showed prices at roughly
+   **half** their real level, contaminated by the 2012 Kraft Foods Group
+   spinoff that happens after the window; UTX/RTX and DWDP/DD showed the
+   same pattern from later, unrelated corporate actions (the 2020 RTX
+   merger ratio, the 2019 Dow Inc./Corteva spinoffs), independently verified
+   against third-party reference prices (exact match for UTX once reversed;
+   see `engine/recover_dow_pit_extended_prices.py`'s
+   `_backward_adjust_in_window`). The fix that actually works: raw
+   (`auto_adjust=False`) `Close` is *permanently* split-adjusted forever
+   (verified directly — no discontinuity across two real RTX splits), so
+   in-window splits need no reapplication, but any split/merger-ratio dated
+   *after* the required window must be reversed for the whole window, and
+   only *in-window* dividends should be manually layered back on.
+
+4. **Ticker continuity cannot be treated as security continuity.** Stripping
+   a legacy bankruptcy-style suffix (`CPQ` -> `CP`) found a candidate with
+   decades of real, fetchable data — but `CP` is Canadian Pacific Railway,
+   an unrelated company that has traded under that symbol the whole time
+   (`engine/triage_sp500_pit_free_missing_prices.py`'s
+   `attempt_legacy_suffix_resolution`). A ticker having data in the right
+   era is not evidence it is the same issuer. The Dow recovery's own
+   `LINEAGE` dict (`engine/recover_dow_pit_extended_prices.py`) already
+   named this risk explicitly for GM (current `GM` is the 2010-IPO entity,
+   not pre-bankruptcy GM) and EK (current data, where it exists at all,
+   would be post-2013-reorganization `KODK`, not old `EK`) — real, sourced
+   SEC-filing lineage is required before any successor ticker's data may
+   stand in for a predecessor's, and a fetch succeeding is never itself
+   that evidence.
+
+**Guards now in place.** `tests/test_engine/test_recover_dow_pit_extended_prices.py`
+regression-tests both the in-window-split-needs-no-reapplication and the
+post-window-split-must-be-reversed behaviors directly, plus the
+ancient-split-outside-fetch-window-is-ignored case. `tests/test_engine/test_triage_sp500_pit_free_missing_prices.py`
+regression-tests that a data-existing-but-identity-unverifiable candidate is
+never classified as resolved, and that a ledger tenure ending exactly at a
+source handoff boundary is never mistaken for a real removal. Neither
+`sp500_pit_free_v1` nor `dow_pit_extended_v1` is `runnable: true`; no
+strategy has run against either. Per each dataset's own preregistration,
+that remains the correct state until the coverage gate — not the
+methodology — changes.

@@ -1,0 +1,14 @@
+{
+  "required": [
+    "2000-01-01",
+    "2009-06-07"
+  ],
+  "event": "bankruptcy_asset_sale_equity_extinguished",
+  "lineage": "Old General Motors became Motors Liquidation Company/GMGMQ after the 2009 section 363 asset sale. Current GM (CIK 1467858; 2010 IPO) is a different security and is prohibited.",
+  "identitySource": "https://www.sec.gov/Archives/edgar/data/40730/000119312509148748/d8k.htm",
+  "ticker": "GM",
+  "priceDataStatus": "MISSING_PRICE_DATA",
+  "recovered": false,
+  "failClosed": true,
+  "prohibitedMappings": "current GM is the 2010 IPO security"
+}

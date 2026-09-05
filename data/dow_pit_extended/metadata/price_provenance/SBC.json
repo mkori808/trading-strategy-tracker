@@ -1,0 +1,14 @@
+{
+  "required": [
+    "2000-01-01",
+    "2005-11-17"
+  ],
+  "event": "ticker_rename_after_acquisition",
+  "lineage": "SBC Communications acquired AT&T Corp on 2005-11-18, retained the SBC public issuer, renamed it AT&T Inc., and later used ticker T. Pre-merger T bars belonged to the acquired AT&T Corp and are prohibited as an SBC substitute.",
+  "identitySource": "https://www.sec.gov/Archives/edgar/data/732717/000073271706000008/ex13.htm",
+  "ticker": "SBC",
+  "priceDataStatus": "MISSING_PRICE_DATA",
+  "recovered": false,
+  "failClosed": true,
+  "prohibitedMappings": "pre-2005 T belongs to AT&T Corp, not SBC"
+}

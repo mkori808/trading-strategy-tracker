@@ -1,0 +1,62 @@
+{
+  "datasetName": "sp500_pit_free_v1",
+  "buildStep": "sp500_pit_membership_v1",
+  "primarySource": {
+    "repository": "https://github.com/qzzcl/spx_history_constituents",
+    "file": "S&P 500 Historical Components & Changes(04-16-2023).csv",
+    "sha256": "4890d99a207ac9fc10d394a03a5126020dd3d6aa3c0fe89106ec916e2f940b4c",
+    "coverageStart": "1996-01-02",
+    "coverageEnd": "2023-03-20",
+    "duplicateDateRowsCollapsed": 1,
+    "replayAudit": {
+      "snapshotRows": 2665,
+      "membershipIntervals": 641,
+      "transitionDates": 640,
+      "additions": 702,
+      "deletions": 686,
+      "eventLegs": 1388,
+      "finalRosterSize": 503,
+      "finalSnapshotDate": "2023-03-20",
+      "reverseReplay": {
+        "passed": true,
+        "transitionDates": 640,
+        "initialRosterSize": 487
+      }
+    }
+  },
+  "secondarySource": {
+    "repository": "https://github.com/leandroloi/historical_sp500_constituents",
+    "file": "sp_500_historical_components.csv",
+    "sha256": "5de2c85eac0cdf2ea9ff4633c3f8fc1701eca797c72261f576f035055ae7fbde",
+    "coverageStart": "1996-01-02",
+    "coverageEnd": "2025-05-17",
+    "duplicateDateRowsCollapsed": 6,
+    "replayAudit": {
+      "snapshotRows": 3418,
+      "membershipIntervals": 662,
+      "transitionDates": 661,
+      "additions": 700,
+      "deletions": 666,
+      "eventLegs": 1366,
+      "finalRosterSize": 503,
+      "finalSnapshotDate": "2025-05-17",
+      "reverseReplay": {
+        "passed": true,
+        "transitionDates": 661,
+        "initialRosterSize": 469
+      }
+    },
+    "implausibleRosterWindows": [
+      {
+        "start": "1996-01-02",
+        "end": "2017-01-05",
+        "worstRosterSize": 442,
+        "note": "roster size fell below the 485-name plausibility floor established by comparing against qzzcl's stable 487-507 range over the same calendar years"
+      }
+    ]
+  },
+  "sharedAncestryCaveat": "Both sources' READMEs trace their base file to the same origin (Andreas Clenow's 'Trading Evolved' companion CSV, independently hand-maintained against Wikipedia since ~2019-2021). Agreement is evidence against maintenance-divergence errors, not proof of two statistically independent primary sources.",
+  "intervalsPath": "data\\sp500_pit_free\\membership\\intervals.csv",
+  "reconciliationPath": "data\\sp500_pit_free\\membership\\reconciliation.csv",
+  "auditPath": "data\\sp500_pit_free\\audits\\membership_audit.json"
+}

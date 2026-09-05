@@ -18,5 +18,10 @@ export const KEYS = {
   symbols: "symbols",
   researchStatus: "research/status",
   researchForwardStack: "research/forward-stack",
+  researchPlainVsResidualForward: "research/plain-vs-residual-forward",
+  researchPropShadows: "research/prop-shadows",
+  researchOptimizedDmHourlyShadow: "research/optimized-dm-hourly-shadow",
+  researchShadowLiveMarks: "research/shadow-live-marks",
   researchDataBlockers: "research/data-blockers",
+  executionRuns: "live/execution/runs",
 } as const;

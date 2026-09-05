@@ -1,0 +1,30 @@
+{
+  "id": "dow_pit_extended_v1",
+  "label": "Dow 30 -- extended PIT v1 (research-only)",
+  "category": "Research-only",
+  "description": "Fail-closed 30-member Dow PIT reconstruction targeting 2000-01-01 through 2026-08-31. Membership is reconstructed separately from price and identity coverage; no unavailable historical member may be silently excluded.",
+  "assetClass": "equity",
+  "symbols": [],
+  "membershipLedgerPath": "data/dow_pit_extended/membership/intervals.csv",
+  "membershipMode": "pit_ledger_required_100pct",
+  "coverageStart": "2000-01-01",
+  "coverageEnd": "2026-08-31",
+  "dataCoverage": {},
+  "costModel": {
+    "type": "equity_spread",
+    "estimator": "engine.execution_calibration.spread_for",
+    "commissionBps": 0.0,
+    "note": "Frozen canonical equity cost model; not used until every data gate passes."
+  },
+  "primaryBenchmark": "SPY",
+  "equalWeightBenchmark": "pit_eligible_equal_weight",
+  "applicableGates": {
+    "pit_membership": {"applicable": true, "reason": "Requires exactly 30 sourced members on every date with no gaps."},
+    "price_coverage": {"applicable": true, "reason": "Requires 100% selected-universe price availability, identity-safe corporate-action continuity, and no silent exclusions."},
+    "beats_equal_weight": {"applicable": true, "reason": "This is a multi-instrument equity basket."},
+    "beats_spy": {"applicable": true, "reason": "The frozen primary benchmark is SPY."}
+  },
+  "runnable": false,
+  "selectable": false,
+  "unavailableReason": "Blocked until the 100% price/identity audit passes for every historical Dow member, including EK, old GM, SBC, UTX, KFT, DWDP, and WBA, and the interval ledger is wired into the runner. No strategy may run on this universe before activation."
+}

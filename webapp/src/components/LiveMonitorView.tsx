@@ -11,7 +11,6 @@ import {
   type FillCalibration,
   type ForwardStackStatus,
   type PropShadowStatus,
-  type OptimizedDmHourlyShadowStatus,
   type CapitalEfficiencyStatus,
   type GovernedForwardExperiment,
   type KillSwitchStatus,
@@ -24,7 +23,6 @@ import {
 import { setResource } from "../useResource";
 import { KEYS } from "../resourceKeys";
 import { DailyPerformancePanel } from "./DailyPerformancePanel";
-import { StrategyAccountsPanel } from "./StrategyAccountsPanel";
 import { StatTile } from "./StatTile";
 
 const POLL_MS = 30_000;
@@ -197,7 +195,6 @@ export function LiveMonitorView() {
   const [forwardTest, setForwardTest] = useState<ForwardTestStatus | null>(null);
   const [forwardStack, setForwardStack] = useState<ForwardStackStatus | null>(null);
   const [propShadows, setPropShadows] = useState<PropShadowStatus | null>(null);
-  const [hourlyShadow, setHourlyShadow] = useState<OptimizedDmHourlyShadowStatus | null>(null);
   const [capitalEfficiency, setCapitalEfficiency] = useState<CapitalEfficiencyStatus | null>(null);
   const [governedForward, setGovernedForward] = useState<GovernedForwardExperiment[]>([]);
   const [fillCalibration, setFillCalibration] = useState<FillCalibration | null>(null);
@@ -219,8 +216,7 @@ export function LiveMonitorView() {
       api.researchPropShadows(),
       api.executionAccountOwnership(),
       api.researchCapitalEfficiency(),
-      api.researchOptimizedDmHourlyShadow(),
-    ]).then(([config, runRows, kill, execSummary, forward, calibration, stack, prop, ownership, capital, hourly]) => {
+    ]).then(([config, runRows, kill, execSummary, forward, calibration, stack, prop, ownership, capital]) => {
       setExecutionConfig(config);
       setRuns(runRows);
       setKillSwitch(kill);
@@ -237,7 +233,6 @@ export function LiveMonitorView() {
       setPropShadows(prop);
       setExecutionAccount(ownership);
       setCapitalEfficiency(capital);
-      setHourlyShadow(hourly);
       setResource(KEYS.executionAccountOwnership, ownership);
       // The registered-default config each ENABLED strategy is actually
       // running -- automated execution never applies a Lab-tab override
@@ -560,17 +555,9 @@ export function LiveMonitorView() {
         </div>
       )}
 
-      {acct.available && (
-        <StrategyAccountsPanel
-          live={account}
-          summary={summary}
-          ownership={executionAccount}
-          forward={forwardStack}
-          prop={propShadows}
-          hourly={hourlyShadow}
-          runs={runs}
-        />
-      )}
+      {/* The Strategy accounts list (Paper + every shadow) moved to the
+        * Dashboard's Prospective Research section, always visible rather
+        * than only while this popup is open. */}
 
       {forwardStack && (
         <div

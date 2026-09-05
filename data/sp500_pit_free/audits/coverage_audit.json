@@ -1,0 +1,75 @@
+{
+  "generatedAt": "2026-08-31T21:24:18+00:00",
+  "buildStep": "sp500_coverage_audit_v1",
+  "preregistration": "research/sp500_pit_free_coverage_preregistration.json",
+  "minCoveragePct": 98.0,
+  "minShareOfDatesClearingIt": 95.0,
+  "rebalanceDatesTotal": 353,
+  "usableWindow": {
+    "usableStartDate": null,
+    "usableEndDate": null,
+    "verdict": "NO_WINDOW_CLEARS_THE_PREREGISTERED_THRESHOLD"
+  },
+  "worstDates": [
+    {
+      "date": "1996-01-01",
+      "pit_members": 0,
+      "with_valid_prices": 0,
+      "coverage_pct": 0.0
+    },
+    {
+      "date": "1996-02-01",
+      "pit_members": 487,
+      "with_valid_prices": 191,
+      "coverage_pct": 39.22
+    },
+    {
+      "date": "1996-03-01",
+      "pit_members": 487,
+      "with_valid_prices": 191,
+      "coverage_pct": 39.22
+    },
+    {
+      "date": "1996-04-01",
+      "pit_members": 487,
+      "with_valid_prices": 192,
+      "coverage_pct": 39.43
+    },
+    {
+      "date": "1996-05-01",
+      "pit_members": 487,
+      "with_valid_prices": 193,
+      "coverage_pct": 39.63
+    },
+    {
+      "date": "1996-09-01",
+      "pit_members": 488,
+      "with_valid_prices": 194,
+      "coverage_pct": 39.75
+    },
+    {
+      "date": "1996-10-01",
+      "pit_members": 488,
+      "with_valid_prices": 194,
+      "coverage_pct": 39.75
+    },
+    {
+      "date": "1996-11-01",
+      "pit_members": 488,
+      "with_valid_prices": 194,
+      "coverage_pct": 39.75
+    },
+    {
+      "date": "1996-12-01",
+      "pit_members": 488,
+      "with_valid_prices": 194,
+      "coverage_pct": 39.75
+    },
+    {
+      "date": "1996-06-01",
+      "pit_members": 487,
+      "with_valid_prices": 194,
+      "coverage_pct": 39.84
+    }
+  ]
+}

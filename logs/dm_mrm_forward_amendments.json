@@ -1,0 +1,112 @@
+[
+  {
+    "amendmentId": "jnj-dividend-2026-08-25-v1",
+    "recordedAt": "2026-08-27T11:40:58-04:00",
+    "reasonCode": "confirmed_corporate_action",
+    "explanation": "JNJ $1.34 cash dividend with 2026-08-25 ex-date caused the auto-adjusted provider history to revise after the session was originally finalized.",
+    "evidence": {
+      "symbol": "JNJ",
+      "cashDividendPerShare": 1.34,
+      "exDividendDate": "2026-08-25",
+      "officialSource": "https://www.jnj.com/media-center/press-releases/johnson-johnson-announces-quarterly-dividend-for-third-quarter-2026",
+      "mrmWeightAtDetection": 0.21155137492940218,
+      "observedMaximumNavDelta": 0.10279658828712002,
+      "liveExecutionAffected": false
+    },
+    "replacements": [
+      {
+        "date": "2026-08-25",
+        "series": "mrm",
+        "priorValue": 99.47134550521827,
+        "replacementValue": 99.57414209350539,
+        "delta": 0.10279658828712002
+      },
+      {
+        "date": "2026-08-25",
+        "series": "fiftyFifty",
+        "priorValue": 100.24325718125588,
+        "replacementValue": 100.29570978841672,
+        "delta": 0.05245260716083067
+      },
+      {
+        "date": "2026-08-25",
+        "series": "volScaled",
+        "priorValue": 100.0595505858012,
+        "replacementValue": 100.12396824588221,
+        "delta": 0.06441766008100558
+      }
+    ],
+    "status": "confirmed"
+  },
+  {
+    "amendmentId": "jnj-dividend-2026-08-25-v2",
+    "recordedAt": "2026-09-03T15:59:22-04:00",
+    "reasonCode": "confirmed_corporate_action",
+    "explanation": "JNJ's $1.34 cash dividend (2026-08-25 ex-date) was already reconciled for the 2026-08-25 session by amendment jnj-dividend-2026-08-25-v1. A second, separate reconciliation is required for the two following sessions (2026-08-26, 2026-08-27): re-replaying the canonical Market-Residual Momentum sleeve today produces session-level returns for those two dates that differ from what was originally finalized. The divergence is isolated entirely to the mrm series and its blends -- dm and spy reconcile to ~1e-11 on every date in this window, and neither touches JNJ's price path. MRM's holdings were static (KO/MCD/JNJ/JPM/PG, unchanged since the 2026-08-03 monthly rebalance; the next rebalance is 2026-09-01), so this is return-level noise rather than a holdings/selection change. It is most consistent with engine/data.py's 5-day tail-refetch window (get_bars) processing JNJ's ex-date differently across the several replay calls made in the days immediately following it, before the correction fully settled; the effect converges back to zero by 2026-08-28, consistent with the affected bars aging out of that 5-day window and freezing. No mechanism inside the affected window (rebalance selection, weighting) was found to differ -- only the session return itself.",
+    "evidence": {
+      "symbol": "JNJ",
+      "cashDividendPerShare": 1.34,
+      "exDividendDate": "2026-08-25",
+      "officialSource": "https://www.jnj.com/media-center/press-releases/johnson-johnson-announces-quarterly-dividend-for-third-quarter-2026",
+      "relatedAmendmentId": "jnj-dividend-2026-08-25-v1",
+      "mechanism": "tail_refetch_window_transient_return_noise",
+      "mrmHoldingsThroughAffectedWindow": {
+        "KO": 0.2,
+        "MCD": 0.2,
+        "JNJ": 0.2,
+        "JPM": 0.2,
+        "PG": 0.2
+      },
+      "mrmHoldingsUnchangedThroughWindow": true,
+      "mrmWeightAtDetection": 0.6212352840206616,
+      "observedMaximumNavDelta": 0.13370185589961636,
+      "dmAndSpySeriesUnaffected": true,
+      "liveExecutionAffected": false
+    },
+    "replacements": [
+      {
+        "date": "2026-08-26",
+        "series": "mrm",
+        "priorValue": 98.83977491728255,
+        "replacementValue": 98.70607306138294,
+        "delta": -0.13370185589961636
+      },
+      {
+        "date": "2026-08-26",
+        "series": "fiftyFifty",
+        "priorValue": 100.02834518028006,
+        "replacementValue": 99.96064830270477,
+        "delta": -0.06769687757528686
+      },
+      {
+        "date": "2026-08-26",
+        "series": "volScaled",
+        "priorValue": 99.74264254733762,
+        "replacementValue": 99.65907971998483,
+        "delta": -0.08356282735279308
+      },
+      {
+        "date": "2026-08-27",
+        "series": "mrm",
+        "priorValue": 97.42475428148947,
+        "replacementValue": 97.29449395082818,
+        "delta": -0.13026033066128662
+      },
+      {
+        "date": "2026-08-27",
+        "series": "fiftyFifty",
+        "priorValue": 99.34491663769018,
+        "replacementValue": 99.27896229766054,
+        "delta": -0.0659543400296343
+      },
+      {
+        "date": "2026-08-27",
+        "series": "volScaled",
+        "priorValue": 98.88335752089051,
+        "replacementValue": 98.80194562532748,
+        "delta": -0.0814118955630363
+      }
+    ],
+    "status": "confirmed"
+  }
+]

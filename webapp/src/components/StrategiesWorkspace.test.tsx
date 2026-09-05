@@ -55,7 +55,7 @@ describe("final Strategies workspace cleanup", () => {
   it("keeps prior runs compact with stable IDs and evidence behind Inspect", () => {
     const row = { id: 33, runAt: "2026-08-13T00:00:00Z", startDate: "2026-05-01", endDate: "2026-08-01", requestedStartDate: "2024-08-13", requestedEndDate: "2026-08-13", measuredStartDate: "2026-06-15", measuredEndDate: "2026-08-12", interval: "5m", timing: { informationAvailability: "AT_CLOSE", execution: "NEXT_OPEN", usesCurrentClose: true, engine: "standard", exceptionReason: null }, slippageBps: 5, commissionBps: 0, searchFamily: "Opening Range Breakout (ORB):standard", familySearchNumber: 10, familySearchCount: 10, isPreregistered: true, selectedAfterResults: null, tradesTaken: 40, winRate: .55, expectancyR: .07, profitFactor: 1.14, maxDrawdownPct: -4, sharpe: .4, alphaPct: null, benchmarkGapPct: -2, benchmarkName: "SPY", benchmarkWindowStart: null, benchmarkWindowEnd: null, status: "Backtested", isCanonical: false, universeId: null, symbols: ["AAPL", "MSFT"], params: { opening_range_minutes: 30 }, edgeVerdict: "Underpowered", lifecycleStage: "preregistered", validation } satisfies HistoryRow;
     const html = renderToStaticMarkup(<RunHistory rows={[row]} onReplay={vi.fn()} />);
-    for (const text of ["Run #33", "Trades", "Expectancy", "Profit factor", "Run provenance", "Power", "Inspect", "Search family: 10 recorded preregistered experiments"]) expect(html).toContain(text);
+    for (const text of ["Run #33", "Trades", "Expectancy", "Profit factor", "Provenance", "PREREGISTERED", "Preregistered robustness / holdout", "Power", "Inspect", "Search family: 10 recorded preregistered experiments"]) expect(html).toContain(text);
     expect(html).not.toContain("Can this design resolve the claimed edge?");
     expect(html).not.toContain("Configuration</");
     const evidence = renderToStaticMarkup(<RunEvidenceDetails row={row} registeredParams={{ opening_range_minutes: 15 }} currentParams={{ opening_range_minutes: 15 }} onReplay={vi.fn()} />);
@@ -63,6 +63,21 @@ describe("final Strategies workspace cleanup", () => {
     expect(searchFamilyNote([{ ...row, familySearchCount: undefined, validation: null }])).toBeNull();
     const loaded = renderToStaticMarkup(<LoadedRunNotice runId={104} provenance="Preregistered historical configuration" />);
     expect(loaded).toContain("Loaded from Run #104"); expect(loaded).toContain("Preregistered historical configuration"); expect(loaded).toContain("does not create a new preregistration");
+  });
+
+  it("groups research history by provenance and de-emphasizes exploratory returns", () => {
+    const canonicalRow = { id: 1, runAt: "2026-08-13T00:00:00Z", startDate: "2026-05-01", endDate: "2026-08-01", tradesTaken: 40, winRate: .55, expectancyR: .07, profitFactor: 1.14, maxDrawdownPct: -4, sharpe: .4, alphaPct: null, benchmarkGapPct: -2, benchmarkName: "SPY", benchmarkWindowStart: null, benchmarkWindowEnd: null, status: "Backtested", isCanonical: true, universeId: null, symbols: [], params: {}, edgeVerdict: null, lifecycleStage: null, validation: null } satisfies HistoryRow;
+    const exploratoryRow = { ...canonicalRow, id: 2, isCanonical: false, isPreregistered: false, expectancyR: 4.5, profitFactor: 9.9 } satisfies HistoryRow;
+    const html = renderToStaticMarkup(<RunHistory rows={[canonicalRow, exploratoryRow]} onReplay={vi.fn()} />);
+    expect(html).toContain("Canonical / registered");
+    expect(html).toContain("Exploratory experiments");
+    expect(html).toContain("CANONICAL");
+    expect(html).toContain("EXPLORATORY");
+    // The exploratory row's extreme expectancy (4.500 R) must render muted/de-emphasized,
+    // not with the same visual weight as the canonical row's figures.
+    const exploratorySection = html.slice(html.indexOf("Exploratory experiments"));
+    expect(exploratorySection).toContain("4.500 R");
+    expect(exploratorySection.slice(0, exploratorySection.indexOf("4.500 R"))).toContain("var(--text-muted)");
   });
 
   it("keeps lifecycle/power separate and classifies unavailable strategies as data blocked", () => {

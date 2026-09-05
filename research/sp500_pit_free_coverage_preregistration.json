@@ -1,0 +1,29 @@
+{
+  "study": "sp500_pit_free_v1 coverage-by-date and usable-window determination",
+  "frozenAt": "2026-08-31",
+  "status": "pending_execution",
+  "purpose": "Decide, before looking at any strategy result, what calendar window of the sp500_pit_free membership+price bundle is trustworthy enough to run a canonical strategy against -- so the usable-window decision cannot be tuned after seeing whether a strategy looks better or worse in one period than another.",
+  "inputs": {
+    "membership": "data/sp500_pit_free/membership/intervals.csv, built by engine.build_sp500_pit_free_membership from qzzcl (primary) + leandroloi (secondary, cross-checked)",
+    "prices": "data/sp500_pit_free/audits/price_coverage.json, built by engine.fetch_sp500_pit_free_prices"
+  },
+  "rebalanceDateDefinition": "the first calendar day of every month from the membership ledger's overall coverage start (1996-01-02) through its overall coverage end (2025-05-17, leandroloi's own last snapshot -- the 2025-05-18-to-today window is already disclosed as an unfilled gap in membership_audit.json and is out of scope for this coverage table, not silently included)",
+  "coverageDefinition": {
+    "eligibleMembers": "every ticker with a membership interval covering the rebalance date, per intervals.csv (identity-ambiguous multi-tenure tickers are still counted as eligible members -- the ambiguity flag from symbol_map.csv concerns WHICH company held the ticker, not whether the index held some security under that ticker on that date)",
+    "withValidPrice": "an eligible member counts as covered if its price_coverage.json status is OK or PARTIAL_COVERAGE AND its stored parquet has at least one bar within 7 calendar days of the rebalance date (a MISSING_DELISTED_PRICE_HISTORY ticker, or one whose nearest bar is further than 7 days away, does not count even if its overall series status is otherwise fine elsewhere in its tenure)",
+    "coveragePct": "withValidPrice / eligibleMembers for that rebalance date"
+  },
+  "usableWindowThreshold": {
+    "minimumCoveragePct": 98.0,
+    "minimumShareOfRebalanceDatesClearingIt": 95.0,
+    "rule": "the usable window is the longest CONTIGUOUS trailing run of rebalance dates, ending at the ledger's own coverage end, such that at least 95% of the rebalance dates within that run individually clear 98% eligible-member price coverage. This is computed mechanically by scanning backward from the most recent qualifying rebalance date and stopping at the first date whose inclusion would drop the trailing run's pass rate below 95% and cannot be recovered by any later (more recent, already-included) date -- not chosen by eye from the printed table.",
+    "rationale": "matches the exact numeric thresholds proposed for this study before execution; not tuned after seeing the computed coverage table"
+  },
+  "prohibited": [
+    "running Plain Momentum C, Market-Residual Momentum D, Dual Momentum, or any other canonical strategy against sp500_pit_free before this coverage table and usable-window determination are computed and committed",
+    "adjusting minimumCoveragePct or minimumShareOfRebalanceDatesClearingIt after seeing the computed coverage table",
+    "silently extending the usable window past the ledger's own disclosed coverage end (2025-05-17) to reach a rounder or more recent date",
+    "treating a PARTIAL_COVERAGE status ticker's presence as equivalent to a fully complete series when computing coveragePct -- it is deliberately still counted as covered per the definition above (it has SOME usable data near the rebalance date), but the distinction must remain visible in the audit's per-date detail, not collapsed into a single covered/uncovered bit silently"
+  ],
+  "interpretationRule": "Report the full monthly coverage table (data/sp500_pit_free/audits/coverage_by_date.csv) and the mechanically-determined usable window (usable_start_date, usable_end_date) exactly as this procedure computes them. If the resulting usable window is too short or too recent to support the intended replication of the 2021-2026 momentum findings, report that as the finding -- do not loosen the thresholds to manufacture a longer window."
+}

@@ -4,61 +4,68 @@ import {
   type DailyPerformance,
   type ExecutionAccountStatus,
   type ExecutionStrategyConfig,
+  type ExecutionSummary,
   type ForwardStackStatus,
   type LiveAccountResponse,
   type MarketResponse,
+  type OptimizedDmHourlyShadowStatus,
+  type PlainVsResidualForwardStatus,
+  type PropShadowStatus,
+  type RebalanceRunRow,
   type ResearchStatusDashboard,
+  type ShadowLiveMarks,
 } from "../api";
 import { useResource } from "../useResource";
 import { KEYS } from "../resourceKeys";
 import {
   changeColor,
   fmtCompactMoney,
+  fmtDate,
   fmtMoney,
   fmtPct,
   fmtRelative,
   REGIME_COLOR,
 } from "../format";
 import { sectorName } from "../sectorNames";
-import { Card, CardEmpty, CardHeadline, CardRow } from "./Card";
+import { Card, CardEmpty, CardHeadline, CardRow, StatusBadge } from "./Card";
 import { Modal } from "./Modal";
 import { MarketView } from "./MarketView";
 import { ScreenerRefresh, ScreenerView } from "./ScreenerView";
 import { SymbolsView } from "./SymbolsView";
-import { LiveMonitorView } from "./LiveMonitorView";
+import { LiveMonitorView, PropShadowRows } from "./LiveMonitorView";
+import { StrategyAccountsPanel } from "./StrategyAccountsPanel";
 import { DigestPanel, InsiderPanel, MoversPanel, MoversRefresh } from "./ResearchPanels";
 import { useInsider, useMovers, useScreener, useSymbols } from "../dataHooks";
 import { StatusStrip } from "./StatusStrip";
-import { ResearchStatusView } from "./ResearchStatusView";
+import { PlainVsResidualForwardView } from "./PlainVsResidualForwardView";
 
 const FORWARD_STATUS_POLL_MS = 60_000;
 const fetchForwardStackStatus = () => api.researchForwardStack();
 
-function StatusBadge({ mode, children }: { mode: "paper" | "shadow" | "frozen" | "closed"; children: string }) {
-  const palette = {
-    paper: { color: "var(--status-good)", background: "var(--status-good-bg)" },
-    shadow: { color: "var(--series-1)", background: "var(--series-1-wash)" },
-    frozen: { color: "var(--status-warning)", background: "var(--status-warning-bg)" },
-    closed: { color: "var(--text-muted)", background: "var(--gridline)" },
-  }[mode];
-  return <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold whitespace-nowrap" style={palette}>{children}</span>;
-}
-
-function fmtDate(value: string | null | undefined): string {
-  if (!value) return "—";
-  return new Date(`${value.slice(0, 10)}T12:00:00`).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+/** One labeled section break in the dashboard grid -- extends the
+ * "Opportunity Monitor" heading pattern this file already used (a bare
+ * `col-span-full` heading + one-line description directly in the grid, no
+ * bordered wrapper) to every section, so evidence types read as clearly
+ * separated groups: what places real orders, what's prospective forward
+ * evidence, what's completed historical research, and what's a synthetic
+ * account simulation are never visually conflated with each other. */
+function DashboardSection({ title, description, order }: { title: string; description: string; order: number }) {
+  // Inline `style={{ order }}`, not a Tailwind `order-[N]` utility class:
+  // Tailwind's build-time scanner only picks up class names that appear as
+  // literal strings in source, so a template-literal-interpolated class
+  // name here would silently never be generated. The `order` CSS property
+  // set via inline style has no such restriction.
+  return (
+    <div className="col-span-full mt-2" style={{ order }}>
+      <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{title}</h2>
+      <p className="text-xs" style={{ color: "var(--text-muted)" }}>{description}</p>
+    </div>
+  );
 }
 
 function fmtTimestamp(value: string | null | undefined): string {
   if (!value) return "not recorded";
   return new Date(value).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
-}
-
-function maturityText(sessions: number, maturity: DailyPerformance["maturity"] | ForwardStackStatus["maturity"] | undefined): string {
-  if (sessions === 0) return "0 · Not started";
-  if (sessions >= 252) return `${sessions} sessions · Annual review eligible`;
-  const latest = maturity?.reached.at(-1);
-  return `${sessions} sessions · ${latest ?? "Too early"}`;
 }
 
 /** Which popup is open. `null` is the dashboard itself -- the popup is
@@ -73,7 +80,8 @@ type Popup =
   | "screener"
   | "watchlist"
   | "digest"
-  | "researchStatus";
+  | "plainVsResidual"
+  | "simulations";
 
 /** The single home surface. Every former tab is a card here, summarized to
  * the two or three numbers that answer "do I need to look closer?", and the
@@ -91,14 +99,20 @@ export function DashboardView({
   marketLoading,
   marketError,
   onRefreshMarket,
+  onOpenResearch,
 }: {
   marketData: MarketResponse | null;
   marketLoading: boolean;
   marketError: string | null;
   onRefreshMarket: () => void;
+  /** Research Status used to be a Dashboard card+popup; it's now its own
+   * tab (too much of its per-strategy detail duplicated the Strategy
+   * accounts panel to justify a second, shallower copy on the home page).
+   * This still lets a card send the user there with a specific strategy
+   * pre-focused, the same deep-link the old popup supported. */
+  onOpenResearch: (focusName?: string) => void;
 }) {
   const [popup, setPopup] = useState<Popup>(null);
-  const [focusedResearchName, setFocusedResearchName] = useState<string | null>(null);
   // Stable identity: Modal guards against a changing handler internally, but
   // there is no reason to hand it a new function on every poll-driven render.
   const close = useCallback(() => setPopup(null), []);
@@ -117,17 +131,45 @@ export function DashboardView({
   );
   const forwardStack = useResource<ForwardStackStatus>(KEYS.researchForwardStack, fetchForwardStackStatus);
   const daily = useResource<DailyPerformance>(KEYS.executionDaily, () => api.executionDaily());
+  const plainVsResidual = useResource<PlainVsResidualForwardStatus>(
+    KEYS.researchPlainVsResidualForward,
+    () => api.researchPlainVsResidualForward(),
+  );
+  const propShadows = useResource<PropShadowStatus>(KEYS.researchPropShadows, () => api.researchPropShadows());
+  const summary = useResource<ExecutionSummary>(KEYS.executionSummary, () => api.executionSummary());
+  const hourlyShadow = useResource<OptimizedDmHourlyShadowStatus>(KEYS.researchOptimizedDmHourlyShadow, () => api.researchOptimizedDmHourlyShadow());
+  const executionRuns = useResource<RebalanceRunRow[]>(KEYS.executionRuns, () => api.executionRuns(20));
+  const shadowLiveMarks = useResource<ShadowLiveMarks>(KEYS.researchShadowLiveMarks, () => api.researchShadowLiveMarks());
   const refreshForwardStack = forwardStack.refresh;
+  const refreshAccount = account.refresh;
+  const refreshSummary = summary.refresh;
+  const refreshExecutionRuns = executionRuns.refresh;
+  const refreshHourlyShadow = hourlyShadow.refresh;
+  const refreshShadowLiveMarks = shadowLiveMarks.refresh;
 
-  // Unlike the expensive market/screener resources, this endpoint is a
-  // persisted-state read.  Its scheduler heartbeat must stay current while
-  // Dashboard remains mounted; otherwise a healthy hourly scheduler is
-  // eventually compared against a page-load timestamp and shown as stale.
+  // Unlike the expensive market/screener resources, these are persisted-
+  // state reads (or, for liveAccount/shadow-live-marks, a batched quote
+  // lookup) -- cheap enough to keep current while Dashboard remains
+  // mounted, the same way LiveMonitorView already polls them every 30s
+  // while its own popup is open. Without this, the Strategy accounts panel
+  // embedded directly on the dashboard (see below) would only ever refresh
+  // once, on page load, unless the user separately opened the Paper
+  // trading popup -- the forward-stack scheduler heartbeat check has the
+  // same "must stay current" requirement this effect already served before
+  // the other resources joined it.
   useEffect(() => {
-    void refreshForwardStack();
-    const timer = window.setInterval(() => void refreshForwardStack(), FORWARD_STATUS_POLL_MS);
+    const refreshAll = () => {
+      void refreshForwardStack();
+      void refreshAccount();
+      void refreshSummary();
+      void refreshExecutionRuns();
+      void refreshHourlyShadow();
+      void refreshShadowLiveMarks();
+    };
+    refreshAll();
+    const timer = window.setInterval(refreshAll, FORWARD_STATUS_POLL_MS);
     return () => window.clearInterval(timer);
-  }, [refreshForwardStack]);
+  }, [refreshForwardStack, refreshAccount, refreshSummary, refreshExecutionRuns, refreshHourlyShadow, refreshShadowLiveMarks]);
 
   const acct = account.data?.account;
   const positions = account.data?.positions ?? [];
@@ -170,15 +212,11 @@ export function DashboardView({
     `Market data ${marketData?.regime.asOf ? `through ${fmtDate(marketData.regime.asOf)}` : "freshness unknown"}`,
   ].join(" · ");
 
-  const researchRows = researchStatus.data?.rows ?? [];
-  const majorResearchRows = [
-    researchRows.find((row) => row.researchType === "Operational paper strategy"),
-    researchRows.find((row) => row.name === "Canonical Dual Momentum · 189D/Monthly"),
-    researchRows.find((row) => row.name === "Market-Residual Momentum"),
-    researchRows.find((row) => row.name === "Fixed 50/50 DM/MRM"),
-    researchRows.find((row) => row.name === "DM/MRM Volatility-Scaled Portfolio"),
-    researchRows.find((row) => row.name.includes("Winner Grace")),
-  ].filter((row): row is NonNullable<typeof row> => row !== undefined);
+  const plainVsResidualScore = plainVsResidual.data?.scorecard;
+  // Mirrors PlainVsResidualForwardView's own gate: eligible for a real
+  // (still human-written) comparison only once the 12-month checkpoint is
+  // reached -- everything before that stays "no inference" on the card too.
+  const plainVsResidualEligible = (plainVsResidualScore?.checkpoint.reached.length ?? 0) >= 2;
 
   const regime = marketData?.regime.current ?? null;
   const breadth = marketData?.marketSignals.score ?? null;
@@ -218,9 +256,15 @@ export function DashboardView({
       <StatusStrip marketData={marketData} marketLoading={marketLoading} />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <DashboardSection
+          title="Live / Execution"
+          description="Real Alpaca paper orders and account state — the only section that actually trades."
+          order={1}
+        />
+
         <Card
           title="Market state"
-          className="order-2"
+          className="order-[12]"
           meta={marketData?.regime.asOf ? `as of ${marketData.regime.asOf}` : undefined}
           onOpen={() => setPopup("market")}
           loading={marketLoading && !marketData}
@@ -264,7 +308,7 @@ export function DashboardView({
 
         <Card
           title="Paper strategy"
-          className="order-1 md:col-span-2"
+          className="order-[2] md:col-span-2 xl:col-span-3"
           meta={automated.length > 0 ? <StatusBadge mode="paper">PAPER AUTOMATED</StatusBadge> : "automation off"}
           onOpen={() => setPopup("trading")}
           loading={account.loading && !account.data}
@@ -318,14 +362,15 @@ export function DashboardView({
           )}
         </Card>
 
-        <div className="order-4 col-span-full mt-2">
-          <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Opportunity Monitor</h2>
-          <p className="text-xs" style={{ color: "var(--text-muted)" }}>Idea generation and market context — separate from paper execution and formal research.</p>
-        </div>
+        <DashboardSection
+          title="Opportunity Monitor"
+          description="Idea generation and market context — separate from paper execution and formal research."
+          order={11}
+        />
 
         <Card
           title="Movers"
-          className="order-4"
+          className="order-[13]"
           meta={movers.data ? fmtRelative(movers.data.asOf) : undefined}
           onOpen={() => setPopup("movers")}
           loading={movers.loading && !movers.data}
@@ -363,7 +408,7 @@ export function DashboardView({
 
         <Card
           title="Insider buying"
-          className="order-4"
+          className="order-[14]"
           meta={
             insider.data?.lastCompletedAt
               ? fmtRelative(insider.data.lastCompletedAt)
@@ -391,7 +436,7 @@ export function DashboardView({
 
         <Card
           title="Screener"
-          className="order-4"
+          className="order-[15]"
           meta={screener.data ? `${screener.data.rows.length} symbols` : undefined}
           onOpen={() => setPopup("screener")}
           loading={screener.loading && !screener.data}
@@ -417,7 +462,7 @@ export function DashboardView({
 
         <Card
           title="Watchlist"
-          className="order-4"
+          className="order-[16]"
           meta={symbols.data ? `${symbols.data.symbols.length} symbols` : undefined}
           onOpen={() => setPopup("watchlist")}
           loading={symbols.loading && !symbols.data}
@@ -442,67 +487,115 @@ export function DashboardView({
           )}
         </Card>
 
-        <Card title="Daily digest" className="order-4" onOpen={() => setPopup("digest")}>
+        <Card title="Daily digest" className="order-[17]" onOpen={() => setPopup("digest")}>
           <CardEmpty>
             Compose today's regime, movers and insider buys into one summary. Preview only —
             nothing is scheduled or emailed.
           </CardEmpty>
         </Card>
 
-        <section className="order-3 rounded-xl border p-4 md:col-span-2 xl:col-span-3" style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}>
-          <button type="button" onClick={() => { setFocusedResearchName(null); setPopup("researchStatus"); }} className="mb-3 flex w-full items-center justify-between text-left">
-            <span className="text-[11px] font-semibold tracking-wide" style={{ color: "var(--text-muted)" }}>RESEARCH STATUS</span>
-            <span className="text-xs" style={{ color: "var(--series-1)" }}>Open all research ↗</span>
-          </button>
-          {researchStatus.error ? (
-            <div className="text-xs" style={{ color: "var(--status-critical)" }}>{researchStatus.error}</div>
-          ) : researchStatus.data ? (
-            <div className="space-y-1">
-              <div className="hidden grid-cols-[minmax(0,1fr)_auto_minmax(11rem,auto)_auto] gap-x-4 text-[10px] font-semibold tracking-wide sm:grid" style={{ color: "var(--text-muted)" }}>
-                <span>STRATEGY</span><span>MODE</span><span>MATURITY</span><span>FORWARD RETURN</span>
-              </div>
-              {majorResearchRows.map((row) => {
-                const isPaper = row.researchType === "Operational paper strategy";
-                const seriesKey = row.name.startsWith("Canonical Dual") ? "dm" : row.name === "Market-Residual Momentum" ? "mrm" : row.name.startsWith("Fixed 50/50") ? "fiftyFifty" : row.name.startsWith("DM/MRM Volatility") ? "volScaled" : null;
-                const series = forwardStack.data?.series.find((item) => item.key === seriesKey);
-                const sessions = isPaper ? daily.data?.rows.length ?? 0 : series?.sessions ?? 0;
-                const mode = isPaper ? "paper" : row.status.includes("Closed") ? "closed" : row.status.includes("Frozen") || row.name.startsWith("DM/MRM Volatility") ? "frozen" : "shadow";
-                const badge = mode === "paper" ? "PAPER AUTOMATED" : mode === "shadow" ? "SHADOW · NO ORDERS" : mode === "frozen" ? "FROZEN SHADOW" : "CLOSED";
-                const maturity = mode === "closed" ? "Closed result" : maturityText(sessions, isPaper ? daily.data?.maturity : forwardStack.data?.maturity);
-                const returnPct = isPaper ? daily.data?.forwardReturnPct ?? null : series?.returnPct ?? null;
-                return (
-                  <button
-                    type="button"
-                    key={row.name}
-                    onClick={() => {
-                      if (isPaper) setPopup("trading");
-                      else { setFocusedResearchName(row.name); setPopup("researchStatus"); }
-                    }}
-                    className="grid w-full grid-cols-1 items-center gap-1 border-t py-2 text-left text-xs hover:bg-black/[0.02] sm:grid-cols-[minmax(0,1fr)_auto_minmax(11rem,auto)_auto] sm:gap-x-4"
-                    style={{ borderColor: "var(--gridline)" }}
-                  >
-                    <div className="min-w-0">
-                      <div className="font-medium" style={{ color: "var(--text-primary)" }}>{row.name}</div>
-                      <div className="truncate" style={{ color: "var(--text-muted)" }}>{row.status}</div>
-                    </div>
-                    <div><StatusBadge mode={mode}>{badge}</StatusBadge></div>
-                    <span style={{ color: "var(--text-secondary)" }}>{maturity}</span>
-                    <span className="tabular-nums" style={{ color: changeColor(returnPct) }}>{fmtPct(returnPct)}</span>
-                  </button>
-                );
-              })}
-              {forwardStack.data?.currentBlend && (
-                <button type="button" onClick={() => { setFocusedResearchName("DM/MRM Volatility-Scaled Portfolio"); setPopup("researchStatus"); }} className="w-full border-t pt-2 text-left text-xs" style={{ borderColor: "var(--gridline)", color: "var(--text-secondary)" }}>
-                  Frozen vol-scaled target: <strong>DM {(forwardStack.data.currentBlend.dmTargetWeight * 100).toFixed(1)}%</strong> / <strong>MRM {(forwardStack.data.currentBlend.mrmTargetWeight * 100).toFixed(1)}%</strong>
-                  <span style={{ color: "var(--text-muted)" }}> · reset {fmtDate(forwardStack.data.currentBlend.lastWeightResetDate)} · next {fmtDate(forwardStack.data.currentBlend.nextScheduledReset)} · inspect ↗</span>
-                </button>
+        <DashboardSection
+          title="Prospective Research"
+          description="Forward-only shadow evidence collected in real time from frozen strategies — no orders, no parameter changes, no early verdicts."
+          order={3}
+        />
+
+        {acct?.available && (
+          <div className="order-[5] md:col-span-2 xl:col-span-3">
+            <StrategyAccountsPanel
+              live={account.data!}
+              summary={summary.data}
+              ownership={executionAccount.data}
+              forward={forwardStack.data}
+              prop={propShadows.data}
+              hourly={hourlyShadow.data}
+              runs={executionRuns.data ?? []}
+              liveMarks={shadowLiveMarks.data ?? {}}
+            />
+          </div>
+        )}
+
+        <Card
+          title="Plain vs residual momentum"
+          className="order-[8]"
+          meta={<StatusBadge mode="shadow">SHADOW · FROZEN</StatusBadge>}
+          onOpen={() => setPopup("plainVsResidual")}
+          loading={plainVsResidual.loading && !plainVsResidual.data}
+          error={plainVsResidual.error}
+        >
+          {plainVsResidual.data ? (
+            <>
+              <CardHeadline
+                value={`${plainVsResidualScore?.observations ?? 0} obs.`}
+                caption={plainVsResidualEligible ? plainVsResidualScore?.checkpoint.interpretationStatus : "No inference — prospective evidence collection only."}
+              />
+              <CardRow
+                label="D minus C (return)"
+                value={plainVsResidualScore?.pairedRelative ? `${plainVsResidualScore.pairedRelative.dMinusCReturnDiffPp >= 0 ? "+" : ""}${plainVsResidualScore.pairedRelative.dMinusCReturnDiffPp.toFixed(2)}pp` : "—"}
+                valueColor={plainVsResidualScore?.pairedRelative ? changeColor(plainVsResidualScore.pairedRelative.dMinusCReturnDiffPp) : undefined}
+              />
+              <CardRow
+                label="Next checkpoint"
+                value={plainVsResidualScore?.checkpoint.next ? `${plainVsResidualScore.checkpoint.next.months}mo · ${fmtDate(plainVsResidualScore.checkpoint.next.date)}` : "—"}
+              />
+            </>
+          ) : (
+            <CardEmpty>Awaiting first forward session.</CardEmpty>
+          )}
+        </Card>
+
+        <DashboardSection
+          title="Historical Research"
+          description="Completed backtest evidence and validation status — see the Strategies page for the full leaderboard."
+          order={6}
+        />
+
+        <Card
+          title="Research program"
+          className="order-[9]"
+          onOpen={() => onOpenResearch()}
+        >
+          {researchStatus.data ? (
+            <>
+              <CardHeadline value={researchStatus.data.summary.validatedStrategies} caption="Validated strategies" />
+              <CardRow label="Methodology complete" value={researchStatus.data.summary.methodologyCompleteSystems} />
+              <CardRow label="Rejected hypotheses" value={researchStatus.data.summary.rejectedHypotheses} />
+              <CardRow label="Data-blocked" value={researchStatus.data.summary.dataBlockedResearchItems} />
+            </>
+          ) : (
+            <CardEmpty>Loading research program summary…</CardEmpty>
+          )}
+        </Card>
+
+        <DashboardSection
+          title="Simulations"
+          description="Synthetic prop and self-funded account accounting over the live paper equity stream — not a strategy result, not an order."
+          order={7}
+        />
+
+        <Card
+          title="Prop / self-funded shadows"
+          className="order-[10]"
+          meta={<StatusBadge mode="shadow">SIMULATED ACCOUNTING</StatusBadge>}
+          onOpen={() => setPopup("simulations")}
+          loading={propShadows.loading && !propShadows.data}
+          error={propShadows.error}
+        >
+          {propShadows.data ? (
+            <>
+              <CardHeadline
+                value={`${propShadows.data.shadows.length + propShadows.data.selfFundedShadows.length} shadow${propShadows.data.shadows.length + propShadows.data.selfFundedShadows.length === 1 ? "" : "s"}`}
+                caption={propShadows.data.maturity}
+              />
+              {propShadows.data.warnings.length > 0 && (
+                <CardRow label="Warnings" value={propShadows.data.warnings.length} valueColor="var(--status-warning)" />
               )}
-              <div className="text-[11px]" style={{ color: "var(--text-muted)" }}>
-                SPY is a normalized benchmark, not a strategy. No annualized metrics are shown before the maturity gate.
-              </div>
-            </div>
-          ) : <CardEmpty>Loading tracked research branches…</CardEmpty>}
-        </section>
+              <CardRow label="Completed sessions" value={propShadows.data.completedSessions} />
+            </>
+          ) : (
+            <CardEmpty>No prop/self-funded shadows running.</CardEmpty>
+          )}
+        </Card>
       </div>
 
       <Modal
@@ -583,13 +676,42 @@ export function DashboardView({
       </Modal>
 
       <Modal
-        open={popup === "researchStatus"}
+        open={popup === "plainVsResidual"}
         onClose={close}
-        title="Research status"
-        subtitle="What each research branch has actually shown, and what's blocking the rest — organizational only, never a verdict of its own"
+        title="Plain Momentum vs Market-Residual Momentum"
+        subtitle="Prospective forward shadow — frozen strategies, no orders, no early verdicts"
         size="xl"
       >
-        <ResearchStatusView focusName={focusedResearchName} />
+        <PlainVsResidualForwardView />
+      </Modal>
+
+      <Modal
+        open={popup === "simulations"}
+        onClose={close}
+        title="Prop / self-funded shadows"
+        subtitle="Synthetic account accounting over the live paper equity stream — not a strategy result, not an order"
+        size="xl"
+      >
+        {propShadows.error ? (
+          <div className="text-xs" style={{ color: "var(--status-critical)" }}>{propShadows.error}</div>
+        ) : propShadows.data ? (
+          <div className="space-y-3">
+            <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+              {propShadows.data.program} · {propShadows.data.completedSessions} completed sessions · {propShadows.data.maturity}
+            </p>
+            {propShadows.data.warnings.map((warning) => (
+              <div key={warning} className="rounded-md border px-3 py-2 text-xs" style={{ borderColor: "var(--status-warning)", background: "var(--status-warning-bg)" }}>
+                <strong>Operational integrity: </strong>{warning}
+              </div>
+            ))}
+            <PropShadowRows data={propShadows.data} />
+            <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>
+              Historical Monte Carlo simulation results remain separate — see the Strategies page. This panel is prospective synthetic accounting only.
+            </p>
+          </div>
+        ) : (
+          <CardEmpty>Loading prop/self-funded shadow state…</CardEmpty>
+        )}
       </Modal>
     </>
   );

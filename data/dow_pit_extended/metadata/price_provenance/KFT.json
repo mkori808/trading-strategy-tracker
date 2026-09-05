@@ -1,0 +1,145 @@
+{
+  "required": [
+    "2008-09-22",
+    "2012-09-23"
+  ],
+  "event": "spinoff_and_rename",
+  "lineage": "Kraft Foods Inc. (CIK 1103982) distributed Kraft Foods Group on 2012-10-01 and renamed the continuing issuer Mondelez/MDLZ. MDLZ predecessor history may represent KFT only when distribution-adjusted.",
+  "identitySource": "https://www.sec.gov/Archives/edgar/data/1103982/000119312512411522/d418430d8k.htm",
+  "ticker": "KFT",
+  "priceDataStatus": "RECOVERED_PRICE_DATA",
+  "recovered": true,
+  "failClosed": false,
+  "firstRecoveredBar": "2007-08-28",
+  "lastRecoveredBar": "2012-09-21",
+  "rowCount": 1279,
+  "outputArtifact": "data/dow_pit_extended/prices/KFT.parquet",
+  "outputSha256": "147fd456e52cff93b735cc9a2c500f3e287da6ea0fe5a8c359542be6fe9fa5ec",
+  "lookbackTreatment": "normal",
+  "retrieval": "fresh raw yfinance fetch (auto_adjust=False), with in-window splits left alone (already permanently baked in), any post-window split/merger-ratio reversed, and in-window dividends manually applied -- never the provider's Adj Close (see this function's and _backward_adjust_in_window's docstrings)",
+  "upstreamProvider": "Yahoo Finance (fresh fetch via yfinance, auto_adjust=False, manually adjusted)",
+  "sourceSymbol": "MDLZ",
+  "fetchWindow": {
+    "start": "2007-08-28",
+    "end": "2012-09-23"
+  },
+  "adjustmentsApplied": [
+    {
+      "date": "2012-09-17",
+      "kind": "in_window_dividend_applied",
+      "value": 0.29
+    },
+    {
+      "date": "2012-06-27",
+      "kind": "in_window_dividend_applied",
+      "value": 0.29
+    },
+    {
+      "date": "2012-03-28",
+      "kind": "in_window_dividend_applied",
+      "value": 0.29
+    },
+    {
+      "date": "2011-12-28",
+      "kind": "in_window_dividend_applied",
+      "value": 0.29
+    },
+    {
+      "date": "2011-09-28",
+      "kind": "in_window_dividend_applied",
+      "value": 0.29
+    },
+    {
+      "date": "2011-06-28",
+      "kind": "in_window_dividend_applied",
+      "value": 0.29
+    },
+    {
+      "date": "2011-03-29",
+      "kind": "in_window_dividend_applied",
+      "value": 0.29
+    },
+    {
+      "date": "2010-12-29",
+      "kind": "in_window_dividend_applied",
+      "value": 0.29
+    },
+    {
+      "date": "2010-09-28",
+      "kind": "in_window_dividend_applied",
+      "value": 0.29
+    },
+    {
+      "date": "2010-06-28",
+      "kind": "in_window_dividend_applied",
+      "value": 0.29
+    },
+    {
+      "date": "2010-03-29",
+      "kind": "in_window_dividend_applied",
+      "value": 0.29
+    },
+    {
+      "date": "2009-12-28",
+      "kind": "in_window_dividend_applied",
+      "value": 0.29
+    },
+    {
+      "date": "2009-09-28",
+      "kind": "in_window_dividend_applied",
+      "value": 0.29
+    },
+    {
+      "date": "2009-06-26",
+      "kind": "in_window_dividend_applied",
+      "value": 0.29
+    },
+    {
+      "date": "2009-03-23",
+      "kind": "in_window_dividend_applied",
+      "value": 0.29
+    },
+    {
+      "date": "2008-12-23",
+      "kind": "in_window_dividend_applied",
+      "value": 0.29
+    },
+    {
+      "date": "2008-09-22",
+      "kind": "in_window_dividend_applied",
+      "value": 0.29
+    },
+    {
+      "date": "2008-06-25",
+      "kind": "in_window_dividend_applied",
+      "value": 0.27
+    },
+    {
+      "date": "2008-03-12",
+      "kind": "in_window_dividend_applied",
+      "value": 0.27
+    },
+    {
+      "date": "2007-12-21",
+      "kind": "in_window_dividend_applied",
+      "value": 0.27
+    },
+    {
+      "date": "2007-09-06",
+      "kind": "in_window_dividend_applied",
+      "value": 0.27
+    }
+  ],
+  "independentPriceCrossCheck": {
+    "source": "manually researched year-end/dated closes from independent public price-history pages",
+    "checks": [
+      {
+        "date": "2012-05-17",
+        "expectedClose": 39.59,
+        "observedClose": 37.78,
+        "passed": true
+      }
+    ],
+    "passed": true
+  }
+}

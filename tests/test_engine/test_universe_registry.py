@@ -63,6 +63,53 @@ def test_all_stocks_pit_is_visible_but_fail_closed_without_licensed_bundle() -> 
     assert "manifest.json" in definition.pit_status["missingArtifacts"]
 
 
+def test_mnq_is_the_only_genuine_futures_universe_and_declares_its_multiplier() -> None:
+    mnq = registered_universe("mnq_futures")
+    assert mnq.asset_class == "futures"
+    assert mnq.contract_multiplier == 2.0
+    assert mnq.starting_cash == 150_000.0
+    assert mnq.cost_model["type"] == "fixed_all_in_spread"
+
+
+def test_every_non_futures_universe_defaults_to_a_multiplier_of_one() -> None:
+    for universe_id, definition in universe_registry().items():
+        if definition.asset_class != "futures":
+            assert definition.contract_multiplier == 1.0, universe_id
+
+
+def test_contract_multiplier_rejects_non_positive_values(tmp_path, monkeypatch) -> None:
+    payload = registered_universe("mnq_futures").to_dict()
+    payload["id"] = "bad"
+    payload["contractMultiplier"] = 0.0
+    (tmp_path / "bad.json").write_text(json.dumps(payload), encoding="utf-8")
+    monkeypatch.setattr("engine.universe_registry.REGISTRY_DIR", tmp_path)
+
+    with pytest.raises(ValueError, match="must be positive"):
+        universe_registry()
+
+
+def test_contract_multiplier_is_rejected_outside_futures(tmp_path, monkeypatch) -> None:
+    payload = registered_universe("sp500_proxy").to_dict()
+    payload["id"] = "bad"
+    payload["contractMultiplier"] = 2.0
+    (tmp_path / "bad.json").write_text(json.dumps(payload), encoding="utf-8")
+    monkeypatch.setattr("engine.universe_registry.REGISTRY_DIR", tmp_path)
+
+    with pytest.raises(ValueError, match="only meaningful for assetClass 'futures'"):
+        universe_registry()
+
+
+def test_starting_cash_rejects_non_positive_values(tmp_path, monkeypatch) -> None:
+    payload = registered_universe("mnq_futures").to_dict()
+    payload["id"] = "bad"
+    payload["startingCash"] = -1.0
+    (tmp_path / "bad.json").write_text(json.dumps(payload), encoding="utf-8")
+    monkeypatch.setattr("engine.universe_registry.REGISTRY_DIR", tmp_path)
+
+    with pytest.raises(ValueError, match="startingCash must be positive"):
+        universe_registry()
+
+
 def test_inapplicable_gate_has_a_reason(tmp_path, monkeypatch) -> None:
     payload = registered_universe("dow_pit").to_dict()
     payload["id"] = "single"

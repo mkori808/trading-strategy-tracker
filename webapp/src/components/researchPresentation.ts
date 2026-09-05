@@ -60,6 +60,66 @@ export function primaryBlocker(strategy: StrategySummary): { label: string; deta
   return { label: blocker ? "Validation requirements not met" : "No required blocker recorded", detail: blocker ?? null };
 }
 
+// -- Research-history provenance grouping (Strategies page refactor) --
+//
+// The user-facing grouping is: Canonical / registered, Preregistered
+// robustness / holdout, Exploratory experiments, Selected-after-search
+// configurations. `selectedAfterResults` is set by the backend to `null`
+// on every row by deliberate design (engine/logging_db.py has an explicit
+// anti-fabrication comment: "keep this explicitly null so the UI cannot
+// invent a selection-bias label") -- there is currently no real signal for
+// "this exact configuration was chosen after seeing its results" anywhere
+// in the app. classifyProvenance() below still recognizes
+// `selectedAfterResults === true` so the bucket is real and wired the
+// moment that signal exists; until then it stays empty and
+// SELECTED_AFTER_SEARCH_DISCLOSURE explains why, rather than the UI
+// silently guessing which exploratory rows were "probably" cherry-picked.
+
+export type ProvenanceGroupKey = "canonical" | "preregistered_robustness" | "exploratory" | "selected_after_search";
+export type ProvenanceBadgeLabel = "CANONICAL" | "PREREGISTERED" | "HOLDOUT" | "EXPLORATORY" | "SELECTED AFTER SEARCH";
+
+export interface ProvenanceRow {
+  isCanonical: boolean;
+  isPreregistered?: boolean | null;
+  selectedAfterResults?: boolean | null;
+  lifecycleStage?: string | null;
+}
+
+export interface Provenance {
+  group: ProvenanceGroupKey;
+  badge: ProvenanceBadgeLabel;
+}
+
+export function classifyProvenance(row: ProvenanceRow): Provenance {
+  if (row.selectedAfterResults === true) return { group: "selected_after_search", badge: "SELECTED AFTER SEARCH" };
+  if (row.isCanonical) return { group: "canonical", badge: "CANONICAL" };
+  const isHoldout = (row.lifecycleStage ?? "").toLowerCase().includes("holdout");
+  if (isHoldout) return { group: "preregistered_robustness", badge: "HOLDOUT" };
+  if (row.isPreregistered === true) return { group: "preregistered_robustness", badge: "PREREGISTERED" };
+  return { group: "exploratory", badge: "EXPLORATORY" };
+}
+
+export const PROVENANCE_GROUP_ORDER: ProvenanceGroupKey[] = ["canonical", "preregistered_robustness", "exploratory", "selected_after_search"];
+
+export const PROVENANCE_GROUP_TITLE: Record<ProvenanceGroupKey, string> = {
+  canonical: "Canonical / registered",
+  preregistered_robustness: "Preregistered robustness / holdout",
+  exploratory: "Exploratory experiments",
+  selected_after_search: "Selected-after-search configurations",
+};
+
+export const SELECTED_AFTER_SEARCH_DISCLOSURE =
+  "Not currently tracked. This project does not record whether a historical configuration was chosen after seeing its own results; runs without a disclosed preregistration are grouped under Exploratory experiments instead of being guessed into this bucket.";
+
+export function groupByProvenance<T extends ProvenanceRow>(rows: T[]): Map<ProvenanceGroupKey, T[]> {
+  const groups = new Map<ProvenanceGroupKey, T[]>();
+  for (const row of rows) {
+    const { group } = classifyProvenance(row);
+    groups.set(group, [...(groups.get(group) ?? []), row]);
+  }
+  return groups;
+}
+
 export function benchmarkEvidence(strategy: StrategySummary): string {
   if (strategy.benchmarkGapPct === null) return "Not recorded";
   const gap = `${strategy.benchmarkGapPct >= 0 ? "+" : "−"}${Math.abs(strategy.benchmarkGapPct).toFixed(1)} pp vs ${strategy.benchmarkName}`;

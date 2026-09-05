@@ -263,3 +263,42 @@ def test_account_contamination_blocks_prop_observation(monkeypatch):
     result = pf.collect_once()
     assert result["collected"] is False
     assert result["reason"] == "account_contamination"
+
+
+# --- live intraday mark (engine/shadow_live_mark.py wiring) -----------------
+
+
+def test_live_marks_unavailable_before_any_snapshot(tmp_path, locked):
+    path = tmp_path / "forward.db"
+    marks = pf.live_marks(path)
+    assert set(marks) == set(pf.SHADOWS) | set(pf.SELF_FUNDED_SHADOWS)
+    assert all(mark["available"] is False for mark in marks.values())
+
+
+def test_live_marks_uses_captured_parent_prices_and_scale(tmp_path, locked, monkeypatch):
+    path = tmp_path / "forward.db"
+    positions = [
+        {"symbol": "AAA", "side": "long", "marketValue": 50_000, "currentPrice": 100.0, "unrealizedIntradayPl": 0},
+        {"symbol": "BBB", "side": "long", "marketValue": 50_000, "currentPrice": 50.0, "unrealizedIntradayPl": 0},
+    ]
+    pf.append_snapshot(snap("2026-08-24T09:35:00-04:00", 100_000, positions), path)
+
+    # Both names up 10% from the captured baseline price.
+    monkeypatch.setattr(
+        "engine.shadow_live_mark.quotes_module.get_quotes",
+        lambda symbols: {s: {"symbol": s, "price": {"AAA": 110.0, "BBB": 55.0}[s]} for s in symbols},
+    )
+
+    marks = pf.live_marks(path)
+
+    for key, spec in pf.SHADOWS.items():
+        mark = marks[key]
+        assert mark["available"] is True, mark
+        # Both names equally weighted (0.5/0.5) and both up 10%; holdings are
+        # parentWeight * scale, so the shadow's own move is scaled the same way.
+        assert mark["profitLossPct"] == pytest.approx(10.0 * spec["scale"], abs=1e-6)
+
+    for key, spec in pf.SELF_FUNDED_SHADOWS.items():
+        mark = marks[key]
+        assert mark["available"] is True, mark
+        assert mark["profitLossPct"] == pytest.approx(10.0, abs=1e-6)

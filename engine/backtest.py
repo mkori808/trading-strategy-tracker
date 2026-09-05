@@ -130,6 +130,7 @@ def run_symbol_backtest(
     risk_pct: float = DEFAULT_RISK_PCT,
     spread: float | None = None,
     risk_free_rate: float = 0.0,
+    contract_multiplier: float = 1.0,
 ) -> SymbolBacktestResult:
     validate_timing_contract(
         timing_contract_for(strategy), actual_execution=ExecutionTiming.NEXT_OPEN
@@ -137,6 +138,40 @@ def run_symbol_backtest(
     bars = data_module.get_bars(symbol, interval, start, end)
     if bars.empty or len(bars) < MIN_BARS_TO_TRADE:
         return SymbolBacktestResult(symbol, None, pd.DataFrame(), None)
+
+    if contract_multiplier != 1.0:
+        # A futures contract's quoted price is not its dollar value -- MNQ
+        # trades in Nasdaq-100 index points, and CME defines the contract as
+        # $2 per point, so a 1-point move is $2 of P&L per contract, not $1.
+        # backtesting.py (this module's only P&L engine) has no notion of a
+        # contract multiplier: it computes every trade's P&L, sizing, and
+        # equity purely as size * raw_price, which is only correct when one
+        # unit of price IS one dollar (true for a share, false for a point).
+        #
+        # Multiplying every OHLC column by the multiplier before handing
+        # bars to the engine makes that same size * price arithmetic land on
+        # the correct dollar figures throughout -- position sizing (risk
+        # budget / risk-per-unit), fill P&L, equity, drawdown, Sharpe basis,
+        # turnover, and modeled cost are all derived FROM these bars and
+        # therefore all become correct together, without reimplementing any
+        # of that math here. Entry signals and stop/target levels are
+        # unaffected: every strategy in this project derives them from
+        # relative technical measures (moving averages, ATR multiples, %
+        # thresholds) that scale uniformly with price, not hardcoded
+        # absolute levels.
+        #
+        # The one cost: EntryPrice/ExitPrice/SL/TP in the returned trades
+        # frame are this scaled dollar-equivalent, not the instrument's own
+        # quoted index level (e.g. an MNQ entry at 23,320.00 points reports
+        # as 46,640.00 here). Every dollar-denominated figure derived from
+        # them (ModeledCost here, turnover in aggregate_symbol_results) is
+        # consequently correct; only their own display units are not the
+        # ones a futures trader would recognize. Converting back for
+        # display without a similar risk of quietly touching only SOME
+        # dollar-derived readers is a separate, lower-stakes follow-up.
+        bars = bars.copy()
+        for column in ("Open", "High", "Low", "Close"):
+            bars[column] = bars[column] * contract_multiplier
 
     # A flat spread across every symbol either overstates cost for liquid
     # names or understates it for thin ones -- estimate per symbol from real

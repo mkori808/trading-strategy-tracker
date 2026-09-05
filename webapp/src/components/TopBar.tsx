@@ -1,10 +1,10 @@
 import { TABS, type Tab } from "../tabs";
 
 /** Replaces the old left sidebar's six-item, two-group nav. With the app
- * down to two destinations, a 240px column spent on two buttons was mostly
- * empty space -- and the market snapshot it also carried (SPY, sectors,
- * breadth) now lives in the dashboard's status strip and market card, where
- * it isn't duplicated on every screen.
+ * down to a handful of destinations (see tabs.ts), a 240px column spent on
+ * a few buttons was mostly empty space -- and the market snapshot it also
+ * carried (SPY, sectors, breadth) now lives in the dashboard's status strip
+ * and market card, where it isn't duplicated on every screen.
  *
  * Sticky, because the popups are opened from cards further down a scrolling
  * page and the way back to Strategies shouldn't require scrolling up. */

@@ -1,0 +1,44 @@
+{
+  "id": "mnq_futures",
+  "label": "Micro E-mini Nasdaq-100 (MNQ)",
+  "category": "Futures",
+  "description": "Single-instrument Micro E-mini Nasdaq-100 futures (CME MNQ), continuous front-month series. This is a genuine futures contract, not an ETF proxy -- unlike this app's other 'Futures' universe (futures_market_proxies), it uses a real $2-per-index-point contract multiplier so position sizing and P&L are computed in real dollars (see engine/backtest.py:run_symbol_backtest). No margin, expiry, or contract-roll mechanics are modeled beyond that: sizing assumes a cash account paying full scaled notional per contract (the same no-leverage assumption this project already makes for equities), not MNQ's real, much smaller exchange margin requirement. EntryPrice/ExitPrice in a run's trade log are this scaled dollar-equivalent (price times the multiplier), not the raw quoted index level. The benchmark comparison is SPY (this app's one hardcoded benchmark for every universe), which is an S&P 500, not Nasdaq-100, proxy -- an imperfect but consistent choice, not a Nasdaq-100 benchmark claim.",
+  "assetClass": "futures",
+  "symbols": ["MNQ=F"],
+  "membershipLedgerPath": null,
+  "membershipMode": "fixed_symbols",
+  "dataCoverage": {
+    "MNQ=F": {
+      "dataSource": "Yahoo Finance continuous front-month futures daily bars, fetched on demand",
+      "coverageStart": "2019-05-03",
+      "coverageEnd": "2026-09-04"
+    }
+  },
+  "costModel": {
+    "type": "fixed_all_in_spread",
+    "spreadBps": 0.85,
+    "commissionBps": 0.1,
+    "note": "Illustrative CME-typical figures (MNQ's minimum tick is 0.25 index points = $0.50/contract, and a small per-contract commission), not calibrated from real fills -- there is no Alpaca/broker execution history for a futures contract to calibrate against, unlike this project's equity spreads."
+  },
+  "primaryBenchmark": "QQQ",
+  "equalWeightBenchmark": null,
+  "applicableGates": {
+    "pit_membership": {
+      "applicable": false,
+      "reason": "A single futures contract has no constituent-selection decision in this backtest."
+    },
+    "beats_equal_weight": {
+      "applicable": false,
+      "reason": "Equal-weight universe comparison is undefined for one instrument."
+    },
+    "beats_spy": {
+      "applicable": true,
+      "reason": "The strategy must beat buy-and-hold SPY over identical dates, the same benchmark every universe in this app is judged against."
+    }
+  },
+  "runnable": true,
+  "selectable": true,
+  "unavailableReason": null,
+  "contractMultiplier": 2.0,
+  "startingCash": 150000.0
+}

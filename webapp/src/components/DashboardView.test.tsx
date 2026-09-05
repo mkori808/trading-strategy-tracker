@@ -44,31 +44,39 @@ const market = { regime: { current: "Bullish", asOf: "2026-08-21" }, marketSigna
 
 describe("DashboardView status hierarchy", () => {
   it("renders explicit paper/shadow identities, integrity, order semantics, and frozen blend", () => {
-    const html = renderToStaticMarkup(<DashboardView marketData={market} marketLoading={false} marketError={null} onRefreshMarket={vi.fn()} />);
+    const html = renderToStaticMarkup(<DashboardView marketData={market} marketLoading={false} marketError={null} onRefreshMarket={vi.fn()} onOpenResearch={vi.fn()} />);
     expect(html).toContain("OPERATIONAL INTEGRITY");
     expect(html).toContain("Healthy");
     expect(html).toContain("DM Optimized 63D/Daily");
     expect(html).toContain("Historically optimized · requires OOS confirmation");
     expect(html).toContain("Selected from config search");
-    expect(html).toContain("Canonical Dual Momentum · 189D/Monthly");
     expect(html).toContain("PAPER AUTOMATED");
     expect(html).toContain("SHADOW");
     expect(html).toContain("0 open/pending orders");
     expect(html).not.toContain("35 open orders");
-    expect(html).toContain("5 sessions · Too early");
-    expect(html).toContain("0 · Not started");
     expect(html).toContain("+1.20%");
     expect(html).toContain("Aligned full sessions");
     expect(html).toContain("+1.80pp");
     expect(html).toContain("Max drawdown: paper");
     expect(html).toContain("4 aligned sessions");
     expect(html).toContain("intraday inception and today are excluded");
-    expect(html.match(/\$102,750/g)?.length).toBe(1);
-    expect(html).toContain("Open all research");
-    expect(html).toContain("Modification Unsupported / Closed");
-    expect(html).toMatch(/<button[^>]*>[\s\S]*Dual Momentum - One-Rebalance Winner Grace v1[\s\S]*<\/button>/);
-    expect(html).toContain("sm:grid-cols-[minmax(0,1fr)_auto_minmax(11rem,auto)_auto]");
-    expect(html).toContain("Frozen vol-scaled target");
+    // Appears twice now: once in the Paper strategy summary card, and again
+    // in the Strategy accounts panel embedded directly in Prospective
+    // Research (moved there from inside the Paper trading popup so it's
+    // always visible on the home page, not just while that popup is open).
+    expect(html.match(/\$102,750/g)?.length).toBe(2);
+    expect(html).toContain("Strategy accounts");
+    expect(html).toContain("Paper and active shadow strategies in one list");
+    expect(html).toMatch(/<span>Strategy<\/span>.*<span[^>]*>Equity<\/span>.*<span[^>]*>Return<\/span>.*<span[^>]*>Sessions<\/span>/);
+    // The per-strategy Research Status leaderboard (name/mode/maturity/
+    // forward return) moved off the Dashboard entirely and onto its own
+    // "Research" tab (see tabs.ts) -- it duplicated most of what the
+    // Strategy accounts panel above already shows, with less detail.
+    // "Research program" stays as a Dashboard card: aggregate counts only,
+    // not a second per-strategy table.
+    expect(html).not.toContain("Modification Unsupported / Closed");
+    expect(html).not.toContain("Frozen vol-scaled target");
+    expect(html).toContain("Research program");
     expect(html).toContain("Opportunity Monitor");
   });
 
@@ -76,7 +84,7 @@ describe("DashboardView status hierarchy", () => {
     const stack = resources[KEYS.researchForwardStack] as { operations: { lastAttemptAt: string } };
     const current = stack.operations.lastAttemptAt;
     stack.operations.lastAttemptAt = "2026-08-01T00:00:00-04:00";
-    const html = renderToStaticMarkup(<DashboardView marketData={market} marketLoading={false} marketError={null} onRefreshMarket={vi.fn()} />);
+    const html = renderToStaticMarkup(<DashboardView marketData={market} marketLoading={false} marketError={null} onRefreshMarket={vi.fn()} onOpenResearch={vi.fn()} />);
     expect(html).toContain("Shadow-forward scheduler has not checked within the expected interval");
     expect(html).toContain("Warning");
     stack.operations.lastAttemptAt = current;
@@ -85,7 +93,7 @@ describe("DashboardView status hierarchy", () => {
   it("surfaces a persisted stale-ledger alert without treating small samples as failures", () => {
     const stack = resources[KEYS.researchForwardStack] as { alerts: { code: string; severity: string; message: string }[] };
     stack.alerts.push({ code: "stale_forward_state", severity: "warning", message: "Forward state trails completed session 2026-08-21" });
-    const html = renderToStaticMarkup(<DashboardView marketData={market} marketLoading={false} marketError={null} onRefreshMarket={vi.fn()} />);
+    const html = renderToStaticMarkup(<DashboardView marketData={market} marketLoading={false} marketError={null} onRefreshMarket={vi.fn()} onOpenResearch={vi.fn()} />);
     expect(html).toContain("Forward state trails completed session 2026-08-21");
     expect(html).not.toContain("small sample failure");
     stack.alerts.pop();
@@ -94,7 +102,7 @@ describe("DashboardView status hierarchy", () => {
   it("scopes research-shadow failures as warnings rather than live action-required failures", () => {
     const stack = resources[KEYS.researchForwardStack] as { alerts: { code: string; severity: string; message: string; scope?: "research_shadow" }[] };
     stack.alerts.push({ code: "research_shadow_failure", severity: "error", scope: "research_shadow", message: "Corporate-action reconciliation required" });
-    const html = renderToStaticMarkup(<DashboardView marketData={market} marketLoading={false} marketError={null} onRefreshMarket={vi.fn()} />);
+    const html = renderToStaticMarkup(<DashboardView marketData={market} marketLoading={false} marketError={null} onRefreshMarket={vi.fn()} onOpenResearch={vi.fn()} />);
     expect(html).toContain("Research shadow reconciliation: Corporate-action reconciliation required");
     expect(html).toContain("Warning");
     expect(html).not.toContain("Action required");

@@ -1,0 +1,38 @@
+{
+  "dataset": "dow_pit_extended_v1",
+  "scope": "diagnostic-only; no network fetch and no strategy run",
+  "targetWindow": {
+    "start": "2000-01-01",
+    "end": "2026-08-31"
+  },
+  "rebalanceDateCount": 320,
+  "distinctHistoricalTickerCount": 53,
+  "allRebalanceRostersExactly30": true,
+  "priceCoverageComplete": false,
+  "identityCoverageComplete": false,
+  "unresolvedIdentityTickers": [
+    "EK",
+    "GM",
+    "SBC"
+  ],
+  "tickersWithMissingRebalancePrices": [
+    "EK",
+    "GM",
+    "SBC"
+  ],
+  "tickersWithoutRequiredWarmup": [
+    "DOW",
+    "EK",
+    "GM",
+    "SBC"
+  ],
+  "minimumRebalanceDateCoveragePct": 90.0,
+  "activationPassed": false,
+  "nextAcquisitionQueue": [
+    "DOW",
+    "EK",
+    "GM",
+    "SBC"
+  ],
+  "note": "A matching ticker file never clears an explicit identity blocker. Terminal economics and successor continuity must be sourced before activation."
+}

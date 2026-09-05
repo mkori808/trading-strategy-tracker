@@ -38,6 +38,25 @@ class UniverseDefinition:
     coverage_start: str | None = None
     coverage_end: str | None = None
     approximate_security_count: int | None = None
+    # Dollar value of one full-unit price move, e.g. 2.0 for MNQ (CME's
+    # Micro E-mini Nasdaq-100: $2 per index point). 1.0 for every equity/ETF
+    # universe, where the raw quoted price already IS the per-share dollar
+    # value -- this field existing at all, let alone being anything but 1.0,
+    # is new as of the first futures universe (2026-09-05). See
+    # engine/backtest.py:run_symbol_backtest for how it's applied; a
+    # contract with no real per-point dollar value (an index level, not a
+    # tradable instrument) has no business being in this registry at all.
+    contract_multiplier: float = 1.0
+    # Overrides engine/backtest.py:DEFAULT_CASH ($10,000) when set. Required
+    # in practice for any universe whose multiplier-scaled price exceeds the
+    # engine default -- e.g. MNQ around 20,000 points * $2/point is a
+    # $40,000+ "price" the backtest's cash-account, no-leverage sizing model
+    # (see run_symbol_backtest's size_by_equity) could never afford even one
+    # contract of, which would silently report zero trades rather than a
+    # wrong number, but is still not a usable default. None means "use the
+    # engine's own default" -- every equity/ETF/crypto universe leaves this
+    # unset.
+    starting_cash: float | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -61,6 +80,8 @@ class UniverseDefinition:
             "coverageStart": self.coverage_start,
             "coverageEnd": self.coverage_end,
             "approximateSecurityCount": self.approximate_security_count,
+            "contractMultiplier": self.contract_multiplier,
+            "startingCash": self.starting_cash,
         }
 
 
@@ -92,6 +113,19 @@ def _definition(path: Path) -> UniverseDefinition:
         raise ValueError(f"{path}: costModel.type is required")
     if asset_class == "futures" and cost_model.get("type") == "equity_spread":
         raise ValueError(f"{path}: futures cannot use the equity spread estimator")
+    contract_multiplier = float(payload.get("contractMultiplier", 1.0))
+    if contract_multiplier <= 0:
+        raise ValueError(f"{path}: contractMultiplier must be positive")
+    if asset_class != "futures" and contract_multiplier != 1.0:
+        raise ValueError(
+            f"{path}: contractMultiplier != 1.0 is only meaningful for assetClass 'futures' "
+            "(an equity/ETF/crypto's quoted price already IS its per-unit dollar value)"
+        )
+    starting_cash = payload.get("startingCash")
+    if starting_cash is not None:
+        starting_cash = float(starting_cash)
+        if starting_cash <= 0:
+            raise ValueError(f"{path}: startingCash must be positive")
     membership_mode = str(payload.get("membershipMode") or "fixed_symbols")
     pit_status = None
     runnable = bool(payload.get("runnable", True))
@@ -135,6 +169,8 @@ def _definition(path: Path) -> UniverseDefinition:
         approximate_security_count=(
             int(approximate_security_count) if approximate_security_count is not None else None
         ),
+        contract_multiplier=contract_multiplier,
+        starting_cash=starting_cash,
     )
 
 

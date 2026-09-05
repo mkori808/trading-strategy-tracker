@@ -1,0 +1,143 @@
+{
+  "required": [
+    "2019-04-02",
+    "2024-11-07"
+  ],
+  "event": "genuinely_new_spinoff_security",
+  "lineage": "Dow Inc. was a new independent public holding company distributed by DowDuPont on 2019-04-01; regular-way DOW trading began 2019-04-02. No pre-inception warmup can exist.",
+  "identitySource": "https://www.sec.gov/Archives/edgar/data/1666700/000119312519095042/d725044dex991.htm",
+  "ticker": "DOW",
+  "priceDataStatus": "INSUFFICIENT_HISTORY_SINCE_SECURITY_INCEPTION",
+  "recovered": true,
+  "failClosed": false,
+  "firstRecoveredBar": "2019-03-20",
+  "lastRecoveredBar": "2024-11-06",
+  "rowCount": 1420,
+  "outputArtifact": "data/dow_pit_extended/prices/DOW.parquet",
+  "outputSha256": "4a5f26ec178621b655683d3294aaec4e7f9d3332df7a6c6091472c2a11e1c698",
+  "lookbackTreatment": "legitimate post-inception ineligibility until the frozen strategy's lookback is naturally populated; no synthetic history",
+  "retrieval": "fresh raw yfinance fetch (auto_adjust=False), with in-window splits left alone (already permanently baked in), any post-window split/merger-ratio reversed, and in-window dividends manually applied -- never the provider's Adj Close (see this function's and _backward_adjust_in_window's docstrings)",
+  "upstreamProvider": "Yahoo Finance (fresh fetch via yfinance, auto_adjust=False, manually adjusted)",
+  "sourceSymbol": "DOW",
+  "fetchWindow": {
+    "start": "2019-03-20",
+    "end": "2024-11-07"
+  },
+  "adjustmentsApplied": [
+    {
+      "date": "2024-08-30",
+      "kind": "in_window_dividend_applied",
+      "value": 0.7
+    },
+    {
+      "date": "2024-05-31",
+      "kind": "in_window_dividend_applied",
+      "value": 0.7
+    },
+    {
+      "date": "2024-02-28",
+      "kind": "in_window_dividend_applied",
+      "value": 0.7
+    },
+    {
+      "date": "2023-11-29",
+      "kind": "in_window_dividend_applied",
+      "value": 0.7
+    },
+    {
+      "date": "2023-08-30",
+      "kind": "in_window_dividend_applied",
+      "value": 0.7
+    },
+    {
+      "date": "2023-05-30",
+      "kind": "in_window_dividend_applied",
+      "value": 0.7
+    },
+    {
+      "date": "2023-02-27",
+      "kind": "in_window_dividend_applied",
+      "value": 0.7
+    },
+    {
+      "date": "2022-11-29",
+      "kind": "in_window_dividend_applied",
+      "value": 0.7
+    },
+    {
+      "date": "2022-08-30",
+      "kind": "in_window_dividend_applied",
+      "value": 0.7
+    },
+    {
+      "date": "2022-05-27",
+      "kind": "in_window_dividend_applied",
+      "value": 0.7
+    },
+    {
+      "date": "2022-02-25",
+      "kind": "in_window_dividend_applied",
+      "value": 0.7
+    },
+    {
+      "date": "2021-11-29",
+      "kind": "in_window_dividend_applied",
+      "value": 0.7
+    },
+    {
+      "date": "2021-08-30",
+      "kind": "in_window_dividend_applied",
+      "value": 0.7
+    },
+    {
+      "date": "2021-05-27",
+      "kind": "in_window_dividend_applied",
+      "value": 0.7
+    },
+    {
+      "date": "2021-02-25",
+      "kind": "in_window_dividend_applied",
+      "value": 0.7
+    },
+    {
+      "date": "2020-11-27",
+      "kind": "in_window_dividend_applied",
+      "value": 0.7
+    },
+    {
+      "date": "2020-08-28",
+      "kind": "in_window_dividend_applied",
+      "value": 0.7
+    },
+    {
+      "date": "2020-05-28",
+      "kind": "in_window_dividend_applied",
+      "value": 0.7
+    },
+    {
+      "date": "2020-02-27",
+      "kind": "in_window_dividend_applied",
+      "value": 0.7
+    },
+    {
+      "date": "2019-11-27",
+      "kind": "in_window_dividend_applied",
+      "value": 0.7
+    },
+    {
+      "date": "2019-08-29",
+      "kind": "in_window_dividend_applied",
+      "value": 0.7
+    },
+    {
+      "date": "2019-05-30",
+      "kind": "in_window_dividend_applied",
+      "value": 0.7
+    }
+  ],
+  "independentPriceCrossCheck": {
+    "source": "manually researched year-end/dated closes from independent public price-history pages",
+    "checks": [],
+    "passed": false
+  }
+}

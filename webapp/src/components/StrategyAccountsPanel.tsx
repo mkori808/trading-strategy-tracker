@@ -9,6 +9,8 @@ import {
   type OptimizedDmHourlyShadowStatus,
   type PropShadowStatus,
   type RebalanceRunRow,
+  type ShadowLiveMark,
+  type ShadowLiveMarks,
 } from "../api";
 import { changeColor, fmtMoney, fmtPct } from "../format";
 import { KEYS } from "../resourceKeys";
@@ -52,6 +54,11 @@ export type StrategyAccount = {
   positionNote: string;
   positionHistory: PositionHistoryEvent[];
   note: string;
+  // A live 'right now' mark on top of `equity`/`sessions` above -- see
+  // engine/shadow_live_mark.py. Paper's own equity is ALREADY live (polled
+  // straight from Alpaca every 30s), so it never gets one of these; every
+  // shadow does, so every row in the list ticks the same way.
+  liveMark: ShadowLiveMark | null;
 };
 
 function maxDrawdown(values: number[]): number {
@@ -64,7 +71,12 @@ function maxDrawdown(values: number[]): number {
   return worst;
 }
 
-function dailyFromHistory(history: HistoryPoint[], spy: Map<string, number>): DailyPerformance {
+function dailyFromHistory(
+  history: HistoryPoint[],
+  spy: Map<string, number>,
+  liveMark?: ShadowLiveMark | null,
+  spyLiveMark?: ShadowLiveMark | null,
+): DailyPerformance {
   const rows = history.map((point, index) => {
     const prior = history[index - 1];
     const spyLevel = spy.get(point.date);
@@ -91,13 +103,27 @@ function dailyFromHistory(history: HistoryPoint[], spy: Map<string, number>): Da
     ? (spy.get(last.date)! / spy.get(first.date)! - 1) * 100
     : null;
   const comparisonAvailable = aligned.length > 1;
+  const lastSettledDate = history.at(-1)?.date ?? null;
+  const todayDate = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
+  // Never show a reconstructed live "today" once the real settled row for
+  // today already exists in history -- same rule as the paper account's
+  // own today row: a derived figure never coexists with the broker-
+  // confirmed one it was standing in for.
+  const today = (liveMark?.available && liveMark.equity !== null && lastSettledDate !== todayDate) ? {
+    date: todayDate,
+    equity: liveMark.equity,
+    profitLoss: liveMark.profitLoss,
+    profitLossPct: liveMark.profitLossPct,
+    benchmarkPct: spyLiveMark?.available ? spyLiveMark.profitLossPct : null,
+    inProgress: true as const,
+  } : null;
   return {
     available: true,
     reason: null,
     startDate: history[0]?.date ?? null,
     benchmarkSymbol: "SPY",
     rows,
-    today: null,
+    today,
     forwardBaselineEquity: history[0]?.equity ?? null,
     forwardReturnPct: accountReturn,
     forwardReturnSource: "settled synthetic equity ledger",
@@ -137,6 +163,34 @@ function formatPositionTimestamp(value: string | null): string {
   return `As of ${new Date(value).toLocaleString()}`;
 }
 
+/** Prefer a live mark's equity over the last settled/computed figure when
+ * one is available -- `scale` converts a normalized (~100-base) NAV mark
+ * into the same dollar display every other field in this row already
+ * uses (`dm`/`mrm`/`fiftyFifty`/`volScaled` are the only series on that
+ * normalized scale; every other shadow's live mark is already in dollars,
+ * matching its own `currentEquity`). Falls back to the settled equity,
+ * with no `liveMark`, whenever the mark is unavailable -- never blocks
+ * the row on a missing quote. */
+function withLiveMark(
+  settledEquity: number | null,
+  mark: ShadowLiveMark | undefined,
+  scale = 1,
+): { equity: number | null; liveMark: ShadowLiveMark | null } {
+  if (mark?.available && mark.equity !== null) {
+    return { equity: mark.equity * scale, liveMark: mark };
+  }
+  return { equity: settledEquity, liveMark: mark ?? null };
+}
+
+function LiveDot({ title }: { title: string }) {
+  return (
+    <span title={title} className="relative inline-flex h-2 w-2 shrink-0" aria-label="Live">
+      <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ background: "var(--status-good)" }} />
+      <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: "var(--status-good)" }} />
+    </span>
+  );
+}
+
 function positionsFromWeights(
   holdings: Record<string, number> | undefined,
   equity: number | null,
@@ -160,6 +214,7 @@ export function StrategyAccountsPanel({
   prop,
   hourly,
   runs,
+  liveMarks,
 }: {
   live: LiveAccountResponse;
   summary: ExecutionSummary | null;
@@ -168,6 +223,7 @@ export function StrategyAccountsPanel({
   prop: PropShadowStatus | null;
   hourly: OptimizedDmHourlyShadowStatus | null;
   runs: RebalanceRunRow[];
+  liveMarks: ShadowLiveMarks;
 }) {
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const paperDaily = useResource<DailyPerformance>(KEYS.executionDaily, () => api.executionDaily());
@@ -207,6 +263,10 @@ export function StrategyAccountsPanel({
       positionNote: "Actual open positions reported by Alpaca Paper.",
       positionHistory: paperPositionHistory,
       note: "Real Alpaca paper-account values. They are strategy-specific only while this remains the account's sole execution owner.",
+      // Already truly live (polled straight from Alpaca every 30s) -- a
+      // reconstructed live mark would be a strictly worse copy of a number
+      // this row already has.
+      liveMark: null,
     });
     for (const series of forward?.series ?? []) {
       if (series.key === "spy") continue;
@@ -219,12 +279,14 @@ export function StrategyAccountsPanel({
             ? forward?.currentBlend?.fixedCombinedHoldings
             : forward?.currentBlend?.combinedHoldings;
       const syntheticEquity = series.nav === null ? null : series.nav * 1_000;
+      const { equity: liveEquity, liveMark } = withLiveMark(syntheticEquity, liveMarks[series.key], 1_000);
       rows.push({
         key: series.key,
         name: series.series,
         mode: "Shadow",
         evidence: "Prospective synthetic",
-        equity: syntheticEquity,
+        equity: liveEquity,
+        liveMark,
         startingEquity: history[0]?.equity ?? 100_000,
         cash: null,
         buyingPower: null,
@@ -244,12 +306,14 @@ export function StrategyAccountsPanel({
     }
     if (hourly?.available && hourly.strategy) {
       const equity = hourly.currentEquity ?? null;
+      const { equity: liveEquity, liveMark } = withLiveMark(equity, liveMarks[hourly.key]);
       rows.push({
         key: hourly.key,
         name: hourly.strategy,
         mode: "Shadow",
         evidence: "Blind pre-activation backfill + prospective synthetic",
-        equity,
+        equity: liveEquity,
+        liveMark,
         startingEquity: hourly.startingEquity ?? 100_000,
         cash: null,
         buyingPower: null,
@@ -281,12 +345,14 @@ export function StrategyAccountsPanel({
           currentPrice: position.currentPrice,
         };
       });
+      const { equity: liveEquity, liveMark } = withLiveMark(shadow.currentEquity, liveMarks[shadow.key]);
       rows.push({
         key: shadow.key,
         name: `Optimized DM ${shadow.scale.toFixed(2)}x · ${shadow.label}`,
         mode: "Prop shadow",
         evidence: "Synthetic prop accounting on observed parent stream",
-        equity: shadow.currentEquity,
+        equity: liveEquity,
+        liveMark,
         startingEquity: 100_000,
         cash: null,
         buyingPower: null,
@@ -322,12 +388,14 @@ export function StrategyAccountsPanel({
           currentPrice: position.currentPrice,
         };
       });
+      const { equity: liveEquity, liveMark } = withLiveMark(shadow.currentEquity, liveMarks[shadow.key]);
       rows.push({
         key: shadow.key,
         name: shadow.label,
         mode: "Shadow",
         evidence: "Self-funded synthetic on observed parent stream",
-        equity: shadow.currentEquity,
+        equity: liveEquity,
+        liveMark,
         startingEquity: shadow.startingCapital,
         cash: null,
         buyingPower: null,
@@ -344,7 +412,7 @@ export function StrategyAccountsPanel({
       });
     }
     return rows;
-  }, [forward, hourly, live, ownership, paperDaily.data, prop, runs, summary]);
+  }, [forward, hourly, live, liveMarks, ownership, paperDaily.data, prop, runs, summary]);
   const selected = accounts.find((account) => account.key === selectedKey) ?? null;
   const allTimePnl = selected?.equity !== null && selected?.startingEquity !== null && selected
     ? selected.equity! - selected.startingEquity!
@@ -352,7 +420,7 @@ export function StrategyAccountsPanel({
   const allTimeReturn = allTimePnl !== null && selected?.startingEquity
     ? (allTimePnl / selected.startingEquity) * 100
     : null;
-  const daily = selected?.mode === "Paper" ? paperDaily.data : selected ? dailyFromHistory(selected.history, spy) : null;
+  const daily = selected?.mode === "Paper" ? paperDaily.data : selected ? dailyFromHistory(selected.history, spy, selected.liveMark, liveMarks.spy) : null;
 
   return (
     <div className="rounded-lg border p-4" style={{ borderColor: "var(--border)", background: "var(--surface-1)" }}>
@@ -365,7 +433,17 @@ export function StrategyAccountsPanel({
         </div>
         <StrategyComparisonPanel accounts={accounts} />
       </div>
-      <div className="mt-3 divide-y overflow-hidden rounded-lg border" style={{ borderColor: "var(--border)" }}>
+      <div className="mt-3 overflow-hidden rounded-lg border" style={{ borderColor: "var(--border)" }}>
+        <div
+          className="hidden grid-cols-[minmax(0,1fr)_110px_100px_90px] gap-3 border-b px-3 py-2 text-[11px] font-medium uppercase tracking-wide sm:grid"
+          style={{ borderColor: "var(--gridline)", color: "var(--text-muted)" }}
+        >
+          <span>Strategy</span>
+          <span className="text-right">Equity</span>
+          <span className="text-right">Return</span>
+          <span className="text-right">Sessions</span>
+        </div>
+        <div className="divide-y" style={{ borderColor: "var(--gridline)" }}>
         {accounts.map((account) => {
           const pnl = account.equity !== null && account.startingEquity !== null ? account.equity - account.startingEquity : null;
           const returnPct = pnl !== null && account.startingEquity ? (pnl / account.startingEquity) * 100 : null;
@@ -377,19 +455,30 @@ export function StrategyAccountsPanel({
               className="grid w-full grid-cols-[1fr_auto] gap-3 px-3 py-3 text-left transition-colors hover:bg-black/5 sm:grid-cols-[minmax(0,1fr)_110px_100px_90px]"
               style={{ borderColor: "var(--gridline)" }}
             >
-              <span className="min-w-0"><span className="block truncate text-sm font-medium">{account.name}</span><span className="text-xs" style={{ color: "var(--text-muted)" }}>{account.mode} · {account.evidence}</span></span>
+              <span className="min-w-0"><span className="flex items-center gap-1.5 truncate text-sm font-medium">{account.name}{(account.mode === "Paper" || account.liveMark?.available) && <LiveDot title={account.mode === "Paper" ? "Live from Alpaca" : "Live-quote marked since last settled session"} />}</span><span className="text-xs" style={{ color: "var(--text-muted)" }}>{account.mode} · {account.evidence}</span></span>
               <span className="hidden text-right text-sm tabular-nums sm:block">{fmtMoney(account.equity)}</span>
               <span className="text-right text-sm tabular-nums" style={{ color: changeColor(returnPct) }}>{fmtPct(returnPct)}</span>
-              <span className="hidden text-right text-xs sm:block" style={{ color: "var(--text-muted)" }}>{account.sessions} sessions</span>
+              <span className="text-right text-xs tabular-nums sm:text-sm" style={{ color: "var(--text-muted)" }}>{account.sessions}<span className="sm:hidden"> sessions</span></span>
             </button>
           );
         })}
+        </div>
       </div>
 
       <Modal open={Boolean(selected)} onClose={() => setSelectedKey(null)} title={selected?.name ?? "Strategy"} subtitle={selected ? `${selected.mode} · ${selected.evidence}` : undefined} size="xl">
         {selected && (
           <div className="space-y-5">
             <div className="rounded-md border px-3 py-2 text-xs" style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}>{selected.note}</div>
+            {selected.mode !== "Paper" && (
+              selected.liveMark?.available ? (
+                <div className="flex items-center gap-1.5 text-xs" style={{ color: "var(--status-good)" }}>
+                  <LiveDot title="Live" /> Live-quote marked as of {new Date(selected.liveMark.asOf).toLocaleTimeString()}
+                  {selected.liveMark.missingSymbols.length > 0 && <span style={{ color: "var(--text-muted)" }}> · no quote for {selected.liveMark.missingSymbols.join(", ")}</span>}
+                </div>
+              ) : (
+                <div className="text-xs" style={{ color: "var(--text-muted)" }}>Not live-marked: {selected.liveMark?.reason ?? "unavailable"}</div>
+              )
+            )}
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <StatTile label="Equity" value={fmtMoney(selected.equity)} />
               <StatTile label="Cash" value={fmtMoney(selected.cash)} />

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { api, type MarketResponse, type StrategySummary } from "./api";
 import { DashboardView } from "./components/DashboardView";
+import { ResearchStatusView } from "./components/ResearchStatusView";
 import { StrategiesTab } from "./components/StrategiesTab";
 import { TopBar } from "./components/TopBar";
 import type { Tab } from "./tabs";
@@ -9,6 +10,15 @@ function App() {
   const [strategies, setStrategies] = useState<StrategySummary[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("dashboard");
+  // Set when a Dashboard card sends the user to the Research tab with a
+  // specific strategy in mind (the same deep-link the old Research Status
+  // popup supported) -- cleared once consumed so switching to the tab via
+  // the top nav itself doesn't re-focus a stale name.
+  const [researchFocusName, setResearchFocusName] = useState<string | null>(null);
+  const openResearch = (focusName?: string) => {
+    setResearchFocusName(focusName ?? null);
+    setTab("research");
+  };
 
   // Fetched ONCE at this level and shared by the dashboard's status strip,
   // its market card, and the market popup -- a cold /api/market call scans
@@ -82,8 +92,11 @@ function App() {
               marketLoading={marketLoading}
               marketError={marketError}
               onRefreshMarket={loadMarket}
+              onOpenResearch={openResearch}
             />
           )}
+
+          {tab === "research" && <ResearchStatusView focusName={researchFocusName} />}
 
           {tab === "strategies" && (
             <>

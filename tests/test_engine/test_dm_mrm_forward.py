@@ -542,3 +542,78 @@ def test_checkpoint_labels_are_reporting_only():
 def test_mrm_shadow_is_blocked_inside_order_execution_boundary():
     result = execution.execute_rebalance("Market-Residual Momentum", "test", force=True)
     assert result["status"] == "blocked_research_shadow"
+
+
+# --- live intraday mark (engine/shadow_live_mark.py wiring) -----------------
+
+
+def _seed_operations(path, holdings):
+    import json
+    path.write_text(json.dumps({"currentBlend": holdings}), encoding="utf-8")
+
+
+def test_live_marks_returns_all_four_series_keys(tmp_path, monkeypatch):
+    nav_path = tmp_path / "nav.json"
+    ops_path = tmp_path / "operations.json"
+    d1 = fwd.DEVELOPMENT_CUTOFF + pd.Timedelta(days=1)
+    fwd.append_nav_level_row(d1, {key: 100.0 for key in fwd.NAV_SERIES_KEYS}, nav_path)
+    _seed_operations(ops_path, {
+        "dmHoldings": {"AAPL": 1.0}, "mrmHoldings": {"MSFT": 1.0},
+        "fixedCombinedHoldings": {"AAPL": 0.5, "MSFT": 0.5},
+        "combinedHoldings": {"AAPL": 0.4, "MSFT": 0.6},
+    })
+    monkeypatch.setattr("engine.execution_db.automation_config", lambda: {})
+    monkeypatch.setattr("engine.shadow_live_mark.quotes_module.get_quotes", lambda symbols: {
+        s: {"symbol": s, "price": 110.0} for s in symbols
+    })
+    monkeypatch.setattr("engine.shadow_live_mark.data_module.get_bars", lambda symbol, interval, start, end: pd.DataFrame(
+        {"Close": [100.0]}, index=[pd.Timestamp(end)],
+    ))
+
+    marks = fwd.live_marks(nav_path=nav_path, operations_path=ops_path)
+
+    assert set(marks) == {"dm", "mrm", "fiftyFifty", "volScaled", "spy"}
+    for key in marks:
+        assert marks[key]["available"] is True
+        assert marks[key]["inProgress"] is True
+        # Every held symbol moved 100 -> 110, i.e. +10%, regardless of weights.
+        assert marks[key]["equity"] == pytest.approx(110.0)
+
+
+def test_live_marks_with_no_finalized_nav_is_unavailable(tmp_path):
+    nav_path = tmp_path / "nav.json"
+    ops_path = tmp_path / "operations.json"
+    _seed_operations(ops_path, {"dmHoldings": {"AAPL": 1.0}})
+
+    marks = fwd.live_marks(nav_path=nav_path, operations_path=ops_path)
+
+    assert marks["dm"]["available"] is False
+    assert marks["mrm"]["available"] is False
+
+
+def test_live_marks_prefers_broker_equity_for_dm_when_the_paper_account_matches(tmp_path, monkeypatch):
+    nav_path = tmp_path / "nav.json"
+    ops_path = tmp_path / "operations.json"
+    d1 = fwd.DEVELOPMENT_CUTOFF + pd.Timedelta(days=1)
+    fwd.append_nav_level_row(d1, {key: 100.0 for key in fwd.NAV_SERIES_KEYS}, nav_path)
+    _seed_operations(ops_path, {"dmHoldings": {"AAPL": 1.0}, "mrmHoldings": {}, "fixedCombinedHoldings": {}, "combinedHoldings": {}})
+
+    monkeypatch.setattr("engine.execution_db.automation_config", lambda: {"Dual Momentum": {
+        "enabled": True, "params": "{}", "validation_run_id": 33,
+    }})
+    monkeypatch.setattr("engine.execution_db.selected_symbols_for", lambda name: ["AAPL"])
+    monkeypatch.setattr(
+        "engine.alpaca_trading.get_account",
+        lambda: {"available": True, "equity": 103_000.0, "lastEquity": 100_000.0},
+    )
+    monkeypatch.setattr(
+        "engine.strategy_identity.identify_execution_config",
+        lambda *a, **k: {"fingerprintMatches": True},
+    )
+
+    marks = fwd.live_marks(nav_path=nav_path, operations_path=ops_path)
+
+    assert marks["dm"]["available"] is True
+    assert marks["dm"]["source"] == "alpaca_paper_account"
+    assert marks["dm"]["equity"] == pytest.approx(103.0)  # 100 baseline * 1.03 growth
+    assert marks["dm"]["profitLossPct"] == pytest.approx(3.0)

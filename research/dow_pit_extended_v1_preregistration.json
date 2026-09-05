@@ -1,0 +1,31 @@
+{
+  "dataset": "dow_pit_extended_v1",
+  "registeredAt": "2026-08-31",
+  "status": "data_acquisition_only_no_strategy_runs",
+  "targetWindow": {"start": "2000-01-01", "end": "2026-08-31"},
+  "activationGates": {
+    "pitMembershipKnownPct": 100.0,
+    "selectedUniversePriceAvailabilityPct": 100.0,
+    "silentExclusionsAllowed": 0,
+    "unresolvedIdentityOrTerminalEconomicsAllowed": 0,
+    "requiredWarmupCalendarDays": 400
+  },
+  "frozenStrategyArtifacts": [
+    {"path": "research/frozen_v1_protocol.json", "sha256": "0179ceb36ad1a2537754fd4c9b885fc046bc05f2d765e250a2a338505a503a33"},
+    {"path": "research/mrm_attribution_ladder_preregistration.json", "sha256": "5212e7788f2eb3991b6f8491559f3e54901640d94d7b6771d0f9944191936bf6"},
+    {"path": "engine/mrm_attribution_ladder.py", "sha256": "8e08125038f1068185657bd45db8f967779e85c660980e7633b7486f4378eaa9"}
+  ],
+  "frozenComparisons": [
+    "Plain Momentum C",
+    "Market-Residual Momentum D",
+    "all implemented canonical families in research/frozen_v1_protocol.json"
+  ],
+  "prohibited": [
+    "changing strategy parameters after seeing extended-history results",
+    "running a strategy before every activation gate passes",
+    "dropping an unavailable member or substituting a successor without identity evidence",
+    "treating a fetchable ticker as proof of historical company identity",
+    "lowering the 100% coverage requirement"
+  ],
+  "interpretation": "The recovered pre-2021 history is out-of-sample replication evidence for already-frozen strategies, not optimization data."
+}

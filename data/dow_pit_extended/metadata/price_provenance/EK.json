@@ -1,0 +1,14 @@
+{
+  "required": [
+    "2000-01-01",
+    "2004-04-07"
+  ],
+  "event": "bankruptcy_equity_extinguished",
+  "lineage": "Old Eastman Kodak common stock later traded as EKDKQ and was cancelled on 2013-09-03 in bankruptcy. New KODK common stock is a different post-reorganization security and is prohibited.",
+  "identitySource": "https://www.sec.gov/Archives/edgar/data/31235/000119312514106388/d693724d10k.htm",
+  "ticker": "EK",
+  "priceDataStatus": "MISSING_PRICE_DATA",
+  "recovered": false,
+  "failClosed": true,
+  "prohibitedMappings": "KODK is post-bankruptcy equity"
+}

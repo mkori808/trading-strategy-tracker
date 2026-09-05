@@ -174,10 +174,17 @@ def simulate(
         holdings = {
             symbol: value / close_equity for symbol, value in position_values.items()
         } if close_equity else {}
+        # The execution bar's own close for each held symbol -- the exact
+        # price `holdings`' weights were struck against, captured here so a
+        # live intraday mark (engine/shadow_live_mark.py) can anchor to the
+        # true baseline instead of a same-day daily close that doesn't exist
+        # until market close (this shadow marks intraday, not daily).
+        prices = {symbol: float(close_df.at[execution_bar, symbol]) for symbol in position_values}
         rows.append({
             "timestamp": execution_bar.isoformat(), "sessionDate": execution_bar.date().isoformat(),
             "decisionBar": decision_bar.isoformat(), "equity": float(close_equity),
-            "cash": float(cash), "holdings": holdings, "scores": {s: scores[s] for s in selected},
+            "cash": float(cash), "holdings": holdings, "prices": prices,
+            "scores": {s: scores[s] for s in selected},
             "turnover": traded_notional / portfolio_at_open if portfolio_at_open else 0.0,
         })
     return rows
@@ -327,3 +334,28 @@ def status(path: Path = LEDGER_PATH) -> dict[str, Any]:
             "costs": "Gross simulation; turnover reported separately; no slippage/fees deducted",
         },
     }
+
+
+def live_mark(path: Path = LEDGER_PATH) -> dict[str, Any]:
+    """A live 'right now' mark of the shadow's current holdings, ticking
+    between its own 30-minute recomputes -- see engine/shadow_live_mark.py.
+
+    Anchored to the exact per-symbol prices captured alongside `holdings`
+    at the last mark (`row["prices"]`), never a same-day daily close --
+    that close doesn't exist until the market shuts, and this shadow's
+    baseline is already intraday. A row written before that field existed
+    (engineVersion's history predates it) has no `prices`, so the mark
+    degrades to unavailable for that row rather than guessing.
+    """
+    from engine.shadow_live_mark import compute_live_mark
+
+    ledger = _read(path)
+    key = "dm_optimized_63d_hourly"
+    if ledger is None or not ledger.get("rows"):
+        return {"key": key, "available": False, "reason": "Hourly shadow has no recorded marks yet.", "inProgress": True}
+    latest = ledger["rows"][-1]
+    prices = latest.get("prices")
+    if not prices:
+        return {"key": key, "available": False, "reason": "The latest mark predates per-symbol baseline price capture.", "inProgress": True}
+    baseline_date = _timestamp(latest["timestamp"]).date()
+    return compute_live_mark(key, latest["holdings"], float(latest["equity"]), baseline_date, baseline_prices=prices)

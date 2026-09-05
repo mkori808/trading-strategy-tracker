@@ -1,0 +1,20 @@
+{
+  "lastAttemptAt": "2026-09-05T11:50:27-04:00",
+  "lastSuccessAt": "2026-09-05T11:50:27-04:00",
+  "lastError": null,
+  "latestCompletedSession": "2026-09-04",
+  "costsBaselineAtSetup": {
+    "c": 105.75137692443106,
+    "d": 67.29360475950867
+  },
+  "cumulativeCostsSinceSetup": {
+    "c": 5.668540218268845,
+    "d": -0.29554638161955893
+  },
+  "advanceResult": {
+    "status": "up_to_date",
+    "appendedSessions": 0,
+    "appendedRebalances": 0,
+    "lastSession": "2026-09-04"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "dataset": "dow_pit_extended_v1",
+  "targetStart": "2000-01-01",
+  "targetEnd": "2026-08-31",
+  "intervalCount": 17,
+  "distinctTickerCount": 53,
+  "allIntervalsContainExactly30Members": true,
+  "membershipGaps": [],
+  "officialTailChanges": [
+    {
+      "announcedAt": "2024-02-20",
+      "effectiveStart": "2024-02-26",
+      "adds": [
+        "AMZN"
+      ],
+      "removes": [
+        "WBA"
+      ],
+      "source": "https://press.spglobal.com/2024-02-20-Amazon-com-Set-to-Join-Dow-Jones-Industrial-Average-Uber-to-Join-Dow-Jones-Transportation-Average"
+    },
+    {
+      "announcedAt": "2024-11-01",
+      "effectiveStart": "2024-11-08",
+      "adds": [
+        "NVDA",
+        "SHW"
+      ],
+      "removes": [
+        "DOW",
+        "INTC"
+      ],
+      "source": "https://press.spglobal.com/2024-11-01-NVIDIA-and-Sherwin-Williams-Set-to-Join-Dow-Jones-Industrial-Average-Vistra-to-Join-Dow-Jones-Utility-Average"
+    },
+    {
+      "announcedAt": "2026-06-23",
+      "effectiveStart": "2026-06-29",
+      "adds": [
+        "GOOGL"
+      ],
+      "removes": [
+        "VZ"
+      ],
+      "source": "https://press.spglobal.com/2026-06-23-Alphabet-Set-to-Join-and-Honeywell-International-to-Remain-in-Dow-Jones-Industrial-Average"
+    }
+  ],
+  "passed": true,
+  "note": "Membership completeness only; price and identity coverage are separate fail-closed gates."
+}

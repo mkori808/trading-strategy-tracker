@@ -1,0 +1,36 @@
+{
+  "id": "sp500_pit_free_v1",
+  "label": "S&P 500 -- free PIT reconstruction v1 (research-only)",
+  "category": "Research-only",
+  "description": "Survivorship-free S&P 500 reconstruction from two independent open GitHub membership trackers (qzzcl primary, leandroloi secondary cross-check), with free-provider (yfinance) daily prices. Coverage audit found no window clearing the preregistered threshold (98.0% coverage at 95.0% of dates). See data/sp500_pit_free/audits/dataset_manifest.json for full provenance, hashes, and unresolved tickers. NOT the same dataset as sp500_pit (different membership sources, independently audited); dow_pit and sp500_pit are unmodified by this dataset.",
+  "assetClass": "equity",
+  "symbols": [],
+  "membershipLedgerPath": "data/sp500_pit_free/membership/intervals.csv",
+  "membershipMode": "pit_ledger_required",
+  "dataCoverage": {},
+  "costModel": {
+    "type": "equity_spread",
+    "commissionBps": 0.0,
+    "estimator": "engine.execution_calibration.spread_for",
+    "note": "Per-symbol equity spreads; never valid for futures roll/slippage costs."
+  },
+  "primaryBenchmark": "SPY",
+  "equalWeightBenchmark": "self_equal_weight",
+  "applicableGates": {
+    "beats_equal_weight": {
+      "applicable": true,
+      "reason": "This is a multi-instrument equity basket."
+    },
+    "beats_spy": {
+      "applicable": true,
+      "reason": "The registered primary benchmark is SPY for this US-equity universe."
+    },
+    "pit_membership": {
+      "applicable": true,
+      "reason": "Membership replay and cross-source reconciliation are complete and audited (data/sp500_pit_free/audits/membership_audit.json), but no engine code path resolves this ledger into a runnable roster yet -- the gate stays blocked on engine wiring, independent of data quality."
+    }
+  },
+  "runnable": false,
+  "selectable": false,
+  "unavailableReason": "Not wired into the backtest engine: engine/universe_registry.py's runnable_symbols() has no code path that resolves a point-in-time ticker-interval ledger (this dataset's schema, or engine/universe_ledger.py's date-effective-roster schema) into a tradeable per-rebalance-date universe -- true of the existing sp500_pit universe too, not a defect introduced by this dataset. Coverage audit found no window clearing the preregistered threshold (98.0% coverage at 95.0% of dates)."
+}

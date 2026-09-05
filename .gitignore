@@ -1,11 +1,16 @@
 venv/
 data/*.parquet
 data/*.csv
+data/dow_pit_extended/prices/*.parquet
+data/sp500_pit_free/prices/*.parquet
+data/sp500_pit_free/.yfinance_cache/
 logs/*.db
 logs/*.sqlite
 logs/*.csv
 logs/*.txt
 logs/*.flag
+logs/*.log
+logs/*.pkl
 .env
 __pycache__/
 *.pyc

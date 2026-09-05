@@ -1,0 +1,27 @@
+{
+  "required": [
+    "2000-01-01",
+    "2013-09-22"
+  ],
+  "event": "later_ticker_reuse_after_spinoff",
+  "lineage": "During the required Dow tenure AA was old Alcoa Inc. (CIK 4281). In 2016 that issuer became Arconic/ARNC and distributed a genuinely new Alcoa Corporation, which reused AA. Only pre-2016 AA observations are permitted here.",
+  "identitySource": "https://www.sec.gov/Archives/edgar/data/4281/000119312516731663/d249430dex991.htm",
+  "ticker": "AA",
+  "priceDataStatus": "RECOVERED_PRICE_DATA",
+  "recovered": true,
+  "failClosed": true,
+  "firstRecoveredBar": "1998-01-02",
+  "lastRecoveredBar": "2013-09-20",
+  "rowCount": 3955,
+  "outputArtifact": "data/dow_pit_extended/prices/AA.parquet",
+  "outputSha256": "d1140669fbd43af0f3bc55939e9ba73d0d66936f38a8d8cb951e1b2305e8ad8d",
+  "lookbackTreatment": "normal",
+  "retrieval": "Yahoo Finance chart API",
+  "sourceSymbol": "AA",
+  "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/AA?period1=883612800&period2=1380240000&interval=1d&events=div%2Csplits",
+  "identityScope": "rows are retained only before the 2016 AA ticker reassignment to new Alcoa Corporation",
+  "independentPriceCrossCheck": {
+    "passed": false,
+    "status": "NOT_COMPLETED"
+  }
+}

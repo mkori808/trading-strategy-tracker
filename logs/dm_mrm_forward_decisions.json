@@ -1,0 +1,47 @@
+[
+  {
+    "decisionDate": "2026-09-01",
+    "decisionRecordedAt": "2026-09-03T13:48:22",
+    "executionDate": "2026-09-01",
+    "volLookbackSessions": 60,
+    "volWindowStartDate": "2026-06-05",
+    "volWindowEndDate": "2026-08-31",
+    "dmTrailingVolPct": 27.056821272969827,
+    "mrmTrailingVolPct": 17.707081695048657,
+    "dmInverseVolScore": 3.695925659231135,
+    "mrmInverseVolScore": 5.647457990096838,
+    "dmTargetWeight": 0.3955660816193678,
+    "mrmTargetWeight": 0.6044339183806322,
+    "priorDmWeight": 0.3809567790754392,
+    "priorMrmWeight": 0.6190432209245609,
+    "requiredTransferPct": 1.4609302543928615,
+    "estimatedOverlayCostBps": 0.0,
+    "dmSleeve": {
+      "strategyName": "Dual Momentum",
+      "strategyVersion": "Dual Momentum -- 189d lookback, top 5, monthly, EQUITY_UNIVERSE (canonical, registered)",
+      "targetWeight": 0.3955660816193678,
+      "holdings": {
+        "INTC": 0.2,
+        "CSCO": 0.2,
+        "MRK": 0.2,
+        "CVX": 0.2,
+        "CAT": 0.2
+      }
+    },
+    "mrmSleeve": {
+      "strategyName": "Market-Residual Momentum",
+      "strategyVersion": "Market-Residual Momentum -- canonical registered parameters",
+      "targetWeight": 0.6044339183806322,
+      "holdings": {
+        "JPM": 0.2,
+        "MCD": 0.2,
+        "KO": 0.2,
+        "JNJ": 0.2,
+        "PG": 0.2
+      }
+    },
+    "combinedIntendedExposurePct": 100.0,
+    "sufficientData": true,
+    "note": "Trailing vol computed through the prior session's close."
+  }
+]

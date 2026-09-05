@@ -1,0 +1,478 @@
+{
+  "required": [
+    "2000-01-01",
+    "2020-04-02"
+  ],
+  "event": "spinoffs_merger_and_rename",
+  "lineage": "UTC (CIK 101829) spun off Carrier and Otis, acquired Raytheon as a subsidiary, and renamed the continuing UTC public parent Raytheon Technologies/RTX on 2020-04-03.",
+  "identitySource": "https://www.sec.gov/Archives/edgar/data/101829/000114036120008397/nc10010681x2_8k.htm",
+  "ticker": "UTX",
+  "priceDataStatus": "RECOVERED_PRICE_DATA",
+  "recovered": true,
+  "failClosed": false,
+  "firstRecoveredBar": "1998-11-27",
+  "lastRecoveredBar": "2020-04-01",
+  "rowCount": 5370,
+  "outputArtifact": "data/dow_pit_extended/prices/UTX.parquet",
+  "outputSha256": "011fe2b641974bcb1bfac710252fc7c3d89dd99db1889e55b2ff0e07932c586d",
+  "lookbackTreatment": "normal",
+  "retrieval": "fresh raw yfinance fetch (auto_adjust=False), with in-window splits left alone (already permanently baked in), any post-window split/merger-ratio reversed, and in-window dividends manually applied -- never the provider's Adj Close (see this function's and _backward_adjust_in_window's docstrings)",
+  "upstreamProvider": "Yahoo Finance (fresh fetch via yfinance, auto_adjust=False, manually adjusted)",
+  "sourceSymbol": "RTX",
+  "fetchWindow": {
+    "start": "1998-11-27",
+    "end": "2020-04-02"
+  },
+  "adjustmentsApplied": [
+    {
+      "date": "2020-04-03",
+      "kind": "post_window_split_reversed",
+      "value": 1.589
+    },
+    {
+      "date": "2020-02-13",
+      "kind": "in_window_dividend_applied",
+      "value": 0.462555
+    },
+    {
+      "date": "2019-11-14",
+      "kind": "in_window_dividend_applied",
+      "value": 0.462555
+    },
+    {
+      "date": "2019-08-15",
+      "kind": "in_window_dividend_applied",
+      "value": 0.462555
+    },
+    {
+      "date": "2019-05-16",
+      "kind": "in_window_dividend_applied",
+      "value": 0.462555
+    },
+    {
+      "date": "2019-02-14",
+      "kind": "in_window_dividend_applied",
+      "value": 0.462555
+    },
+    {
+      "date": "2018-11-15",
+      "kind": "in_window_dividend_applied",
+      "value": 0.462555
+    },
+    {
+      "date": "2018-08-16",
+      "kind": "in_window_dividend_applied",
+      "value": 0.440529
+    },
+    {
+      "date": "2018-05-17",
+      "kind": "in_window_dividend_applied",
+      "value": 0.440529
+    },
+    {
+      "date": "2018-02-15",
+      "kind": "in_window_dividend_applied",
+      "value": 0.440529
+    },
+    {
+      "date": "2017-11-16",
+      "kind": "in_window_dividend_applied",
+      "value": 0.440529
+    },
+    {
+      "date": "2017-08-16",
+      "kind": "in_window_dividend_applied",
+      "value": 0.440529
+    },
+    {
+      "date": "2017-05-17",
+      "kind": "in_window_dividend_applied",
+      "value": 0.415356
+    },
+    {
+      "date": "2017-02-15",
+      "kind": "in_window_dividend_applied",
+      "value": 0.415356
+    },
+    {
+      "date": "2016-11-16",
+      "kind": "in_window_dividend_applied",
+      "value": 0.415356
+    },
+    {
+      "date": "2016-08-17",
+      "kind": "in_window_dividend_applied",
+      "value": 0.415356
+    },
+    {
+      "date": "2016-05-18",
+      "kind": "in_window_dividend_applied",
+      "value": 0.415356
+    },
+    {
+      "date": "2016-02-17",
+      "kind": "in_window_dividend_applied",
+      "value": 0.402769
+    },
+    {
+      "date": "2015-11-10",
+      "kind": "in_window_dividend_applied",
+      "value": 0.402769
+    },
+    {
+      "date": "2015-08-12",
+      "kind": "in_window_dividend_applied",
+      "value": 0.402769
+    },
+    {
+      "date": "2015-05-13",
+      "kind": "in_window_dividend_applied",
+      "value": 0.402769
+    },
+    {
+      "date": "2015-02-11",
+      "kind": "in_window_dividend_applied",
+      "value": 0.402769
+    },
+    {
+      "date": "2014-11-12",
+      "kind": "in_window_dividend_applied",
+      "value": 0.371303
+    },
+    {
+      "date": "2014-08-13",
+      "kind": "in_window_dividend_applied",
+      "value": 0.371303
+    },
+    {
+      "date": "2014-05-14",
+      "kind": "in_window_dividend_applied",
+      "value": 0.371303
+    },
+    {
+      "date": "2014-02-12",
+      "kind": "in_window_dividend_applied",
+      "value": 0.371303
+    },
+    {
+      "date": "2013-11-13",
+      "kind": "in_window_dividend_applied",
+      "value": 0.371303
+    },
+    {
+      "date": "2013-08-14",
+      "kind": "in_window_dividend_applied",
+      "value": 0.33669
+    },
+    {
+      "date": "2013-05-15",
+      "kind": "in_window_dividend_applied",
+      "value": 0.33669
+    },
+    {
+      "date": "2013-02-13",
+      "kind": "in_window_dividend_applied",
+      "value": 0.33669
+    },
+    {
+      "date": "2012-11-14",
+      "kind": "in_window_dividend_applied",
+      "value": 0.33669
+    },
+    {
+      "date": "2012-08-15",
+      "kind": "in_window_dividend_applied",
+      "value": 0.33669
+    },
+    {
+      "date": "2012-05-16",
+      "kind": "in_window_dividend_applied",
+      "value": 0.302077
+    },
+    {
+      "date": "2012-02-15",
+      "kind": "in_window_dividend_applied",
+      "value": 0.302077
+    },
+    {
+      "date": "2011-11-16",
+      "kind": "in_window_dividend_applied",
+      "value": 0.302077
+    },
+    {
+      "date": "2011-08-17",
+      "kind": "in_window_dividend_applied",
+      "value": 0.302077
+    },
+    {
+      "date": "2011-05-18",
+      "kind": "in_window_dividend_applied",
+      "value": 0.302077
+    },
+    {
+      "date": "2011-02-16",
+      "kind": "in_window_dividend_applied",
+      "value": 0.267464
+    },
+    {
+      "date": "2010-11-17",
+      "kind": "in_window_dividend_applied",
+      "value": 0.267464
+    },
+    {
+      "date": "2010-08-18",
+      "kind": "in_window_dividend_applied",
+      "value": 0.267464
+    },
+    {
+      "date": "2010-05-12",
+      "kind": "in_window_dividend_applied",
+      "value": 0.267464
+    },
+    {
+      "date": "2010-02-17",
+      "kind": "in_window_dividend_applied",
+      "value": 0.267464
+    },
+    {
+      "date": "2009-11-18",
+      "kind": "in_window_dividend_applied",
+      "value": 0.242291
+    },
+    {
+      "date": "2009-08-19",
+      "kind": "in_window_dividend_applied",
+      "value": 0.242291
+    },
+    {
+      "date": "2009-05-13",
+      "kind": "in_window_dividend_applied",
+      "value": 0.242291
+    },
+    {
+      "date": "2009-02-18",
+      "kind": "in_window_dividend_applied",
+      "value": 0.242291
+    },
+    {
+      "date": "2008-11-12",
+      "kind": "in_window_dividend_applied",
+      "value": 0.242291
+    },
+    {
+      "date": "2008-08-13",
+      "kind": "in_window_dividend_applied",
+      "value": 0.201385
+    },
+    {
+      "date": "2008-05-14",
+      "kind": "in_window_dividend_applied",
+      "value": 0.201385
+    },
+    {
+      "date": "2008-02-13",
+      "kind": "in_window_dividend_applied",
+      "value": 0.201385
+    },
+    {
+      "date": "2007-11-14",
+      "kind": "in_window_dividend_applied",
+      "value": 0.201385
+    },
+    {
+      "date": "2007-08-15",
+      "kind": "in_window_dividend_applied",
+      "value": 0.201385
+    },
+    {
+      "date": "2007-05-16",
+      "kind": "in_window_dividend_applied",
+      "value": 0.166772
+    },
+    {
+      "date": "2007-02-14",
+      "kind": "in_window_dividend_applied",
+      "value": 0.166772
+    },
+    {
+      "date": "2006-11-15",
+      "kind": "in_window_dividend_applied",
+      "value": 0.166772
+    },
+    {
+      "date": "2006-08-16",
+      "kind": "in_window_dividend_applied",
+      "value": 0.166772
+    },
+    {
+      "date": "2006-05-17",
+      "kind": "in_window_dividend_applied",
+      "value": 0.166772
+    },
+    {
+      "date": "2006-02-15",
+      "kind": "in_window_dividend_applied",
+      "value": 0.138452
+    },
+    {
+      "date": "2005-11-16",
+      "kind": "in_window_dividend_applied",
+      "value": 0.138452
+    },
+    {
+      "date": "2005-08-17",
+      "kind": "in_window_dividend_applied",
+      "value": 0.138452
+    },
+    {
+      "date": "2005-05-18",
+      "kind": "in_window_dividend_applied",
+      "value": 0.138452
+    },
+    {
+      "date": "2005-02-16",
+      "kind": "in_window_dividend_applied",
+      "value": 0.138452
+    },
+    {
+      "date": "2004-11-17",
+      "kind": "in_window_dividend_applied",
+      "value": 0.110132
+    },
+    {
+      "date": "2004-08-18",
+      "kind": "in_window_dividend_applied",
+      "value": 0.110132
+    },
+    {
+      "date": "2004-05-19",
+      "kind": "in_window_dividend_applied",
+      "value": 0.110132
+    },
+    {
+      "date": "2004-02-18",
+      "kind": "in_window_dividend_applied",
+      "value": 0.110132
+    },
+    {
+      "date": "2003-11-12",
+      "kind": "in_window_dividend_applied",
+      "value": 0.110132
+    },
+    {
+      "date": "2003-08-20",
+      "kind": "in_window_dividend_applied",
+      "value": 0.084959
+    },
+    {
+      "date": "2003-05-14",
+      "kind": "in_window_dividend_applied",
+      "value": 0.084959
+    },
+    {
+      "date": "2003-02-12",
+      "kind": "in_window_dividend_applied",
+      "value": 0.077093
+    },
+    {
+      "date": "2002-11-13",
+      "kind": "in_window_dividend_applied",
+      "value": 0.077093
+    },
+    {
+      "date": "2002-08-21",
+      "kind": "in_window_dividend_applied",
+      "value": 0.077093
+    },
+    {
+      "date": "2002-05-15",
+      "kind": "in_window_dividend_applied",
+      "value": 0.077093
+    },
+    {
+      "date": "2002-02-13",
+      "kind": "in_window_dividend_applied",
+      "value": 0.077093
+    },
+    {
+      "date": "2001-11-14",
+      "kind": "in_window_dividend_applied",
+      "value": 0.070799
+    },
+    {
+      "date": "2001-08-22",
+      "kind": "in_window_dividend_applied",
+      "value": 0.070799
+    },
+    {
+      "date": "2001-05-16",
+      "kind": "in_window_dividend_applied",
+      "value": 0.070799
+    },
+    {
+      "date": "2001-02-14",
+      "kind": "in_window_dividend_applied",
+      "value": 0.070799
+    },
+    {
+      "date": "2000-11-15",
+      "kind": "in_window_dividend_applied",
+      "value": 0.070799
+    },
+    {
+      "date": "2000-08-23",
+      "kind": "in_window_dividend_applied",
+      "value": 0.062933
+    },
+    {
+      "date": "2000-05-17",
+      "kind": "in_window_dividend_applied",
+      "value": 0.062933
+    },
+    {
+      "date": "2000-02-16",
+      "kind": "in_window_dividend_applied",
+      "value": 0.062933
+    },
+    {
+      "date": "1999-11-17",
+      "kind": "in_window_dividend_applied",
+      "value": 0.062933
+    },
+    {
+      "date": "1999-08-25",
+      "kind": "in_window_dividend_applied",
+      "value": 0.056639
+    },
+    {
+      "date": "1999-05-05",
+      "kind": "in_window_dividend_applied",
+      "value": 0.056639
+    },
+    {
+      "date": "1999-02-17",
+      "kind": "in_window_dividend_applied",
+      "value": 0.056639
+    }
+  ],
+  "independentPriceCrossCheck": {
+    "source": "manually researched year-end/dated closes from independent public price-history pages",
+    "checks": [
+      {
+        "date": "2008-12-31",
+        "expectedClose": 53.6,
+        "toleranceFraction": 0.3,
+        "observedClose": 41.02,
+        "passed": true
+      },
+      {
+        "date": "2013-12-31",
+        "expectedClose": 113.8,
+        "toleranceFraction": 0.2,
+        "observedClose": 98.53,
+        "passed": true
+      }
+    ],
+    "passed": true
+  }
+}

@@ -578,3 +578,65 @@ def status(path: Path = DB_PATH, now: datetime | None = None) -> dict[str, Any]:
             "parentLinkageLocked":bool(program["fingerprintLocked"] and (not ownership or (ownership.get("owner") or {}).get("strategyFingerprint") == program["fingerprint"])),
             "selfFundedShadows":self_funded,"selfFundedFingerprintLocked":self_program["fingerprintLocked"],
             "accountIntegrity":ownership}
+
+
+def live_marks(path: Path = DB_PATH) -> dict[str, dict[str, Any]]:
+    """A live 'right now' mark for every prop and self-funded shadow, on
+    top of their own 5-minute sampled marks -- see
+    engine/shadow_live_mark.py. Anchored to the exact per-symbol prices
+    already captured on the parent's latest snapshot (`currentPrice`,
+    alongside `weight`), never a same-day daily close: these shadows mark
+    intraday, and the same-day close doesn't exist until the market shuts.
+
+    Weight per symbol mirrors StrategyAccountsPanel.tsx's own existing
+    position-table math (`parentWeight * scale` for a prop shadow,
+    `parentWeight * fixedExposure / equity` for a self-funded one) so a
+    live mark and the positions already displayed for it describe the same
+    portfolio, never two silently different approximations.
+    """
+    from datetime import date as date_cls
+
+    from engine.shadow_live_mark import compute_live_mark
+
+    conn = get_connection(path)
+    latest = conn.execute(
+        "SELECT positions_json FROM raw_equity_snapshots ORDER BY observed_at DESC LIMIT 1"
+    ).fetchone()
+    parent_positions = [] if latest is None else json.loads(latest["positions_json"])
+    parent_weights = {p["symbol"]: float(p.get("weight") or 0.0) for p in parent_positions if p.get("symbol")}
+    parent_prices = {
+        p["symbol"]: float(p["currentPrice"]) for p in parent_positions
+        if p.get("symbol") and p.get("currentPrice") is not None
+    }
+
+    def _baseline(table: str, key: str) -> tuple[float, date_cls] | None:
+        row = conn.execute(
+            f"SELECT session_date, equity_after FROM {table} WHERE shadow_key=? ORDER BY id DESC LIMIT 1",
+            (key,),
+        ).fetchone()
+        return None if row is None else (float(row["equity_after"]), date_cls.fromisoformat(row["session_date"]))
+
+    marks: dict[str, dict[str, Any]] = {}
+    for key, spec in SHADOWS.items():
+        baseline = _baseline("shadow_marks", key)
+        if baseline is None:
+            marks[key] = {"key": key, "available": False, "reason": "No settled mark is recorded yet.", "inProgress": True}
+            continue
+        baseline_equity, baseline_date = baseline
+        holdings = {symbol: weight * spec["scale"] for symbol, weight in parent_weights.items()}
+        marks[key] = compute_live_mark(key, holdings, baseline_equity, baseline_date, baseline_prices=parent_prices)
+
+    for key, spec in SELF_FUNDED_SHADOWS.items():
+        baseline = _baseline("self_funded_marks", key)
+        if baseline is None:
+            marks[key] = {"key": key, "available": False, "reason": "No settled mark is recorded yet.", "inProgress": True}
+            continue
+        baseline_equity, baseline_date = baseline
+        holdings = {
+            symbol: (weight * spec["fixedExposure"]) / baseline_equity if baseline_equity else 0.0
+            for symbol, weight in parent_weights.items()
+        }
+        marks[key] = compute_live_mark(key, holdings, baseline_equity, baseline_date, baseline_prices=parent_prices)
+
+    conn.close()
+    return marks

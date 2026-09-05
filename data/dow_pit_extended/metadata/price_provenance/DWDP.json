@@ -1,0 +1,121 @@
+{
+  "required": [
+    "2017-09-01",
+    "2019-04-01"
+  ],
+  "event": "merger_then_spinoff",
+  "lineage": "DowDuPont (CIK 1666700) was formed by the 2017 Dow/DuPont merger. It distributed new Dow Inc. on 2019-04-01, later distributed Corteva, and renamed the remaining issuer DuPont (DD). DOW is a separate security and is never used for DWDP.",
+  "identitySource": "https://www.sec.gov/Archives/edgar/data/1666700/000166670020000006/dupont201910-k.htm",
+  "ticker": "DWDP",
+  "priceDataStatus": "RECOVERED_PRICE_DATA",
+  "recovered": true,
+  "failClosed": false,
+  "firstRecoveredBar": "2016-07-28",
+  "lastRecoveredBar": "2019-03-29",
+  "rowCount": 672,
+  "outputArtifact": "data/dow_pit_extended/prices/DWDP.parquet",
+  "outputSha256": "0b71f754f15b5390fb61e0a48fb189d539e39a9ea936567c426df5c42fe92e97",
+  "lookbackTreatment": "normal",
+  "retrieval": "fresh raw yfinance fetch (auto_adjust=False), with in-window splits left alone (already permanently baked in), any post-window split/merger-ratio reversed, and in-window dividends manually applied -- never the provider's Adj Close (see this function's and _backward_adjust_in_window's docstrings)",
+  "upstreamProvider": "Yahoo Finance (fresh fetch via yfinance, auto_adjust=False, manually adjusted)",
+  "sourceSymbol": "DD",
+  "fetchWindow": {
+    "start": "2016-07-28",
+    "end": "2019-04-01"
+  },
+  "adjustmentsApplied": [
+    {
+      "date": "2019-04-02",
+      "kind": "post_window_split_reversed",
+      "value": 1.487
+    },
+    {
+      "date": "2019-06-03",
+      "kind": "post_window_split_reversed",
+      "value": 0.4725
+    },
+    {
+      "date": "2025-11-03",
+      "kind": "post_window_split_reversed",
+      "value": 2.39
+    },
+    {
+      "date": "2026-06-24",
+      "kind": "post_window_split_reversed",
+      "value": 0.3333333333333333
+    },
+    {
+      "date": "2019-02-27",
+      "kind": "in_window_dividend_applied",
+      "value": 0.678882
+    },
+    {
+      "date": "2018-11-29",
+      "kind": "in_window_dividend_applied",
+      "value": 0.678882
+    },
+    {
+      "date": "2018-08-30",
+      "kind": "in_window_dividend_applied",
+      "value": 0.678882
+    },
+    {
+      "date": "2018-05-30",
+      "kind": "in_window_dividend_applied",
+      "value": 0.678882
+    },
+    {
+      "date": "2018-02-27",
+      "kind": "in_window_dividend_applied",
+      "value": 0.678882
+    },
+    {
+      "date": "2017-11-14",
+      "kind": "in_window_dividend_applied",
+      "value": 0.678882
+    },
+    {
+      "date": "2017-07-27",
+      "kind": "in_window_dividend_applied",
+      "value": 0.821804
+    },
+    {
+      "date": "2017-06-28",
+      "kind": "in_window_dividend_applied",
+      "value": 0.821804
+    },
+    {
+      "date": "2017-03-29",
+      "kind": "in_window_dividend_applied",
+      "value": 0.821804
+    },
+    {
+      "date": "2016-12-23",
+      "kind": "in_window_dividend_applied",
+      "value": 0.821804
+    },
+    {
+      "date": "2016-09-28",
+      "kind": "in_window_dividend_applied",
+      "value": 0.821804
+    }
+  ],
+  "independentPriceCrossCheck": {
+    "source": "manually researched year-end/dated closes from independent public price-history pages",
+    "checks": [
+      {
+        "date": "2017-12-29",
+        "expectedClose": 71.22,
+        "observedClose": 69.12,
+        "passed": true
+      },
+      {
+        "date": "2018-12-31",
+        "expectedClose": 53.48,
+        "observedClose": 53.12,
+        "passed": true
+      }
+    ],
+    "passed": true
+  }
+}

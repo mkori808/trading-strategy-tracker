@@ -180,7 +180,34 @@ export interface GovernedForwardExperiment {
   locked: boolean;
   observationCount: number;
   latest: Record<string, unknown> | null;
+  overrideUsed: boolean;
+  overrideReason: string | null;
+  overrideBlockers: string[];
+  overrideAt: string | null;
 }
+
+// A live 'right now' equity mark for one shadow strategy, reconstructed
+// from live quotes on its current frozen holdings (or, for Canonical DM
+// when it is the account currently executing, the real Alpaca paper
+// equity's own growth factor) -- see engine/shadow_live_mark.py. Same
+// inProgress semantics as DailyPerformance's `today` row for the real
+// paper account, so both can share one "in progress" treatment in the UI.
+export interface ShadowLiveMark {
+  key: string;
+  available: boolean;
+  reason: string | null;
+  asOf: string;
+  baselineDate: string | null;
+  baselineEquity: number | null;
+  equity: number | null;
+  profitLoss: number | null;
+  profitLossPct: number | null;
+  missingSymbols: string[];
+  inProgress: true;
+  source?: string;
+}
+
+export type ShadowLiveMarks = Record<string, ShadowLiveMark>;
 
 export interface FillCalibration {
   symbol: string | null;
@@ -376,6 +403,13 @@ export interface RegisteredUniverse {
   coverageStart: string | null;
   coverageEnd: string | null;
   approximateSecurityCount: number | null;
+  // Dollar value of one full-unit price move (e.g. 2.0 for MNQ's $2/index
+  // point) -- 1.0 for every non-futures universe. Purely a backend
+  // execution detail today; the UI doesn't yet display it anywhere.
+  contractMultiplier: number;
+  // Overrides the engine's own default starting cash when set (see
+  // engine/universe_registry.py) -- null means "use the engine default."
+  startingCash: number | null;
   pitStatus: {
     ready: boolean;
     summary: string;
@@ -1942,6 +1976,25 @@ export const api = {
     request<FillCalibration>(`/live/execution/calibration${symbol ? `?symbol=${encodeURIComponent(symbol)}` : ""}`),
   forwardExperiments: (strategyName: string) =>
     request<GovernedForwardExperiment[]>(`/research/forward/${encodeURIComponent(strategyName)}`),
+  // The safe replacement for setExecutionConfig(enabled: true, ...) on an
+  // arbitrary historical row -- creates a forward_experiments record without
+  // ever touching execution_db, so it cannot change which strategy Alpaca is
+  // currently executing. See api/main.py:propose_forward_experiment.
+  proposeForwardExperiment: (
+    strategyName: string,
+    validationRunId: number,
+    acknowledgeSelection: boolean,
+    override?: { reason: string },
+  ) =>
+    request<GovernedForwardExperiment>("/research/forward/propose", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        strategyName, validationRunId, acknowledgeSelection,
+        overridePassedGates: Boolean(override),
+        overrideReason: override?.reason ?? null,
+      }),
+    }),
   activateKillSwitch: (flatten: boolean) =>
     request<{ flagSet: boolean; flattened: boolean; error: string | null }>(
       "/live/execution/kill-switch",
@@ -2044,8 +2097,10 @@ export const api = {
   researchConditionalStatus: (strategyName: string) =>
     request<ResearchStatusRow>(`/research/conditional-status/${encodeURIComponent(strategyName)}`),
   researchForwardStack: () => request<ForwardStackStatus>("/research/forward-stack"),
+  researchPlainVsResidualForward: () => request<PlainVsResidualForwardStatus>("/research/plain-vs-residual-forward"),
   researchPropShadows: () => request<PropShadowStatus>("/research/prop-shadows"),
   researchOptimizedDmHourlyShadow: () => request<OptimizedDmHourlyShadowStatus>("/research/optimized-dm-hourly-shadow"),
+  researchShadowLiveMarks: () => request<ShadowLiveMarks>("/research/shadow-live-marks"),
   researchCapitalEfficiency: () => request<CapitalEfficiencyStatus>("/research/capital-efficiency"),
   researchDataBlockers: () => request<{ blockers: DataBlockerRow[] }>("/research/data-blockers"),
 };
@@ -2145,6 +2200,80 @@ export interface ForwardStackStatus {
   };
   reconciliation?: { confirmedAmendments: number; rawNavPreserved: boolean; finalizationLagSessions: number };
   separation: { alpacaEquityLabel: string; researchNavLabel: string };
+}
+
+/** Plain Momentum (C, diagnostic control) vs Market-Residual Momentum (D,
+ * canonical) prospective shadow -- engine/plain_vs_residual_momentum_forward.py.
+ * Deliberately a SEPARATE shape from ForwardStackStatus above: this ledger
+ * uses calendar-month checkpoints (not session-count), C is not even a
+ * registered/tradable strategy, and there is no vol-scaled blend. See
+ * research/plain_vs_residual_momentum_forward_preregistration.json. */
+export interface PlainVsResidualSeriesBlock {
+  cumulativeReturnPct: number;
+  volatilityPct: number | null;
+  maxDrawdownPct: number;
+  worstDayPct: number | null;
+  annualizedReturnPct?: number;
+  sharpe?: number | null;
+  sortino?: number | null;
+  annualizedBlock?: string;
+}
+
+export interface PlainVsResidualCheckpointRow {
+  months: number;
+  label: string;
+  date: string | null;
+  reached: boolean;
+}
+
+export interface PlainVsResidualCheckpoint {
+  monthsElapsed: number;
+  firstSession?: string;
+  reached: string[];
+  next: PlainVsResidualCheckpointRow | null;
+  schedule?: PlainVsResidualCheckpointRow[];
+  interpretationStatus: string;
+}
+
+export interface PlainVsResidualRegimeBucket {
+  periods: number;
+  cMeanReturnPct: number | null;
+  dMeanReturnPct: number | null;
+}
+
+export interface PlainVsResidualScorecard {
+  observations: number;
+  developmentCutoff?: string;
+  forwardPeriod?: { start: string; end: string };
+  status: string;
+  checkpoint: PlainVsResidualCheckpoint;
+  series: Partial<Record<"c" | "d" | "spy", PlainVsResidualSeriesBlock>>;
+  benchmarkRelative?: { cVsSpyReturnDiffPp: number; dVsSpyReturnDiffPp: number };
+  pairedRelative?: { dMinusCReturnDiffPp: number; dMinusCMaxDrawdownDiffPp: number };
+  maxDrawdownDiffPp?: number;
+  sharpeDiff?: number | string;
+  hitRates: {
+    cHitRatePct?: number | null;
+    dHitRatePct?: number | null;
+    pairedHitRatePct?: number | null;
+    pairedRebalancePeriods?: number;
+  };
+  regimeBreakdown: Record<string, PlainVsResidualRegimeBucket>;
+  cumulativeCostsSinceSetup?: { c: number; d: number };
+  hypothesisNote?: string;
+}
+
+export interface PlainVsResidualForwardStatus {
+  scorecard: PlainVsResidualScorecard;
+  operations: {
+    lastAttemptAt?: string | null;
+    lastSuccessAt?: string | null;
+    lastError?: string | null;
+    latestCompletedSession?: string | null;
+  };
+  alerts: { code: string; severity: string; message: string }[];
+  preregistration: string;
+  reconciliation?: { confirmedAmendments: number; amendments: Record<string, unknown>[]; rawNavPreserved: boolean };
 }
 
 export interface PropShadowRow {
