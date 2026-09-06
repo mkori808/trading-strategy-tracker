@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "evidenceOnly": true,
+  "records": [
+    {
+      "case_id": "case_01_htzgq",
+      "issuer": "Hertz Global Holdings",
+      "ticker": "HTZGQ",
+      "field": "known_at",
+      "value": "2020-05-22",
+      "precision": "DATE_ONLY",
+      "status": "PASS",
+      "source_type": "SEC_8_K",
+      "source_title": "Hertz Global Holdings Form 8-K",
+      "source_organization": "U.S. Securities and Exchange Commission",
+      "source_date": "2020-05-27",
+      "source_identifier": "https://www.sec.gov/Archives/edgar/data/47129/000110465920068931/tm2021592d1_8k.htm",
+      "evidence_section": "Item 7.01; petition date stated as May 22, 2020",
+      "confidence": "HIGH",
+      "notes": "This supports the date the Chapter 11 filing became public. It is not used as a time-of-day claim."
+    },
+    {
+      "case_id": "case_01_htzgq",
+      "issuer": "Hertz Global Holdings",
+      "ticker": "HTZGQ",
+      "field": "terminal_value_per_share",
+      "value": null,
+      "status": "UNRESOLVED",
+      "source_type": "SEC_10_K_AND_8_K",
+      "source_title": "Hertz emergence and plan disclosures",
+      "source_organization": "U.S. Securities and Exchange Commission",
+      "source_date": "2021-11-01",
+      "source_identifier": "https://www.sec.gov/Archives/edgar/data/47129/000165785321000092/R18.htm",
+      "evidence_section": "Emergence equity disclosures",
+      "confidence": "HIGH",
+      "notes": "Old shares were cancelled, but the filing also describes new shares issued pro rata to some existing shareholders. The current scalar supplement schema cannot represent mixed stock consideration safely."
+    }
+  ]
+}

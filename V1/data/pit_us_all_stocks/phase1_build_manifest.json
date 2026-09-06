@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "source": "Sharadar (api.sharadar.com/v1.0), daily table, marketcap field",
+  "snapshotId": "phase1-monthly-universe-1998_12-2026_09",
+  "buildPhase": "PHASE_1_UNIVERSE_ONLY -- NOT a complete pit_all_stocks.py bundle",
+  "coverageStart": "1998-12-01",
+  "coverageEnd": "2026-09-05",
+  "coverageNote": "Sharadar daily.marketcap has ZERO rows before 1998-12-01 (confirmed empirically: 1998-11-30 returns 0 rows market-wide; 1998-12-01 returns 7,220). Earlier coverage-start claims (e.g. the sp500 table's full history to 1998-01-01) do NOT transfer to this table -- each table's own coverage boundary was checked independently, not assumed.",
+  "priceBasis": "NOT YET POPULATED -- this phase contains marketcap-based universe membership only, no OHLCV",
+  "survivorshipFree": true,
+  "survivorshipFreeNote": "Universe membership is recomputed fresh from EACH month-end's own point-in-time daily.marketcap cross-section, never projected backward from a later date.",
+  "delistedSecuritiesIncluded": "UNKNOWN -- not yet tested for this store; spot-checked only for 3 S&P 500 mega-cap examples (SWY/LO/COV) in an earlier, separate validation pass",
+  "permanentIdentifierGuarantee": false,
+  "permanentIdentifierNote": "DEVIATION from this README's original aspirational contract, disclosed deliberately: Sharadar tickers.permaticker exists but stocks/daily do not accept a permaticker query parameter (confirmed: HTTP 400), so price history can only be fetched by ticker string. Ticker reuse is confirmed real (FB now held by a different active entity since Meta's 2022 rename) and tickerchangefrom/to action rows are not always reliable (PNST's recorded 2024-01-02 change to BYN never took effect in the real price feed). This store's identity model is TICKER-SCOPED WINDOWS ONLY: every fetch is clamped to a ticker's own tickers.firstpricedate/lastpricedate tenure, and a security whose ticker changes mid-formation-window is excluded from that month rather than risking a silent splice.",
+  "universeDefinition": "Bottom quintile (20th percentile) by marketcap among all Sharadar-covered securities with a positive, non-null marketcap on that date -- percentile-based, not a fixed nominal dollar threshold, recomputed at every month-end.",
+  "stabilityCheck": {
+    "monthsBuilt": 334,
+    "meanTotalWithMarketcap": 5732.107784431138,
+    "meanEligibleCount": 1146.0239520958085,
+    "minEligibleCountAnyMonth": 996,
+    "minEligibleCountDate": "2017-09-29",
+    "monthsBelowPreregisteredPortfolioSize": 0,
+    "verdict": "STABLE across the full 1998-12-01 to 2026-09-05 history -- minimum eligible count (996) comfortably exceeds both preregistered portfolio sizes (30, 50) in every single month."
+  },
+  "buildScript": "engine/build_microcap_pit_store.py",
+  "buildLog": "data/pit_us_all_stocks/build_log_phase1.json",
+  "nextPhase": "PHASE 2 (not yet built): per-ticker daily OHLCV + volume for the union of every ticker ever eligible, clamped to tenure, plus closeunadj+actions reconstruction (engine/reconstruct_adjustment.py) for the 12-1 month momentum signal and 63-day liquidity floor."
+}

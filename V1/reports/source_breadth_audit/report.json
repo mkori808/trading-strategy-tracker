@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "evidenceOnly": true,
+  "backtestsRun": false,
+  "returnsInspected": false,
+  "holdoutConsumed": false,
+  "preregistrationsCreated": false,
+  "baseMdaPct": 4.157313997,
+  "baseYears": 28.5,
+  "familyMultiplier": 3.0,
+  "yearsRequiredForFourPctMda": 10.261935428855944,
+  "sources": [
+    {
+      "source": "pitindex",
+      "url": "https://github.com/arielNacamulli/pitindex",
+      "familyCoverage": {
+        "sp500": "2005-01-03",
+        "sp400": "2011-11-20",
+        "sp600": "2021-03-26"
+      },
+      "estimatedYears": 5.445697036900142,
+      "projectedMdaPct": 5.490955093616406,
+      "status": "PARTIAL_INSUFFICIENT_HISTORY",
+      "notes": "The composite 1500 floor is the S&P 600 start; project is community-maintained and documents incomplete historical changes."
+    },
+    {
+      "source": "indexkit",
+      "url": "https://github.com/kovagent/indexkit",
+      "familyCoverage": {
+        "sp600": "2019-11-01"
+      },
+      "estimatedYears": 6.8447675174712685,
+      "projectedMdaPct": 4.8977349546084135,
+      "status": "PARTIAL_INSUFFICIENT_HISTORY",
+      "notes": "Community reconstruction using N-PORT, sponsor files, and Wayback; does not establish a complete 2000-era family ledger."
+    },
+    {
+      "source": "S&P DJI press releases",
+      "url": "https://press.spglobal.com/2026-03-06-Vertiv-Holdings%2C-Lumentum-Holdings%2C-Coherent%2C-and-EchoStar-Set-to-Join-S-P-500-Others-to-Join-S-P-100%2C-S-P-MidCap-400-and-S-P-SmallCap-600",
+      "familyCoverage": "individual announcements",
+      "estimatedYears": null,
+      "projectedMdaPct": null,
+      "status": "NOT_MACHINE_BOUNDED",
+      "notes": "Primary announcements confirm individual changes but no exhaustive, normalized historical archive was established in this audit."
+    }
+  ],
+  "verdict": "STOP_SCREENED_OUT_BREADTH",
+  "reason": "The bounded free S&P 400/600 sources do not provide enough complete independent history to clear a 4% MDA target; official releases remain unbounded for automated reconstruction."
+}

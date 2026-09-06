@@ -1,0 +1,135 @@
+{
+  "study": "Sub-$300M-Cap Cross-Sectional Momentum v1",
+  "preregisteredAt": "2026-09-06",
+  "STATUS_amended_2026-09-06": {
+    "state": "PAUSED BEFORE PHASE 2 INGESTION -- two decisive findings below, neither resolved unilaterally",
+    "finding1": "costModel_amended_2026-09-06.sanityCheckAgainstDetectableEffect_DECISIVE_FINDING -- realistic turnover (>=50%/month) produces a modeled cost that meets or exceeds the entire 3.04%/yr detectable effect, using OPTIMISTIC-regime (lower-bound) costs.",
+    "finding2": "developmentAndHoldout.liquidityPopulationStability_DECISIVE_FINDING_2026-09-06 -- the $500,000/day liquidity floor passed ~0% of the eligible universe in 2010 and 2015 (vs. 28.6% today), meaning the preregistered development window cannot be executed as designed.",
+    "whyNotResolvedHere": "Both findings point at design-parameter changes (a percentile-based liquidity floor instead of a fixed nominal one; a shorter or differently-weighted study window; a lower assumed/measured turnover) that would need to be chosen BEFORE seeing how they affect the answer, per this document's own prohibitions. Choosing one now, after computing that it fixes the problem, would be exactly the after-the-fact parameter selection this preregistration exists to prevent.",
+    "recommendation": "Report both findings and stop, per this session's explicit instruction ('if modeled cost exceeds the detectable effect, say so before running anything'). Phase 2 ingestion and the Phase 2 acceptance gates were not started."
+  },
+  "purpose": "Test whether a standard 12-1 month cross-sectional momentum signal, applied within a liquidity-filtered micro-cap universe, produces a risk-adjusted return that survives factor attribution -- i.e. is a genuine CAPACITY-barrier anomaly rather than a repackaged size-factor bet.",
+  "originatingScreen": {
+    "backlogEntry": "research/hypothesis_backlog.md -- Sub-$300M cap cross-sectional anomalies",
+    "priorRoughScreen": "reports/hypothesis_backlog_screen/report.md reported 0.91%/yr MDA using the FULL 2,011-name eligible universe as if it were the held portfolio -- an oversimplification, not the design used here.",
+    "correctedScreen": "This session recomputed MDA against a REALISTIC held-portfolio size (not the full eligible pool), same screen_design tool, same 4%/yr ceiling: 2.41-3.38%/yr across top-20 to top-75 held portfolios, all still VIABLE. This preregistration commits to top-30 and top-50 as the two portfolio-size variants (3.04%/yr and 2.67%/yr respectively)."
+  },
+  "barrierAndPersistenceThesis": {
+    "barrierType": "CAPACITY",
+    "claim": "A fund cannot build or unwind a position in a name with the measured liquidity floor's dollar volume without either (a) taking many days to fill at a bounded participation rate, incurring information leakage and market impact, or (b) accepting a position too small to matter to a fund of institutional AUM. Measured directly this session: at a $500,000/day median-volume floor, this project's own existing capacity convention (research_governance.py's 1% max-bar-participation-rate) caps a single day's fill at $5,000 per name -- retail/small-fund scale, not institutional.",
+    "whyItDoesNotDisappearWhenKnown": "The barrier is fund AUM relative to the stock's dollar volume, not investor knowledge of a momentum effect. A $1B+ fund cannot scale into this universe even after reading this document; the constraint is structural, not informational.",
+    "preciseClaim_amendment_2026-09-06": {
+      "claim": "NOT that momentum works in general -- Dual Momentum already closed that question for large caps (LESSONS.md, 2026-08-11: +0.60 UMD loading at t=4.75 explained the return; residual alpha could not be distinguished from zero). The claim here is narrower and more specific: momentum in sub-$300M names is NOT fully captured by TRADEABLE momentum factors (specifically UMD), because UMD is constructed from securities large enough for institutions to arbitrage the effect down, and the capacity barrier measured above prevents that same arbitrage from compressing the effect in this universe.",
+      "whyThisIsADifferentClaimThanDualMomentum": "Dual Momentum's failure was a large-cap strategy showing a large UMD loading with no residual left over -- the strategy WAS the factor. This study's claim requires the OPPOSITE signature: a real return that a large-cap-calibrated momentum factor does NOT fully explain, specifically BECAUSE this universe sits outside where that factor was built to price the effect away."
+    },
+    "primaryFalsification_amendment_2026-09-06": "REJECTED unless BOTH: (a) residual alpha after the MKT/SMB/HML/UMD regression clears a 95% CI excluding zero, AND (b) the effect is MONOTONICALLY STRONGER in smaller/less-liquid deciles within the eligible universe (see sizeLiquidityMonotonicityTest below). Either failing alone is a REJECT -- a positive residual alpha with no monotonicity is not distinguishable from a lucky draw within an arbitrary small-cap slice, and monotonicity with no residual alpha is just a restatement of the SMB loading this study already guards against.",
+    "sizeLiquidityMonotonicityTest": {
+      "cutMethod": "At each monthly rebalance, split the eligible (bottom-quintile) universe into terciles by (a) market cap and (b) trailing-63-day median dollar volume, independently -- two separate tercile cuts, not a double-sort (a double-sort's cells would be too sparse near either end of an already-bottom-quintile universe to be individually reliable).",
+      "monotonicityDefinition": "Mean monthly top-N momentum-portfolio return (net of the preregistered BASE cost model below) in the smallest/least-liquid tercile must exceed the middle tercile, which must exceed the largest/most-liquid tercile, for BOTH the market-cap cut and the liquidity cut independently.",
+      "falsifiesIf": "The ordering is not strictly monotonic in either cut (ties broken by requiring the smallest-tercile return to exceed the largest-tercile return by more than one standard error of their difference), OR if monotonicity holds only for one of the two cuts and not the other -- both must agree, since the barrier claim is that CAPACITY (proxied by both size and liquidity) drives the effect, not either one in isolation.",
+      "sampleSizeCaveat": "This test's own power was NOT separately screened before preregistering it -- three terciles of an already-narrow universe, evaluated over the same sample, will have materially less power than the headline portfolio-level test. Report the tercile-level minimum detectable alpha alongside the monotonicity result; a monotonic-looking but underpowered tercile split is reported as inconclusive, not as confirming evidence."
+    },
+    "interpretiveLimitation_amendment_2026-09-06": "Fama-French UMD is constructed from NYSE-breakpoint stocks far larger than this study's universe -- a low measured UMD loading here may mean genuine independence from tradeable momentum factors (the claim this study is testing), OR it may simply mean UMD is a poor proxy for momentum exposure at this size, unrelated to any capacity barrier. This limitation is recorded now, before any regression is run, specifically so a low UMD loading is NOT narrated as proof of independence in the evidence report without this caveat attached every time it is cited."
+  },
+  "universe": {
+    "sourceTable": "Sharadar daily.marketcap (confirmed point-in-time: SWY, a real security delisted 2015-01-29, carries continuous accurate marketcap through its actual last trading day -- not a current-constituents-only snapshot)",
+    "definitionRule": "PERCENTILE-based, not a fixed nominal dollar threshold: at each monthly rebalance date, rank all Sharadar-covered US common stocks with a non-null marketcap and take the BOTTOM QUINTILE (20th percentile and below).",
+    "whyPercentileNotNominal": "A fixed $300M cutoff held constant since 1998 does not mean the same thing in 1998 dollars as in 2026 dollars, and the raw tracked-security count itself drifted materially across the sample (measured: 6,097 tracked names with marketcap on 2005-06-15 vs. 5,514 on 2026-09-03) -- a percentile rule self-adjusts for both inflation and secular changes in the size of the US public-company universe. Today's 20th percentile corresponds approximately to the $300M level that motivated this backlog entry, disclosed as a descriptive anchor only, never as the operative rule.",
+    "eligibilityFilters": {
+      "minimumListingHistory": "252 trading days of continuous price history before the rebalance date (needed for the 12-1 month formation window)",
+      "minimumLiquidity": "Trailing 63-trading-day median daily dollar volume >= $500,000",
+      "liquidityFloorMeasurement": "Measured this session on a 70-name random-stride sample of the current sub-$300M population: 28.6% pass a $500,000/day floor with >=200 days of history (vs. 61.4% at a looser $100,000 floor and 17.1% at a stricter $1,000,000 floor). $500,000 is the primary floor; $250,000 is reported as a sensitivity variant, never as a replacement chosen after seeing returns.",
+      "excludedSecurityTypes": "ADRs, SPAC units/warrants, and non-common-stock categories per tickers.category, same filter discipline as engine/pit_all_stocks.py's is_common_stock requirement"
+    },
+    "neverSubstituteCurrentForHistorical": "The eligible universe at each historical rebalance date is recomputed from that date's own point-in-time marketcap/liquidity, never from today's list of sub-$300M names projected backward -- the exact survivorship mistake this project's CLAUDE.md and prior PIT efforts (data/sp500_pit_free) warn against."
+  },
+  "signal": {
+    "definition": "12-month trailing total return through month-end T-1, SKIPPING the most recent completed month (i.e. formation window is T-12 through T-2), standard Jegadeesh-Titman convention, adopted specifically to avoid contaminating the momentum signal with the well-documented short-term reversal effect.",
+    "priceBasis": "closeunadj + actions reconstruction (engine/reconstruct_adjustment.py), NEVER vendor closeadj directly, per this session's Sharadar findings -- vendor closeadj carries a confirmed defect on at least one real security (HON) and the reconstruction is the cheaper, already-built cross-check.",
+    "rebalanceFrequency": "Monthly, matching this project's existing cross-sectional engine convention (Dual Momentum, Market-Residual Momentum, Sector Rotation Play)."
+  },
+  "parameterFamily": {
+    "note": "Deliberately small and fixed before any return is inspected, per this session's directive.",
+    "portfolioSize": [30, 50],
+    "liquidityFloor": ["$500,000/day (primary)", "$250,000/day (sensitivity)"],
+    "totalConfigurations": 4,
+    "noOtherParametersVaried": "Formation window (12-1 month), rebalance frequency (monthly), and universe percentile (bottom quintile) are each fixed at one value, not swept -- widening this family after seeing results is prohibited, see prohibitions below."
+  },
+  "positionConstruction": "Equal-weight the top-N ranked names by momentum score within the eligible universe at each monthly rebalance; long-only (no short leg -- shorting a sub-$500K/day-ADV name is not a realistic execution assumption and would need its own borrow-availability study).",
+  "costModel_amended_2026-09-06": {
+    "supersedes": "The original costModel below (unmodified research_governance.py reuse) is INVALID for this universe and is kept only for record -- its 1%-participation capacity check still applies, but its implicit spread assumption does not: engine/data.py's _SPREAD_TIERS bottom out at '<$300M/day average dollar volume -> 5bps fallback', a floor roughly 600-1000x larger than this study's own $500K-$1M/day universe. Applying it here would be the same category of error CLAUDE.md's fundamentals.py section already warns against (using a large-cap-calibrated assumption on a population it was never built for).",
+    "perSecuritySpreadEstimator": "Corwin-Schultz (2012) high-low spread estimator, computed from 2-day rolling High/Low ratios already present in the store's daily bars -- no quote data required, which is why this is the standard technique for daily-bar-only micro-cap spread estimation. Formula: beta=(ln(H_t/L_t))^2+(ln(H_{t+1}/L_{t+1}))^2; gamma=(ln(max(H_t,H_{t+1})/min(L_t,L_{t+1})))^2; alpha=(sqrt(2*beta)-sqrt(beta))/(3-2*sqrt(2)) - sqrt(gamma/(3-2*sqrt(2))); spread=2*(e^alpha-1)/(1+e^alpha), truncated at zero for negative estimates (standard practice). Averaged over the trailing 63 trading days per security, same window as the liquidity floor.",
+    "measuredThisSession": "Computed on 8 real names spanning the liquidity floor (RVSB $169K/day-51.2bps, EBMT $216K/day-58.4bps, MPAA $974K/day-104.6bps, AREC $1.2M/day-167.8bps, MED $12.6M/day-83.2bps, VEEE $63K/day-85.3bps, ITP $42K/day-168.7bps, CPHC $37K/day-0bps [likely estimator instability at very low tick counts, not a real zero]). Median 84.25bps round-trip. NOT monotonic with ADV -- MPAA and AREC show HIGHER spreads than lower-ADV RVSB/EBMT despite far higher volume, because Corwin-Schultz responds to volatility as well as liquidity. This is real, measured signal, not noise to average away: a liquidity floor alone does not guarantee a tight spread in this universe.",
+    "costRegimes": {
+      "OPTIMISTIC": "Raw Corwin-Schultz median spread only, one round trip per position change, no market-impact adder, no partial-fill haircut, one-bar-delayed fill (existing convention retained).",
+      "BASE": "Corwin-Schultz spread PLUS a square-root market-impact adder (impact_bps = 15 * sqrt(position_dollar_size / trailing_63d_ADV), a standard practitioner heuristic -- the 15bps coefficient is a documented placeholder pending real fill data, not a fitted value, and must be reported as such) plus the existing one-bar-delayed-fill and 80% partial-fill haircut.",
+      "STRESS": "BASE regime spread and impact both multiplied by the existing project-standard 2x/3x stress multipliers (research_governance.py convention, reused unmodified) plus a 60% partial-fill haircut (harsher than BASE's 80%, reflecting that a thin name is more likely to only partially fill under stress)."
+    },
+    "costSensitivityClassification": "A configuration that shows a surviving effect under OPTIMISTIC and BASE but not STRESS is classified COST_SENSITIVE, not a pass -- reported as its own outcome category alongside VIABLE/MARGINAL/DEAD/DATA_BLOCKED from the earlier backlog screens, never silently rounded up to a pass.",
+    "sanityCheckAgainstDetectableEffect_DECISIVE_FINDING": {
+      "computation": "Top-30 portfolio MDA is 3.04%/yr, i.e. 25.33bps/month of detectable edge at the power boundary. Median round-trip spread (OPTIMISTIC regime, 84.25bps) annualized against monthly turnover: 25% turnover -> 2.53%/yr (below the 3.04%/yr MDA), 50% -> 5.05%/yr (EXCEEDS), 75% -> 7.58%/yr (EXCEEDS), 100% -> 10.11%/yr (EXCEEDS). This uses OPTIMISTIC-regime costs only (spread alone, no market-impact adder) -- BASE and STRESS costs are strictly higher, so every one of these figures is a lower bound on the real cost.",
+      "turnoverCaveat": "Actual monthly turnover for a 12-1 month top-30 momentum portfolio was NOT measured this session (that requires Phase 2 per-ticker data). Academic and this project's own experience with monthly-rebalanced cross-sectional momentum typically shows turnover well above 25%/month, often 40-80%+, as rankings shift meaningfully each period.",
+      "verdict": "Even under the MOST OPTIMISTIC cost assumption (spread only, no market impact, small-sample spread estimate that may itself be understated), realistic turnover levels (>=50%/month) produce a modeled annual cost that MEETS OR EXCEEDS the entire statistically detectable effect size. Per this session's explicit instruction: this is reported now, before Phase 2 ingestion or any backtest, exactly as required -- the study MAY BE ECONOMICALLY UNVIABLE AT ITS DESIGN STAGE, independent of whether a real momentum effect exists in the raw prices. This is not a reason to relax the liquidity floor (that would only worsen the identity/tradability problem) or lower the 4%/yr ceiling (prohibited) -- see STATUS at the top of this document for the recommended next step."
+    }
+  },
+  "costModel_ORIGINAL_SUPERSEDED": {
+    "reuse": "engine/research_governance.py:standard_cost_stress_evidence, unmodified -- 2x/3x spread stress, one-bar-delayed fills, 80% partial-fill haircut, and the existing 1% max-bar-participation-rate capacity check.",
+    "additionalCapacityNote": "The capacity check is expected to bind harder here than on any prior strategy in this repo given the deliberately thin liquidity floor -- report it prominently, not as a footnote, per CLAUDE.md's rule that a capacity-limited result must disclose trade-count/exposure impact alongside any performance number.",
+    "supersededBy": "costModel_amended_2026-09-06 above -- kept for the record, not deleted, per this project's own archive-don't-delete convention."
+  },
+  "benchmarks": [
+    {
+      "key": "spy_buy_hold",
+      "purpose": "Standard project convention (CLAUDE.md: always show buy-and-hold's own return next to alpha).",
+      "controlsFor": "nothing universe-specific -- allocation question only, does not drive the falsification decision"
+    },
+    {
+      "key": "point_in_time_equal_weight_eligible_universe",
+      "purpose": "Same 'control for the universe, isolate the ranking' logic as engine/forward_tracking.py's equal-weight-Dow control for canonical Dual Momentum. Holds the SAME eligible bottom-quintile universe equal-weighted, unranked -- isolates whether momentum ranking adds anything over merely being exposed to the micro-cap segment.",
+      "controlsFor": "the size/segment exposure itself -- THIS is the comparison the falsification criterion below is actually bound to"
+    }
+  ],
+  "factorRegressionAndFalsification": {
+    "model": "Fama-French MKT/SMB/HML plus momentum (UMD), monthly, via engine/factor_regression.py unmodified",
+    "primaryEstimand": "Residual alpha (intercept) after controlling for all four factors",
+    "falsificationCriterion": "REJECTED if either: (a) residual alpha's 95% confidence interval includes zero, following the EXACT standard this project already applied to close the original Dual Momentum research question (LESSONS.md, 2026-08-11: alpha t=0.69 was not evidence of no edge, but evidence the design could not resolve one -- the same minimum-detectable-alpha discipline applies here via engine/metrics.py:minimum_detectable_alpha_pct before the regression is even trusted), OR (b) the SMB (size) factor loading alone explains the raw excess return with residual alpha collapsing toward zero once SMB is included -- i.e. this is a size bet wearing a momentum label, the exact failure mode this project already found once for Dual Momentum's UMD loading and must not repeat uncritically for a different factor.",
+    "secondaryCheck": "point_in_time_equal_weight_eligible_universe benchmark comparison -- if the ranked portfolio does not beat the unranked equal-weight control of the SAME universe, the ranking itself adds nothing beyond segment exposure, independent of the factor regression result."
+  },
+  "developmentAndHoldout": {
+    "mechanism": "engine/research_governance.py:chronological_evidence, reused unmodified -- 80/20 chronological split, walk-forward folds (default 5), holdout contribution must exceed zero AND >=60% of walk-forward windows must be positive.",
+    "developmentWindow_CORRECTED_2026-09-06": "1998-12-01 through 2020-12-31, corrected from the original '1998-01-01' after Phase 1 of the store build empirically found Sharadar daily.marketcap has ZERO coverage before 1998-12-01 (confirmed: 1998-11-30 returns 0 of ~7,220 names market-wide; 1998-12-01 returns full coverage). This is an 11-month correction, immaterial to the design on its own -- see the liquidity-population finding immediately below, which is NOT immaterial.",
+    "holdoutWindow": "Approximately 2021-01-01 through 2026-09-05 (the most recent ~20%), NOT INSPECTED for this hypothesis before this preregistration was written",
+    "liquidityPopulationStability_DECISIVE_FINDING_2026-09-06": {
+      "measurement": "Item-3 population check: sampled ~25 names from the eligible (bottom-quintile) universe at four historical snapshots and measured the $500,000/day liquidity-floor pass rate directly, rather than assuming today's 28.6% rate holds across history.",
+      "results": "2010-06-30: 0% (0/25). 2015-06-30: 0% (0/23). 2020-06-30: 12% (3/25). 2026-09-03: 28.6% (20/70, the rate used in the preregistered MDA calculation).",
+      "interpretation": "A clear, monotonic secular liquidity-growth trend (consistent with the post-2019 growth of commission-free retail brokerage and electronic trading), not sampling noise -- 0/25 and 0/23 are decisive near-zero findings, not marginal ones. This means the preregistered development window (1998-12 through 2020-12) would have had at or near ZERO liquidity-floor-passing names for a large majority of its span -- the 30/50-name preregistered portfolios could not have been constructed for most of the intended development period under the $500,000/day floor as designed.",
+      "consequence": "The development/holdout split as originally specified is NOT executable as designed. This is reported as a decisive finding requiring a design decision (see STATUS at the top of this document), not resolved unilaterally here -- candidate options include a percentile-based liquidity floor (mirroring the same nominal-vs-percentile fix already applied to the market-cap threshold, since a fixed $500,000/day nominal floor has the identical flaw a fixed $300M market-cap floor would have had) or shrinking the usable study window to whatever span the liquidity floor genuinely supports. Neither is decided here -- doing so would be picking a design parameter after seeing how it affects the answer, exactly what the prohibitions below forbid."
+    },
+    "explicitCommitment": "No parameter in parameterFamily above, no liquidity floor, no portfolio size, and no formation window may be changed after the development-window result is seen. A parameter-family result from the development window that fails is reported as failed; it is not grounds to try a fifth configuration."
+  },
+  "searchFamilyAccounting": {
+    "registeredAs": "microcap_momentum_v1 (new search family; not a member of any existing frozen_v1_protocol.json family)",
+    "familySearchCount": "4 (the parameterFamily's total configurations, registered via engine/logging_db.py:register_experiment before any configuration is run)"
+  },
+  "reportedMetrics": [
+    "win rate, expectancy R, profit factor, max drawdown, Sharpe/Sortino, trade count, exposure %, date range (CLAUDE.md standard set)",
+    "buy_hold_return_pct for SPY and for the point-in-time equal-weight eligible universe, both shown next to alpha, never only the difference",
+    "factor attribution in the decomposed form: Raw CAGR / Factor-explained / Residual alpha / Alpha t-stat / Dominant exposure",
+    "capacity diagnostics (ADV participation %, breach flags) for every configuration, not just the ones that look good",
+    "development-vs-holdout contribution split and walk-forward fold agreement rate",
+    "minimum detectable alpha at the achieved sample length, computed BEFORE the headline alpha is narrated"
+  ],
+  "prohibitions": [
+    "No liquidity floor, portfolio size, formation window, universe percentile, or rebalance frequency may be selected or changed after seeing development-window results, and none at all may be changed after seeing holdout.",
+    "No fifth parameter configuration may be added after the four preregistered ones are run.",
+    "No claim of a genuine anomaly is made if residual alpha's 95% CI includes zero OR if the SMB loading alone explains the raw return (see falsificationCriterion).",
+    "No universe widening (e.g. relaxing the percentile or liquidity floor) after a disappointing result -- a widened version is a SEPARATE, newly preregistered study, never a silent replacement.",
+    "No short leg is added without a separate borrow-availability preregistration -- this study is long-only by design, not by omission.",
+    "Vendor closeadj is never used as the price basis without cross-checking against the closeunadj+actions reconstruction first, per this session's Sharadar findings."
+  ],
+  "dataProvenanceCaveatsCarriedForward": [
+    "Sharadar's paid full_history_or_broader entitlement was verified live this session (engine.validate_sharadar_contract.detect_tier), not assumed from documentation.",
+    "daily.marketcap point-in-time integrity was spot-checked on one real delisted security (SWY) this session, not on a large sample -- the PIT store build (next phase) must run a broader version of this same check across many delisted micro-caps specifically, since micro-caps are structurally more likely to have identity/reverse-split/relisting complications than the large-cap names checked so far.",
+    "Permanent security identity (tickers.permaticker) continuity remains AMBIGUOUS project-wide (reports/sharadar_contract_validation/report.md) -- ticker reuse in a 28-year micro-cap universe is a materially higher risk than in the 29-name Dow roster where this was originally found, and must be addressed in the PIT store build, not deferred again."
+  ]
+}

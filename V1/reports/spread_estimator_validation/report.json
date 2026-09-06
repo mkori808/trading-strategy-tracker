@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "evidenceOnly": true,
+  "backtestsRun": false,
+  "returnsInspected": false,
+  "selectionRule": "Fixed market-cap quantile probes in the $50M-$500M Sharadar daily snapshot, restricted to US-exchange common stocks with >=60 OHLCV sessions; five mechanically retained names with at least one valid current Alpaca quote.",
+  "sample": [
+    "PZG",
+    "ZUMZ",
+    "NERV",
+    "XPER",
+    "GFUZ"
+  ],
+  "quoteWindowET": [
+    "2026-09-03T12:00:00",
+    "2026-09-03T12:05:00"
+  ],
+  "quoteMin": 1,
+  "rows": [
+    {
+      "ticker": "PZG",
+      "ohlcvRows": 253,
+      "ohlcvFirst": "2025-09-03",
+      "ohlcvLast": "2026-09-03",
+      "corwinSchultzBps": 17.663298101667394,
+      "abdiRanaldoBps": 33.39066331410083,
+      "quotedReferenceBps": 68.25938566552908,
+      "quotedValid": 35,
+      "quotedRejected": 0,
+      "comparableWithin2x": {
+        "CS": false,
+        "AR": false
+      }
+    },
+    {
+      "ticker": "ZUMZ",
+      "ohlcvRows": 253,
+      "ohlcvFirst": "2025-09-03",
+      "ohlcvLast": "2026-09-03",
+      "corwinSchultzBps": 50.799394569133845,
+      "abdiRanaldoBps": 0.0,
+      "quotedReferenceBps": 716.3901468168247,
+      "quotedValid": 20,
+      "quotedRejected": 0,
+      "comparableWithin2x": {
+        "CS": false,
+        "AR": false
+      }
+    },
+    {
+      "ticker": "NERV",
+      "ohlcvRows": 253,
+      "ohlcvFirst": "2025-09-03",
+      "ohlcvLast": "2026-09-03",
+      "corwinSchultzBps": 211.75029073872736,
+      "abdiRanaldoBps": 96.98267184829187,
+      "quotedReferenceBps": 1466.3951120162926,
+      "quotedValid": 31,
+      "quotedRejected": 0,
+      "comparableWithin2x": {
+        "CS": false,
+        "AR": false
+      }
+    },
+    {
+      "ticker": "XPER",
+      "ohlcvRows": 253,
+      "ohlcvFirst": "2025-09-03",
+      "ohlcvLast": "2026-09-03",
+      "corwinSchultzBps": 76.10637019832856,
+      "abdiRanaldoBps": 21.01814905140291,
+      "quotedReferenceBps": 33.72681281618965,
+      "quotedValid": 144,
+      "quotedRejected": 0,
+      "comparableWithin2x": {
+        "CS": false,
+        "AR": true
+      }
+    },
+    {
+      "ticker": "GFUZ",
+      "ohlcvRows": 252,
+      "ohlcvFirst": "2025-09-04",
+      "ohlcvLast": "2026-09-03",
+      "corwinSchultzBps": 10.689797504645783,
+      "abdiRanaldoBps": 0.009920482364478289,
+      "quotedReferenceBps": 3001.899936668778,
+      "quotedValid": 8,
+      "quotedRejected": 0,
+      "comparableWithin2x": {
+        "CS": false,
+        "AR": false
+      }
+    }
+  ],
+  "errors": [],
+  "reliableEstimatorObservations": 1,
+  "status": "METHODOLOGY_BROKEN",
+  "recommendation": "Neither estimator is acceptable as primary for this mid-liquidity tier; retain both only as diagnostics and replace with quoted spreads or a calibrated vendor microstructure field."
+}

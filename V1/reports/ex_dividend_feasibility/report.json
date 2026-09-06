@@ -1,0 +1,394 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-05T23:39:47.098248+00:00",
+  "evidenceOnly": true,
+  "backtestsRun": false,
+  "returnsInspected": false,
+  "holdoutConsumed": false,
+  "candidate": "ex_dividend_clientele",
+  "holdingPeriod": {
+    "sessions": 5,
+    "years": 0.01984126984126984,
+    "basis": "A generous upper bound for an ex-day price-pressure mechanism; the cited literature studies ex-dividend-day pricing, not a multi-month effect.",
+    "sources": [
+      "https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1540-6261.1982.tb03598.x",
+      "https://doi.org/10.1016/S0304-405X(97)00041-X"
+    ]
+  },
+  "quoteEvidence": {
+    "source": "Alpaca historical IEX top-of-book quotes",
+    "limitation": "IEX is one venue, not consolidated NBBO; the result is direct quoted evidence but not a complete execution-cost model.",
+    "windowsET": [
+      [
+        "2026-08-28T12:00:00",
+        "2026-08-28T12:03:00"
+      ],
+      [
+        "2026-09-01T12:00:00",
+        "2026-09-01T12:03:00"
+      ],
+      [
+        "2026-09-03T12:00:00",
+        "2026-09-03T12:03:00"
+      ]
+    ],
+    "requestedSymbols": 45,
+    "measuredSymbols": 45,
+    "medianOfSymbolMedianSpreadBps": 364.39157934484956,
+    "usableAsExecutionCostProxy": false,
+    "sanityThresholdBps": 5.0,
+    "megaCapSanity": [
+      {
+        "symbol": "AAPL",
+        "valid_quotes": 18248,
+        "rejected_quotes": 0,
+        "median_spread_bps": 2.486866237683513,
+        "p90_spread_bps": 10.57476984324381
+      },
+      {
+        "symbol": "MSFT",
+        "valid_quotes": 1437,
+        "rejected_quotes": 0,
+        "median_spread_bps": 6.7984266498329085,
+        "p90_spread_bps": 54.18575187603604
+      }
+    ],
+    "errors": [],
+    "symbols": [
+      {
+        "symbol": "VST",
+        "valid_quotes": 721,
+        "rejected_quotes": 0,
+        "median_spread_bps": 289.96039388103486,
+        "p90_spread_bps": 565.1274982770495
+      },
+      {
+        "symbol": "CRWD",
+        "valid_quotes": 833,
+        "rejected_quotes": 0,
+        "median_spread_bps": 91.8136695173956,
+        "p90_spread_bps": 193.95643007730217
+      },
+      {
+        "symbol": "GDDY",
+        "valid_quotes": 152,
+        "rejected_quotes": 0,
+        "median_spread_bps": 570.7711041254213,
+        "p90_spread_bps": 1128.2250619503425
+      },
+      {
+        "symbol": "KKR",
+        "valid_quotes": 399,
+        "rejected_quotes": 0,
+        "median_spread_bps": 199.88685649632328,
+        "p90_spread_bps": 889.9808899808901
+      },
+      {
+        "symbol": "SW",
+        "valid_quotes": 3282,
+        "rejected_quotes": 0,
+        "median_spread_bps": 8.321198252549667,
+        "p90_spread_bps": 64.28201140487346
+      },
+      {
+        "symbol": "DELL",
+        "valid_quotes": 713,
+        "rejected_quotes": 0,
+        "median_spread_bps": 726.7537600175656,
+        "p90_spread_bps": 932.4452901998097
+      },
+      {
+        "symbol": "ERIE",
+        "valid_quotes": 78,
+        "rejected_quotes": 0,
+        "median_spread_bps": 536.3349131121648,
+        "p90_spread_bps": 938.3460973156965
+      },
+      {
+        "symbol": "PLTR",
+        "valid_quotes": 14357,
+        "rejected_quotes": 0,
+        "median_spread_bps": 9.242395411423379,
+        "p90_spread_bps": 124.46248764723232
+      },
+      {
+        "symbol": "AMTM",
+        "valid_quotes": 716,
+        "rejected_quotes": 0,
+        "median_spread_bps": 29.88047808764877,
+        "p90_spread_bps": 427.69857433808545
+      },
+      {
+        "symbol": "TPL",
+        "valid_quotes": 50,
+        "rejected_quotes": 0,
+        "median_spread_bps": 531.1741744909813,
+        "p90_spread_bps": 1127.1084092111878
+      },
+      {
+        "symbol": "APO",
+        "valid_quotes": 224,
+        "rejected_quotes": 0,
+        "median_spread_bps": 530.1765961575791,
+        "p90_spread_bps": 955.9242245928403
+      },
+      {
+        "symbol": "LII",
+        "valid_quotes": 65,
+        "rejected_quotes": 0,
+        "median_spread_bps": 526.8038395027689,
+        "p90_spread_bps": 1153.6094488601398
+      },
+      {
+        "symbol": "WDAY",
+        "valid_quotes": 425,
+        "rejected_quotes": 0,
+        "median_spread_bps": 204.5633359559412,
+        "p90_spread_bps": 994.1170605244788
+      },
+      {
+        "symbol": "DASH",
+        "valid_quotes": 498,
+        "rejected_quotes": 0,
+        "median_spread_bps": 200.55472583742218,
+        "p90_spread_bps": 1030.2160853582004
+      },
+      {
+        "symbol": "EXE",
+        "valid_quotes": 195,
+        "rejected_quotes": 0,
+        "median_spread_bps": 75.61050372943647,
+        "p90_spread_bps": 621.5570107057482
+      },
+      {
+        "symbol": "TKO",
+        "valid_quotes": 53,
+        "rejected_quotes": 0,
+        "median_spread_bps": 655.8025249244507,
+        "p90_spread_bps": 1248.9391409094644
+      },
+      {
+        "symbol": "WSM",
+        "valid_quotes": 166,
+        "rejected_quotes": 0,
+        "median_spread_bps": 993.0274903406308,
+        "p90_spread_bps": 993.0274903406308
+      },
+      {
+        "symbol": "COIN",
+        "valid_quotes": 561,
+        "rejected_quotes": 0,
+        "median_spread_bps": 443.28552803129077,
+        "p90_spread_bps": 624.1519674355495
+      },
+      {
+        "symbol": "DDOG",
+        "valid_quotes": 208,
+        "rejected_quotes": 0,
+        "median_spread_bps": 524.4781562744703,
+        "p90_spread_bps": 888.2377380770157
+      },
+      {
+        "symbol": "TTD",
+        "valid_quotes": 3068,
+        "rejected_quotes": 0,
+        "median_spread_bps": 7.280669821623434,
+        "p90_spread_bps": 13.605442176871668
+      },
+      {
+        "symbol": "XYZ",
+        "valid_quotes": 2746,
+        "rejected_quotes": 0,
+        "median_spread_bps": 11.90617947583824,
+        "p90_spread_bps": 398.9087602303736
+      },
+      {
+        "symbol": "IBKR",
+        "valid_quotes": 1883,
+        "rejected_quotes": 0,
+        "median_spread_bps": 485.6418918918913,
+        "p90_spread_bps": 926.8838995253585
+      },
+      {
+        "symbol": "APP",
+        "valid_quotes": 367,
+        "rejected_quotes": 0,
+        "median_spread_bps": 67.25888324873111,
+        "p90_spread_bps": 536.2791067313043
+      },
+      {
+        "symbol": "EME",
+        "valid_quotes": 148,
+        "rejected_quotes": 0,
+        "median_spread_bps": 564.1195646168301,
+        "p90_spread_bps": 1096.511459335504
+      },
+      {
+        "symbol": "HOOD",
+        "valid_quotes": 6959,
+        "rejected_quotes": 0,
+        "median_spread_bps": 70.43108682452866,
+        "p90_spread_bps": 313.6130255793516
+      },
+      {
+        "symbol": "SOLS",
+        "valid_quotes": 1468,
+        "rejected_quotes": 0,
+        "median_spread_bps": 7.694083249982515,
+        "p90_spread_bps": 133.11911865962887
+      },
+      {
+        "symbol": "Q",
+        "valid_quotes": 219,
+        "rejected_quotes": 0,
+        "median_spread_bps": 361.7092866756391,
+        "p90_spread_bps": 817.5506347315231
+      },
+      {
+        "symbol": "SNDK",
+        "valid_quotes": 3356,
+        "rejected_quotes": 0,
+        "median_spread_bps": 38.40588037455423,
+        "p90_spread_bps": 195.41867491183922
+      },
+      {
+        "symbol": "ARES",
+        "valid_quotes": 184,
+        "rejected_quotes": 0,
+        "median_spread_bps": 536.9320221089669,
+        "p90_spread_bps": 987.1182515559406
+      },
+      {
+        "symbol": "CRH",
+        "valid_quotes": 754,
+        "rejected_quotes": 0,
+        "median_spread_bps": 462.1337755666121,
+        "p90_spread_bps": 938.4100959982744
+      },
+      {
+        "symbol": "CVNA",
+        "valid_quotes": 2556,
+        "rejected_quotes": 0,
+        "median_spread_bps": 43.214044564482535,
+        "p90_spread_bps": 433.4365325077389
+      },
+      {
+        "symbol": "FIX",
+        "valid_quotes": 448,
+        "rejected_quotes": 0,
+        "median_spread_bps": 411.7151947101159,
+        "p90_spread_bps": 475.89650809561874
+      },
+      {
+        "symbol": "CIEN",
+        "valid_quotes": 571,
+        "rejected_quotes": 0,
+        "median_spread_bps": 475.946637919417,
+        "p90_spread_bps": 966.7048418031535
+      },
+      {
+        "symbol": "COHR",
+        "valid_quotes": 536,
+        "rejected_quotes": 0,
+        "median_spread_bps": 51.251023240915316,
+        "p90_spread_bps": 327.24865222737077
+      },
+      {
+        "symbol": "ECHO",
+        "valid_quotes": 175,
+        "rejected_quotes": 0,
+        "median_spread_bps": 618.3310533515738,
+        "p90_spread_bps": 990.4740682970308
+      },
+      {
+        "symbol": "LITE",
+        "valid_quotes": 397,
+        "rejected_quotes": 0,
+        "median_spread_bps": 459.9550961381554,
+        "p90_spread_bps": 682.6687677631762
+      },
+      {
+        "symbol": "VRT",
+        "valid_quotes": 475,
+        "rejected_quotes": 0,
+        "median_spread_bps": 364.39157934484956,
+        "p90_spread_bps": 597.0149253731344
+      },
+      {
+        "symbol": "CASY",
+        "valid_quotes": 204,
+        "rejected_quotes": 0,
+        "median_spread_bps": 361.113443885297,
+        "p90_spread_bps": 607.1091944376296
+      },
+      {
+        "symbol": "VEEV",
+        "valid_quotes": 531,
+        "rejected_quotes": 0,
+        "median_spread_bps": 921.5005088254919,
+        "p90_spread_bps": 921.5005088254919
+      },
+      {
+        "symbol": "FDXF",
+        "valid_quotes": 88,
+        "rejected_quotes": 0,
+        "median_spread_bps": 45.79465387709325,
+        "p90_spread_bps": 554.0592535590625
+      },
+      {
+        "symbol": "FLEX",
+        "valid_quotes": 411,
+        "rejected_quotes": 0,
+        "median_spread_bps": 399.98169420163885,
+        "p90_spread_bps": 1027.6383088545824
+      },
+      {
+        "symbol": "MRVL",
+        "valid_quotes": 1064,
+        "rejected_quotes": 0,
+        "median_spread_bps": 112.82149345061734,
+        "p90_spread_bps": 334.1288782816229
+      },
+      {
+        "symbol": "HONA",
+        "valid_quotes": 292,
+        "rejected_quotes": 0,
+        "median_spread_bps": 270.537776311448,
+        "p90_spread_bps": 509.9886308267009
+      },
+      {
+        "symbol": "FERG",
+        "valid_quotes": 80,
+        "rejected_quotes": 0,
+        "median_spread_bps": 449.3861477878151,
+        "p90_spread_bps": 966.9853869745625
+      },
+      {
+        "symbol": "RDDT",
+        "valid_quotes": 86,
+        "rejected_quotes": 0,
+        "median_spread_bps": 490.9756405401996,
+        "p90_spread_bps": 1031.0335983585544
+      }
+    ]
+  },
+  "comparison": {
+    "mdaPctPerYear": 3.1179854978918713,
+    "corwinSchultz": {
+      "spreadBps": 22.253372720172464,
+      "annualCostPct": 11.215699850966923
+    },
+    "abdiRanaldo": {
+      "spreadBps": 0.0,
+      "annualCostPct": 0.0,
+      "interpretation": "below estimator resolution, not literal zero cost"
+    },
+    "quotedIex": {
+      "spreadBps": 364.39157934484956,
+      "annualCostPct": 183.6533559898042
+    }
+  },
+  "status": "COST_SENSITIVE",
+  "advancesToStrongCandidate": false,
+  "reason": "The IEX quote book fails the mega-cap sanity check and therefore cannot resolve the estimator disagreement under a mechanism-consistent short holding period."
+}

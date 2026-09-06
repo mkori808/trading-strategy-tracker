@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-05T21:16:47.995245+00:00",
+  "requestedWindow": [
+    "1998-12-01",
+    "2026-09-05"
+  ],
+  "monthsRequested": 334,
+  "monthsSucceeded": 334,
+  "errors": [],
+  "bottomQuintileFraction": 0.2
+}

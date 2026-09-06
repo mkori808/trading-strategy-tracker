@@ -1,0 +1,217 @@
+{
+  "schemaVersion": 1,
+  "evidenceOnly": true,
+  "backtestsRun": false,
+  "returnsInspected": false,
+  "holdoutConsumed": false,
+  "snapshotDate": "2026-09-03",
+  "baselineEligibility": "common stock; NYSE/NASDAQ/AMEX/NYSEMKT; price >= $1; >=200 trading rows",
+  "correlation": 0.3,
+  "biasCorrections": [
+    1.5,
+    2.0,
+    3.0
+  ],
+  "deciles": [
+    {
+      "decile": 1,
+      "count": 472,
+      "dollarVolumeMin": 1088.0,
+      "dollarVolumeMax": 94680.0,
+      "medianMarketCap": 25.65,
+      "medianPrice": 2.6025,
+      "independentBetsPerYear": 210.28318014319922,
+      "mdaPct": 2.167453937368178,
+      "csSpreadBps": 105.07002756368684,
+      "annualCostByCorrection": {
+        "1.5": 0.3782520992292726,
+        "2.0": 0.5043361323056968,
+        "3.0": 0.7565041984585452
+      }
+    },
+    {
+      "decile": 2,
+      "count": 472,
+      "dollarVolumeMin": 95348.0,
+      "dollarVolumeMax": 389520.0,
+      "medianMarketCap": 39.3,
+      "medianPrice": 3.185,
+      "independentBetsPerYear": 210.28318014319922,
+      "mdaPct": 2.167453937368178,
+      "csSpreadBps": 123.85066359736908,
+      "annualCostByCorrection": {
+        "1.5": 0.44586238895052865,
+        "2.0": 0.5944831852673715,
+        "3.0": 0.8917247779010573
+      }
+    },
+    {
+      "decile": 3,
+      "count": 472,
+      "dollarVolumeMin": 389760.0,
+      "dollarVolumeMax": 1358640.0,
+      "medianMarketCap": 152.95,
+      "medianPrice": 5.1899999999999995,
+      "independentBetsPerYear": 210.28318014319922,
+      "mdaPct": 2.167453937368178,
+      "csSpreadBps": 101.4220013069643,
+      "annualCostByCorrection": {
+        "1.5": 0.3651192047050715,
+        "2.0": 0.48682560627342863,
+        "3.0": 0.730238409410143
+      }
+    },
+    {
+      "decile": 4,
+      "count": 472,
+      "dollarVolumeMin": 1364370.0,
+      "dollarVolumeMax": 4129840.0,
+      "medianMarketCap": 355.35,
+      "medianPrice": 10.0,
+      "independentBetsPerYear": 210.28318014319922,
+      "mdaPct": 2.167453937368178,
+      "csSpreadBps": 70.70993494448936,
+      "annualCostByCorrection": {
+        "1.5": 0.2545557658001617,
+        "2.0": 0.33940768773354896,
+        "3.0": 0.5091115316003234
+      }
+    },
+    {
+      "decile": 5,
+      "count": 472,
+      "dollarVolumeMin": 4131420.0,
+      "dollarVolumeMax": 10117100.0,
+      "medianMarketCap": 788.2,
+      "medianPrice": 14.364999999999998,
+      "independentBetsPerYear": 210.28318014319922,
+      "mdaPct": 2.167453937368178,
+      "csSpreadBps": 47.89832066794392,
+      "annualCostByCorrection": {
+        "1.5": 0.17243395440459813,
+        "2.0": 0.22991193920613082,
+        "3.0": 0.34486790880919627
+      }
+    },
+    {
+      "decile": 6,
+      "count": 472,
+      "dollarVolumeMin": 10174930.0,
+      "dollarVolumeMax": 22677200.0,
+      "medianMarketCap": 1610.85,
+      "medianPrice": 24.865000000000002,
+      "independentBetsPerYear": 210.28318014319922,
+      "mdaPct": 2.167453937368178,
+      "csSpreadBps": 45.97914428983491,
+      "annualCostByCorrection": {
+        "1.5": 0.16552491944340567,
+        "2.0": 0.22069989259120756,
+        "3.0": 0.33104983888681133
+      }
+    },
+    {
+      "decile": 7,
+      "count": 472,
+      "dollarVolumeMin": 22715040.0,
+      "dollarVolumeMax": 45897980.0,
+      "medianMarketCap": 3283.75,
+      "medianPrice": 34.69,
+      "independentBetsPerYear": 210.28318014319922,
+      "mdaPct": 2.167453937368178,
+      "csSpreadBps": 39.75269322840549,
+      "annualCostByCorrection": {
+        "1.5": 0.14310969562225978,
+        "2.0": 0.19081292749634635,
+        "3.0": 0.28621939124451956
+      }
+    },
+    {
+      "decile": 8,
+      "count": 472,
+      "dollarVolumeMin": 45921420.0,
+      "dollarVolumeMax": 93293280.0,
+      "medianMarketCap": 5876.6,
+      "medianPrice": 52.66,
+      "independentBetsPerYear": 210.28318014319922,
+      "mdaPct": 2.167453937368178,
+      "csSpreadBps": 40.04068541031153,
+      "annualCostByCorrection": {
+        "1.5": 0.1441464674771215,
+        "2.0": 0.19219528996949534,
+        "3.0": 0.288292934954243
+      }
+    },
+    {
+      "decile": 9,
+      "count": 471,
+      "dollarVolumeMin": 93320300.0,
+      "dollarVolumeMax": 232603350.0,
+      "medianMarketCap": 13387.0,
+      "medianPrice": 80.08,
+      "independentBetsPerYear": 210.05492572944925,
+      "mdaPct": 2.1686312404003747,
+      "csSpreadBps": 31.219576098177328,
+      "annualCostByCorrection": {
+        "1.5": 0.11239047395343837,
+        "2.0": 0.14985396527125117,
+        "3.0": 0.22478094790687675
+      }
+    },
+    {
+      "decile": 10,
+      "count": 471,
+      "dollarVolumeMin": 233890930.0,
+      "dollarVolumeMax": 39063762000.0,
+      "medianMarketCap": 59434.2,
+      "medianPrice": 156.63,
+      "independentBetsPerYear": 210.05492572944925,
+      "mdaPct": 2.1686312404003747,
+      "csSpreadBps": 20.949231765696425,
+      "annualCostByCorrection": {
+        "1.5": 0.07541723435650713,
+        "2.0": 0.10055631247534284,
+        "3.0": 0.15083446871301426
+      }
+    }
+  ],
+  "eligibleCount": 4718,
+  "favorableDecilesByCorrection": {
+    "1.5": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "2.0": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "3.0": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ]
+  },
+  "verdict": "FAVORABLE"
+}

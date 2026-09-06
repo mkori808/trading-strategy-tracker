@@ -1,0 +1,5 @@
+{
+  "retired": true,
+  "retiredDate": "2026-09-06",
+  "retiredReason": "Surplus forward shadow from the Dual Momentum/Market-Residual Momentum research line, which closed 2026-08-11 (LESSONS.md: \"Dual Momentum is momentum, not an edge\"). Stopped advancing by request; the underlying SQLite database and its historical observations were not touched -- this is a sidecar marker, not a schema change, since the module was not designed with a closure flag."
+}

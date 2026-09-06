@@ -1,0 +1,285 @@
+{
+  "schemaVersion": 1,
+  "evidenceOnly": true,
+  "thresholds": {
+    "maxTradableAlphaPct": 4.0,
+    "minUsableEvents": 150
+  },
+  "results": [
+    {
+      "candidate": "Sub-$300M cap cross-sectional anomalies",
+      "barrier": "CAPACITY",
+      "observationDefinition": "Cross-sectional: securities with marketcap < $300M, monthly rebalance",
+      "rawCount": "5514 securities market-wide with marketcap on 2026-09-03",
+      "usableCount": "2011 under $300M (36.5%)",
+      "eventsOrBetsPerYear": 24132,
+      "years": 28.5,
+      "independenceNote": "Two variants: rho=0.5 (project standard, but see note) and rho=0.15 (sensitivity -- 0.5 was calibrated on a 5-name mega-cap anchor and is not obviously the right assumption for a ~2000-name small/micro-cap cross-section, where idiosyncratic risk is proportionally much larger; reported as a range, not resolved).",
+      "designs": [
+        {
+          "label": "sub300m_cap_cross_sectional_standard_corr",
+          "positions": 2011,
+          "rebalances_per_year": 12,
+          "years": 28.5,
+          "independent_bets_per_year": 760.8417333067061,
+          "mda_pct": 1.0544605544466088,
+          "tradable_alpha_pct": 4.0,
+          "viable": true
+        },
+        {
+          "label": "sub300m_cap_cross_sectional_lower_corr_sensitivity",
+          "positions": 2011,
+          "rebalances_per_year": 12,
+          "years": 28.5,
+          "independent_bets_per_year": 1387.4924453669696,
+          "mda_pct": 0.9137186843459264,
+          "tradable_alpha_pct": 4.0,
+          "viable": true
+        }
+      ],
+      "bestCaseMdaPct": 0.9137186843459264,
+      "verdict": "VIABLE",
+      "deadCause": null,
+      "approximationNote": "MEASURED, single-day market-wide snapshot (2026-09-03): 2011 of 5514 tracked securities. NOT measured: whether this count is stable across the full 28.5-year history (assumed comparable order of magnitude here; small/micro-cap listing counts DO vary with market cycles and this was not checked historically). Highest single-day raw breadth of any candidate in this pass by a wide margin.",
+      "dataBlockedReason": null
+    },
+    {
+      "candidate": "Sub-$5 stocks excluded by fund charters",
+      "barrier": "MANDATE",
+      "observationDefinition": "Cross-sectional: securities crossing the $5 close-price threshold, monthly monitoring",
+      "rawCount": "6310 priced securities market-wide on 2026-09-03",
+      "usableCount": "1561 under $5 today (24.7%); ~390/yr assumed crossing",
+      "eventsOrBetsPerYear": 390,
+      "years": 28.5,
+      "independenceNote": "rho=0.5 (project standard) only -- see approximation caveats below before trusting this number.",
+      "designs": [
+        {
+          "label": "sub5_dollar_cross_sectional_standard_corr",
+          "positions": 390,
+          "rebalances_per_year": 12,
+          "years": 28.5,
+          "independent_bets_per_year": 334.7129166508069,
+          "mda_pct": 1.5897955067825327,
+          "tradable_alpha_pct": 4.0,
+          "viable": true
+        }
+      ],
+      "bestCaseMdaPct": 1.5897955067825327,
+      "verdict": "VIABLE",
+      "deadCause": null,
+      "approximationNote": "HEAVILY APPROXIMATE, weakest-evidence screen in this pass. MEASURED: a single-day market-wide snapshot (2026-09-03) found 1561 of 6310 tracked securities (includes ETFs, ADRs, SPAC units -- NOT filtered to common stock, no join against tickers.category attempted this pass) closing under $5. NOT MEASURED: the actual annual rate of stocks CROSSING the threshold (the tradable event), which is what the hypothesis needs and what a real screen would require a multi-thousand-ticker historical daily scan to get. The 25% annual-crossing-fraction and monthly-rebalance cadence are assumptions, not data. Treat this row's MDA as illustrative of order of magnitude only.",
+      "dataBlockedReason": null
+    },
+    {
+      "candidate": "Small merger arb below institutional minimum deal size",
+      "barrier": "CAPACITY",
+      "observationDefinition": "Event: market-wide actions table, action=acquisitionof, deal value < $500M, full history 1998-2026",
+      "rawCount": "8266",
+      "usableCount": "4601",
+      "eventsOrBetsPerYear": 161.44,
+      "years": 28.5,
+      "independenceNote": "Three variants: rho=0.0, rho=0.5 (project standard), and rho=0.2 (sensitivity only, reflecting the conventional view that merger-arb completion risk is largely deal-specific rather than market-correlated) -- reported separately, never substituted for the standard case.",
+      "designs": [
+        {
+          "label": "merger_arb_small_deal_positions1_rho0",
+          "positions": 1,
+          "rebalances_per_year": 161.43859649122808,
+          "years": 28.5,
+          "independent_bets_per_year": 161.43859649122808,
+          "mda_pct": 3.0126877972218873,
+          "tradable_alpha_pct": 4.0,
+          "viable": true
+        },
+        {
+          "label": "merger_arb_small_deal_positions1_standard_corr",
+          "positions": 1,
+          "rebalances_per_year": 161.43859649122808,
+          "years": 28.5,
+          "independent_bets_per_year": 161.43859649122808,
+          "mda_pct": 2.2891476980562784,
+          "tradable_alpha_pct": 4.0,
+          "viable": true
+        },
+        {
+          "label": "merger_arb_small_deal_positions1_low_corr_sensitivity",
+          "positions": 1,
+          "rebalances_per_year": 161.43859649122808,
+          "years": 28.5,
+          "independent_bets_per_year": 161.43859649122808,
+          "mda_pct": 2.6009739472360396,
+          "tradable_alpha_pct": 4.0,
+          "viable": true
+        }
+      ],
+      "bestCaseMdaPct": 2.2891476980562784,
+      "verdict": "VIABLE",
+      "deadCause": null,
+      "approximationNote": "acquisitionof.value is the vendor-reported total deal value in $M, confirmed against named real 2025 examples (e.g. Roche/Poseida $925.9M). 6 of 8266 deals had no value reported and were excluded from sizing. 8260 sized deals; 4601 (55.7%) below $500M, median deal size across all sized deals was measured separately at ~$377M. This table is market-wide, not S&P-500-limited -- deliberately, since 'below institutional minimum deal size' by construction targets sub-large-cap acquirers/targets the S&P 500 roster would mostly exclude.",
+      "dataBlockedReason": null
+    },
+    {
+      "candidate": "Distressed / post-reorg equity",
+      "barrier": "MANDATE/CAPACITY",
+      "observationDefinition": "Event: market-wide actions table, action=bankruptcyliquidation, full history 1998-2026",
+      "rawCount": "3334",
+      "usableCount": "3027",
+      "eventsOrBetsPerYear": 106.21,
+      "years": 28.5,
+      "independenceNote": "Two rho variants reported (0.0, 0.5 standard), same positions=1 caveat.",
+      "designs": [
+        {
+          "label": "distressed_postreorg_positions1_rho0",
+          "positions": 1,
+          "rebalances_per_year": 106.21052631578948,
+          "years": 28.5,
+          "independent_bets_per_year": 106.21052631578948,
+          "mda_pct": 3.7142748232776865,
+          "tradable_alpha_pct": 4.0,
+          "viable": true
+        },
+        {
+          "label": "distressed_postreorg_positions1_standard_corr",
+          "positions": 1,
+          "rebalances_per_year": 106.21052631578948,
+          "years": 28.5,
+          "independent_bets_per_year": 106.21052631578948,
+          "mda_pct": 2.8222385570436486,
+          "tradable_alpha_pct": 4.0,
+          "viable": true
+        }
+      ],
+      "bestCaseMdaPct": 2.8222385570436486,
+      "verdict": "VIABLE",
+      "deadCause": null,
+      "approximationNote": "Raw count 3334 includes 307 SPAC-name-heuristic matches (SPAC trust liquidations are a different, much more common phenomenon than an operating-company Chapter 11 exit and were excluded). REMAINING DATA-SHAPE CAVEAT, not resolved by this screen: 'bankruptcyliquidation' rows have no contraticker linking an old, cancelled security to a NEW post-reorg ticker -- this action type most plausibly marks the OLD equity's cancellation, not the emergence event the hypothesis actually needs (shares of the reorganized company that a mandate-constrained holder can't yet hold). The count below is therefore an UPPER BOUND on usable events, not a confirmed usable count -- some fraction of these are pure zero-recovery liquidations with no continuing equity to buy at all.",
+      "dataBlockedReason": null
+    },
+    {
+      "candidate": "Index addition / forced buying",
+      "barrier": "MANDATE",
+      "observationDefinition": "Event: S&P 500 sp500-table action=added, full history 1998-2026",
+      "rawCount": "699",
+      "usableCount": "699",
+      "eventsOrBetsPerYear": 24.53,
+      "years": 28.5,
+      "independenceNote": "Two rho variants reported (0.0, 0.5 standard); at positions=1 rho only affects screen_design's own internal calibration anchor, not this design's bet count (pinned behavior, see tests/test_engine/test_index_deletion_screen.py).",
+      "designs": [
+        {
+          "label": "index_addition_positions1_rho0",
+          "positions": 1,
+          "rebalances_per_year": 24.526315789473685,
+          "years": 28.5,
+          "independent_bets_per_year": 24.526315789473685,
+          "mda_pct": 7.729326572890181,
+          "tradable_alpha_pct": 4.0,
+          "viable": false
+        },
+        {
+          "label": "index_addition_positions1_standard_corr",
+          "positions": 1,
+          "rebalances_per_year": 24.526315789473685,
+          "years": 28.5,
+          "independent_bets_per_year": 24.526315789473685,
+          "mda_pct": 5.873018156137084,
+          "tradable_alpha_pct": 4.0,
+          "viable": false
+        }
+      ],
+      "bestCaseMdaPct": 5.873018156137084,
+      "verdict": "MARGINAL",
+      "deadCause": null,
+      "approximationNote": "Unlike deletion, NO reason-based filtering is applied: by definition every 'added' event names a security that begins trading in the index and continues trading afterward (that is what 'added' means) -- there is no acquired/merged-style subset that stops trading. Reason breakdown for context only: {'acquired_or_merged': 370, 'market_cap_change': 184, 'spinoff': 73, 'other': 62, 'bankruptcy': 10}.",
+      "dataBlockedReason": null
+    },
+    {
+      "candidate": "Spinoff shares dumped by ineligible holders",
+      "barrier": "MANDATE",
+      "observationDefinition": "Event: market-wide actions table, action=spinoff, full history 1998-2026",
+      "rawCount": "570",
+      "usableCount": "570",
+      "eventsOrBetsPerYear": 20.0,
+      "years": 28.5,
+      "independenceNote": "Two rho variants reported (0.0, 0.5 standard), same positions=1 caveat as index addition.",
+      "designs": [
+        {
+          "label": "spinoff_dumping_positions1_rho0",
+          "positions": 1,
+          "rebalances_per_year": 20.0,
+          "years": 28.5,
+          "independent_bets_per_year": 20.0,
+          "mda_pct": 8.559390042213105,
+          "tradable_alpha_pct": 4.0,
+          "viable": false
+        },
+        {
+          "label": "spinoff_dumping_positions1_standard_corr",
+          "positions": 1,
+          "rebalances_per_year": 20.0,
+          "years": 28.5,
+          "independent_bets_per_year": 20.0,
+          "mda_pct": 6.503730001484407,
+          "tradable_alpha_pct": 4.0,
+          "viable": false
+        }
+      ],
+      "bestCaseMdaPct": 6.503730001484407,
+      "verdict": "MARGINAL",
+      "deadCause": null,
+      "approximationNote": "MARKET-WIDE count (not restricted to S&P 500 parents), a materially larger and more correct population than the backlog's original 73-event S&P-500-only estimate -- the forced-selling mechanism (holders whose mandate can't retain a newly spun-off, often small-cap security) applies to any spinoff with a widely-held parent, not just S&P 500 constituents. 'spunofffrom' (the parent-side mirror action) independently confirmed the identical count (570), consistent with one row per event per side.",
+      "dataBlockedReason": null
+    },
+    {
+      "candidate": "Tax-loss selling reversal (December)",
+      "barrier": "MANDATE/OPS",
+      "observationDefinition": "Cross-sectional: (S&P-500-constituent, year) pairs where closeadj return from Jan 1 to Nov 1 < -20%, one trade per qualifying stock per year",
+      "rawCount": "~503 current S&P 500 constituents x 4 sampled years",
+      "usableCount": "~82/yr (extrapolated from a 63-ticker sample)",
+      "eventsOrBetsPerYear": 82,
+      "years": 28.5,
+      "independenceNote": "Two variants: rho=0.5 (project standard) and rho=0.7 (sensitivity, reflecting measured extreme year-to-year clustering -- loser rate ranged 1.6% to 46.0% across just 4 sampled years, i.e. most 'losers' in a given year are largely the same macro bet).",
+      "designs": [
+        {
+          "label": "tax_loss_selling_cross_sectional_standard_corr",
+          "positions": 82,
+          "rebalances_per_year": 1,
+          "years": 28.5,
+          "independent_bets_per_year": 12.72886862158386,
+          "mda_pct": 8.152345918958478,
+          "tradable_alpha_pct": 4.0,
+          "viable": false
+        },
+        {
+          "label": "tax_loss_selling_cross_sectional_high_corr_sensitivity",
+          "positions": 82,
+          "rebalances_per_year": 1,
+          "years": 28.5,
+          "independent_bets_per_year": 10.795082004965696,
+          "mda_pct": 8.34447356051816,
+          "tradable_alpha_pct": 4.0,
+          "viable": false
+        }
+      ],
+      "bestCaseMdaPct": 8.152345918958478,
+      "verdict": "DEAD",
+      "deadCause": "breadth (clears the event-count floor but MDA still exceeds the ceiling)",
+      "approximationNote": "APPROXIMATION, not a full-universe measurement: sampled 63 of 503 CURRENT S&P 500 constituents (every 8th ticker alphabetically), measured Jan1-to-Nov1 return in (2022, 2023, 2024, 2025). Per-year loser rate: 2022=29/63 (46.0%), 2023=7/63 (11.1%), 2024=4/63 (6.3%), 2025=1/63 (1.6%). Average 16.3%/yr extrapolated to the full 503-name universe gives ~82 qualifying stocks/yr, ONE trade cycle per year (Dec-Jan window). Uses TODAY's S&P 500 roster as a proxy for the historical universe every year, which understates true breadth for this specific hypothesis (small/mid-caps outside the S&P 500 are the more classic tax-loss-selling candidates and are entirely excluded from this approximation) -- flagged as a conservative undercount, not a full measurement.",
+      "dataBlockedReason": null
+    },
+    {
+      "candidate": "Odd-lot tender provisions",
+      "barrier": "OPERATIONS",
+      "observationDefinition": "Event: company-initiated odd-lot tender offers",
+      "rawCount": "0 (no matching action code found)",
+      "usableCount": "0",
+      "eventsOrBetsPerYear": 0.0,
+      "years": 28.5,
+      "independenceNote": "N/A -- no data source identified.",
+      "designs": [],
+      "bestCaseMdaPct": null,
+      "verdict": "DATA_BLOCKED",
+      "deadCause": null,
+      "approximationNote": null,
+      "dataBlockedReason": "Empirically confirmed absent, not assumed: the full distinct-action-type inventory of Sharadar's actions table, checked over both a 1-month and a full 1-year (2025) market-wide sample (44,180 rows), contains no tender-offer or odd-lot-specific code. Full observed set: dividend, listed, delisted, split, tickerchangefrom/to, relation, acquisitionby/of, namechangefrom/to, acquisitioncash, sicchangefrom/to, spacunitseparation, regulatorydelisting, bankruptcyliquidation, acquisitionstock, spacmerger, adrratiosplit, spinoff, spunofffrom, voluntarydelisting, spinoffdividend, acquisitionelectstock, acquisitionelectcash, mergerfrom/to. No other Sharadar table probed this session (tickers, stocks, daily, sp500, events) carries tender-offer structure either. `events` (SEC 8-K eventcodes) was NOT decoded this session and could theoretically contain a tender code, but that is unconfirmed, not a basis for a number."
+    }
+  ]
+}

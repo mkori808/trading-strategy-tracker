@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "evidenceOnly": true,
+  "backtestsRun": false,
+  "returnsInspected": false,
+  "holdoutConsumed": false,
+  "preregistrationsCreated": false,
+  "verdict": "DATA_BLOCKED_PARTIAL_UNLOCK",
+  "sources": [
+    {
+      "sponsor": "ProShares",
+      "url": "https://prod.proshares.com/resources/data-downloads",
+      "historicalFieldsObserved": ["Date", "Ticker", "NAV", "Prior NAV", "NAV Change", "Shares Outstanding (000)", "Assets Under Management"],
+      "status": "PARTIAL",
+      "notes": "Historical NAV CSV is available and includes daily shares/AUM; the page also links daily holdings, split history, and performance history. Historical derivative notional/position history was not established."
+    },
+    {
+      "sponsor": "Direxion",
+      "url": "https://www.direxion.com/product/daily-sp-500-bull-bear-3x-etfs",
+      "historicalFieldsObserved": ["current NAV", "daily target", "current daily fund holdings"],
+      "status": "PARTIAL",
+      "notes": "Primary fund page establishes the daily target and current holdings download; an exhaustive historical NAV/shares archive was not established in this bounded check."
+    }
+  ],
+  "missingForFlowReconstruction": ["historical derivative positions/notional exposure", "independent sponsor cross-check", "validated timing convention for rebalance flow"],
+  "reason": "Sponsor data removes one ProShares input blocker but does not yet identify or size the actual daily reset trades. Do not build a flow model or strategy."
+}

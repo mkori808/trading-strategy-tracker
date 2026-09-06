@@ -1,0 +1,23 @@
+{
+  "lastAttemptAt": "2026-09-05T12:51:24-04:00",
+  "lastSuccessAt": "2026-09-05T12:51:24-04:00",
+  "lastError": null,
+  "latestCompletedSession": "2026-09-04",
+  "costsBaselineAtSetup": {
+    "c": 105.75137692443106,
+    "d": 67.29360475950867
+  },
+  "cumulativeCostsSinceSetup": {
+    "c": 5.668540218268845,
+    "d": -0.29554638161955893
+  },
+  "advanceResult": {
+    "status": "up_to_date",
+    "appendedSessions": 0,
+    "appendedRebalances": 0,
+    "lastSession": "2026-09-04"
+  },
+  "retired": true,
+  "retiredDate": "2026-09-06",
+  "retiredReason": "Surplus forward shadow from the Dual Momentum/Market-Residual Momentum research line, which closed 2026-08-11 (LESSONS.md: \"Dual Momentum is momentum, not an edge\"). Stopped advancing by request; historical observations were not deleted or modified."
+}

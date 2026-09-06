@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-06T01:30:32.389600+00:00",
+  "status": "PIT_BLOCKED",
+  "evidenceOnly": true,
+  "backtestsRun": false,
+  "holdoutConsumed": false,
+  "preregistrationsCreated": false,
+  "tenCaseEvidence": [
+    {
+      "issuer": "Hertz Global Holdings",
+      "preTicker": "HTZGQ",
+      "postTicker": "HTZ",
+      "shape": "successful reorganization, old equity cancelled, new equity issued, same brand+CIK",
+      "expectedRelationship": "REORGANIZED",
+      "identityVerified": false,
+      "knownAt": "UNRESOLVED",
+      "terminalValue": "UNRESOLVED"
+    },
+    {
+      "issuer": "Frontier Communications",
+      "preTicker": "FTRCQ",
+      "postTicker": "FYBR",
+      "shape": "reorganization with a NEW ticker (not brand-preserving), same CIK",
+      "expectedRelationship": "REORGANIZED",
+      "identityVerified": false,
+      "knownAt": "UNRESOLVED",
+      "terminalValue": "UNRESOLVED"
+    },
+    {
+      "issuer": "Chesapeake Energy",
+      "preTicker": "CHKAQ",
+      "postTicker": "EXE",
+      "shape": "reorganization, later ticker-changed again via a subsequent merger (repeated corporate event)",
+      "expectedRelationship": "REORGANIZED",
+      "identityVerified": false,
+      "knownAt": "UNRESOLVED",
+      "terminalValue": "UNRESOLVED"
+    },
+    {
+      "issuer": "General Motors Corp (old)",
+      "preTicker": "MTLQQ",
+      "postTicker": "GM",
+      "shape": "liquidation of the old entity ('Motors Liquidation Co'); GM the ticker was reused by a genuinely NEW Delaware corporation",
+      "expectedRelationship": "UNKNOWN",
+      "identityVerified": false,
+      "knownAt": "UNRESOLVED",
+      "terminalValue": "UNRESOLVED"
+    },
+    {
+      "issuer": "Washington Mutual",
+      "preTicker": "WAMUQ",
+      "postTicker": "WM",
+      "shape": "FALSE LINK TRAP: relatedtickers/tickerchangefrom both surface 'WM', which is Waste Management Inc, unrelated",
+      "expectedRelationship": "UNKNOWN",
+      "identityVerified": false,
+      "knownAt": "UNRESOLVED",
+      "terminalValue": "UNRESOLVED"
+    },
+    {
+      "issuer": "Sears Holdings",
+      "preTicker": "SHLDQ",
+      "postTicker": null,
+      "shape": "acquired in bankruptcy via credit bid (ESL/Transform Holdco); no new PUBLIC equity ever issued",
+      "expectedRelationship": "LIQUIDATED",
+      "identityVerified": false,
+      "knownAt": "UNRESOLVED",
+      "terminalValue": "UNRESOLVED"
+    },
+    {
+      "issuer": "SVB Financial Group",
+      "preTicker": "SIVBQ",
+      "postTicker": null,
+      "shape": "holding-company bankruptcy after the bank subsidiary's FDIC seizure; no successor public equity",
+      "expectedRelationship": "LIQUIDATED",
+      "identityVerified": false,
+      "knownAt": "UNRESOLVED",
+      "terminalValue": "UNRESOLVED"
+    },
+    {
+      "issuer": "Party City Holdco",
+      "preTicker": "PRTYQ",
+      "postTicker": null,
+      "shape": "delisted 2023; no current ticker holder found -- consistent with eventual full liquidation",
+      "expectedRelationship": "LIQUIDATED",
+      "identityVerified": false,
+      "knownAt": "UNRESOLVED",
+      "terminalValue": "UNRESOLVED"
+    },
+    {
+      "issuer": "Rite Aid Corp",
+      "preTicker": "RADCQ",
+      "postTicker": null,
+      "shape": "delisted 2023; no current ticker holder found -- consistent with no lasting public successor equity",
+      "expectedRelationship": "LIQUIDATED",
+      "identityVerified": false,
+      "knownAt": "UNRESOLVED",
+      "terminalValue": "UNRESOLVED"
+    },
+    {
+      "issuer": "Bed Bath & Beyond Inc",
+      "preTicker": "BBBYQ",
+      "postTicker": "BBBY",
+      "shape": "AMBIGUOUS: publicly reported that Overstock.com acquired the brand and later used the BBBY ticker, but neither OSTK nor BBBY resolves to a current Sharadar ticker record -- inconclusive from this data source alone, must fail closed",
+      "expectedRelationship": "UNKNOWN",
+      "identityVerified": false,
+      "knownAt": "UNRESOLVED",
+      "terminalValue": "UNRESOLVED"
+    }
+  ],
+  "identityPanelFlagged": [
+    "HON"
+  ],
+  "acceptanceMatrix": [
+    {
+      "component": "Historical price availability",
+      "status": "PASS",
+      "notes": "Broad historical stocks data measured; HON uses independent reconstruction."
+    },
+    {
+      "component": "Active-security coverage",
+      "status": "PARTIAL",
+      "notes": "Paid entitlement measured on Dow probes; all-stock population still requires bundle build."
+    },
+    {
+      "component": "Delisted-security coverage",
+      "status": "PARTIAL",
+      "notes": "Actions/tickers document delistings, but population normalization is not complete."
+    },
+    {
+      "component": "Corporate-action coverage",
+      "status": "PASS",
+      "notes": "Dated actions available and used for reconstruction."
+    },
+    {
+      "component": "Adjusted-return reconstruction",
+      "status": "PARTIAL",
+      "notes": "Five-symbol panel completed; HON requires canonical reconstructed close."
+    },
+    {
+      "component": "Ticker-change handling",
+      "status": "PARTIAL",
+      "notes": "Actions exist, but ticker-scoped price joins need broader identity verification."
+    },
+    {
+      "component": "Permanent-ID continuity",
+      "status": "PARTIAL",
+      "notes": "Sharadar permaticker exists; verified continuity examples in current contract audit: 0."
+    },
+    {
+      "component": "known_at reliability",
+      "status": "FAIL",
+      "notes": "No public-information timestamp is supplied by the current normalized inputs."
+    },
+    {
+      "component": "Terminal delisting value",
+      "status": "FAIL",
+      "notes": "No explicit terminal value or DelistingReturn field has been validated."
+    },
+    {
+      "component": "Lookahead protection",
+      "status": "PARTIAL",
+      "notes": "Policy is fail-closed, but cannot publish rows without known_at."
+    },
+    {
+      "component": "Survivorship protection",
+      "status": "PARTIAL",
+      "notes": "Delisted records are present in raw inputs; full normalized population is not published."
+    }
+  ],
+  "smallestRemainingEvidenceGap": "Externally verified known_at timestamps and sourced terminal delisting values for the pilot cases; permanent-ID continuity must then be expanded beyond the hand-audited sample.",
+  "enablement": "PIT_UNIVERSE_DISABLED"
+}

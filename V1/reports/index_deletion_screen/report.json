@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "evidenceOnly": true,
+  "hypothesis": "Index Deletion / Forced Selling reversal (post-EFFECTIVE-date, MANDATE barrier)",
+  "eventSource": "Sharadar sp500 table, action=removed, 1998-01-01 to 2026-09-05",
+  "universeScope": {
+    "included": [
+      "S&P 500"
+    ],
+    "excluded": [
+      "S&P 400 (MidCap)",
+      "S&P 600 (SmallCap)"
+    ],
+    "exclusionReason": "No sp400/sp600/midcap400/smallcap600/indices table exists under the current Sharadar entitlement (empirically probed: all return HTTP 403). Decided as a pre-existing data-availability constraint before this screen ran, not narrowed after seeing a disappointing result."
+  },
+  "removalReasonCounts": {
+    "acquired_or_merged": 370,
+    "market_cap_change": 184,
+    "spinoff": 73,
+    "other": 59,
+    "bankruptcy": 10
+  },
+  "validPopulationRule": "Only action=removed rows classified market_cap_change are usable events. acquired_or_merged removals (the largest bucket) are excluded because the security typically stops trading at deal close (empirically confirmed on SWY/LO/COV: lastpricedate == deletion date), leaving no post-deletion price series to test a reversal against. spinoff/bankruptcy/other are excluded as separate, smaller, mechanistically distinct populations, per this project's own rule against pooling hypotheses that only share a label.",
+  "fullHistory": {
+    "window": [
+      "1998-01-01",
+      "2026-09-05"
+    ],
+    "years": 28.68,
+    "usableEvents": 184,
+    "eventsPerYear": 6.416,
+    "designs": [
+      {
+        "label": "index_deletion_full_history_independent_events_rho0",
+        "positions": 1,
+        "rebalances_per_year": 6.416459805232003,
+        "years": 28.67624914442163,
+        "independent_bets_per_year": 6.416459805232003,
+        "mda_pct": 15.06507622745834,
+        "tradable_alpha_pct": 4.0,
+        "viable": false
+      },
+      {
+        "label": "index_deletion_full_history_independent_events_standard_corr",
+        "positions": 1,
+        "rebalances_per_year": 6.416459805232003,
+        "years": 28.67624914442163,
+        "independent_bets_per_year": 6.416459805232003,
+        "mda_pct": 11.446982524684314,
+        "tradable_alpha_pct": 4.0,
+        "viable": false
+      },
+      {
+        "label": "index_deletion_full_history_clustered_standard_corr",
+        "positions": 1.88,
+        "rebalances_per_year": 3.4130105346978743,
+        "years": 28.67624914442163,
+        "independent_bets_per_year": 5.347049837693336,
+        "mda_pct": 12.539541088274072,
+        "tradable_alpha_pct": 4.0,
+        "viable": false
+      }
+    ]
+  },
+  "modernEra": {
+    "window": [
+      "2016-01-01",
+      "2026-09-05"
+    ],
+    "years": 10.68,
+    "usableEvents": 81,
+    "eventsPerYear": 7.586,
+    "designs": [
+      {
+        "label": "index_deletion_modern_era_independent_events_rho0",
+        "positions": 1,
+        "rebalances_per_year": 7.585961538461539,
+        "years": 10.677618069815194,
+        "independent_bets_per_year": 7.585961538461539,
+        "mda_pct": 22.705848487901868,
+        "tradable_alpha_pct": 4.0,
+        "viable": false
+      },
+      {
+        "label": "index_deletion_modern_era_independent_events_standard_corr",
+        "positions": 1,
+        "rebalances_per_year": 7.585961538461539,
+        "years": 10.677618069815194,
+        "independent_bets_per_year": 7.585961538461539,
+        "mda_pct": 17.252713954106092,
+        "tradable_alpha_pct": 4.0,
+        "viable": false
+      },
+      {
+        "label": "index_deletion_modern_era_clustered_standard_corr",
+        "positions": 1.88,
+        "rebalances_per_year": 4.035085924713584,
+        "years": 10.677618069815194,
+        "independent_bets_per_year": 6.321634615384616,
+        "mda_pct": 18.89940122169611,
+        "tradable_alpha_pct": 4.0,
+        "viable": false
+      }
+    ],
+    "note": "Reported for the mandatory sub-period/decay check, not as a separate gate -- Phase 8's hard-stop thresholds apply to the full-history count."
+  },
+  "hardStopThresholds": {
+    "minUsableEventsFullHistory": 150,
+    "maxTradableAlphaPct": 4.0
+  },
+  "gates": {
+    "eventCountGate": {
+      "passed": true,
+      "usableEvents": 184,
+      "threshold": 150
+    },
+    "mdaGate": {
+      "passed": false,
+      "bestCaseMdaPct": 11.447,
+      "threshold": 4.0,
+      "note": "bestCaseMdaPct is the empirical minimum across every reported design variant (full-history and modern-era), not a specific labeled 'optimistic' case -- see _design_variants' docstring for why the variant with zero assumed correlation is not reliably the best case."
+    }
+  },
+  "viable": false,
+  "verdict": "STOP -- record negative design result, do not build a backtest, do not relax the threshold, move to the next hypothesis in the backlog"
+}

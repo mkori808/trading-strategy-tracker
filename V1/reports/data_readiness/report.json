@@ -1,0 +1,640 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-06T01:49:57.780973+00:00",
+  "evidenceOnly": true,
+  "backtestsRun": false,
+  "returnsInspected": false,
+  "holdoutConsumed": false,
+  "registry": [
+    {
+      "capability_id": "daily_prices",
+      "name": "Daily historical prices",
+      "status": "SUPPORTED",
+      "provider": "Sharadar",
+      "source_tables": [
+        "stocks"
+      ],
+      "validated_scope": "Deep history to 1998; broad active/delisted coverage measured",
+      "known_limitations": [
+        "Prices are ticker-keyed"
+      ],
+      "safe_use_cases": [
+        "Daily price studies with identity-safe ticker windows"
+      ],
+      "unsafe_use_cases": [
+        "Blind ticker stitching"
+      ],
+      "evidence_refs": [
+        "reports/sharadar_contract_validation/report.md"
+      ],
+      "last_validated_at": "2026-09-06T00:00:00+00:00",
+      "limitation_policy": "FAIL_CLOSED_ON_MISSING"
+    },
+    {
+      "capability_id": "adjusted_prices",
+      "name": "Total-return adjusted prices",
+      "status": "SUPPORTED_WITH_LIMITATIONS",
+      "provider": "Sharadar",
+      "source_tables": [
+        "stocks",
+        "actions"
+      ],
+      "validated_scope": "Canonical reconstruction from closeunadj plus dated actions",
+      "known_limitations": [
+        "HON vendor closeadj diverged 3.25%; vendor closeadj is cross-check only"
+      ],
+      "safe_use_cases": [
+        "Reconstructed adjusted close with action audit"
+      ],
+      "unsafe_use_cases": [
+        "Using vendor closeadj as unquestioned canonical series"
+      ],
+      "evidence_refs": [
+        "reports/sharadar_contract_validation/report.md",
+        "reports/sharadar_contract_validation/reconstruction/panel.json"
+      ],
+      "last_validated_at": "2026-09-06T00:00:00+00:00",
+      "limitation_policy": "EXCLUDE_AMBIGUOUS_CASES"
+    },
+    {
+      "capability_id": "unadjusted_prices",
+      "name": "Unadjusted prices",
+      "status": "SUPPORTED",
+      "provider": "Sharadar",
+      "source_tables": [
+        "stocks"
+      ],
+      "validated_scope": "closeunadj observed and empirically raw",
+      "known_limitations": [],
+      "safe_use_cases": [
+        "Raw execution-price and terminal-price comparison"
+      ],
+      "unsafe_use_cases": [
+        "Treating raw prices as total return"
+      ],
+      "evidence_refs": [
+        "reports/sharadar_contract_validation/report.md"
+      ],
+      "last_validated_at": "2026-09-06T00:00:00+00:00",
+      "limitation_policy": "FAIL_CLOSED_ON_MISSING"
+    },
+    {
+      "capability_id": "active_security_universe",
+      "name": "Active security coverage",
+      "status": "SUPPORTED_WITH_LIMITATIONS",
+      "provider": "Sharadar",
+      "source_tables": [
+        "tickers",
+        "stocks"
+      ],
+      "validated_scope": "Active securities in Sharadar population",
+      "known_limitations": [
+        "Historical listing/type status is not fully date-effective"
+      ],
+      "safe_use_cases": [
+        "Current and date-bounded active security research"
+      ],
+      "unsafe_use_cases": [
+        "Assuming current category/exchange is historical PIT"
+      ],
+      "evidence_refs": [
+        "reports/sharadar_contract_validation/report.md"
+      ],
+      "last_validated_at": "2026-09-06T00:00:00+00:00",
+      "limitation_policy": "EXCLUDE_AMBIGUOUS_CASES"
+    },
+    {
+      "capability_id": "delisted_price_history",
+      "name": "Delisted price history",
+      "status": "SUPPORTED_WITH_LIMITATIONS",
+      "provider": "Sharadar",
+      "source_tables": [
+        "tickers",
+        "stocks",
+        "actions"
+      ],
+      "validated_scope": "Delisted records and prices through last observed date",
+      "known_limitations": [
+        "Terminal economic disposition is not universal"
+      ],
+      "safe_use_cases": [
+        "Studies using final valid observation with incomplete-episode disclosure"
+      ],
+      "unsafe_use_cases": [
+        "Silently dropping delisted positions"
+      ],
+      "evidence_refs": [
+        "reports/sharadar_contract_validation/report.md"
+      ],
+      "last_validated_at": "2026-09-06T00:00:00+00:00",
+      "limitation_policy": "FAIL_CLOSED_ON_MISSING"
+    },
+    {
+      "capability_id": "basic_corporate_actions",
+      "name": "Basic corporate actions",
+      "status": "SUPPORTED",
+      "provider": "Sharadar",
+      "source_tables": [
+        "actions"
+      ],
+      "validated_scope": "Dated typed splits, dividends, spinoffs, listings/delistings",
+      "known_limitations": [
+        "Some value semantics require reconstruction validation"
+      ],
+      "safe_use_cases": [
+        "Split/dividend adjustment and action diagnostics"
+      ],
+      "unsafe_use_cases": [
+        "Assuming every action encodes terminal consideration"
+      ],
+      "evidence_refs": [
+        "reports/sharadar_contract_validation/report.md"
+      ],
+      "last_validated_at": "2026-09-06T00:00:00+00:00",
+      "limitation_policy": "FAIL_CLOSED_ON_MISSING"
+    },
+    {
+      "capability_id": "ticker_history",
+      "name": "Ticker history",
+      "status": "PARTIAL",
+      "provider": "Sharadar",
+      "source_tables": [
+        "actions",
+        "tickers"
+      ],
+      "validated_scope": "Ticker-change records available but not universally reliable",
+      "known_limitations": [
+        "PNST action mismatch; ticker reuse exists"
+      ],
+      "safe_use_cases": [
+        "Ticker-scoped windows with independent checks"
+      ],
+      "unsafe_use_cases": [
+        "Ticker similarity or action pair as proof of continuity"
+      ],
+      "evidence_refs": [
+        "reports/sharadar_contract_validation/report.md",
+        "LESSONS.md"
+      ],
+      "last_validated_at": "2026-09-06T00:00:00+00:00",
+      "limitation_policy": "EXCLUDE_AMBIGUOUS_CASES"
+    },
+    {
+      "capability_id": "permanent_identity",
+      "name": "Permanent security identity",
+      "status": "PARTIAL",
+      "provider": "Sharadar",
+      "source_tables": [
+        "tickers"
+      ],
+      "validated_scope": "permaticker present; continuity verified only in bounded examples",
+      "known_limitations": [
+        "Does not prove same economic security across cancellation/reissue"
+      ],
+      "safe_use_cases": [
+        "Within-security joins after edge-case audit"
+      ],
+      "unsafe_use_cases": [
+        "Successor or reused-ticker stitching"
+      ],
+      "evidence_refs": [
+        "reports/sharadar_contract_validation/report.md",
+        "reports/pit_acceptance/report.md"
+      ],
+      "last_validated_at": "2026-09-06T00:00:00+00:00",
+      "limitation_policy": "REQUIRE_SUPPLEMENTAL_EVIDENCE"
+    },
+    {
+      "capability_id": "terminal_delisting_economics",
+      "name": "Terminal delisting economics",
+      "status": "PARTIAL",
+      "provider": "Sharadar",
+      "source_tables": [
+        "actions",
+        "stocks"
+      ],
+      "validated_scope": "Some action context and last prices; no universal terminal disposition",
+      "known_limitations": [
+        "Bankruptcy, mixed consideration, and successor equity remain unresolved"
+      ],
+      "safe_use_cases": [
+        "Ordinary studies that exclude ambiguous episodes"
+      ],
+      "unsafe_use_cases": [
+        "Assuming last price equals shareholder terminal value"
+      ],
+      "evidence_refs": [
+        "reports/pit_acceptance/primary_evidence_notes.json"
+      ],
+      "last_validated_at": "2026-09-06T00:00:00+00:00",
+      "limitation_policy": "REQUIRE_SUPPLEMENTAL_EVIDENCE"
+    },
+    {
+      "capability_id": "successor_security_linkage",
+      "name": "Successor security linkage",
+      "status": "UNSUPPORTED",
+      "provider": "Sharadar",
+      "source_tables": [
+        "actions",
+        "tickers"
+      ],
+      "validated_scope": "CIK can verify hand-identified links but no complete successor graph",
+      "known_limitations": [
+        "Ticker/name/relatedticker linkage creates false positives"
+      ],
+      "safe_use_cases": [
+        "None without external lineage evidence"
+      ],
+      "unsafe_use_cases": [
+        "Post-reorg continuity or successor returns"
+      ],
+      "evidence_refs": [
+        "LESSONS.md",
+        "reports/pit_acceptance/report.md"
+      ],
+      "last_validated_at": "2026-09-06T00:00:00+00:00",
+      "limitation_policy": "NOT_ALLOWED"
+    },
+    {
+      "capability_id": "complex_reorganization_chain",
+      "name": "Complex reorganization chains",
+      "status": "UNSUPPORTED",
+      "provider": "Sharadar",
+      "source_tables": [
+        "actions",
+        "tickers"
+      ],
+      "validated_scope": "No discoverable complete chain across cancellation, reissue, and successor entities",
+      "known_limitations": [
+        "Ground-truth screen found discovery gap"
+      ],
+      "safe_use_cases": [
+        "None"
+      ],
+      "unsafe_use_cases": [
+        "Distressed/post-reorg portfolio accounting"
+      ],
+      "evidence_refs": [
+        "LESSONS.md"
+      ],
+      "last_validated_at": "2026-09-06T00:00:00+00:00",
+      "limitation_policy": "NOT_ALLOWED"
+    },
+    {
+      "capability_id": "pit_fundamentals",
+      "name": "Point-in-time fundamentals",
+      "status": "SUPPORTED",
+      "provider": "Sharadar",
+      "source_tables": [
+        "fundamentals"
+      ],
+      "validated_scope": "AR filing-date semantics validated",
+      "known_limitations": [
+        "MR snapshots are not PIT facts"
+      ],
+      "safe_use_cases": [
+        "As-reported filing-date fundamentals"
+      ],
+      "unsafe_use_cases": [
+        "Back-projecting current snapshots"
+      ],
+      "evidence_refs": [
+        "research/PIT_DATA_REQUIREMENTS.md"
+      ],
+      "last_validated_at": "2026-09-06T00:00:00+00:00",
+      "limitation_policy": "FAIL_CLOSED_ON_MISSING"
+    },
+    {
+      "capability_id": "market_cap_daily",
+      "name": "Daily market capitalization",
+      "status": "SUPPORTED",
+      "provider": "Sharadar",
+      "source_tables": [
+        "daily"
+      ],
+      "validated_scope": "Daily marketcap observed from 1998-12-01 onward",
+      "known_limitations": [
+        "No pre-1998 daily marketcap in measured table"
+      ],
+      "safe_use_cases": [
+        "Percentile size universes within coverage"
+      ],
+      "unsafe_use_cases": [
+        "Fixed threshold before coverage start"
+      ],
+      "evidence_refs": [
+        "data/pit_us_all_stocks/phase1_build_manifest.json"
+      ],
+      "last_validated_at": "2026-09-06T00:00:00+00:00",
+      "limitation_policy": "FAIL_CLOSED_ON_MISSING"
+    },
+    {
+      "capability_id": "sp500_membership",
+      "name": "Historical S&P 500 membership",
+      "status": "SUPPORTED",
+      "provider": "Sharadar",
+      "source_tables": [
+        "sp500"
+      ],
+      "validated_scope": "Machine-readable additions/removals and reasons to 1998",
+      "known_limitations": [
+        "Identity still required for ticker reuse"
+      ],
+      "safe_use_cases": [
+        "S&P 500 membership event studies"
+      ],
+      "unsafe_use_cases": [
+        "S&P 400/600 inference"
+      ],
+      "evidence_refs": [
+        "research/PIT_DATA_REQUIREMENTS.md"
+      ],
+      "last_validated_at": "2026-09-06T00:00:00+00:00",
+      "limitation_policy": "FAIL_CLOSED_ON_MISSING"
+    },
+    {
+      "capability_id": "sp400_membership",
+      "name": "Historical S&P 400 membership",
+      "status": "UNSUPPORTED",
+      "provider": "Sharadar",
+      "source_tables": [],
+      "validated_scope": "403 under current entitlement",
+      "known_limitations": [
+        "No product-scope table"
+      ],
+      "safe_use_cases": [
+        "None"
+      ],
+      "unsafe_use_cases": [
+        "S&P 400 PIT studies"
+      ],
+      "evidence_refs": [
+        "research/PIT_DATA_REQUIREMENTS.md"
+      ],
+      "last_validated_at": "2026-09-06T00:00:00+00:00",
+      "limitation_policy": "NOT_ALLOWED"
+    },
+    {
+      "capability_id": "sp600_membership",
+      "name": "Historical S&P 600 membership",
+      "status": "UNSUPPORTED",
+      "provider": "Sharadar",
+      "source_tables": [],
+      "validated_scope": "403 under current entitlement",
+      "known_limitations": [
+        "No product-scope table"
+      ],
+      "safe_use_cases": [
+        "None"
+      ],
+      "unsafe_use_cases": [
+        "S&P 600 PIT studies"
+      ],
+      "evidence_refs": [
+        "research/PIT_DATA_REQUIREMENTS.md"
+      ],
+      "last_validated_at": "2026-09-06T00:00:00+00:00",
+      "limitation_policy": "NOT_ALLOWED"
+    },
+    {
+      "capability_id": "security_type_classification",
+      "name": "PIT security type classification",
+      "status": "PARTIAL",
+      "provider": "Sharadar",
+      "source_tables": [
+        "tickers"
+      ],
+      "validated_scope": "Current category only",
+      "known_limitations": [
+        "No date-effective security-type intervals"
+      ],
+      "safe_use_cases": [
+        "Current snapshot screens"
+      ],
+      "unsafe_use_cases": [
+        "Historical common-stock eligibility without supplements"
+      ],
+      "evidence_refs": [
+        "reports/sharadar_contract_validation/report.md"
+      ],
+      "last_validated_at": "2026-09-06T00:00:00+00:00",
+      "limitation_policy": "EXCLUDE_AMBIGUOUS_CASES"
+    },
+    {
+      "capability_id": "exchange_listing_history",
+      "name": "Historical exchange listing",
+      "status": "PARTIAL",
+      "provider": "Sharadar",
+      "source_tables": [
+        "tickers",
+        "actions"
+      ],
+      "validated_scope": "Current exchange plus event context",
+      "known_limitations": [
+        "Historical primary listing venue changes not complete"
+      ],
+      "safe_use_cases": [
+        "Date-bounded exchange studies with exclusions"
+      ],
+      "unsafe_use_cases": [
+        "Assuming current exchange applies historically"
+      ],
+      "evidence_refs": [
+        "reports/sharadar_contract_validation/report.md"
+      ],
+      "last_validated_at": "2026-09-06T00:00:00+00:00",
+      "limitation_policy": "EXCLUDE_AMBIGUOUS_CASES"
+    }
+  ],
+  "hypotheses": [
+    {
+      "hypothesis_id": "sp500_index_deletion",
+      "hypothesis_name": "S&P 500 index deletion",
+      "readiness": "DATA_READY",
+      "blockers": [],
+      "limitations": [],
+      "capabilities": [
+        {
+          "capabilityId": "sp500_membership",
+          "status": "SUPPORTED",
+          "critical": true,
+          "policy": "FAIL_CLOSED_ON_MISSING"
+        },
+        {
+          "capabilityId": "daily_prices",
+          "status": "SUPPORTED",
+          "critical": true,
+          "policy": "FAIL_CLOSED_ON_MISSING"
+        },
+        {
+          "capabilityId": "adjusted_prices",
+          "status": "SUPPORTED_WITH_LIMITATIONS",
+          "critical": true,
+          "policy": "EXCLUDE_AMBIGUOUS_CASES"
+        }
+      ]
+    },
+    {
+      "hypothesis_id": "microcap_momentum",
+      "hypothesis_name": "Sub-$300M cap cross-sectional momentum",
+      "readiness": "DATA_READY",
+      "blockers": [],
+      "limitations": [],
+      "capabilities": [
+        {
+          "capabilityId": "market_cap_daily",
+          "status": "SUPPORTED",
+          "critical": true,
+          "policy": "FAIL_CLOSED_ON_MISSING"
+        },
+        {
+          "capabilityId": "pit_fundamentals",
+          "status": "SUPPORTED",
+          "critical": true,
+          "policy": "FAIL_CLOSED_ON_MISSING"
+        },
+        {
+          "capabilityId": "daily_prices",
+          "status": "SUPPORTED",
+          "critical": true,
+          "policy": "FAIL_CLOSED_ON_MISSING"
+        },
+        {
+          "capabilityId": "adjusted_prices",
+          "status": "SUPPORTED_WITH_LIMITATIONS",
+          "critical": true,
+          "policy": "EXCLUDE_AMBIGUOUS_CASES"
+        },
+        {
+          "capabilityId": "active_security_universe",
+          "status": "SUPPORTED_WITH_LIMITATIONS",
+          "critical": true,
+          "policy": "EXCLUDE_AMBIGUOUS_CASES"
+        }
+      ]
+    },
+    {
+      "hypothesis_id": "distressed_post_reorg",
+      "hypothesis_name": "Distressed / post-reorg equity",
+      "readiness": "DATA_BLOCKED",
+      "blockers": [
+        "successor_security_linkage: UNSUPPORTED",
+        "complex_reorganization_chain: UNSUPPORTED"
+      ],
+      "limitations": [
+        "terminal_delisting_economics: PARTIAL"
+      ],
+      "capabilities": [
+        {
+          "capabilityId": "successor_security_linkage",
+          "status": "UNSUPPORTED",
+          "critical": true,
+          "policy": "NOT_ALLOWED"
+        },
+        {
+          "capabilityId": "terminal_delisting_economics",
+          "status": "PARTIAL",
+          "critical": true,
+          "policy": "REQUIRE_SUPPLEMENTAL_EVIDENCE"
+        },
+        {
+          "capabilityId": "complex_reorganization_chain",
+          "status": "UNSUPPORTED",
+          "critical": true,
+          "policy": "NOT_ALLOWED"
+        }
+      ]
+    },
+    {
+      "hypothesis_id": "sp400_migrations",
+      "hypothesis_name": "S&P 400 migrations",
+      "readiness": "DATA_BLOCKED",
+      "blockers": [
+        "sp400_membership: UNSUPPORTED"
+      ],
+      "limitations": [],
+      "capabilities": [
+        {
+          "capabilityId": "sp400_membership",
+          "status": "UNSUPPORTED",
+          "critical": true,
+          "policy": "NOT_ALLOWED"
+        },
+        {
+          "capabilityId": "daily_prices",
+          "status": "SUPPORTED",
+          "critical": true,
+          "policy": "FAIL_CLOSED_ON_MISSING"
+        }
+      ]
+    },
+    {
+      "hypothesis_id": "sp600_migrations",
+      "hypothesis_name": "S&P 600 migrations",
+      "readiness": "DATA_BLOCKED",
+      "blockers": [
+        "sp600_membership: UNSUPPORTED"
+      ],
+      "limitations": [],
+      "capabilities": [
+        {
+          "capabilityId": "sp600_membership",
+          "status": "UNSUPPORTED",
+          "critical": true,
+          "policy": "NOT_ALLOWED"
+        },
+        {
+          "capabilityId": "daily_prices",
+          "status": "SUPPORTED",
+          "critical": true,
+          "policy": "FAIL_CLOSED_ON_MISSING"
+        }
+      ]
+    },
+    {
+      "hypothesis_id": "ordinary_delisted_momentum",
+      "hypothesis_name": "Momentum with ordinary delisted episodes excluded",
+      "readiness": "DATA_READY",
+      "blockers": [],
+      "limitations": [],
+      "capabilities": [
+        {
+          "capabilityId": "daily_prices",
+          "status": "SUPPORTED",
+          "critical": true,
+          "policy": "FAIL_CLOSED_ON_MISSING"
+        },
+        {
+          "capabilityId": "delisted_price_history",
+          "status": "SUPPORTED_WITH_LIMITATIONS",
+          "critical": false,
+          "policy": "FAIL_CLOSED_ON_MISSING"
+        }
+      ]
+    },
+    {
+      "hypothesis_id": "ticker_change_momentum",
+      "hypothesis_name": "Momentum across ticker changes",
+      "readiness": "DATA_READY_WITH_LIMITATIONS",
+      "blockers": [],
+      "limitations": [
+        "ticker_history: PARTIAL",
+        "permanent_identity: PARTIAL"
+      ],
+      "capabilities": [
+        {
+          "capabilityId": "ticker_history",
+          "status": "PARTIAL",
+          "critical": true,
+          "policy": "EXCLUDE_AMBIGUOUS_CASES"
+        },
+        {
+          "capabilityId": "permanent_identity",
+          "status": "PARTIAL",
+          "critical": true,
+          "policy": "REQUIRE_SUPPLEMENTAL_EVIDENCE"
+        }
+      ]
+    }
+  ]
+}

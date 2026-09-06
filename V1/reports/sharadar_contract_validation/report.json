@@ -1,0 +1,935 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-06T01:23:42.919267+00:00",
+  "scope": [
+    "tickers",
+    "stocks",
+    "actions",
+    "daily"
+  ],
+  "evidenceOnly": true,
+  "universeChanged": false,
+  "backtestCacheWritten": false,
+  "contractSource": "engine/pit_all_stocks.py",
+  "tier": {
+    "detected": "full_history_or_broader",
+    "probes": {
+      "dowRecent": {
+        "ticker": "WMT",
+        "rows": 33,
+        "error": null
+      },
+      "nonDowRecent": {
+        "ticker": "TSLA",
+        "rows": 33,
+        "error": null
+      },
+      "dowPre2021": {
+        "ticker": "WMT",
+        "rows": 21,
+        "error": null
+      }
+    },
+    "apiError": null
+  },
+  "tableSamples": {
+    "tickers": {
+      "rows": 1,
+      "columns": [
+        "category",
+        "companysite",
+        "currency",
+        "cusips",
+        "exchange",
+        "famaindustry",
+        "figi",
+        "firstadded",
+        "firstpricedate",
+        "firstquarter",
+        "industry",
+        "isdelisted",
+        "lastpricedate",
+        "lastquarter",
+        "lastupdated",
+        "location",
+        "name",
+        "permaticker",
+        "relatedtickers",
+        "scalemarketcap",
+        "scalerevenue",
+        "secfilings",
+        "sector",
+        "siccode",
+        "sicindustry",
+        "sicsector",
+        "table",
+        "ticker"
+      ],
+      "error": null
+    },
+    "stocks": {
+      "rows": 22,
+      "columns": [
+        "close",
+        "closeadj",
+        "closeunadj",
+        "date",
+        "high",
+        "lastupdated",
+        "low",
+        "open",
+        "ticker",
+        "volume"
+      ],
+      "error": null
+    },
+    "actions": {
+      "rows": 22,
+      "columns": [
+        "action",
+        "contraname",
+        "contraticker",
+        "date",
+        "name",
+        "ticker",
+        "value"
+      ],
+      "error": null
+    },
+    "daily": {
+      "rows": 22,
+      "columns": [
+        "date",
+        "ev",
+        "evebit",
+        "evebitda",
+        "lastupdated",
+        "marketcap",
+        "pb",
+        "pe",
+        "ps",
+        "ticker"
+      ],
+      "error": null
+    }
+  },
+  "fieldFindings": [
+    {
+      "area": "manifest",
+      "field": "survivorshipFree",
+      "status": "AMBIGUOUS",
+      "source": "tickers/actions/stocks population audit",
+      "reason": "Provider claims 99%, not a contract-level completeness proof"
+    },
+    {
+      "area": "manifest",
+      "field": "delistedSecuritiesIncluded",
+      "status": "AMBIGUOUS",
+      "source": "tickers.isdelisted + actions",
+      "reason": "Requires inactive-population reconciliation"
+    },
+    {
+      "area": "manifest",
+      "field": "delistingReturnsIncluded",
+      "status": "MISSING",
+      "source": "none",
+      "reason": "No explicit delisting-return field was located"
+    },
+    {
+      "area": "manifest",
+      "field": "tickerHistoryIncluded",
+      "status": "AMBIGUOUS",
+      "source": "tickers.permaticker + actions",
+      "reason": "Actions are documented, but permanent-ID continuity was not empirically verified"
+    },
+    {
+      "area": "manifest",
+      "field": "corporateActionsIncluded",
+      "status": "PRESENT",
+      "source": "actions",
+      "reason": "Actions table supplies dated typed events"
+    },
+    {
+      "area": "manifest",
+      "field": "pointInTimeSecurityTypes",
+      "status": "MISSING",
+      "source": "tickers.category",
+      "reason": "Category is a current snapshot; no date-effective security-type history was located"
+    },
+    {
+      "area": "manifest",
+      "field": "historicalVolumeIncluded",
+      "status": "PRESENT",
+      "source": "stocks.volume",
+      "reason": "Daily split-adjusted volume is supplied"
+    },
+    {
+      "area": "manifest",
+      "field": "source",
+      "status": "PRESENT",
+      "source": "API endpoint",
+      "reason": "Sharadar is an attributable source"
+    },
+    {
+      "area": "manifest",
+      "field": "snapshotId",
+      "status": "AMBIGUOUS",
+      "source": "lastupdated/fetch timestamp",
+      "reason": "No immutable vendor snapshot identifier is documented; ingestion must hash/version the retrieved artifacts"
+    },
+    {
+      "area": "manifest",
+      "field": "coverageStart",
+      "status": "AMBIGUOUS",
+      "source": "measured table dates",
+      "reason": "Must be measured across every normalized artifact, not copied from marketing history"
+    },
+    {
+      "area": "manifest",
+      "field": "coverageEnd",
+      "status": "AMBIGUOUS",
+      "source": "measured table dates",
+      "reason": "Must be measured across every normalized artifact, not copied from marketing history"
+    },
+    {
+      "area": "manifest",
+      "field": "schemaVersion",
+      "status": "PRESENT",
+      "source": "normalizer constant 1",
+      "reason": "The local normalized bundle controls its schema version"
+    },
+    {
+      "area": "manifest",
+      "field": "priceBasis",
+      "status": "AMBIGUOUS",
+      "source": "stocks.closeadj plus imputed adjusted O/H/L",
+      "reason": "Target is total_return_adjusted_ohlcv; close is direct but adjusted O/H/L are imputed and as-of adjustment behavior must be accepted explicitly"
+    },
+    {
+      "area": "security_history",
+      "field": "delisting_reason",
+      "status": "AMBIGUOUS",
+      "source": "actions.action/value",
+      "reason": "Delisting reasons are action rows, not a directly observed complete normalized field"
+    },
+    {
+      "area": "security_history",
+      "field": "effective_end",
+      "status": "AMBIGUOUS",
+      "source": "tickers.firstpricedate/lastpricedate + actions",
+      "reason": "Price endpoints and action dates exist, but are not themselves complete ticker/listing effective intervals"
+    },
+    {
+      "area": "security_history",
+      "field": "effective_start",
+      "status": "AMBIGUOUS",
+      "source": "tickers.firstpricedate/lastpricedate + actions",
+      "reason": "Price endpoints and action dates exist, but are not themselves complete ticker/listing effective intervals"
+    },
+    {
+      "area": "security_history",
+      "field": "exchange",
+      "status": "AMBIGUOUS",
+      "source": "tickers.exchange",
+      "reason": "Latest exchange is present, but historical venue changes are not supplied"
+    },
+    {
+      "area": "security_history",
+      "field": "is_acquired",
+      "status": "AMBIGUOUS",
+      "source": "actions.action/contraticker",
+      "reason": "Acquisition events and counterparties exist, but normalized issuer-level coverage must be audited"
+    },
+    {
+      "area": "security_history",
+      "field": "is_common_stock",
+      "status": "AMBIGUOUS",
+      "source": "tickers.category",
+      "reason": "Category can classify the current security, but point-in-time security-type intervals were not located"
+    },
+    {
+      "area": "security_history",
+      "field": "is_us_listed",
+      "status": "AMBIGUOUS",
+      "source": "tickers.exchange",
+      "reason": "Exchange is current-only; Sharadar explicitly says historical primary-listing venues are unavailable"
+    },
+    {
+      "area": "security_history",
+      "field": "known_at",
+      "status": "MISSING",
+      "source": "none",
+      "reason": "No announcement/known-at timestamp is documented for identity or listing changes"
+    },
+    {
+      "area": "security_history",
+      "field": "security_id",
+      "status": "AMBIGUOUS",
+      "source": "tickers.permaticker",
+      "reason": "tickers.permaticker exists, but no accessible ticker-change lineage proved continuity"
+    },
+    {
+      "area": "security_history",
+      "field": "security_type",
+      "status": "AMBIGUOUS",
+      "source": "tickers.category",
+      "reason": "Category can classify the current security, but point-in-time security-type intervals were not located"
+    },
+    {
+      "area": "security_history",
+      "field": "ticker",
+      "status": "AMBIGUOUS",
+      "source": "tickers.ticker + actions",
+      "reason": "Current ticker exists and actions documents changes, but a complete date-effective interval must be reconstructed"
+    },
+    {
+      "area": "daily",
+      "field": "Close",
+      "status": "PRESENT",
+      "source": "stocks.closeadj",
+      "reason": "Fully split/dividend/spinoff-adjusted close is delivered directly"
+    },
+    {
+      "area": "daily",
+      "field": "DelistingReturn",
+      "status": "MISSING",
+      "source": "none",
+      "reason": "No explicit delisting-return field exists in stocks, actions, or daily"
+    },
+    {
+      "area": "daily",
+      "field": "High",
+      "status": "AMBIGUOUS",
+      "source": "stocks.high * stocks.closeadj / stocks.close",
+      "reason": "Sharadar supplies split-adjusted OHLC and fully adjusted close; total-return OHLC must be imputed"
+    },
+    {
+      "area": "daily",
+      "field": "Low",
+      "status": "AMBIGUOUS",
+      "source": "stocks.low * stocks.closeadj / stocks.close",
+      "reason": "Sharadar supplies split-adjusted OHLC and fully adjusted close; total-return OHLC must be imputed"
+    },
+    {
+      "area": "daily",
+      "field": "Open",
+      "status": "AMBIGUOUS",
+      "source": "stocks.open * stocks.closeadj / stocks.close",
+      "reason": "Sharadar supplies split-adjusted OHLC and fully adjusted close; total-return OHLC must be imputed"
+    },
+    {
+      "area": "daily",
+      "field": "RawClose",
+      "status": "PRESENT",
+      "source": "stocks.closeunadj",
+      "reason": "Documented unadjusted close"
+    },
+    {
+      "area": "daily",
+      "field": "Volume",
+      "status": "PRESENT",
+      "source": "stocks.volume",
+      "reason": "Directly documented/observed field"
+    },
+    {
+      "area": "daily",
+      "field": "date",
+      "status": "PRESENT",
+      "source": "stocks.date",
+      "reason": "Directly documented/observed field"
+    },
+    {
+      "area": "daily",
+      "field": "security_id",
+      "status": "AMBIGUOUS",
+      "source": "stocks.ticker -> tickers.permaticker",
+      "reason": "stocks is ticker-keyed; the join is safe only after ticker-change and ticker-reuse lineage tests pass"
+    },
+    {
+      "area": "daily_market_cap",
+      "field": "MarketCap",
+      "status": "PRESENT",
+      "source": "daily.marketcap",
+      "reason": "Sharadar's daily table delivers per-date market cap directly; conditionally mandatory in engine/pit_all_stocks.py only once a minimum-market-cap filter is requested (market_cap_available)"
+    }
+  ],
+  "findingCounts": {
+    "PRESENT": 9,
+    "MISSING": 4,
+    "AMBIGUOUS": 21,
+    "UNTESTABLE-ON-THIS-TIER": 0
+  },
+  "tierCapabilities": [
+    {
+      "check": "dow_recent_prices",
+      "status": "PRESENT",
+      "reason": "The detected entitlement exposes enough scope to run this check; result still requires validation"
+    },
+    {
+      "check": "pre_2021_history",
+      "status": "PRESENT",
+      "reason": "The detected entitlement exposes enough scope to run this check; result still requires validation"
+    },
+    {
+      "check": "non_dow_coverage",
+      "status": "PRESENT",
+      "reason": "The detected entitlement exposes enough scope to run this check; result still requires validation"
+    },
+    {
+      "check": "delisting_returns",
+      "status": "UNTESTABLE-ON-THIS-TIER",
+      "reason": "No explicit DelistingReturn field is exposed"
+    },
+    {
+      "check": "historical_delisted_population",
+      "status": "PRESENT",
+      "reason": "The detected entitlement exposes enough scope to run this check; result still requires validation"
+    }
+  ],
+  "identityContinuity": {
+    "verified": false,
+    "examples": [],
+    "tickerChangeRows": 0,
+    "errors": []
+  },
+  "adjustmentSemantics": {
+    "status": "PRESENT",
+    "knownEvent": {
+      "ticker": "WMT",
+      "date": "2024-02-26",
+      "ratio": 3.0
+    },
+    "lastPreSplitDate": "2024-02-23",
+    "firstPostSplitDate": "2024-02-26",
+    "prePostCloseRatios": {
+      "unadjusted": 2.9456375838926174,
+      "splitAdjusted": 0.9818791946308725,
+      "fullyAdjusted": 0.9818699327238226
+    },
+    "checks": {
+      "unadjustedShowsSplitDiscontinuity": true,
+      "splitAdjustedIsContinuous": true,
+      "fullyAdjustedIsContinuous": true,
+      "preEventOnlyResponseAlreadyIncludesFutureSplit": true
+    },
+    "preEventOnlyMedianCloseUnadjToCloseRatio": 3.0,
+    "interpretation": "Sharadar split-adjusted history is retroactively adjusted for the later split even when the query ends before it; query bounds are not an as-of adjustment boundary.",
+    "errors": [],
+    "documentation": {
+      "source": "https://sharadar.com/docs/faqs",
+      "method1Unadjusted": {
+        "delivered": "closeunadj",
+        "imputedOHLC": "split_adjusted_OHLC * closeunadj / close",
+        "imputedVolume": "volume * close / closeunadj"
+      },
+      "method2SplitAdjusted": {
+        "delivered": "open, high, low, close, volume",
+        "imputed": "none"
+      },
+      "method3SplitDividendSpinoffAdjusted": {
+        "delivered": "closeadj",
+        "imputedOHLC": "split_adjusted_OHLC * closeadj / close",
+        "volume": "volume remains split-adjusted; it is not dividend/spinoff-adjusted"
+      }
+    }
+  },
+  "dowCloseComparison": {
+    "thresholdMedianAbsolutePctDifference": 0.5,
+    "basis": "Sharadar closeadj versus existing data/{SYMBOL}_1d.parquet Close",
+    "symbols": [
+      {
+        "symbol": "MMM",
+        "sharadarRows": 1265,
+        "localCache": "data\\MMM_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 0.030473778898490005,
+        "maxAbsolutePctDifference": 0.5376885459269953,
+        "latestAbsolutePctDifference": 1.4483900614824526e-06,
+        "status": "PRESENT",
+        "aboveMedianDivergenceThreshold": false,
+        "likelyAdjustmentVintageDifference": false,
+        "reason": "Compared Sharadar closeadj with the existing yfinance-adjusted Close"
+      },
+      {
+        "symbol": "GS",
+        "sharadarRows": 1265,
+        "localCache": "data\\GS_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 0.46771137783696815,
+        "maxAbsolutePctDifference": 0.496297250885424,
+        "latestAbsolutePctDifference": 1.4103886546976712e-06,
+        "status": "PRESENT",
+        "aboveMedianDivergenceThreshold": false,
+        "likelyAdjustmentVintageDifference": false,
+        "reason": "Compared Sharadar closeadj with the existing yfinance-adjusted Close"
+      },
+      {
+        "symbol": "NKE",
+        "sharadarRows": 1265,
+        "localCache": "data\\NKE_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 1.0623531867131413,
+        "maxAbsolutePctDifference": 1.0783377970196601,
+        "latestAbsolutePctDifference": 3.973642830828406e-06,
+        "status": "DISCREPANCY",
+        "aboveMedianDivergenceThreshold": true,
+        "likelyAdjustmentVintageDifference": true,
+        "reason": "Median exceeds 0.5%, but the latest common close agrees within 0.5%; this pattern is consistent with different as-of dividend/corporate-action adjustment vintages"
+      },
+      {
+        "symbol": "AXP",
+        "sharadarRows": 1265,
+        "localCache": "data\\AXP_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 0.010722126651798601,
+        "maxAbsolutePctDifference": 0.0264241074845046,
+        "latestAbsolutePctDifference": 1.122795348562332e-06,
+        "status": "PRESENT",
+        "aboveMedianDivergenceThreshold": false,
+        "likelyAdjustmentVintageDifference": false,
+        "reason": "Compared Sharadar closeadj with the existing yfinance-adjusted Close"
+      },
+      {
+        "symbol": "HD",
+        "sharadarRows": 1265,
+        "localCache": "data\\HD_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 0.7631857831667975,
+        "maxAbsolutePctDifference": 0.7814901743825674,
+        "latestAbsolutePctDifference": 3.802221375333137e-06,
+        "status": "DISCREPANCY",
+        "aboveMedianDivergenceThreshold": true,
+        "likelyAdjustmentVintageDifference": true,
+        "reason": "Median exceeds 0.5%, but the latest common close agrees within 0.5%; this pattern is consistent with different as-of dividend/corporate-action adjustment vintages"
+      },
+      {
+        "symbol": "PG",
+        "sharadarRows": 1265,
+        "localCache": "data\\PG_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 0.024762660265493387,
+        "maxAbsolutePctDifference": 0.04108941508145481,
+        "latestAbsolutePctDifference": 1.6671716823076365e-06,
+        "status": "PRESENT",
+        "aboveMedianDivergenceThreshold": false,
+        "likelyAdjustmentVintageDifference": false,
+        "reason": "Compared Sharadar closeadj with the existing yfinance-adjusted Close"
+      },
+      {
+        "symbol": "AMGN",
+        "sharadarRows": 1265,
+        "localCache": "data\\AMGN_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 0.012093795994059665,
+        "maxAbsolutePctDifference": 0.5928904388675285,
+        "latestAbsolutePctDifference": 2.5127113488908336e-06,
+        "status": "PRESENT",
+        "aboveMedianDivergenceThreshold": false,
+        "likelyAdjustmentVintageDifference": false,
+        "reason": "Compared Sharadar closeadj with the existing yfinance-adjusted Close"
+      },
+      {
+        "symbol": "HON",
+        "sharadarRows": 1265,
+        "localCache": "data\\HON_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 3.236684532392449,
+        "maxAbsolutePctDifference": 3.69696207288711,
+        "latestAbsolutePctDifference": 2.911843648109972e-07,
+        "status": "DISCREPANCY",
+        "aboveMedianDivergenceThreshold": true,
+        "likelyAdjustmentVintageDifference": true,
+        "reason": "Median exceeds 0.5%, but the latest common close agrees within 0.5%; this pattern is consistent with different as-of dividend/corporate-action adjustment vintages"
+      },
+      {
+        "symbol": "CRM",
+        "sharadarRows": 1265,
+        "localCache": "data\\CRM_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 0.027981791453656098,
+        "maxAbsolutePctDifference": 0.028618360024355794,
+        "latestAbsolutePctDifference": 4.238061814297237e-06,
+        "status": "PRESENT",
+        "aboveMedianDivergenceThreshold": false,
+        "likelyAdjustmentVintageDifference": false,
+        "reason": "Compared Sharadar closeadj with the existing yfinance-adjusted Close"
+      },
+      {
+        "symbol": "AAPL",
+        "sharadarRows": 1265,
+        "localCache": "data\\AAPL_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 0.005246774904376895,
+        "maxAbsolutePctDifference": 0.0489002767213783,
+        "latestAbsolutePctDifference": 3.8150548271966423e-07,
+        "status": "PRESENT",
+        "aboveMedianDivergenceThreshold": false,
+        "likelyAdjustmentVintageDifference": false,
+        "reason": "Compared Sharadar closeadj with the existing yfinance-adjusted Close"
+      },
+      {
+        "symbol": "INTC",
+        "sharadarRows": 1265,
+        "localCache": "data\\INTC_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 0.00870839984049795,
+        "maxAbsolutePctDifference": 0.07833944326221202,
+        "latestAbsolutePctDifference": 3.185550853994649e-06,
+        "status": "PRESENT",
+        "aboveMedianDivergenceThreshold": false,
+        "likelyAdjustmentVintageDifference": false,
+        "reason": "Compared Sharadar closeadj with the existing yfinance-adjusted Close"
+      },
+      {
+        "symbol": "TRV",
+        "sharadarRows": 1265,
+        "localCache": "data\\TRV_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 0.0046326934511725605,
+        "maxAbsolutePctDifference": 0.014266210649786098,
+        "latestAbsolutePctDifference": 1.652501827914424e-06,
+        "status": "PRESENT",
+        "aboveMedianDivergenceThreshold": false,
+        "likelyAdjustmentVintageDifference": false,
+        "reason": "Compared Sharadar closeadj with the existing yfinance-adjusted Close"
+      },
+      {
+        "symbol": "BA",
+        "sharadarRows": 1265,
+        "localCache": "data\\BA_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 1.96191433321677e-06,
+        "maxAbsolutePctDifference": 0.2846314246070029,
+        "latestAbsolutePctDifference": 0.0,
+        "status": "PRESENT",
+        "aboveMedianDivergenceThreshold": false,
+        "likelyAdjustmentVintageDifference": false,
+        "reason": "Compared Sharadar closeadj with the existing yfinance-adjusted Close"
+      },
+      {
+        "symbol": "IBM",
+        "sharadarRows": 1265,
+        "localCache": "data\\IBM_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 0.026863214133932216,
+        "maxAbsolutePctDifference": 0.16588824056150525,
+        "latestAbsolutePctDifference": 2.5984569391781333e-07,
+        "status": "PRESENT",
+        "aboveMedianDivergenceThreshold": false,
+        "likelyAdjustmentVintageDifference": false,
+        "reason": "Compared Sharadar closeadj with the existing yfinance-adjusted Close"
+      },
+      {
+        "symbol": "UNH",
+        "sharadarRows": 1265,
+        "localCache": "data\\UNH_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 0.02158127310340689,
+        "maxAbsolutePctDifference": 0.036165127770299496,
+        "latestAbsolutePctDifference": 3.6884818888395666e-06,
+        "status": "PRESENT",
+        "aboveMedianDivergenceThreshold": false,
+        "likelyAdjustmentVintageDifference": false,
+        "reason": "Compared Sharadar closeadj with the existing yfinance-adjusted Close"
+      },
+      {
+        "symbol": "CAT",
+        "sharadarRows": 1265,
+        "localCache": "data\\CAT_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 0.007728089917940074,
+        "maxAbsolutePctDifference": 0.046144249978723406,
+        "latestAbsolutePctDifference": 2.9994915941068636e-07,
+        "status": "PRESENT",
+        "aboveMedianDivergenceThreshold": false,
+        "likelyAdjustmentVintageDifference": false,
+        "reason": "Compared Sharadar closeadj with the existing yfinance-adjusted Close"
+      },
+      {
+        "symbol": "JNJ",
+        "sharadarRows": 1265,
+        "localCache": "data\\JNJ_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 0.011646461213795329,
+        "maxAbsolutePctDifference": 0.4932980474449954,
+        "latestAbsolutePctDifference": 3.991689738862033e-06,
+        "status": "PRESENT",
+        "aboveMedianDivergenceThreshold": false,
+        "likelyAdjustmentVintageDifference": false,
+        "reason": "Compared Sharadar closeadj with the existing yfinance-adjusted Close"
+      },
+      {
+        "symbol": "VZ",
+        "sharadarRows": 1265,
+        "localCache": "data\\VZ_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 0.024386730889910543,
+        "maxAbsolutePctDifference": 0.12473795964856374,
+        "latestAbsolutePctDifference": 1.217294715792205e-06,
+        "status": "PRESENT",
+        "aboveMedianDivergenceThreshold": false,
+        "likelyAdjustmentVintageDifference": false,
+        "reason": "Compared Sharadar closeadj with the existing yfinance-adjusted Close"
+      },
+      {
+        "symbol": "CVX",
+        "sharadarRows": 1265,
+        "localCache": "data\\CVX_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 0.021227263759526275,
+        "maxAbsolutePctDifference": 0.8727185526671727,
+        "latestAbsolutePctDifference": 2.92594221097747e-06,
+        "status": "PRESENT",
+        "aboveMedianDivergenceThreshold": false,
+        "likelyAdjustmentVintageDifference": false,
+        "reason": "Compared Sharadar closeadj with the existing yfinance-adjusted Close"
+      },
+      {
+        "symbol": "JPM",
+        "sharadarRows": 1265,
+        "localCache": "data\\JPM_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 0.01659544674118269,
+        "maxAbsolutePctDifference": 0.05109816855730282,
+        "latestAbsolutePctDifference": 4.084440362295261e-06,
+        "status": "PRESENT",
+        "aboveMedianDivergenceThreshold": false,
+        "likelyAdjustmentVintageDifference": false,
+        "reason": "Compared Sharadar closeadj with the existing yfinance-adjusted Close"
+      },
+      {
+        "symbol": "V",
+        "sharadarRows": 1265,
+        "localCache": "data\\V_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 0.00533095323173749,
+        "maxAbsolutePctDifference": 0.010984224746920948,
+        "latestAbsolutePctDifference": 1.9527604483954363e-06,
+        "status": "PRESENT",
+        "aboveMedianDivergenceThreshold": false,
+        "likelyAdjustmentVintageDifference": false,
+        "reason": "Compared Sharadar closeadj with the existing yfinance-adjusted Close"
+      },
+      {
+        "symbol": "CSCO",
+        "sharadarRows": 1265,
+        "localCache": "data\\CSCO_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 0.020075602447117882,
+        "maxAbsolutePctDifference": 0.037702313072970235,
+        "latestAbsolutePctDifference": 2.794650092150296e-06,
+        "status": "PRESENT",
+        "aboveMedianDivergenceThreshold": false,
+        "likelyAdjustmentVintageDifference": false,
+        "reason": "Compared Sharadar closeadj with the existing yfinance-adjusted Close"
+      },
+      {
+        "symbol": "MCD",
+        "sharadarRows": 1265,
+        "localCache": "data\\MCD_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 0.7079865224710734,
+        "maxAbsolutePctDifference": 0.718886746372847,
+        "latestAbsolutePctDifference": 9.548305483055436e-07,
+        "status": "DISCREPANCY",
+        "aboveMedianDivergenceThreshold": true,
+        "likelyAdjustmentVintageDifference": true,
+        "reason": "Median exceeds 0.5%, but the latest common close agrees within 0.5%; this pattern is consistent with different as-of dividend/corporate-action adjustment vintages"
+      },
+      {
+        "symbol": "KO",
+        "sharadarRows": 1265,
+        "localCache": "data\\KO_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 0.013950424015229503,
+        "maxAbsolutePctDifference": 0.03161305922814687,
+        "latestAbsolutePctDifference": 3.4651501701631617e-07,
+        "status": "PRESENT",
+        "aboveMedianDivergenceThreshold": false,
+        "likelyAdjustmentVintageDifference": false,
+        "reason": "Compared Sharadar closeadj with the existing yfinance-adjusted Close"
+      },
+      {
+        "symbol": "MRK",
+        "sharadarRows": 1265,
+        "localCache": "data\\MRK_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 0.016033480580937485,
+        "maxAbsolutePctDifference": 0.03707420763171906,
+        "latestAbsolutePctDifference": 1.218023450204066e-06,
+        "status": "PRESENT",
+        "aboveMedianDivergenceThreshold": false,
+        "likelyAdjustmentVintageDifference": false,
+        "reason": "Compared Sharadar closeadj with the existing yfinance-adjusted Close"
+      },
+      {
+        "symbol": "WMT",
+        "sharadarRows": 1265,
+        "localCache": "data\\WMT_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 0.003073530583205344,
+        "maxAbsolutePctDifference": 0.24084418961690482,
+        "latestAbsolutePctDifference": 5.696766534865266e-07,
+        "status": "PRESENT",
+        "aboveMedianDivergenceThreshold": false,
+        "likelyAdjustmentVintageDifference": false,
+        "reason": "Compared Sharadar closeadj with the existing yfinance-adjusted Close"
+      },
+      {
+        "symbol": "DOW",
+        "sharadarRows": 1265,
+        "localCache": "data\\DOW_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 1.0506805358742384,
+        "maxAbsolutePctDifference": 1.1604715678904505,
+        "latestAbsolutePctDifference": 1.8140543689552564e-06,
+        "status": "DISCREPANCY",
+        "aboveMedianDivergenceThreshold": true,
+        "likelyAdjustmentVintageDifference": true,
+        "reason": "Median exceeds 0.5%, but the latest common close agrees within 0.5%; this pattern is consistent with different as-of dividend/corporate-action adjustment vintages"
+      },
+      {
+        "symbol": "MSFT",
+        "sharadarRows": 1265,
+        "localCache": "data\\MSFT_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 0.00427938269302916,
+        "maxAbsolutePctDifference": 0.19705883869552077,
+        "latestAbsolutePctDifference": 2.442871915782779e-06,
+        "status": "PRESENT",
+        "aboveMedianDivergenceThreshold": false,
+        "likelyAdjustmentVintageDifference": false,
+        "reason": "Compared Sharadar closeadj with the existing yfinance-adjusted Close"
+      },
+      {
+        "symbol": "DIS",
+        "sharadarRows": 1265,
+        "localCache": "data\\DIS_1d.parquet",
+        "error": null,
+        "overlapRows": 1265,
+        "measuredStart": "2021-08-23",
+        "measuredEnd": "2026-09-04",
+        "medianAbsolutePctDifference": 0.01131951698211536,
+        "maxAbsolutePctDifference": 0.015495120598742551,
+        "latestAbsolutePctDifference": 2.3183043479944583e-06,
+        "status": "PRESENT",
+        "aboveMedianDivergenceThreshold": false,
+        "likelyAdjustmentVintageDifference": false,
+        "reason": "Compared Sharadar closeadj with the existing yfinance-adjusted Close"
+      }
+    ],
+    "discrepancies": [
+      "NKE",
+      "HD",
+      "HON",
+      "MCD",
+      "DOW"
+    ]
+  },
+  "verdict": {
+    "decision": "CONDITIONAL \u2014 paid entitlement active, but 1 symbol(s) need a per-symbol reconstruction (engine/reconstruct_adjustment.py) before vendor closeadj is trusted for them",
+    "recommendPaidMonth": true,
+    "reason": "Detected entitlement 'full_history_or_broader'; measuredSymbols=29/29, discrepancies=['HON'], adjustmentStatus=PRESENT. Buying broader coverage does not resolve a same-window closeadj discrepancy -- see engine/reconstruct_adjustment.py and reports/sharadar_contract_validation/reconstruction/.",
+    "paidMonthWouldAnswer": [
+      "full history before the free tier's five-year boundary",
+      "non-Dow active and inactive security coverage",
+      "permaticker continuity across historical ticker changes and ticker reuse",
+      "historical delisted-security population and delisting-reason coverage",
+      "cash/stock acquisition and other terminal-value completeness",
+      "whether an explicit or reproducible delisting return can satisfy DelistingReturn",
+      "full-period daily market-cap coverage for size filters",
+      "coverage and identity behavior around mergers, spinoffs, relistings, and OTC transitions"
+    ]
+  },
+  "documentation": {
+    "stocks": "https://sharadar.com/docs/stocks",
+    "tickers": "https://sharadar.com/docs/tickers",
+    "actions": "https://sharadar.com/docs/actions",
+    "daily": "https://sharadar.com/docs/daily",
+    "faq": "https://sharadar.com/docs/faqs"
+  }
+}

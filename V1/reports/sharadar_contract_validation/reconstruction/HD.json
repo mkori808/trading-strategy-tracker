@@ -1,0 +1,406 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-06T00:53:00.996155+00:00",
+  "evidenceOnly": true,
+  "symbol": "HD",
+  "method": "splitAdjustedClose = closeunadj / cumulative_split_factor; reconstructedClose = splitAdjustedClose * cumulative_dividend_factor. Both factors are backward-cascaded from actions rows: split ratio directly; dividend/spinoffdividend dollar value divided by splitAdjustedClose (not raw closeunadj) on the prior trading session. Independent of Sharadar's own closeadj column throughout.",
+  "actionsUsed": {
+    "splits": [],
+    "distributions": [
+      {
+        "date": "2021-09-01",
+        "kind": "dividend",
+        "value": 1.65,
+        "priorSplitAdjustedClose": 326.18,
+        "localRatio": 0.9949414433748237,
+        "cumulativeAfter": 0.8765207783052804
+      },
+      {
+        "date": "2021-12-01",
+        "kind": "dividend",
+        "value": 1.65,
+        "priorSplitAdjustedClose": 400.61,
+        "localRatio": 0.9958812810464043,
+        "cumulativeAfter": 0.8809772516180827
+      },
+      {
+        "date": "2022-03-09",
+        "kind": "dividend",
+        "value": 1.9,
+        "priorSplitAdjustedClose": 316.74,
+        "localRatio": 0.9940013891519859,
+        "cumulativeAfter": 0.8846207558921197
+      },
+      {
+        "date": "2022-06-01",
+        "kind": "dividend",
+        "value": 1.9,
+        "priorSplitAdjustedClose": 302.75,
+        "localRatio": 0.9937241948802642,
+        "cumulativeAfter": 0.8899592752549549
+      },
+      {
+        "date": "2022-08-31",
+        "kind": "dividend",
+        "value": 1.9,
+        "priorSplitAdjustedClose": 293.1,
+        "localRatio": 0.9935175707949505,
+        "cumulativeAfter": 0.8955797592934606
+      },
+      {
+        "date": "2022-11-30",
+        "kind": "dividend",
+        "value": 1.9,
+        "priorSplitAdjustedClose": 315.96,
+        "localRatio": 0.9939865805798203,
+        "cumulativeAfter": 0.901423171184455
+      },
+      {
+        "date": "2023-03-08",
+        "kind": "dividend",
+        "value": 2.09,
+        "priorSplitAdjustedClose": 290.7,
+        "localRatio": 0.9928104575163399,
+        "cumulativeAfter": 0.9068766005458843
+      },
+      {
+        "date": "2023-05-31",
+        "kind": "dividend",
+        "value": 2.09,
+        "priorSplitAdjustedClose": 292.4,
+        "localRatio": 0.9928522571819426,
+        "cumulativeAfter": 0.9134438438678096
+      },
+      {
+        "date": "2023-08-30",
+        "kind": "dividend",
+        "value": 2.09,
+        "priorSplitAdjustedClose": 329.38,
+        "localRatio": 0.9936547452790091,
+        "cumulativeAfter": 0.9200199095689006
+      },
+      {
+        "date": "2023-11-29",
+        "kind": "dividend",
+        "value": 2.09,
+        "priorSplitAdjustedClose": 313.34,
+        "localRatio": 0.9933299291504436,
+        "cumulativeAfter": 0.9258949488643236
+      },
+      {
+        "date": "2024-03-06",
+        "kind": "dividend",
+        "value": 2.25,
+        "priorSplitAdjustedClose": 378.45,
+        "localRatio": 0.9940546967895363,
+        "cumulativeAfter": 0.9321122033000712
+      },
+      {
+        "date": "2024-05-30",
+        "kind": "dividend",
+        "value": 2.25,
+        "priorSplitAdjustedClose": 325.91,
+        "localRatio": 0.9930962535669356,
+        "cumulativeAfter": 0.9376870370518658
+      },
+      {
+        "date": "2024-08-29",
+        "kind": "dividend",
+        "value": 2.25,
+        "priorSplitAdjustedClose": 372.69,
+        "localRatio": 0.9939628109152379,
+        "cumulativeAfter": 0.9442055930469431
+      },
+      {
+        "date": "2024-11-27",
+        "kind": "dividend",
+        "value": 2.25,
+        "priorSplitAdjustedClose": 429.52,
+        "localRatio": 0.9947615943378655,
+        "cumulativeAfter": 0.9499405638501922
+      },
+      {
+        "date": "2025-03-13",
+        "kind": "dividend",
+        "value": 2.3,
+        "priorSplitAdjustedClose": 364.73,
+        "localRatio": 0.9936939653990623,
+        "cumulativeAfter": 0.9549429423665002
+      },
+      {
+        "date": "2025-06-05",
+        "kind": "dividend",
+        "value": 2.3,
+        "priorSplitAdjustedClose": 372.4,
+        "localRatio": 0.9938238453276047,
+        "cumulativeAfter": 0.9610030609202705
+      },
+      {
+        "date": "2025-09-04",
+        "kind": "dividend",
+        "value": 2.3,
+        "priorSplitAdjustedClose": 407.71,
+        "localRatio": 0.9943587353756347,
+        "cumulativeAfter": 0.9669752496263408
+      },
+      {
+        "date": "2025-12-04",
+        "kind": "dividend",
+        "value": 2.3,
+        "priorSplitAdjustedClose": 357.91,
+        "localRatio": 0.9935738034701461,
+        "cumulativeAfter": 0.9724611603688992
+      },
+      {
+        "date": "2026-03-12",
+        "kind": "dividend",
+        "value": 2.33,
+        "priorSplitAdjustedClose": 350.84,
+        "localRatio": 0.9933587960323794,
+        "cumulativeAfter": 0.9787508053981404
+      },
+      {
+        "date": "2026-06-04",
+        "kind": "dividend",
+        "value": 2.33,
+        "priorSplitAdjustedClose": 312.97,
+        "localRatio": 0.9925551969837365,
+        "cumulativeAfter": 0.9852943461188591
+      },
+      {
+        "date": "2026-09-03",
+        "kind": "dividend",
+        "value": 2.33,
+        "priorSplitAdjustedClose": 318.51,
+        "localRatio": 0.9926846880788672,
+        "cumulativeAfter": 0.9926846880788672
+      }
+    ]
+  },
+  "comparison": {
+    "overlapRows": 1265,
+    "measuredStart": "2021-08-23",
+    "measuredEnd": "2026-09-04",
+    "reconstructedVsSharadarCloseadj": {
+      "medianAbsPctDiff": 0.03190649566916432,
+      "maxAbsPctDiff": 0.05035537543741954,
+      "maxAbsPctDiffDate": "2024-06-03",
+      "latestAbsPctDiff": 0.0
+    },
+    "reconstructedVsYfinanceLocal": {
+      "medianAbsPctDiff": 0.7315260701690519,
+      "maxAbsPctDiff": 0.7315598985776497,
+      "maxAbsPctDiffDate": "2022-05-09",
+      "latestAbsPctDiff": 3.802221375333137e-06
+    },
+    "sharadarCloseadjVsYfinanceLocal": {
+      "medianAbsPctDiff": 0.7631857831667975,
+      "maxAbsPctDiff": 0.7814901743825674,
+      "maxAbsPctDiffDate": "2024-06-03",
+      "latestAbsPctDiff": 3.802221375333137e-06
+    },
+    "aroundSplitEvents": {}
+  },
+  "eventDiagnostics": [
+    {
+      "date": "2021-09-01",
+      "action": "dividend",
+      "value": 1.65,
+      "priorSplitAdjustedClose": 326.18,
+      "predictedJump": 1.005084,
+      "actualJump": 1.005098,
+      "residualPct": 0.0013
+    },
+    {
+      "date": "2021-12-01",
+      "action": "dividend",
+      "value": 1.65,
+      "priorSplitAdjustedClose": 400.61,
+      "predictedJump": 1.004136,
+      "actualJump": 1.004118,
+      "residualPct": -0.0017
+    },
+    {
+      "date": "2022-03-09",
+      "action": "dividend",
+      "value": 1.9,
+      "priorSplitAdjustedClose": 316.74,
+      "predictedJump": 1.006035,
+      "actualJump": 1.00599,
+      "residualPct": -0.0045
+    },
+    {
+      "date": "2022-06-01",
+      "action": "dividend",
+      "value": 1.9,
+      "priorSplitAdjustedClose": 302.75,
+      "predictedJump": 1.006315,
+      "actualJump": 1.006393,
+      "residualPct": 0.0078
+    },
+    {
+      "date": "2022-08-31",
+      "action": "dividend",
+      "value": 1.9,
+      "priorSplitAdjustedClose": 293.1,
+      "predictedJump": 1.006525,
+      "actualJump": 1.006588,
+      "residualPct": 0.0062
+    },
+    {
+      "date": "2022-11-30",
+      "action": "dividend",
+      "value": 1.9,
+      "priorSplitAdjustedClose": 315.96,
+      "predictedJump": 1.00605,
+      "actualJump": 1.005864,
+      "residualPct": -0.0185
+    },
+    {
+      "date": "2023-03-08",
+      "action": "dividend",
+      "value": 2.09,
+      "priorSplitAdjustedClose": 290.7,
+      "predictedJump": 1.007242,
+      "actualJump": 1.007171,
+      "residualPct": -0.007
+    },
+    {
+      "date": "2023-05-31",
+      "action": "dividend",
+      "value": 2.09,
+      "priorSplitAdjustedClose": 292.4,
+      "predictedJump": 1.007199,
+      "actualJump": 1.00737,
+      "residualPct": 0.017
+    },
+    {
+      "date": "2023-08-30",
+      "action": "dividend",
+      "value": 2.09,
+      "priorSplitAdjustedClose": 329.38,
+      "predictedJump": 1.006386,
+      "actualJump": 1.006322,
+      "residualPct": -0.0064
+    },
+    {
+      "date": "2023-11-29",
+      "action": "dividend",
+      "value": 2.09,
+      "priorSplitAdjustedClose": 313.34,
+      "predictedJump": 1.006715,
+      "actualJump": 1.006719,
+      "residualPct": 0.0005
+    },
+    {
+      "date": "2024-03-06",
+      "action": "dividend",
+      "value": 2.25,
+      "priorSplitAdjustedClose": 378.45,
+      "predictedJump": 1.005981,
+      "actualJump": 1.00596,
+      "residualPct": -0.0021
+    },
+    {
+      "date": "2024-05-30",
+      "action": "dividend",
+      "value": 2.25,
+      "priorSplitAdjustedClose": 325.91,
+      "predictedJump": 1.006952,
+      "actualJump": 1.006835,
+      "residualPct": -0.0116
+    },
+    {
+      "date": "2024-08-29",
+      "action": "dividend",
+      "value": 2.25,
+      "priorSplitAdjustedClose": 372.69,
+      "predictedJump": 1.006074,
+      "actualJump": 1.006132,
+      "residualPct": 0.0058
+    },
+    {
+      "date": "2024-11-27",
+      "action": "dividend",
+      "value": 2.25,
+      "priorSplitAdjustedClose": 429.52,
+      "predictedJump": 1.005266,
+      "actualJump": 1.005267,
+      "residualPct": 0.0001
+    },
+    {
+      "date": "2025-03-13",
+      "action": "dividend",
+      "value": 2.3,
+      "priorSplitAdjustedClose": 364.73,
+      "predictedJump": 1.006346,
+      "actualJump": 1.006625,
+      "residualPct": 0.0277
+    },
+    {
+      "date": "2025-06-05",
+      "action": "dividend",
+      "value": 2.3,
+      "priorSplitAdjustedClose": 372.4,
+      "predictedJump": 1.006215,
+      "actualJump": 1.006228,
+      "residualPct": 0.0013
+    },
+    {
+      "date": "2025-09-04",
+      "action": "dividend",
+      "value": 2.3,
+      "priorSplitAdjustedClose": 407.71,
+      "predictedJump": 1.005673,
+      "actualJump": 1.005588,
+      "residualPct": -0.0085
+    },
+    {
+      "date": "2025-12-04",
+      "action": "dividend",
+      "value": 2.3,
+      "priorSplitAdjustedClose": 357.91,
+      "predictedJump": 1.006468,
+      "actualJump": 1.006552,
+      "residualPct": 0.0083
+    },
+    {
+      "date": "2026-03-12",
+      "action": "dividend",
+      "value": 2.33,
+      "priorSplitAdjustedClose": 350.84,
+      "predictedJump": 1.006686,
+      "actualJump": 1.006874,
+      "residualPct": 0.0188
+    },
+    {
+      "date": "2026-06-04",
+      "action": "dividend",
+      "value": 2.33,
+      "priorSplitAdjustedClose": 312.97,
+      "predictedJump": 1.007501,
+      "actualJump": 1.007517,
+      "residualPct": 0.0016
+    },
+    {
+      "date": "2026-09-03",
+      "action": "dividend",
+      "value": 2.33,
+      "priorSplitAdjustedClose": 318.51,
+      "predictedJump": 1.007369,
+      "actualJump": 1.007325,
+      "residualPct": -0.0044
+    }
+  ],
+  "worstEvent": {
+    "date": "2025-03-13",
+    "action": "dividend",
+    "value": 2.3,
+    "priorSplitAdjustedClose": 364.73,
+    "predictedJump": 1.006346,
+    "actualJump": 1.006625,
+    "residualPct": 0.0277
+  },
+  "vendorAgreesWithReconstruction": true,
+  "discrepancyThresholdPct": 0.5
+}

@@ -1,0 +1,348 @@
+{
+  "schemaVersion": 1,
+  "evidenceOnly": true,
+  "sourceTemplate": "data\\pit_us_all_stocks\\supplemental_evidence.template.json",
+  "rows": [
+    {
+      "case_id": "case_01_htzgq",
+      "issuer": "Hertz Global Holdings",
+      "security_id": null,
+      "ticker": "HTZGQ",
+      "field_needed": "known_at",
+      "current_value": null,
+      "current_status": "UNRESOLVED",
+      "required_evidence_type": "public-information timestamp for the security event",
+      "acceptable_source_types": [
+        "SEC EDGAR filing acceptance timestamp",
+        "issuer press release",
+        "exchange notice",
+        "bankruptcy court filing"
+      ],
+      "notes": "Do not use the Sharadar action date as known_at; do not use last trade price as terminal value without economic support."
+    },
+    {
+      "case_id": "case_01_htzgq",
+      "issuer": "Hertz Global Holdings",
+      "security_id": null,
+      "ticker": "HTZGQ",
+      "field_needed": "terminal_value_per_share",
+      "current_value": null,
+      "current_status": "UNRESOLVED",
+      "required_evidence_type": "shareholder economic outcome at delisting/cancellation",
+      "acceptable_source_types": [
+        "merger agreement/proxy",
+        "issuer closing announcement",
+        "bankruptcy court/trustee distribution",
+        "exchange notice"
+      ],
+      "notes": "Do not use the Sharadar action date as known_at; do not use last trade price as terminal value without economic support."
+    },
+    {
+      "case_id": "case_02_ftrcq",
+      "issuer": "Frontier Communications",
+      "security_id": null,
+      "ticker": "FTRCQ",
+      "field_needed": "known_at",
+      "current_value": null,
+      "current_status": "UNRESOLVED",
+      "required_evidence_type": "public-information timestamp for the security event",
+      "acceptable_source_types": [
+        "SEC EDGAR filing acceptance timestamp",
+        "issuer press release",
+        "exchange notice",
+        "bankruptcy court filing"
+      ],
+      "notes": "Do not use the Sharadar action date as known_at; do not use last trade price as terminal value without economic support."
+    },
+    {
+      "case_id": "case_02_ftrcq",
+      "issuer": "Frontier Communications",
+      "security_id": null,
+      "ticker": "FTRCQ",
+      "field_needed": "terminal_value_per_share",
+      "current_value": null,
+      "current_status": "UNRESOLVED",
+      "required_evidence_type": "shareholder economic outcome at delisting/cancellation",
+      "acceptable_source_types": [
+        "merger agreement/proxy",
+        "issuer closing announcement",
+        "bankruptcy court/trustee distribution",
+        "exchange notice"
+      ],
+      "notes": "Do not use the Sharadar action date as known_at; do not use last trade price as terminal value without economic support."
+    },
+    {
+      "case_id": "case_03_chkaq",
+      "issuer": "Chesapeake Energy",
+      "security_id": null,
+      "ticker": "CHKAQ",
+      "field_needed": "known_at",
+      "current_value": null,
+      "current_status": "UNRESOLVED",
+      "required_evidence_type": "public-information timestamp for the security event",
+      "acceptable_source_types": [
+        "SEC EDGAR filing acceptance timestamp",
+        "issuer press release",
+        "exchange notice",
+        "bankruptcy court filing"
+      ],
+      "notes": "Do not use the Sharadar action date as known_at; do not use last trade price as terminal value without economic support."
+    },
+    {
+      "case_id": "case_03_chkaq",
+      "issuer": "Chesapeake Energy",
+      "security_id": null,
+      "ticker": "CHKAQ",
+      "field_needed": "terminal_value_per_share",
+      "current_value": null,
+      "current_status": "UNRESOLVED",
+      "required_evidence_type": "shareholder economic outcome at delisting/cancellation",
+      "acceptable_source_types": [
+        "merger agreement/proxy",
+        "issuer closing announcement",
+        "bankruptcy court/trustee distribution",
+        "exchange notice"
+      ],
+      "notes": "Do not use the Sharadar action date as known_at; do not use last trade price as terminal value without economic support."
+    },
+    {
+      "case_id": "case_04_mtlqq",
+      "issuer": "General Motors Corp (old)",
+      "security_id": null,
+      "ticker": "MTLQQ",
+      "field_needed": "known_at",
+      "current_value": null,
+      "current_status": "UNRESOLVED",
+      "required_evidence_type": "public-information timestamp for the security event",
+      "acceptable_source_types": [
+        "SEC EDGAR filing acceptance timestamp",
+        "issuer press release",
+        "exchange notice",
+        "bankruptcy court filing"
+      ],
+      "notes": "Do not use the Sharadar action date as known_at; do not use last trade price as terminal value without economic support."
+    },
+    {
+      "case_id": "case_04_mtlqq",
+      "issuer": "General Motors Corp (old)",
+      "security_id": null,
+      "ticker": "MTLQQ",
+      "field_needed": "terminal_value_per_share",
+      "current_value": null,
+      "current_status": "UNRESOLVED",
+      "required_evidence_type": "shareholder economic outcome at delisting/cancellation",
+      "acceptable_source_types": [
+        "merger agreement/proxy",
+        "issuer closing announcement",
+        "bankruptcy court/trustee distribution",
+        "exchange notice"
+      ],
+      "notes": "Do not use the Sharadar action date as known_at; do not use last trade price as terminal value without economic support."
+    },
+    {
+      "case_id": "case_05_wamuq",
+      "issuer": "Washington Mutual",
+      "security_id": null,
+      "ticker": "WAMUQ",
+      "field_needed": "known_at",
+      "current_value": null,
+      "current_status": "UNRESOLVED",
+      "required_evidence_type": "public-information timestamp for the security event",
+      "acceptable_source_types": [
+        "SEC EDGAR filing acceptance timestamp",
+        "issuer press release",
+        "exchange notice",
+        "bankruptcy court filing"
+      ],
+      "notes": "Do not use the Sharadar action date as known_at; do not use last trade price as terminal value without economic support."
+    },
+    {
+      "case_id": "case_05_wamuq",
+      "issuer": "Washington Mutual",
+      "security_id": null,
+      "ticker": "WAMUQ",
+      "field_needed": "terminal_value_per_share",
+      "current_value": null,
+      "current_status": "UNRESOLVED",
+      "required_evidence_type": "shareholder economic outcome at delisting/cancellation",
+      "acceptable_source_types": [
+        "merger agreement/proxy",
+        "issuer closing announcement",
+        "bankruptcy court/trustee distribution",
+        "exchange notice"
+      ],
+      "notes": "Do not use the Sharadar action date as known_at; do not use last trade price as terminal value without economic support."
+    },
+    {
+      "case_id": "case_06_shldq",
+      "issuer": "Sears Holdings",
+      "security_id": null,
+      "ticker": "SHLDQ",
+      "field_needed": "known_at",
+      "current_value": null,
+      "current_status": "UNRESOLVED",
+      "required_evidence_type": "public-information timestamp for the security event",
+      "acceptable_source_types": [
+        "SEC EDGAR filing acceptance timestamp",
+        "issuer press release",
+        "exchange notice",
+        "bankruptcy court filing"
+      ],
+      "notes": "Do not use the Sharadar action date as known_at; do not use last trade price as terminal value without economic support."
+    },
+    {
+      "case_id": "case_06_shldq",
+      "issuer": "Sears Holdings",
+      "security_id": null,
+      "ticker": "SHLDQ",
+      "field_needed": "terminal_value_per_share",
+      "current_value": null,
+      "current_status": "UNRESOLVED",
+      "required_evidence_type": "shareholder economic outcome at delisting/cancellation",
+      "acceptable_source_types": [
+        "merger agreement/proxy",
+        "issuer closing announcement",
+        "bankruptcy court/trustee distribution",
+        "exchange notice"
+      ],
+      "notes": "Do not use the Sharadar action date as known_at; do not use last trade price as terminal value without economic support."
+    },
+    {
+      "case_id": "case_07_sivbq",
+      "issuer": "SVB Financial Group",
+      "security_id": null,
+      "ticker": "SIVBQ",
+      "field_needed": "known_at",
+      "current_value": null,
+      "current_status": "UNRESOLVED",
+      "required_evidence_type": "public-information timestamp for the security event",
+      "acceptable_source_types": [
+        "SEC EDGAR filing acceptance timestamp",
+        "issuer press release",
+        "exchange notice",
+        "bankruptcy court filing"
+      ],
+      "notes": "Do not use the Sharadar action date as known_at; do not use last trade price as terminal value without economic support."
+    },
+    {
+      "case_id": "case_07_sivbq",
+      "issuer": "SVB Financial Group",
+      "security_id": null,
+      "ticker": "SIVBQ",
+      "field_needed": "terminal_value_per_share",
+      "current_value": null,
+      "current_status": "UNRESOLVED",
+      "required_evidence_type": "shareholder economic outcome at delisting/cancellation",
+      "acceptable_source_types": [
+        "merger agreement/proxy",
+        "issuer closing announcement",
+        "bankruptcy court/trustee distribution",
+        "exchange notice"
+      ],
+      "notes": "Do not use the Sharadar action date as known_at; do not use last trade price as terminal value without economic support."
+    },
+    {
+      "case_id": "case_08_prtyq",
+      "issuer": "Party City Holdco",
+      "security_id": null,
+      "ticker": "PRTYQ",
+      "field_needed": "known_at",
+      "current_value": null,
+      "current_status": "UNRESOLVED",
+      "required_evidence_type": "public-information timestamp for the security event",
+      "acceptable_source_types": [
+        "SEC EDGAR filing acceptance timestamp",
+        "issuer press release",
+        "exchange notice",
+        "bankruptcy court filing"
+      ],
+      "notes": "Do not use the Sharadar action date as known_at; do not use last trade price as terminal value without economic support."
+    },
+    {
+      "case_id": "case_08_prtyq",
+      "issuer": "Party City Holdco",
+      "security_id": null,
+      "ticker": "PRTYQ",
+      "field_needed": "terminal_value_per_share",
+      "current_value": null,
+      "current_status": "UNRESOLVED",
+      "required_evidence_type": "shareholder economic outcome at delisting/cancellation",
+      "acceptable_source_types": [
+        "merger agreement/proxy",
+        "issuer closing announcement",
+        "bankruptcy court/trustee distribution",
+        "exchange notice"
+      ],
+      "notes": "Do not use the Sharadar action date as known_at; do not use last trade price as terminal value without economic support."
+    },
+    {
+      "case_id": "case_09_radcq",
+      "issuer": "Rite Aid Corp",
+      "security_id": null,
+      "ticker": "RADCQ",
+      "field_needed": "known_at",
+      "current_value": null,
+      "current_status": "UNRESOLVED",
+      "required_evidence_type": "public-information timestamp for the security event",
+      "acceptable_source_types": [
+        "SEC EDGAR filing acceptance timestamp",
+        "issuer press release",
+        "exchange notice",
+        "bankruptcy court filing"
+      ],
+      "notes": "Do not use the Sharadar action date as known_at; do not use last trade price as terminal value without economic support."
+    },
+    {
+      "case_id": "case_09_radcq",
+      "issuer": "Rite Aid Corp",
+      "security_id": null,
+      "ticker": "RADCQ",
+      "field_needed": "terminal_value_per_share",
+      "current_value": null,
+      "current_status": "UNRESOLVED",
+      "required_evidence_type": "shareholder economic outcome at delisting/cancellation",
+      "acceptable_source_types": [
+        "merger agreement/proxy",
+        "issuer closing announcement",
+        "bankruptcy court/trustee distribution",
+        "exchange notice"
+      ],
+      "notes": "Do not use the Sharadar action date as known_at; do not use last trade price as terminal value without economic support."
+    },
+    {
+      "case_id": "case_10_bbbyq",
+      "issuer": "Bed Bath & Beyond Inc",
+      "security_id": null,
+      "ticker": "BBBYQ",
+      "field_needed": "known_at",
+      "current_value": null,
+      "current_status": "UNRESOLVED",
+      "required_evidence_type": "public-information timestamp for the security event",
+      "acceptable_source_types": [
+        "SEC EDGAR filing acceptance timestamp",
+        "issuer press release",
+        "exchange notice",
+        "bankruptcy court filing"
+      ],
+      "notes": "Do not use the Sharadar action date as known_at; do not use last trade price as terminal value without economic support."
+    },
+    {
+      "case_id": "case_10_bbbyq",
+      "issuer": "Bed Bath & Beyond Inc",
+      "security_id": null,
+      "ticker": "BBBYQ",
+      "field_needed": "terminal_value_per_share",
+      "current_value": null,
+      "current_status": "UNRESOLVED",
+      "required_evidence_type": "shareholder economic outcome at delisting/cancellation",
+      "acceptable_source_types": [
+        "merger agreement/proxy",
+        "issuer closing announcement",
+        "bankruptcy court/trustee distribution",
+        "exchange notice"
+      ],
+      "notes": "Do not use the Sharadar action date as known_at; do not use last trade price as terminal value without economic support."
+    }
+  ],
+  "unresolvedFieldCount": 20
+}
