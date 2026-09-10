@@ -1,0 +1,48 @@
+{
+  "sharadar_db": "V2/data/sharadar.db",
+  "universe": {
+    "min_price": 1.0,
+    "min_dollar_volume": 500000,
+    "history_days": 252,
+    "exclude_fama_sectors": ["Financial Services", "Real Estate", "Healthcare"]
+  },
+  "exclusions": {
+    "nsi_q5": true,
+    "quality_q5": true,
+    "recompute_frequency": "monthly"
+  },
+  "rebalance": {
+    "day": "Friday",
+    "execution": "Monday_open"
+  },
+  "portfolio": {
+    "selection": "top_quintile",
+    "weighting": "equal",
+    "notional_usd": 100000
+  },
+  "costs": {
+    "model_bps_round_trip": 10,
+    "flag_threshold_annual": 0.03
+  },
+  "paper_trading": {
+    "alpaca_paper": true,
+    "dry_run": true,
+    "note": "Order submission (V1/engine/alpaca_trading.py) hardcodes TradingClient(paper=True) at the SDK level -- there is no live code path to accidentally hit. Env vars used: ALPACA_PAPER_API_KEY / ALPACA_PAPER_SECRET_KEY (V1's existing convention -- the ALPACA_API_KEY_PAPER/ALPACA_SECRET_KEY_PAPER names from the original task spec do not exist in this codebase and were not invented)."
+  },
+  "single_account_caveat": "Only one Alpaca paper credential pair exists in V1/.env (ALPACA_PAPER_API_KEY/SECRET) -- one brokerage account. If two tracks hold overlapping tickers (likely, since IBS dominates both composite_v2 and composite_v3_1), real order submission through a single shared Alpaca account would net/commingle positions across tracks and make per-track P&L attribution impossible. Dry-run target-portfolio computation is unaffected (each track's signals/weights are computed independently), but --submit is NOT wired to actually call Alpaca until this is resolved -- see engine.py.",
+  "tracks": {
+    "ibs_standalone": {
+      "weights": { "ibs": 1.00, "rsi2": 0.00, "sector_rs": 0.00, "turnaround_tue": 0.00 },
+      "ibs_earnings_conditioned": false
+    },
+    "composite_v2": {
+      "weights": { "ibs": 0.50, "rsi2": 0.30, "sector_rs": 0.15, "turnaround_tue": 0.05 },
+      "ibs_earnings_conditioned": false
+    },
+    "composite_v3_1": {
+      "weights": { "ibs": 0.62, "rsi2": 0.22, "sector_rs": 0.10, "turnaround_tue": 0.06 },
+      "ibs_earnings_conditioned": true,
+      "note": "Weights as specified in this task's config -- differ from this session's own IC-weighting computation (IBS=0.92/RSI2=0/SectorRS=0/Tue=0.08, no earnings conditioning recommended by Task A's 'minor effect, same direction' finding). Using the values given here as the live specification; flagged for the record, not overridden."
+    }
+  }
+}

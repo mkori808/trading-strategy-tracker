@@ -1,0 +1,44 @@
+TODO — parallel research tracks (alongside paper trading)
+===========================================================
+
+Context: holdout budget is exhausted (composite_v1/v2/v3/v3.1 history).
+No further backtesting can be independently validated at this point.
+Paper trading (composite_v2, composite_v3.1, ibs_standalone) is the
+primary activity now. The items below run ALONGSIDE it, not before it —
+none of them block starting paper trading, and none require restarting
+the existing tracks. Each is additive: if one clears the bar, add it as
+a new track; if not, note the finding and move on.
+
+1. Overnight hold signal — proper characterization
+   - Task A/B produced this as a side output; needs its own session.
+   - If strong and uncorrelated with IBS: upgrades the composite,
+     added as a fourth track mid-stream (not a restart).
+   - Status: pending.
+
+2. Intraday signal library rerun (ORB, VWAP, Gap Fade)
+   - Blocked on: Alpaca intraday database expanding to 600-700 names
+     (currently 106 tickers, 2021-09 to 2026-09 — too thin to trust).
+   - Once expanded: characterize ORB, VWAP, Gap Fade properly on the
+     larger universe.
+   - If anything clears the bar: add as a new paper trading track.
+   - Status: waiting on data expansion.
+
+3. International market investigation (Japan or Australia)
+   - One data purchase; separate research stream, does not interact
+     with the current composite at all.
+   - Status: not started.
+
+4. Sloan accruals — third attempt, with profitability floor
+   - Parked after Track A's healthcare-exclusion fix still failed the
+     2010-01-31 sanity check (Q1 ROA ~0, 34.78% loss-making names).
+   - Low priority; clean to finish at some point.
+   - Status: parked.
+
+Explicitly NOT worth doing right now
+-------------------------------------
+More composite variants, more weight experiments, more signal
+combinations. The holdout budget is spent — any new composite goes
+straight to paper trading with no historical validation anyway, so
+there's no benefit to building more of them before seeing how V3.1
+performs live. Start with the current best specification and iterate
+on what paper trading actually teaches.
