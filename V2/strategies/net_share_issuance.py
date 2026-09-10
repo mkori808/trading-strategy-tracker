@@ -15,6 +15,7 @@ from utils.research_utils import (
     load_universe_candidates, load_price_panel, load_fundamentals_panel, load_marketcap_panel,
     panel_universe_as_of, panel_latest_asof, panel_marketcaps_asof, panel_month_values,
     size_tercile_top_returns, size_tercile_breakdown, winsorize_by_group, long_short_spread_regression,
+    factor_regression, size_controlled_quintile_spread, within_size_analysis,
 )
 
 # Legacy fixed roster -- kept only so callers can still request it explicitly
@@ -51,22 +52,10 @@ class StrategyResult:
     long_short_tstat: float = float('nan')
     long_short_rsquared: float = float('nan')
     long_short_betas: dict | None = None
+    within_size: dict | None = None
 
 def _months(start, end):
     return pd.date_range(pd.Timestamp(start), pd.Timestamp(end), freq="ME")
-
-def _factor_model(returns, start):
-    try:
-        import pandas_datareader.data as web
-        import statsmodels.api as sm
-    except ImportError as exc:
-        raise RuntimeError("Install pandas_datareader and statsmodels to run factor regression") from exc
-    factors=web.DataReader("F-F_Research_Data_5_Factors_2x3","famafrench",start=start)[0]/100
-    factors.index=pd.to_datetime(factors.index.to_timestamp(how="end")).to_period("M").to_timestamp("M")
-    aligned=pd.concat([returns.rename("portfolio"),factors],axis=1,join="inner").dropna()
-    if len(aligned)<3: return factors,np.nan,np.nan,np.nan,{},np.nan
-    ex=aligned.portfolio-aligned.RF; X=sm.add_constant(aligned[["Mkt-RF","SMB","HML","RMW","CMA"]]); model=sm.OLS(ex,X).fit(); monthly=float(model.params["const"])
-    return factors,(1+monthly)**12-1,float(model.tvalues["const"]),float(model.pvalues["const"]),model.params.drop("const").to_dict(),float(model.rsquared)
 
 def run(db_path: str, as_of_start: str, as_of_end: str, symbols=None, winsorize: bool = True) -> StrategyResult:
     con=sqlite3.connect(db_path)
@@ -103,6 +92,7 @@ def run(db_path: str, as_of_start: str, as_of_end: str, symbols=None, winsorize:
     con.close()
 
     qrows=[]; history=[]; universe_sizes=[]; small_rows=[]; mid_rows=[]; large_rows=[]
+    sc_small_q1=[]; sc_small_q5=[]; sc_small_n=[]; sc_mid_q1=[]; sc_mid_q5=[]; sc_mid_n=[]; sc_large_q1=[]; sc_large_q5=[]; sc_large_n=[]
     for rebalance in months:
         syms = list(symbols) if symbols is not None else panel_universe_as_of(price_panel, candidates, rebalance)
         if not syms: continue
@@ -162,8 +152,18 @@ def run(db_path: str, as_of_start: str, as_of_end: str, symbols=None, winsorize:
             gdf["mktcap"] = gdf.ticker.map(mktcaps)
             tercile_rets = size_tercile_top_returns(gdf, signal_col="signal", return_col="return", mktcap_col="mktcap", ascending=True)
             small_rows.append((realization_month, tercile_rets["Small"])); mid_rows.append((realization_month, tercile_rets["Mid"])); large_rows.append((realization_month, tercile_rets["Large"]))
+            # Size-controlled test: re-rank into quintiles *within* each
+            # size tercile rather than just taking the top bucket. The raw
+            # cross-sectional spread carries real SMB exposure (-0.47), so
+            # part of its long-short alpha could just be a size tilt --
+            # this asks whether the signal still separates winners from
+            # losers once size is held fixed.
+            sc = size_controlled_quintile_spread(gdf, signal_col="signal", return_col="return", mktcap_col="mktcap", ascending=True, min_per_quintile=10)
+            sc_small_q1.append((realization_month, sc["Small"]["q1"])); sc_small_q5.append((realization_month, sc["Small"]["q5"])); sc_small_n.append((realization_month, sc["Small"]["n"]))
+            sc_mid_q1.append((realization_month, sc["Mid"]["q1"])); sc_mid_q5.append((realization_month, sc["Mid"]["q5"])); sc_mid_n.append((realization_month, sc["Mid"]["n"]))
+            sc_large_q1.append((realization_month, sc["Large"]["q1"])); sc_large_q5.append((realization_month, sc["Large"]["q5"])); sc_large_n.append((realization_month, sc["Large"]["n"]))
     quint=pd.DataFrame(qrows); quint.columns=[f"Q{i}" for i in range(1,6)] if len(quint.columns)==5 else quint.columns
-    monthly=quint.get("Q1",pd.Series(dtype=float)); factors,aa,ts,pv,betas,rsq=_factor_model(monthly,as_of_start)
+    monthly=quint.get("Q1",pd.Series(dtype=float)); factors,aa,ts,pv,betas,rsq=factor_regression(monthly,as_of_start)
     small_s = pd.Series(dict(small_rows)); mid_s = pd.Series(dict(mid_rows)); large_s = pd.Series(dict(large_rows))
     size_terciles = size_tercile_breakdown({"Small": small_s, "Mid": mid_s, "Large": large_s}, as_of_start)
     avg_universe_size = float(np.mean(universe_sizes)) if universe_sizes else 0.0
@@ -177,7 +177,13 @@ def run(db_path: str, as_of_start: str, as_of_end: str, symbols=None, winsorize:
         _, _, ls_alpha, ls_t, _, ls_betas, ls_r2 = long_short_spread_regression(quint, as_of_start)
     except Exception:
         ls_alpha, ls_t, ls_r2, ls_betas = np.nan, np.nan, np.nan, {}
-    return StrategyResult(monthly,factors,aa,ts,pv,betas,rsq,len(monthly),pd.DataFrame(history),quint,size_terciles,avg_universe_size,ls_alpha,ls_t,ls_r2,ls_betas)
+    within_size = within_size_analysis(
+        {"Small": pd.Series(dict(sc_small_q1)), "Mid": pd.Series(dict(sc_mid_q1)), "Large": pd.Series(dict(sc_large_q1))},
+        {"Small": pd.Series(dict(sc_small_q5)), "Mid": pd.Series(dict(sc_mid_q5)), "Large": pd.Series(dict(sc_large_q5))},
+        {"Small": pd.Series(dict(sc_small_n)), "Mid": pd.Series(dict(sc_mid_n)), "Large": pd.Series(dict(sc_large_n))},
+        as_of_start,
+    ) if symbols is None else None
+    return StrategyResult(monthly,factors,aa,ts,pv,betas,rsq,len(monthly),pd.DataFrame(history),quint,size_terciles,avg_universe_size,ls_alpha,ls_t,ls_r2,ls_betas,within_size)
 
 if __name__=="__main__":
     r=run("data/sharadar.db","2000-01-01","2024-12-31"); print("NET SHARE ISSUANCE — FULL UNIVERSE"); print(f"Period: {r.monthly_returns.index.min()} to {r.monthly_returns.index.max()} ({r.n_months} months)"); print(f"Residual alpha: {r.alpha_annual:.2%}/yr  t={r.alpha_tstat:.2f}  p={r.alpha_pvalue:.3f}")

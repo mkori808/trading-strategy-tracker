@@ -4,6 +4,8 @@ data/*.csv
 data/dow_pit_extended/prices/*.parquet
 data/sp500_pit_free/prices/*.parquet
 data/sp500_pit_free/.yfinance_cache/
+data/.yfinance_cache/*.db-shm
+data/.yfinance_cache/*.db-wal
 data/sharadar_validation_cache/
 logs/*.db
 logs/*.sqlite

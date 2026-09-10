@@ -11,9 +11,14 @@ Two signal formulas are supported:
   negative regardless of universe/date fixes: sorting on this signal is
   substantially sorting on "did this company just report a loss."
 
-  formula='sloan' (new): the original Sloan (1996) balance-sheet measure,
-  (dCA - dCash) - (dCL - dSTD - dTP) - Dep, scaled by average assets. This
-  routes through period-over-period balance-sheet changes instead of
+  formula='sloan' (new): a Sloan (1996)-style balance-sheet measure using
+  quarterly (ARQ) filings and trailing-4-quarter changes to avoid
+  seasonality in working-capital accounts:
+    delta_noncash_ca = (assetsc - cashneq) - same, 4 quarters ago
+    delta_nondebt_cl = (liabilitiesc - debtc) - same, 4 quarters ago
+    depreciation     = depamor summed over the trailing 4 quarters
+    accruals = (delta_noncash_ca - delta_nondebt_cl - depreciation) / assets
+  This routes through period-over-period balance-sheet changes instead of
   netinc directly, which is the standard fix for the income/CFO measure's
   earnings-level confound.
 
@@ -53,19 +58,25 @@ class StrategyResult:
     monthly_returns: pd.Series; factor_returns: pd.DataFrame; alpha_annual: float; alpha_tstat: float; alpha_pvalue: float; betas: dict; r_squared: float; n_months: int; portfolio_history: pd.DataFrame; quintile_returns: pd.DataFrame; size_terciles: dict; period_results: dict; lookahead_violations: int; dimensions_used: dict; avg_universe_size: float; long_short_alpha: float = float('nan'); long_short_tstat: float = float('nan'); long_short_rsquared: float = float('nan'); long_short_betas: dict = None
 
 _INCOME_CFO_COLS = ['netinc', 'ncfo', 'assets']
-_SLOAN_COLS = ['assetsc', 'cashneq', 'liabilitiesc', 'debtc', 'taxliabilities', 'depamor', 'assets', 'assetsavg']
-_SLOAN_DELTA_COLS = ['assetsc', 'cashneq', 'liabilitiesc', 'debtc', 'taxliabilities']
+_SLOAN_COLS = ['assetsc', 'cashneq', 'liabilitiesc', 'debtc', 'depamor', 'assets']
 
-def _add_prior_period_columns(panel: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
-    """Attach prior_<col> = that column's value from the immediately
-    preceding filing of the SAME (ticker, dimension) sequence, sorted by
-    calendardate. Needed for the Sloan measure's period-over-period
-    balance-sheet deltas; computed once for the whole panel, not per month."""
-    panel = panel.sort_values(['ticker', 'dimension', 'calendardate']).reset_index(drop=True)
-    g = panel.groupby(['ticker', 'dimension'])
-    for c in columns:
-        panel[f'prior_{c}'] = g[c].shift(1)
-    return panel
+def _add_sloan_quarterly_columns(panel: pd.DataFrame) -> pd.DataFrame:
+    """Restrict to ARQ (as-reported quarterly) filings and attach the
+    trailing-4-quarter deltas the Sloan formula needs. Using quarter-over-
+    quarter deltas would inject seasonality into working-capital accounts
+    (e.g. retailer inventory swings every Q4); comparing each quarter to
+    the SAME quarter one year prior avoids that, which is why this needs
+    ARQ specifically rather than the ART/ARY dimensions used elsewhere in
+    this module. depamor is a flow, not a balance, so its trailing-4-
+    quarter figure is a rolling sum, not a shift-and-difference."""
+    p = panel[panel.dimension == 'ARQ'].sort_values(['ticker', 'calendardate']).reset_index(drop=True)
+    g = p.groupby('ticker')
+    p['noncash_ca'] = p.assetsc - p.cashneq
+    p['nondebt_cl'] = p.liabilitiesc - p.debtc
+    p['prior4_noncash_ca'] = g['noncash_ca'].shift(4)
+    p['prior4_nondebt_cl'] = g['nondebt_cl'].shift(4)
+    p['depamor_ttm'] = g['depamor'].transform(lambda s: s.rolling(4).sum())
+    return p
 
 def _signal_income_cfo(row) -> float | None:
     if pd.isna(row.netinc) or pd.isna(row.ncfo) or pd.isna(row.assets) or row.assets == 0:
@@ -73,25 +84,14 @@ def _signal_income_cfo(row) -> float | None:
     return float((row.netinc - row.ncfo) / row.assets)
 
 def _signal_sloan(row) -> float | None:
-    core = (row.assetsc, row.cashneq, row.liabilitiesc, row.depamor,
-            row.prior_assetsc, row.prior_cashneq, row.prior_liabilitiesc)
-    if any(pd.isna(x) for x in core):
+    core = (row.noncash_ca, row.nondebt_cl, row.prior4_noncash_ca, row.prior4_nondebt_cl,
+            row.depamor_ttm, row.assets)
+    if any(pd.isna(x) for x in core) or row.assets == 0:
         return None
-    scale = row.assetsavg if pd.notna(row.assetsavg) and row.assetsavg > 0 else row.assets
-    if pd.isna(scale) or scale == 0:
-        return None
-    d_ca = row.assetsc - row.prior_assetsc
-    d_cash = row.cashneq - row.prior_cashneq
-    d_cl = row.liabilitiesc - row.prior_liabilitiesc
-    # Short-term debt and taxes payable are Sloan's refinement terms; many
-    # filings don't break them out separately. Missing -> treat the delta as
-    # zero (no refinement) rather than dropping the observation, matching
-    # common practice when replicating this measure -- the core CA/Cash/CL
-    # terms above are still required non-null.
-    d_std = (row.debtc - row.prior_debtc) if pd.notna(row.debtc) and pd.notna(row.prior_debtc) else 0.0
-    d_tp = (row.taxliabilities - row.prior_taxliabilities) if pd.notna(row.taxliabilities) and pd.notna(row.prior_taxliabilities) else 0.0
-    total_accruals = (d_ca - d_cash) - (d_cl - d_std - d_tp) - row.depamor
-    return float(total_accruals / scale)
+    delta_noncash_ca = row.noncash_ca - row.prior4_noncash_ca
+    delta_nondebt_cl = row.nondebt_cl - row.prior4_nondebt_cl
+    accruals = (delta_noncash_ca - delta_nondebt_cl - row.depamor_ttm) / row.assets
+    return float(accruals)
 
 def run(db_path: str, as_of_start: str, as_of_end: str, symbols=None, winsorize: bool = True, formula: str = 'income_cfo') -> StrategyResult:
     if formula not in ('income_cfo', 'sloan'):
@@ -102,7 +102,16 @@ def run(db_path: str, as_of_start: str, as_of_end: str, symbols=None, winsorize:
     if symbols is not None:
         universe_tickers = list(symbols); candidates = None
     else:
-        candidates = load_universe_candidates(con)
+        # Healthcare excluded alongside Finance/Real Estate for the sloan
+        # formula: the 2010-01-31 sanity check found healthcare/biotech
+        # names dominating both Q1 and Q5, driven by sector balance-sheet
+        # volatility (binary trial outcomes, lumpy capex/depreciation on
+        # small asset bases) rather than genuine accrual quality. Sharadar's
+        # sicsector field has no separate Healthcare bucket (see
+        # load_universe_candidates docstring), so this goes through the
+        # Fama-style `sector` column instead.
+        exclude_fama = ['Healthcare'] if formula == 'sloan' else None
+        candidates = load_universe_candidates(con, exclude_fama_sectors=exclude_fama)
         window_start = pd.Timestamp(as_of_start) - pd.Timedelta(days=400)
         window_end = pd.Timestamp(as_of_end)
         candidates = candidates[(candidates.firstpricedate <= window_end) & (candidates.lastpricedate.isna() | (candidates.lastpricedate >= window_start))].reset_index(drop=True)
@@ -111,22 +120,20 @@ def run(db_path: str, as_of_start: str, as_of_end: str, symbols=None, winsorize:
     load_end = (months.max() + pd.offsets.MonthEnd(1)).strftime('%Y-%m-%d')
     price_panel = load_price_panel(con, universe_tickers, load_start, load_end)
     fund_cols = _INCOME_CFO_COLS if formula == 'income_cfo' else _SLOAN_COLS
-    # calendardate is needed to order each ticker's own filing sequence for
-    # the Sloan prior-period deltas; harmless extra column for income_cfo.
-    fund_panel = load_fundamentals_panel(con, universe_tickers, load_start, load_end, sorted(set(fund_cols)))
-    # calendardate isn't in the numeric column list (load_fundamentals_panel
-    # only coerces the requested `columns`), so fetch it as-is; the query
-    # above already selects it implicitly via the base fundamentals load --
-    # re-derive it cleanly here instead of hacking load_fundamentals_panel's
-    # column coercion for one non-numeric field.
+    fund_dims = ('ART', 'ARY') if formula == 'income_cfo' else ('ARQ',)
+    # calendardate is needed to order each ticker's own quarterly filing
+    # sequence for the Sloan trailing-4-quarter deltas.
+    fund_panel = load_fundamentals_panel(con, universe_tickers, load_start, load_end, sorted(set(fund_cols)), dimensions=fund_dims)
     if formula == 'sloan':
+        # calendardate isn't in the numeric column list (load_fundamentals_panel
+        # only coerces the requested `columns`), so fetch it as-is.
         q = ','.join('?' * len(universe_tickers)) if universe_tickers else ''
         cal = pd.read_sql_query(
-            f"SELECT ticker,date AS datekey,dimension,calendardate FROM fundamentals WHERE ticker IN ({q}) AND date>=? AND date<=? AND dimension IN ('ART','ARY')",
+            f"SELECT ticker,date AS datekey,dimension,calendardate FROM fundamentals WHERE ticker IN ({q}) AND date>=? AND date<=? AND dimension='ARQ'",
             con, params=[*universe_tickers, load_start, load_end], parse_dates=['datekey', 'calendardate'],
         ) if universe_tickers else pd.DataFrame(columns=['ticker', 'datekey', 'dimension', 'calendardate'])
         fund_panel = fund_panel.merge(cal, on=['ticker', 'datekey', 'dimension'], how='left')
-        fund_panel = _add_prior_period_columns(fund_panel, _SLOAN_DELTA_COLS)
+        fund_panel = _add_sloan_quarterly_columns(fund_panel)
     mc_panel = load_marketcap_panel(con, universe_tickers, as_of_start, load_end) if symbols is None else pd.DataFrame(columns=['ticker', 'date', 'marketcap'])
     con.close()
 
@@ -136,7 +143,7 @@ def run(db_path: str, as_of_start: str, as_of_end: str, symbols=None, winsorize:
         syms = list(symbols) if symbols is not None else panel_universe_as_of(price_panel, candidates, dt)
         if not syms: continue
         universe_sizes.append(len(syms))
-        latest = panel_latest_asof(fund_panel, dt, dimension_priority=('ART', 'ARY'))
+        latest = panel_latest_asof(fund_panel, dt, dimension_priority=fund_dims)
         if latest.empty: continue
         latest = latest[latest.ticker.isin(syms)]
         if latest.empty: continue

@@ -90,6 +90,16 @@ Leave optional values blank if those integrations are not needed. Never commit `
 
 ### Run both services
 
+From the repository root:
+
+```powershell
+python start.py
+# or, on this Windows workstation, .\start.ps1
+```
+
+The root launchers delegate to the application in `V1`. From inside the
+`V1` directory, the equivalent command is:
+
 ```powershell
 python start.py
 ```
@@ -118,7 +128,8 @@ npm run dev
 
 FastAPI's interactive schema is available at `http://localhost:8794/docs`.
 
-> `start.ps1` is a legacy launcher that starts the API on port 8791, while the current Vite proxy targets port 8794. Prefer `start.py`, `start.sh`, or update both ports together before using that script.
+`start.ps1` uses the `trading` conda environment when it is available and
+honors `PYTHON_BIN` as an override. Its API port matches the Vite proxy.
 
 ### Environment variables
 

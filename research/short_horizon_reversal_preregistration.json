@@ -1,0 +1,31 @@
+{
+  "hypothesis_ids": ["reversal_20d", "reversal_60d"],
+  "context": "The momentum preregistration (momentum_preregistration.json) found significant NEGATIVE long-short alpha at 20-day (-12.05%/yr, t=-3.08) and 60-day (-7.69%/yr, t=-2.16) horizons on 2001-2016 development data -- momentum reversed rather than continued at these horizons. This test flips the same two signals: buy Q5 (recent laggards), avoid Q1 (recent leaders). Distinct from beta_idio_1d (the earlier daily, extreme-mover, single-day-hold reversal test that was FALSIFIED): this is weekly, rank-based across the full quintile (not a small tail of extreme movers), and the candidate mechanism is liquidity provision / overreaction correction across the cross-section rather than bad-news continuation cutting off winners.",
+  "signal_definitions": {
+    "reversal_20d": "same as momentum_20d: trailing 20-trading-day return ending at Friday close. Ranked descending; LOW signal (recent losers) = long leg, HIGH signal (recent winners) = short/avoid leg -- the mirror image of momentum_20d's long/short assignment.",
+    "reversal_60d": "same as momentum_60d: trailing 60-trading-day return ending at Friday close. LOW signal = long leg, HIGH signal = short/avoid leg."
+  },
+  "universe": "identical to momentum_preregistration.json: full Sharadar PIT eligible universe excl. Finance/Real Estate, same liquidity/history filters.",
+  "rebalance": "weekly_friday",
+  "execution": "friday_close",
+  "cost_model": "10bps_round_trip_on_weekly_turnover, applied to the long (Q5) leg",
+  "factor_model": "FF5 + UMD (6-factor)",
+  "development_period": "2001-01-01 to 2016-12-31",
+  "holdout_period": "2017-01-01 to 2025-12-31",
+  "multiple_testing_correction": "Bonferroni across the 2 horizons tested here: alpha=0.05/2=0.025, adjusted threshold t>2.24 for independent standalone significance.",
+  "significance_threshold_standalone": 2.24,
+  "significance_threshold_composite": 2.00,
+  "regression_sanity_checks": {
+    "long_only": "R2 > 0.4 and 0.5 < market_beta < 1.5",
+    "long_short": "abs(market_beta) < 0.5 and abs(alpha_annual) < 0.30"
+  },
+  "falsification_criteria": {
+    "reversal_20d": "PASSES if long-short (Q5-Q1) alpha t>2.24 AND long-only Q5 small-cap alpha t>2.0; SUGGESTIVE if 2.0<t<2.24 or long-only alpha positive but t<2.0; FALSIFIED if long-short t<2.0.",
+    "reversal_60d": "PASSES if long-short (Q5-Q1) alpha t>2.24 AND long-only Q5 small-cap alpha t>2.0; SUGGESTIVE if 2.0<t<2.24 or long-only alpha positive but t<2.0; FALSIFIED if long-short t<2.0.",
+    "cost_sensitive_override": "Any horizon that otherwise PASSES or is SUGGESTIVE, but whose annualized cost estimate exceeds 3%/yr, is reclassified COST_SENSITIVE."
+  },
+  "note_on_expected_direction": "This test is NOT independent of the momentum test's data -- the point estimate is mechanically the negative of the momentum spread already measured. What is new here is (a) confirming the LONG leg (buying Q5, not just shorting Q1) carries a genuine long-only-implementable positive small-cap alpha, since a short-only edge isn't tradeable long-only, and (b) checking whether the effect survives cost/turnover and factor control on its own terms as a distinct 'buy the laggards' strategy rather than as the mirror of a falsified momentum test.",
+  "known_confounders": ["january_effect", "bid_ask_bounce_in_recent_losers", "same_turnover_profile_as_momentum_leg"],
+  "holdout_budget": 2,
+  "registered_at": "2026-09-09T00:00:00Z"
+}

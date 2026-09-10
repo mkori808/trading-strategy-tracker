@@ -1,0 +1,24 @@
+{
+  "hypothesis_id": "breakout_126d_volume_confirmed",
+  "context": "Third signal family per the original research plan. Different mechanism from momentum/reversal: this is a level-based (supply/demand at resistance) signal, not a pure return-ranking signal. A stock making a new intermediate-term high on above-average volume is hypothesized to reflect genuine institutional accumulation clearing a resistance level, distinct from momentum's continuation-of-past-returns story and from short-horizon reversal's overreaction-correction story.",
+  "signal_definition": "At each Friday close: pct_to_high = close_t / max(close[t-126 .. t-1]) - 1 (positive means today is a new 126-trading-day, ~6 month, high). Volume confirmation: vol_ratio = mean(volume[t-4..t]) / mean(volume[t-62..t]) (trailing-5-day average volume vs trailing-63-day average volume). Only stocks with vol_ratio > 1.5 (50% above their own recent-quarter average volume) are eligible breakout candidates; among eligible candidates, rank by pct_to_high descending. Q1 = strongest confirmed breakout (BUY), Q5 = weakest confirmed breakout among the volume-confirmed subset (not a 'new low' -- see known limitation below).",
+  "known_limitation": "Because ranking happens only within the volume-confirmed subset, Q5 here is not a mirror-image bearish signal (a stock making new LOWS on high volume) -- it is simply the weakest breakout among stocks that already cleared the volume filter. The long-short spread is therefore a weaker test than momentum's; the long-only Q1 leg is the primary test of this hypothesis.",
+  "universe": "identical to momentum_preregistration.json: full Sharadar PIT eligible universe excl. Finance/Real Estate, same liquidity/history filters. A week with fewer than 25 volume-confirmed candidates is skipped (no rebalance that week).",
+  "rebalance": "weekly_friday",
+  "execution": "friday_close",
+  "cost_model": "10bps_round_trip_on_weekly_turnover, applied to the Q1 (long) leg",
+  "factor_model": "FF5 + UMD (6-factor). UMD is reported as a diagnostic (breakouts are related to but mechanistically distinct from momentum) but is NOT a pass/fail criterion the way it is for the momentum family -- volume confirmation is the distinguishing ingredient here, not a horizon choice within the momentum family.",
+  "development_period": "2001-01-01 to 2016-12-31",
+  "holdout_period": "2017-01-01 to 2025-12-31",
+  "multiple_testing_correction": "None -- single hypothesis, standard threshold.",
+  "significance_threshold_standalone": 2.0,
+  "regression_sanity_checks": {
+    "long_only": "R2 > 0.4 and 0.5 < market_beta < 1.5",
+    "long_short": "abs(market_beta) < 0.5 and abs(alpha_annual) < 0.30"
+  },
+  "falsification_criteria": "PASSES if long-only Q1 alpha t>2.0 AND long-only Q1 small-cap alpha t>2.0 (the long-only leg is primary here per known_limitation above). SUGGESTIVE if long-only alpha positive but t<2.0, or long-short spread t between 1.5 and 2.0. FALSIFIED if long-only Q1 alpha is negative and significant, or long-only t<1.0 (no signal). COST_SENSITIVE if alpha survives but annualized cost estimate exceeds 3%/yr.",
+  "size_pattern_prediction": "small > mid > large (breakout signal strongest in less-covered, less-analyst-followed names where a resistance break carries more new information)",
+  "known_confounders": ["january_effect", "momentum_crash_style_reversals_after_breakout_failure", "overlap_with_12_1m_momentum_in_names_that_are_simultaneously_making_new_highs_and_have_run_up_over_the_prior_year"],
+  "holdout_budget": 1,
+  "registered_at": "2026-09-09T00:00:00Z"
+}

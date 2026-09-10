@@ -1,0 +1,47 @@
+{
+  "version": "v3",
+  "construction_method": "IC-weighted fundamental law",
+  "note_on_methodology": "This is a specification exercise, not a backtest. Weights derive solely from IC estimates (spread_tstat/sqrt(N)) and a Q1-Q5 spread-return correlation matrix already present in V2/data/signal_library_results.pkl -- no new historical returns were examined, no development run, no holdout consumed.",
+  "signals": {
+    "ibs": {
+      "weight": 0.897,
+      "definition": "5-day trailing average IBS, percentile-ranked",
+      "direction": "low IBS = high score"
+    },
+    "rsi2": {
+      "weight": 0.0,
+      "definition": "RSI(close, 2), percentile-ranked",
+      "direction": "low RSI2 = high score",
+      "note": "Dropped to zero by the unconstrained optimizer (which actually wanted a NEGATIVE weight, -0.09, i.e. to short it as a hedge against the IBS/Tuesday block) and clipped at the long-only floor. Not an oversight -- RSI2's correlation with IBS (0.684) and Turnaround Tuesday (0.697) is high enough, and its own IC lower than both, that mean-variance optimization treats it as spanned/redundant rather than incrementally informative."
+    },
+    "turnaround_tuesday": {
+      "weight": 0.10,
+      "definition": "1 if Friday return < -1%, else 0",
+      "direction": "Friday loser = high score",
+      "note": "Weight is at its preregistered structural cap (0.10) -- the unconstrained solver wanted more (0.101 even before the cap bound at the 5-day IC vector, and would want more still if uncapped, since its 5-day IC of 0.136 is the second-highest of the four and only moderately correlated with IBS)."
+    },
+    "sector_rotation": {
+      "weight": 0.003,
+      "definition": "63-day return normalized within Fama sector, percentile-ranked",
+      "direction": "high within-sector RS = high score",
+      "note": "Near-zero. Lowest IC of the four (0.030 at 5-day) and, despite being the most weakly correlated signal with the rest (which should in principle earn diversification credit), its IC is too small relative to IBS/Tuesday for the optimizer to allocate it any meaningful weight."
+    }
+  },
+  "exclusions": ["NSI Q5", "Quality Q5"],
+  "universe": "Full Sharadar excl. Fin/RE/HC (Fama sector), price>=1, dvol>=500k, >=252 days history",
+  "rebalance": "weekly_friday_close",
+  "execution": "monday_open",
+  "portfolio": "top quintile equal weight",
+  "cost_model": "10bps round trip on weekly turnover",
+  "horizon_used_for_ic": "5-day (weekly-rebalance-appropriate) -- NOT each signal's individually-best horizon; see rationale",
+  "expected_ic_at_5day": {
+    "ibs": 0.1467,
+    "rsi2": 0.0711,
+    "turnaround_tuesday": 0.1363,
+    "sector_rotation": 0.0304
+  },
+  "expected_portfolio_ic": 0.1493,
+  "correlation_matrix_caveat": "Computed from the 5-day Q1-Q5 spread series for all four signals (the only cross-signal series cached in the pickle) rather than each signal's own best-horizon series as literally specified -- 1d/10d/20d spread series were never cached, and recomputing them was outside this exercise's no-backtest constraint.",
+  "rationale": "The fundamental law, applied honestly, does not endorse the hand-chosen V2 weights: it wants an almost pure IBS bet (90%) topped up with Turnaround Tuesday at its structural cap (10%), and it actively wants to drop RSI2 to zero (the unconstrained solution was negative) because RSI2 is highly correlated with both IBS and Tuesday while carrying less individual predictive power than either -- once you already own IBS and Tuesday, RSI2 adds correlated risk without adding distinct information. Sector Rotation survives only as a rounding error (0.3%) because its IC is simply too weak to earn a allocation even though it is the most diversifying (least correlated) of the four. This is a much more concentrated, much less diversified composite than V2's hand-chosen blend, and it should be read as what the math implies from a narrow mean-variance criterion, not as confirmation that concentrating 90% of the composite in one signal is prudent -- IC-optimality does not account for a signal's degradation risk, one signal's model risk, or execution capacity, all of which argue for keeping some allocation to the other three even where the fundamental law says not to.",
+  "registered_at": "2026-09-09T00:00:00Z"
+}

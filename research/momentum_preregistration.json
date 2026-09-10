@@ -1,0 +1,38 @@
+{
+  "hypothesis_ids": ["momentum_20d", "momentum_60d", "momentum_126d", "momentum_12_1m"],
+  "signal_definitions": {
+    "momentum_20d": "trailing 20-trading-day return ending at the Friday-of-week-t close, no skip",
+    "momentum_60d": "trailing 60-trading-day return ending at the Friday-of-week-t close, no skip",
+    "momentum_126d": "trailing 126-trading-day return ending at the Friday-of-week-t close, no skip",
+    "momentum_12_1m": "cumulative return from t-252 to t-21 trading days (12 months back to 1 month back), skipping the most recent 21 trading days"
+  },
+  "ranking": "descending; high signal = high momentum = Q1 = BUY, low signal = Q5 = AVOID",
+  "universe": "Full Sharadar domestic common stocks, PIT eligibility (>=$500K/day median dollar volume, >=252 trading days history, min price $1), excluding Finance/Insurance/Real Estate. Healthcare excluded only if the Sloan accruals fix (Track A) is carried forward into a shared universe -- not applied here since momentum has no reason inherited from that diagnosis; left to whichever sector list is passed to load_universe_candidates at run time.",
+  "rebalance": "weekly_friday",
+  "execution": "friday_close",
+  "execution_note": "Signal formed and position executed at the same Friday close (no Monday-open gap modeled). Held returns are Friday-close-to-next-Friday-close.",
+  "cost_model": "10bps_round_trip_on_weekly_turnover",
+  "cost_note": "Applied to the Q1 (long) leg's one-way weekly turnover (symmetric-difference-of-holdings convention), annualized as weekly_turnover * 0.0010 * 52.",
+  "factor_model": "FF5 + UMD (6-factor)",
+  "development_period": "2001-01-01 to 2016-12-31",
+  "holdout_period": "2017-01-01 to 2025-12-31",
+  "multiple_testing_correction": "Bonferroni, alpha=0.05/4=0.0125",
+  "significance_threshold_standalone": 2.58,
+  "significance_threshold_composite": 2.00,
+  "umd_loading_ceiling": 0.5,
+  "regression_sanity_checks": {
+    "long_only": "R2 > 0.4 and 0.5 < market_beta < 1.5",
+    "long_short": "abs(market_beta) < 0.5 and abs(alpha_annual) < 0.30"
+  },
+  "falsification_criteria": {
+    "momentum_20d": "PASSES if long-short alpha t>2.58 AND long-only small-cap alpha t>2.0 AND UMD loading<0.5; SUGGESTIVE if 2.0<t<2.58 or long-only alpha positive but t<2.0; FALSIFIED if long-short t<2.0 or UMD loading>0.8. Additionally expected weakest/reversed given short-term-reversal overlap.",
+    "momentum_60d": "PASSES if long-short alpha t>2.58 AND long-only small-cap alpha t>2.0 AND UMD loading<0.5; SUGGESTIVE if 2.0<t<2.58 or long-only alpha positive but t<2.0; FALSIFIED if long-short t<2.0 or UMD loading>0.8.",
+    "momentum_126d": "PASSES if long-short alpha t>2.58 AND long-only small-cap alpha t>2.0 AND UMD loading<0.5; SUGGESTIVE if 2.0<t<2.58 or long-only alpha positive but t<2.0; FALSIFIED if long-short t<2.0 or UMD loading>0.8.",
+    "momentum_12_1m": "PASSES if long-short alpha t>2.58 AND long-only small-cap alpha t>2.0 AND UMD loading<0.5; SUGGESTIVE if 2.0<t<2.58 or long-only alpha positive but t<2.0; FALSIFIED if long-short t<2.0 or UMD loading>0.8.",
+    "cost_sensitive_override": "Any horizon that otherwise PASSES or is SUGGESTIVE, but whose annualized cost estimate exceeds 3%/yr, is reclassified COST_SENSITIVE -- report, do not advance until the cost model is refined."
+  },
+  "size_pattern_prediction": "small > mid > large (spread alpha strongest in small-caps, weakening with size)",
+  "known_confounders": ["january_effect", "momentum_crash", "short_term_reversal_overlap_20d"],
+  "holdout_budget": 4,
+  "registered_at": "2026-09-08T00:00:00Z"
+}

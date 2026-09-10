@@ -8,7 +8,7 @@ from utils.research_utils import (
     factor_regression, load_universe_candidates, load_price_panel, load_fundamentals_panel,
     load_marketcap_panel, panel_universe_as_of, panel_latest_asof, panel_marketcaps_asof,
     panel_month_values, size_tercile_top_returns, size_tercile_breakdown, winsorize_by_group,
-    long_short_spread_regression,
+    long_short_spread_regression, size_controlled_quintile_spread, within_size_analysis,
 )
 
 # Legacy fixed roster -- kept only so callers can still request it explicitly
@@ -29,14 +29,24 @@ DOW_ROSTER = [
 
 @dataclass
 class StrategyResult:
-    monthly_returns: pd.Series; factor_returns: pd.DataFrame; alpha_annual: float; alpha_tstat: float; alpha_pvalue: float; betas: dict; r_squared: float; n_months: int; portfolio_history: pd.DataFrame; quintile_returns: pd.DataFrame; size_terciles: dict; period_results: dict; lookahead_violations: int; sensitivity: dict; sector_breakdown: dict; dimensions_used: dict; avg_universe_size: float; long_short_alpha: float = float('nan'); long_short_tstat: float = float('nan'); long_short_rsquared: float = float('nan'); long_short_betas: dict = None
+    monthly_returns: pd.Series; factor_returns: pd.DataFrame; alpha_annual: float; alpha_tstat: float; alpha_pvalue: float; betas: dict; r_squared: float; n_months: int; portfolio_history: pd.DataFrame; quintile_returns: pd.DataFrame; size_terciles: dict; period_results: dict; lookahead_violations: int; sensitivity: dict; sector_breakdown: dict; dimensions_used: dict; avg_universe_size: float; long_short_alpha: float = float('nan'); long_short_tstat: float = float('nan'); long_short_rsquared: float = float('nan'); long_short_betas: dict = None; within_size: dict = None
 
 COMPONENTS=('roe','roa','gm','dte','icr','cfe')
 _FUND_COLS = ['netinc','equity','assets','revenue','cor','opinc','debt','intexp','ebit','ncfo']
 
+def _component_values(r, drop=None) -> dict:
+    """The 6 quality components for one fundamentals row. Extracted from
+    _run_core so other modules (composite_v1) can reuse the exact same
+    per-row scoring logic instead of re-deriving it and risking drift."""
+    vals = {'roe': r.netinc / r.equity if r.equity > 0 else np.nan, 'roa': r.netinc / r.assets if r.assets != 0 else np.nan,
+            'gm': (r.revenue - r.cor) / r.revenue if r.revenue > 0 else np.nan, 'dte': -r.debt / r.equity if r.equity > 0 else np.nan,
+            'icr': r.ebit / r.intexp if pd.notna(r.intexp) and r.intexp > 0 else np.nan, 'cfe': r.ncfo / abs(r.netinc) if r.netinc != 0 else np.nan}
+    return {k: v for k, v in vals.items() if k != drop}
+
 def _run_core(price_panel, fund_panel, mc_panel, candidates, months, drop=None, symbols=None, winsorize=True, compute_size_terciles=True):
     out=[]; hist=[]; violations=0; dims={}
     universe_sizes=[]; small_rows=[]; mid_rows=[]; large_rows=[]
+    sc_small_q1=[]; sc_small_q5=[]; sc_small_n=[]; sc_mid_q1=[]; sc_mid_q5=[]; sc_mid_n=[]; sc_large_q1=[]; sc_large_q5=[]; sc_large_n=[]
     for dt in months:
         syms = list(symbols) if symbols is not None else panel_universe_as_of(price_panel, candidates, dt)
         if not syms: continue
@@ -49,8 +59,7 @@ def _run_core(price_panel, fund_panel, mc_panel, candidates, months, drop=None, 
         violations += int((latest.datekey > dt).sum())
         raw_scores=[]
         for r in latest.itertuples():
-            vals={'roe':r.netinc/r.equity if r.equity>0 else np.nan,'roa':r.netinc/r.assets if r.assets!=0 else np.nan,'gm':(r.revenue-r.cor)/r.revenue if r.revenue>0 else np.nan,'dte':-r.debt/r.equity if r.equity>0 else np.nan,'icr':r.ebit/r.intexp if pd.notna(r.intexp) and r.intexp>0 else np.nan,'cfe':r.ncfo/abs(r.netinc) if r.netinc!=0 else np.nan}
-            vals={k:v for k,v in vals.items() if k!=drop}; good={k:v for k,v in vals.items() if pd.notna(v)}
+            vals=_component_values(r, drop=drop); good={k:v for k,v in vals.items() if pd.notna(v)}
             if len(good)<4: continue
             raw_scores.append({'ticker':r.ticker, **good})
         if len(raw_scores)<5: continue
@@ -94,10 +103,27 @@ def _run_core(price_panel, fund_panel, mc_panel, candidates, months, drop=None, 
             gdf['mktcap'] = gdf.ticker.map(mktcaps)
             tercile_rets = size_tercile_top_returns(gdf, signal_col='score', return_col='return', mktcap_col='mktcap', ascending=False)
             small_rows.append((realization_month, tercile_rets['Small'])); mid_rows.append((realization_month, tercile_rets['Mid'])); large_rows.append((realization_month, tercile_rets['Large']))
+            # Size-controlled test: re-rank into quintiles *within* each
+            # size tercile rather than just taking the top bucket. The raw
+            # cross-sectional spread carries real SMB exposure (-0.62), so
+            # part of its long-short alpha could just be a size tilt --
+            # this asks whether the signal still separates winners from
+            # losers once size is held fixed.
+            sc = size_controlled_quintile_spread(gdf, signal_col='score', return_col='return', mktcap_col='mktcap', ascending=False, min_per_quintile=10)
+            sc_small_q1.append((realization_month, sc['Small']['q1'])); sc_small_q5.append((realization_month, sc['Small']['q5'])); sc_small_n.append((realization_month, sc['Small']['n']))
+            sc_mid_q1.append((realization_month, sc['Mid']['q1'])); sc_mid_q5.append((realization_month, sc['Mid']['q5'])); sc_mid_n.append((realization_month, sc['Mid']['n']))
+            sc_large_q1.append((realization_month, sc['Large']['q1'])); sc_large_q5.append((realization_month, sc['Large']['q5'])); sc_large_n.append((realization_month, sc['Large']['n']))
     quint=pd.DataFrame(out); quint.columns=[f'Q{i}' for i in quint.columns] if len(quint.columns)==5 else quint.columns
     avg_universe_size=float(np.mean(universe_sizes)) if universe_sizes else 0.0
     size_series={'Small':pd.Series(dict(small_rows)),'Mid':pd.Series(dict(mid_rows)),'Large':pd.Series(dict(large_rows))} if compute_size_terciles else None
-    return quint,hist,violations,dims,avg_universe_size,size_series
+    sc_data = None
+    if compute_size_terciles:
+        sc_data = {
+            'q1': {'Small': pd.Series(dict(sc_small_q1)), 'Mid': pd.Series(dict(sc_mid_q1)), 'Large': pd.Series(dict(sc_large_q1))},
+            'q5': {'Small': pd.Series(dict(sc_small_q5)), 'Mid': pd.Series(dict(sc_mid_q5)), 'Large': pd.Series(dict(sc_large_q5))},
+            'n': {'Small': pd.Series(dict(sc_small_n)), 'Mid': pd.Series(dict(sc_mid_n)), 'Large': pd.Series(dict(sc_large_n))},
+        }
+    return quint,hist,violations,dims,avg_universe_size,size_series,sc_data
 
 def run(db_path:str,as_of_start:str,as_of_end:str,symbols=None,winsorize=True)->StrategyResult:
     con = sqlite3.connect(db_path)
@@ -124,10 +150,10 @@ def run(db_path:str,as_of_start:str,as_of_end:str,symbols=None,winsorize=True)->
     mc_panel = load_marketcap_panel(con, universe_tickers, as_of_start, load_end) if symbols is None else pd.DataFrame(columns=['ticker','date','marketcap'])
     con.close()
 
-    quint,hist,v,dims,avg_universe_size,size_series=_run_core(price_panel,fund_panel,mc_panel,candidates,months,symbols=symbols,winsorize=winsorize,compute_size_terciles=True)
+    quint,hist,v,dims,avg_universe_size,size_series,sc_data=_run_core(price_panel,fund_panel,mc_panel,candidates,months,symbols=symbols,winsorize=winsorize,compute_size_terciles=True)
     monthly=quint.get('Q1',pd.Series(dtype=float)); factors,a,t,p,b,r2=factor_regression(monthly,as_of_start); sensitivity={}
     for c in COMPONENTS:
-        q,_,_,_,_,_= _run_core(price_panel,fund_panel,mc_panel,candidates,months,drop=c,symbols=symbols,winsorize=winsorize,compute_size_terciles=False); x=q.get('Q1',pd.Series(dtype=float));
+        q,_,_,_,_,_,_= _run_core(price_panel,fund_panel,mc_panel,candidates,months,drop=c,symbols=symbols,winsorize=winsorize,compute_size_terciles=False); x=q.get('Q1',pd.Series(dtype=float));
         try: _,aa,tt,*_=factor_regression(x,as_of_start); sensitivity[c]={'alpha_annual':aa,'tstat':tt}
         except Exception: sensitivity[c]={'alpha_annual':np.nan,'tstat':np.nan}
     periods={}
@@ -144,7 +170,8 @@ def run(db_path:str,as_of_start:str,as_of_end:str,symbols=None,winsorize=True)->
         _, _, ls_alpha, ls_t, _, ls_betas, ls_r2 = long_short_spread_regression(quint, as_of_start)
     except Exception:
         ls_alpha, ls_t, ls_r2, ls_betas = np.nan, np.nan, np.nan, {}
-    return StrategyResult(monthly,factors,a,t,p,b,r2,len(monthly),pd.DataFrame(hist),quint,size_terciles,periods,v,sensitivity,{},dims,avg_universe_size,ls_alpha,ls_t,ls_r2,ls_betas)
+    within_size = within_size_analysis(sc_data['q1'], sc_data['q5'], sc_data['n'], as_of_start) if sc_data else None
+    return StrategyResult(monthly,factors,a,t,p,b,r2,len(monthly),pd.DataFrame(hist),quint,size_terciles,periods,v,sensitivity,{},dims,avg_universe_size,ls_alpha,ls_t,ls_r2,ls_betas,within_size)
 
 if __name__=='__main__':
     r=run('data/sharadar.db','2000-01-01','2024-12-31'); print('QUALITY — FULL UNIVERSE'); print('Lookahead violations:',r.lookahead_violations)

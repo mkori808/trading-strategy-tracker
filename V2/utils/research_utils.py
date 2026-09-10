@@ -148,21 +148,33 @@ def get_market_caps(con, tickers: list[str], as_of: str, lookback_days: int = 45
     latest = mc.groupby('ticker').tail(1)
     return dict(zip(latest.ticker, latest.marketcap))
 
-def load_universe_candidates(con, exclude_sectors: list[str] | None = None) -> pd.DataFrame:
+def load_universe_candidates(con, exclude_sectors: list[str] | None = None, exclude_fama_sectors: list[str] | None = None) -> pd.DataFrame:
     """One-time load of the static ticker metadata needed for universe
     eligibility (category/exchange/listing dates/sector). ~20k rows -- loads
-    in well under a second, unlike the per-month version's repeated queries."""
+    in well under a second, unlike the per-month version's repeated queries.
+
+    Two independent sector fields exist on `tickers`: `sicsector` (Sharadar's
+    broad SIC-derived grouping, where Sharadar merges Finance and Real Estate
+    into one label and has no separate Healthcare bucket -- pharma/biotech
+    fall under 'Manufacturing' or 'Services' there) and `sector` (a Fama-
+    style classification that does have a clean 'Healthcare' value). Use
+    `exclude_sectors` to filter on `sicsector` (existing behavior, default
+    excludes Finance/Real Estate) and `exclude_fama_sectors` to filter on
+    `sector` (e.g. ['Healthcare']) when a SIC-code-level exclusion doesn't
+    exist for the desired sector."""
     if exclude_sectors is None:
         exclude_sectors = ['Finance Insurance And Real Estate']
     exchanges = ('NASDAQ', 'NYSE', 'NYSEMKT', 'NYSEARCA', 'BATS')
     ph = ','.join('?' * len(exchanges))
     cand = pd.read_sql_query(
-        f"""SELECT ticker, sicsector, firstpricedate, lastpricedate FROM tickers
+        f"""SELECT ticker, sicsector, sector, firstpricedate, lastpricedate FROM tickers
             WHERE category = 'Domestic Common Stock' AND exchange IN ({ph})""",
         con, params=list(exchanges), parse_dates=['firstpricedate', 'lastpricedate'],
     )
     if exclude_sectors:
         cand = cand[~cand.sicsector.isin(exclude_sectors)]
+    if exclude_fama_sectors:
+        cand = cand[~cand.sector.isin(exclude_fama_sectors)]
     return cand.reset_index(drop=True)
 
 def load_price_panel(con, tickers: list[str], start: str, end: str) -> pd.DataFrame:
@@ -310,6 +322,127 @@ def size_tercile_top_returns(df: pd.DataFrame, signal_col: str = 'signal', retur
         top_n = max(1, len(gs) // 5)
         out[name] = gs.head(top_n)[return_col].mean()
     return out
+
+def size_controlled_quintile_spread(df: pd.DataFrame, signal_col: str = 'signal', return_col: str = 'return', mktcap_col: str = 'mktcap', ascending: bool = True, min_per_quintile: int = 10) -> dict[str, dict]:
+    """Within each of 3 equal-count size terciles (by mktcap), independently
+    re-rank by signal and split into 5 quintiles, returning that tercile's
+    own Q1 and Q5 mean returns plus its stock count. This is the size-
+    controlled test: the raw cross-sectional Q1-Q5 spread can partly just
+    be a size tilt (both net_share_issuance and quality's overall spreads
+    carried material SMB exposure, -0.47 and -0.62 respectively) --
+    re-ranking *within* a fixed size bracket removes that channel and asks
+    whether the signal still discriminates once size is held constant.
+
+    Requires >= min_per_quintile*5 stocks in a tercile (not just
+    min_per_quintile total) so every quintile, not just the tercile as a
+    whole, clears the minimum count -- a tercile with only 12 names split
+    5 ways would give quintiles of 2-3 stocks each, not a valid portfolio."""
+    d = df.dropna(subset=[mktcap_col, signal_col, return_col])
+    empty = {'q1': np.nan, 'q5': np.nan, 'n': 0}
+    if len(d) < min_per_quintile * 5 * 3:
+        return {'Small': dict(empty), 'Mid': dict(empty), 'Large': dict(empty)}
+    d = d.sort_values(mktcap_col).reset_index(drop=True)
+    d['size_tercile'] = pd.qcut(d.index, 3, labels=['Small', 'Mid', 'Large'])
+    out = {}
+    for name in ['Small', 'Mid', 'Large']:
+        g = d[d.size_tercile == name].sort_values(signal_col, ascending=ascending).reset_index(drop=True)
+        if len(g) < min_per_quintile * 5:
+            out[name] = dict(empty); out[name]['n'] = len(g)
+            continue
+        g['q'] = (np.floor(np.arange(len(g)) * 5 / len(g)) + 1).astype(int)
+        out[name] = {'q1': g[g.q == 1][return_col].mean(), 'q5': g[g.q == 5][return_col].mean(), 'n': len(g)}
+    return out
+
+def within_size_analysis(q1_by_tercile: dict[str, pd.Series], q5_by_tercile: dict[str, pd.Series], n_by_tercile: dict[str, pd.Series], start: str) -> dict:
+    """For each size tercile, regress (a) the tercile's own Q1 long-only
+    leg and (b) its Q1-Q5 spread against the 5 factors. This is the
+    decisive version of the size question: not 'is the top bucket's
+    return higher in small caps' but 'does the signal still separate
+    winners from losers once size is held fixed, and is any of that
+    long-only-implementable.'
+
+    Sanity flags (not hard assertions -- these are per-tercile slices,
+    smaller and noisier than the full-universe regression, so they're
+    reported rather than allowed to crash the whole analysis):
+      long-only sane:  0.5 < market beta < 1.5, R-squared > 0.4
+      long-short sane: |market beta| < 0.5, |alpha| < 30%/yr
+    """
+    out = {}
+    for name in ['Small', 'Mid', 'Large']:
+        q1 = q1_by_tercile.get(name, pd.Series(dtype=float)).dropna()
+        q5 = q5_by_tercile.get(name, pd.Series(dtype=float)).dropna()
+        n_series = n_by_tercile.get(name, pd.Series(dtype=float))
+        avg_n = float(n_series[n_series > 0].mean()) if (n_series > 0).any() else float('nan')
+        months_with_data = int((n_series > 0).sum())
+        months_total = len(n_series)
+
+        try:
+            _, lo_alpha, lo_t, _, lo_betas, lo_r2 = factor_regression(q1, start)
+            lo_beta = lo_betas.get('Mkt-RF', float('nan'))
+            lo_sane = bool(pd.notna(lo_beta) and 0.5 < lo_beta < 1.5 and pd.notna(lo_r2) and lo_r2 > 0.4)
+        except Exception:
+            lo_alpha, lo_t, lo_r2, lo_betas, lo_sane = np.nan, np.nan, np.nan, {}, False
+        lo_raw = (1 + q1.mean()) ** 12 - 1 if len(q1) else float('nan')
+
+        spread = (q1 - q5).dropna()
+        try:
+            _, _, ls_alpha, ls_t, _, ls_betas, ls_r2 = long_short_spread_regression(pd.DataFrame({'Q1': q1, 'Q5': q5}), start)
+            ls_beta = ls_betas.get('Mkt-RF', float('nan'))
+            ls_sane = bool(pd.notna(ls_beta) and abs(ls_beta) < 0.5 and pd.notna(ls_alpha) and abs(ls_alpha) < 0.30)
+        except Exception:
+            ls_alpha, ls_t, ls_r2, ls_betas, ls_sane = np.nan, np.nan, np.nan, {}, False
+        ls_raw = (1 + spread.mean()) ** 12 - 1 if len(spread) else float('nan')
+
+        out[name] = {
+            'avg_n': avg_n, 'months_with_data': months_with_data, 'months_total': months_total,
+            'q1_raw': lo_raw, 'q1_alpha': lo_alpha, 'q1_tstat': lo_t, 'q1_r2': lo_r2, 'q1_sane': lo_sane,
+            'spread_raw': ls_raw, 'spread_alpha': ls_alpha, 'spread_tstat': ls_t, 'spread_r2': ls_r2,
+            'spread_betas': ls_betas, 'spread_sane': ls_sane,
+        }
+    return out
+
+def format_within_size_report(name: str, expectations: str, within_size: dict) -> str:
+    """Format a within_size_analysis() result in the exact layout used for
+    the small/mid/large capacity-controlled diagnostic."""
+    def pct(x): return f"{x:.1%}" if pd.notna(x) else "N/A"
+    def num(x): return f"{x:.2f}" if pd.notna(x) else "N/A"
+    L = [f"{name} -- Within-Size Analysis", '=' * 60, "", "Preregistered expectations:", expectations, ""]
+    for tercile in ['Small', 'Mid', 'Large']:
+        r = within_size[tercile]
+        L.append(f"{tercile.upper()} CAP TERCILE")
+        L.append('-' * 45)
+        L.append(f"Avg securities/month:    {r['avg_n']:.0f} (Q1: ~{r['avg_n']/5:.0f})" if pd.notna(r['avg_n']) else "Avg securities/month:    N/A")
+        L.append(f"Months with data:        {r['months_with_data']} / {r['months_total']}" + ("  [FLAG: <60 months]" if r['months_with_data'] < 60 else ""))
+        L.append("")
+        L.append("Q1 long-only:")
+        L.append(f"  Raw return:            {pct(r['q1_raw'])}/yr")
+        L.append(f"  Alpha:                 {pct(r['q1_alpha'])}/yr")
+        L.append(f"  t-stat:                {num(r['q1_tstat'])}")
+        L.append(f"  R-squared:             {num(r['q1_r2'])}" + ("" if r['q1_sane'] else "  [FLAG: fails sanity check]"))
+        L.append("")
+        L.append("Q1-Q5 spread:")
+        L.append(f"  Raw spread:            {pct(r['spread_raw'])}/yr")
+        L.append(f"  Alpha:                 {pct(r['spread_alpha'])}/yr")
+        L.append(f"  t-stat:                {num(r['spread_tstat'])}")
+        L.append(f"  R-squared:             {num(r['spread_r2'])}" + ("" if r['spread_sane'] else "  [FLAG: fails sanity check]"))
+        b = r['spread_betas'] or {}
+        L.append(f"  RMW loading:           {num(b.get('RMW', float('nan')))}")
+        L.append(f"  SMB loading:           {num(b.get('SMB', float('nan')))}")
+        L.append("")
+    small_a, mid_a, large_a = within_size['Small']['spread_alpha'], within_size['Mid']['spread_alpha'], within_size['Large']['spread_alpha']
+    small_lo_t = within_size['Small']['q1_tstat']
+    L.append("SUMMARY")
+    L.append('-' * 45)
+    if any(pd.isna(x) for x in (small_a, mid_a, large_a)):
+        monotonic_str = "N/A (missing data)"
+    else:
+        monotonic_str = 'YES' if small_a > mid_a > large_a else 'NO'
+    L.append(f"Small alpha > Mid alpha > Large alpha: {monotonic_str}")
+    lo_sig_str = 'N/A' if pd.isna(small_lo_t) else ('YES' if small_lo_t > 2.0 else 'NO')
+    L.append(f"Long-only Q1 alpha significant in small caps: {lo_sig_str}")
+    capacity_str = 'N/A' if pd.isna(small_a) else ('YES' if (small_a > 0.02 and within_size['Small']['spread_tstat'] > 2.0) else 'NO')
+    L.append(f"Capacity story supported: {capacity_str}")
+    return '\n'.join(L)
 
 def size_tercile_breakdown(monthly_by_tercile: dict[str, pd.Series], start: str) -> dict:
     """Run the factor regression separately on each size tercile's monthly

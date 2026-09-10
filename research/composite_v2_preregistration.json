@@ -1,0 +1,66 @@
+{
+  "model_id": "composite_v2",
+  "context": "Second composite, built entirely from signals characterized in the verified signal library (V2/strategies/signal_library.py, look-ahead-verified for IBS and boundary-corrected for all 9). Different design from composite_v1: price-based mean-reversion signals (IBS, RSI2) rather than trend/momentum signals, weekly rebalance with a harder holdout window (2019-2025, the period where IBS's own subsample analysis already showed decay to t=2.60). This is the third and final holdout consumption of the original 3-slot budget.",
+  "universe": "Full Sharadar PIT eligible universe: common stock, major US exchanges, price>=$1, trailing 63-day median dollar volume>=$500K, >=252 days history, excluding Finance, Real Estate, Healthcare by Fama `sector` field (same convention as the signal library exercise). ~1,300-1,600 eligible names/day.",
+  "hard_exclusions": {
+    "nsi_q5": "Bottom quintile (Q5) on trailing-365-day sharesbas (MRQ) percent change, same ascending-sort convention as net_share_issuance.py. Computed ONCE PER CALENDAR MONTH (at the first weekly rebalance of the month) and held fixed for every Friday rebalance within that month -- not recomputed weekly. This avoids repeated fundamentals queries and matches the fact that the underlying quarterly/trailing-annual data doesn't change week to week.",
+    "quality_q5": "Bottom quintile (Q5) on the 6-component quality composite score (quality.py convention). Same monthly-cached computation as NSI Q5.",
+    "note": "Excluded names receive no composite score and are ineligible for the portfolio for the rest of that calendar month, regardless of how they'd score on A/B/C/D."
+  },
+  "composite_score": {
+    "signal_A_ibs": "weight 0.50. score_A_raw = 1 - mean(IBS over trailing 5 trading days), where IBS=(close-low)/(high-low). Percentile-ranked (ascending) across the eligible non-excluded universe on that Friday -- high score = closed near the daily low, averaged over the week, i.e. persistent oversold-ness.",
+    "signal_B_rsi2": "weight 0.30. score_B_raw = 100 - RSI(close,2). Percentile-ranked (ascending) across the eligible non-excluded universe -- high score = most oversold on the fast RSI2 measure.",
+    "signal_C_sector_rotation": "weight 0.15. rs = close/close[-63] - 1. Percentile-ranked (ascending) WITHIN each stock's own Fama sector (not globally) -- high score = strongest trailing-63-day relative strength versus same-sector peers.",
+    "signal_D_friday_down_bonus": "weight 0.05, binary (not percentile-ranked -- a 0/1 indicator is already on a comparable 0-1 scale, and percentile-ranking a binary field breaks down under ties, as found with composite_v1's Turnaround Tuesday exclusion attempt). score_D = 1 if that Friday's own daily return < -1%, else 0. Restated from the original Monday-specific Turnaround Tuesday concept to fit a Friday-close-only rebalance structure: a stock down >1% on the rebalance Friday itself is a Monday-bounce candidate.",
+    "composite": "0.50*score_A + 0.30*score_B + 0.15*score_C + 0.05*score_D, computed only for eligible non-excluded stocks."
+  },
+  "portfolio_construction": {
+    "sort": "Descending by composite score.",
+    "holding": "Top quintile (top 20% of eligible non-excluded names), equal weight.",
+    "rebalance": "Every Friday close (signal formation).",
+    "execution": "Following Monday open -- one session of execution lag versus the Friday-close signal. Both entry and exit legs of each weekly holding period use Monday-open prices (i.e. the return series is open-to-open, lagged one trading session behind the Friday signal), applied consistently roll-to-roll."
+  },
+  "cost_model": {
+    "basis": "10bps round-trip on weekly turnover, measured from actual portfolio holdings changes (symmetric-difference-of-holdings convention, one-way, matching prior strategies).",
+    "cost_sensitive_threshold": 0.03,
+    "cost_dominates_threshold": 0.05,
+    "note": "cost>5%/yr is treated as FALSIFIED regardless of alpha, not merely flagged."
+  },
+  "factor_model": "FF5 + UMD (6-factor), long-only convention (nets RF).",
+  "regression_sanity_checks": {
+    "long_only": "R2 > 0.4 and 0.5 < market_beta < 1.5. If either fails: stop and investigate before reading any alpha number."
+  },
+  "development_period": "2001-01-01 to 2018-12-31",
+  "holdout_period": "2019-01-01 to 2025-12-31",
+  "holdout_rationale": "IBS's own subsample analysis (signal library exercise) showed decay to t=2.60 in 2019-2024. Using 2019-2025 as holdout deliberately tests the composite in the already-known-weaker regime -- a harder test than composite_v1's holdout, chosen specifically because it is less likely to be flattered by a favorable draw.",
+  "falsification_criteria": {
+    "primary_pass_advance_to_holdout": "alpha t>2.0 AND annualized cost<3%/yr AND R2<0.90 AND small-cap alpha > large-cap alpha AND both preregistered development sub-periods (2001-2009, 2010-2018) individually show positive alpha",
+    "secondary_suggestive_no_holdout": "t between 1.5 and 2.0 with positive alpha, OR cost between 3-5%/yr with positive alpha",
+    "falsified": "t<1.5, OR alpha negative, OR cost>5%/yr, OR either development sub-period shows negative alpha (recorded as REGIME_DEPENDENT, does not advance regardless of overall t-stat)",
+    "no_rmw_criterion": "Unlike composite_v1, there is no RMW-sign criterion. Composite_v1's RMW failure was diagnosed as a mechanical consequence of buying recent losers (a price-signal composite), not evidence of factor replication -- RMW loading here is expected to be negative or near zero by construction, and is not a pass/fail gate."
+  },
+  "subperiod_analysis": {
+    "development_subperiods": ["2001-01-01 to 2009-12-31", "2010-01-01 to 2018-12-31"],
+    "requirement": "BOTH must show positive alpha (not merely t-stat direction) to advance to holdout. A single negative sub-period is recorded as REGIME_DEPENDENT and blocks holdout advancement regardless of pooled development-period significance -- this is the check composite_v1 lacked, whose apparent edge was concentrated entirely in 2001-2016 small-cap conditions.",
+    "holdout_subperiods": ["2019-01-01 to 2022-12-31", "2023-01-01 to 2025-12-31"]
+  },
+  "benchmarks": {
+    "primary": "FF5+UMD factor-adjusted alpha",
+    "secondary": "Portfolio A (equal-weight full universe, test1_portfolio_A.csv), dev/holdout-period subset, active alpha via long-short-convention regression",
+    "tertiary": "SPY, raw CAGR difference over the aligned period"
+  },
+  "holdout_budget_before_this_test": 1,
+  "holdout_budget_consumed_by_this_test": 1,
+  "holdout_budget_after_this_test": 0,
+  "holdout_budget_note": "This is holdout consumption 3 of the original 3-slot budget. After this test, no holdout slots remain -- any future composite attempt requires a completely fresh signal-development track, not further iteration on this one.",
+  "constraints": [
+    "Preregistration committed before any data is touched.",
+    "Development sub-period check is mandatory before the holdout decision; both sub-periods must be individually positive, regardless of pooled t-stat.",
+    "Identical configuration for holdout -- no parameter changes after seeing development results.",
+    "Cost flag checked and reported before alpha numbers.",
+    "If development is FALSIFIED: record it, do not run holdout, do not modify weights, archive.",
+    "If holdout FAILS: record it, do not iterate -- holdout budget is exhausted.",
+    "If holdout PASSES: report and stop -- no live system started without explicit further instruction."
+  ],
+  "registered_at": "2026-09-09T00:00:00Z"
+}
