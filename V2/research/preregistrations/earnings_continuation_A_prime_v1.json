@@ -1,0 +1,63 @@
+{
+  "hypothesis_id": "earnings_continuation_A_prime_v1",
+  "registered_at": "2026-09-10T00:00:00-07:00",
+  "research_stage": "historical development and characterization only",
+  "parent_program": "earnings_continuation_A_v1",
+  "motivation": "earnings_continuation_A_v1 (open-to-close same-day, H1) was FALSIFIED at the primary 2% threshold (t=1.45 < 1.5). However H2 (close[t] to close[t+1]) was strong (t=3.14) and directionally consistent at all three thresholds. This program asks a narrower question: does a realistic single trade entered at the earnings-day open and held through the next session's close capture that persistence, rather than requiring an unimplementable same-day round trip.",
+  "integrity": {
+    "holdout_budget_remaining": 0,
+    "historical_holdout_status": "CONSUMED; no date in historical storage may be presented as fresh validation",
+    "development_start": "2001-01-01",
+    "development_end": "2024-12-31",
+    "development_period": "2001-01-01 to 2024-12-31 (full history; characterization exercise, not a holdout test)",
+    "forward_validation": "Prospective paper track only if the falsification criteria below are met. Do not build a composite or paper track and do not consume holdout data as part of this program.",
+    "taxonomy": ["ADVANCE", "SECONDARY", "FALSIFIED"],
+    "reuses_data_from": "earnings_continuation_A_v1 run 20260910T153202Z_ae1d4ed42b (events.csv). No new signal-eligibility decision is made after seeing that run's H1/H2 results; this program only changes the execution window applied to the already-computed gap/return fields, and that execution window (open-to-next-close) is fixed before this file is used to compute anything."
+  },
+  "economic_hypothesis": "Same as earnings_continuation_A_v1: the earnings-day gap direction reflects information-driven repricing that continues, rather than reverses. This variant tests whether that continuation is capturable as a single realistic trade (enter at the earnings-day open, hold through the next session's close) rather than requiring the same-day open-to-close round trip that A_v1 tested and did not clear its bar.",
+  "signal_definition": {
+    "formula": "earnings_gap = (open[t] - close[t-1]) / close[t-1], identical to earnings_continuation_A_v1",
+    "unchanged_from_parent": true
+  },
+  "signal_direction": {
+    "long_signal": "buy stocks with earnings_gap > +threshold at the earnings-day open",
+    "avoid_signal": "do not hold / consider short stocks with earnings_gap < -threshold at the earnings-day open",
+    "thresholds_tested": [0.01, 0.02, 0.03],
+    "primary_threshold": 0.02
+  },
+  "universe": "Identical to earnings_continuation_A_v1 (same eligibility filters, same anchor-day event definition).",
+  "execution": {
+    "entry": "Alpaca intraday open, first 15-minute bar at/after 09:30 ET, on the earnings anchor day (same open price used for H1 in the parent program)",
+    "exit": "Sharadar daily close of the next trading session (close[t+1]) -- i.e. the same close used for H2 in the parent program",
+    "return_A_prime": "close[t+1] / alpaca_open_adjusted - 1",
+    "coverage_constraint": "Only computable where Alpaca H1 coverage exists (same ~3.9% overall coverage as the parent program, concentrated 2020-07-27 onward); no imputation or substitution of the daily open for missing Alpaca coverage."
+  },
+  "cost_model": {
+    "round_trip_bps": 15,
+    "note": "Same ADV-tiered cost assumption as the parent program, applied once per trade (entry+exit) rather than twice, since this is a single overnight-inclusive holding period rather than same-day round trip plus a separate next-day round trip."
+  },
+  "factor_model": {
+    "specification": "FF5 + UMD (6-factor) on the daily return_A_prime series, aggregated by entry date",
+    "caveat": "This return spans an intraday session plus one overnight gap; daily close-to-close factors are an approximation, same caveat as H2/H3/H4 in the parent program."
+  },
+  "falsification_criteria": {
+    "ADVANCE": "return_A_prime long-minus-short spread t > 2.0 at the primary (2%) threshold AND directionally consistent (same sign) at 1% and 3%",
+    "SECONDARY": "spread t between 1.5 and 2.0 with correct direction, or t > 2.0 at only one non-primary threshold",
+    "FALSIFIED": "spread t < 1.5 or wrong direction at the primary threshold"
+  },
+  "multiple_testing": {
+    "thresholds_tested": 3,
+    "bonferroni_alpha": 0.05,
+    "adjusted_significance_t_threshold": 2.39,
+    "note": "Same family-wise correction as the parent program; applies to claiming any single threshold as independently significant."
+  },
+  "constraints": [
+    "Preregistration committed before any return_A_prime value is computed or read.",
+    "Reuses the already-computed events.csv fields (alpaca_open_adjusted, close_fwd_H2, earnings_gap) from earnings_continuation_A_v1's completed run; does not re-query the source databases or change any eligibility filter.",
+    "Winsorize return_A_prime at 1st/99th percentile, independent of the parent program's H1/H2 winsorization.",
+    "Minimum 20 events per bucket per sub-group to report that cell; fewer than 20 is INSUFFICIENT_DATA.",
+    "Report all three thresholds regardless of which passes.",
+    "Do not start building a composite or paper track until characterization is complete and reviewed.",
+    "Do not read or modify any existing paper-trading state file or ledger as part of this research."
+  ]
+}

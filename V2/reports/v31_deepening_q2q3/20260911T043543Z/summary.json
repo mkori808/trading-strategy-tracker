@@ -1,0 +1,487 @@
+{
+  "q2_by_regime": {
+    "ibs": {
+      "BULL": {
+        "marginal_annual": 0.006422472547670033,
+        "n_weeks": 859
+      },
+      "BEAR": {
+        "marginal_annual": 0.06315726346927808,
+        "n_weeks": 194
+      },
+      "SIDEWAYS": {
+        "marginal_annual": 0.01993824290709445,
+        "n_weeks": 156
+      },
+      "FULL": {
+        "marginal_annual": 0.02259038514865286,
+        "n_weeks": 1251
+      }
+    },
+    "rsi2": {
+      "BULL": {
+        "marginal_annual": 0.005982210972893531,
+        "n_weeks": 859
+      },
+      "BEAR": {
+        "marginal_annual": 0.009286790438072678,
+        "n_weeks": 194
+      },
+      "SIDEWAYS": {
+        "marginal_annual": 0.009872108473333308,
+        "n_weeks": 156
+      },
+      "FULL": {
+        "marginal_annual": 0.007015632662752624,
+        "n_weeks": 1251
+      }
+    },
+    "sector_rs": {
+      "BULL": {
+        "marginal_annual": 0.004182735252879377,
+        "n_weeks": 859
+      },
+      "BEAR": {
+        "marginal_annual": -0.015075802849582987,
+        "n_weeks": 194
+      },
+      "SIDEWAYS": {
+        "marginal_annual": -0.014639309833449632,
+        "n_weeks": 156
+      },
+      "FULL": {
+        "marginal_annual": -0.002320115065312156,
+        "n_weeks": 1251
+      }
+    },
+    "turnaround_tue": {
+      "BULL": {
+        "marginal_annual": 0.004178408435261183,
+        "n_weeks": 859
+      },
+      "BEAR": {
+        "marginal_annual": 0.00940394272350109,
+        "n_weeks": 194
+      },
+      "SIDEWAYS": {
+        "marginal_annual": 0.0019227311330629604,
+        "n_weeks": 156
+      },
+      "FULL": {
+        "marginal_annual": 0.004982358793267361,
+        "n_weeks": 1251
+      }
+    }
+  },
+  "q2_subperiod": {
+    "2001-2008": {
+      "ibs": {
+        "BULL": {
+          "marginal_annual": 0.0018649729460700204,
+          "n_weeks": 218
+        },
+        "BEAR": {
+          "marginal_annual": 0.04597848259507198,
+          "n_weeks": 108
+        },
+        "SIDEWAYS": {
+          "marginal_annual": 0.03207071400839401,
+          "n_weeks": 48
+        }
+      },
+      "rsi2": {
+        "BULL": {
+          "marginal_annual": 0.020135789482806032,
+          "n_weeks": 218
+        },
+        "BEAR": {
+          "marginal_annual": -0.0016906812064554355,
+          "n_weeks": 108
+        },
+        "SIDEWAYS": {
+          "marginal_annual": -0.007511053068656515,
+          "n_weeks": 48
+        }
+      },
+      "sector_rs": {
+        "BULL": {
+          "marginal_annual": 0.014813082528825738,
+          "n_weeks": 218
+        },
+        "BEAR": {
+          "marginal_annual": -0.005184694456861982,
+          "n_weeks": 108
+        },
+        "SIDEWAYS": {
+          "marginal_annual": -0.026003404017952203,
+          "n_weeks": 48
+        }
+      },
+      "turnaround_tue": {
+        "BULL": {
+          "marginal_annual": 0.013487298947570725,
+          "n_weeks": 218
+        },
+        "BEAR": {
+          "marginal_annual": 0.0030473000173205644,
+          "n_weeks": 108
+        },
+        "SIDEWAYS": {
+          "marginal_annual": 0.0026764824458509473,
+          "n_weeks": 48
+        }
+      }
+    },
+    "2009-2016": {
+      "ibs": {
+        "BULL": {
+          "marginal_annual": 0.005262682118797546,
+          "n_weeks": 314
+        },
+        "BEAR": {
+          "marginal_annual": 0.007192866746659199,
+          "n_weeks": 36
+        },
+        "SIDEWAYS": {
+          "marginal_annual": 0.06764331723207007,
+          "n_weeks": 68
+        }
+      },
+      "rsi2": {
+        "BULL": {
+          "marginal_annual": 0.005087398140211086,
+          "n_weeks": 314
+        },
+        "BEAR": {
+          "marginal_annual": -0.005603602981781086,
+          "n_weeks": 36
+        },
+        "SIDEWAYS": {
+          "marginal_annual": 0.008293861304157879,
+          "n_weeks": 68
+        }
+      },
+      "sector_rs": {
+        "BULL": {
+          "marginal_annual": 0.0001327313405203867,
+          "n_weeks": 314
+        },
+        "BEAR": {
+          "marginal_annual": -0.030052159652737442,
+          "n_weeks": 36
+        },
+        "SIDEWAYS": {
+          "marginal_annual": -0.009810150145182495,
+          "n_weeks": 68
+        }
+      },
+      "turnaround_tue": {
+        "BULL": {
+          "marginal_annual": 0.0035037342598549515,
+          "n_weeks": 314
+        },
+        "BEAR": {
+          "marginal_annual": 0.03046955071793045,
+          "n_weeks": 36
+        },
+        "SIDEWAYS": {
+          "marginal_annual": 0.002070180147062617,
+          "n_weeks": 68
+        }
+      }
+    },
+    "2017-2024": {
+      "ibs": {
+        "BULL": {
+          "marginal_annual": 0.010590326409164907,
+          "n_weeks": 327
+        },
+        "BEAR": {
+          "marginal_annual": 0.14486429498380282,
+          "n_weeks": 50
+        },
+        "SIDEWAYS": {
+          "marginal_annual": -0.06972493816729175,
+          "n_weeks": 40
+        }
+      },
+      "rsi2": {
+        "BULL": {
+          "marginal_annual": -0.002494171016421798,
+          "n_weeks": 327
+        },
+        "BEAR": {
+          "marginal_annual": 0.04451433970607521,
+          "n_weeks": 50
+        },
+        "SIDEWAYS": {
+          "marginal_annual": 0.033870437421595456,
+          "n_weeks": 40
+        }
+      },
+      "sector_rs": {
+        "BULL": {
+          "marginal_annual": 0.0010339304377067204,
+          "n_weeks": 327
+        },
+        "BEAR": {
+          "marginal_annual": -0.02541824720608088,
+          "n_weeks": 50
+        },
+        "SIDEWAYS": {
+          "marginal_annual": -0.00909936718287152,
+          "n_weeks": 40
+        }
+      },
+      "turnaround_tue": {
+        "BULL": {
+          "marginal_annual": -0.0013365057570803307,
+          "n_weeks": 327
+        },
+        "BEAR": {
+          "marginal_annual": 0.008163495543837884,
+          "n_weeks": 50
+        },
+        "SIDEWAYS": {
+          "marginal_annual": 0.0007685703217301665,
+          "n_weeks": 40
+        }
+      }
+    }
+  },
+  "q3_full_sample_beta": 0.9837613916303368,
+  "q3_episodes": [
+    {
+      "peak_date": "2007-07-13",
+      "trough_date": "2009-03-06",
+      "recovery_date": "2010-04-09",
+      "magnitude": -0.5631663569816918,
+      "duration_weeks": 86,
+      "regime_at_start": "BULL",
+      "classification": "MARKET DRIVEN",
+      "portfolio_cum_return": -0.5631663569816918,
+      "spy_cum_return": -0.5449706311550153,
+      "beta_used": 0.9837613916303368,
+      "explained_by_beta": -0.5361210665027208,
+      "residual": -0.027045290478970974,
+      "ibs_spread_annual_during_episode": 0.11643843380154695,
+      "factor_regression": {
+        "const": 0.0006031859714118654,
+        "Mkt-RF": 0.7236108689007855,
+        "SMB": 0.9191157594432833,
+        "HML": -0.3689954396428648,
+        "RMW": -0.7496548026111061,
+        "CMA": 0.10423147193884465,
+        "UMD": -0.1653671966749344,
+        "tstats": {
+          "const": 0.13343532643142617,
+          "Mkt-RF": 4.780677274579728,
+          "SMB": 3.0875683753232104,
+          "HML": -1.4922980820219809,
+          "RMW": -1.422986208434736,
+          "CMA": 0.1649114453562504,
+          "UMD": -0.9440912702083554
+        },
+        "dominant_factor": "SMB",
+        "n_weeks": 86,
+        "noisy_short_window": false
+      },
+      "sector_concentration": [],
+      "recovery_weeks": 57,
+      "recovery_ibs_spread_annual": 0.1528731592193613,
+      "recovery_regime_mode": "BULL",
+      "not_yet_recovered": false
+    },
+    {
+      "peak_date": "2019-12-20",
+      "trough_date": "2020-03-20",
+      "recovery_date": "2020-06-05",
+      "magnitude": -0.49270734239586567,
+      "duration_weeks": 13,
+      "regime_at_start": "BULL",
+      "classification": "SIGNAL FAILURE",
+      "portfolio_cum_return": -0.4927073423958659,
+      "spy_cum_return": -0.3018460326858964,
+      "beta_used": 0.9837613916303368,
+      "explained_by_beta": -0.2969444731731736,
+      "residual": -0.19576286922269232,
+      "ibs_spread_annual_during_episode": -0.49698296810103004,
+      "factor_regression": {
+        "const": 0.007257245781844179,
+        "Mkt-RF": 1.5133889828740366,
+        "SMB": 1.6025858504302928,
+        "HML": -0.7882649424357665,
+        "RMW": -0.22411030974512228,
+        "CMA": 3.789363763473244,
+        "UMD": -0.3685345060559396,
+        "tstats": {
+          "const": 0.594067570168119,
+          "Mkt-RF": 4.69720509324279,
+          "SMB": 4.023739022656918,
+          "HML": -1.2339592359283698,
+          "RMW": -0.15797138185036122,
+          "CMA": 1.9353382545373796,
+          "UMD": -0.38795643998799745
+        },
+        "dominant_factor": "CMA",
+        "n_weeks": 13,
+        "noisy_short_window": true
+      },
+      "sector_concentration": [
+        {
+          "sector": "Energy",
+          "held_weight": 0.14247414783607812,
+          "universe_weight": 0.08486238532110092
+        }
+      ],
+      "recovery_weeks": 11,
+      "recovery_ibs_spread_annual": 8.20425444254616,
+      "recovery_regime_mode": "BEAR",
+      "not_yet_recovered": false
+    },
+    {
+      "peak_date": "2001-05-25",
+      "trough_date": "2001-09-21",
+      "recovery_date": "2001-11-16",
+      "magnitude": -0.2639251221536343,
+      "duration_weeks": 17,
+      "regime_at_start": NaN,
+      "classification": "MARKET DRIVEN",
+      "portfolio_cum_return": -0.2639251221536343,
+      "spy_cum_return": -0.20235019250828246,
+      "beta_used": 0.9837613916303368,
+      "explained_by_beta": -0.19906430697861452,
+      "residual": -0.06486081517501976,
+      "ibs_spread_annual_during_episode": -0.0549065804125054,
+      "factor_regression": {
+        "const": -0.011346774484254796,
+        "Mkt-RF": 0.2079850329223593,
+        "SMB": 1.7512899029993765,
+        "HML": 1.04523091337593,
+        "RMW": 1.3675100045274577,
+        "CMA": 0.20005664900300318,
+        "UMD": -1.9372599284850212,
+        "tstats": {
+          "const": -1.9549634989302445,
+          "Mkt-RF": 0.590840909183433,
+          "SMB": 4.189451274149005,
+          "HML": 2.142513212352234,
+          "RMW": 2.318034628962396,
+          "CMA": 0.35348094519631856,
+          "UMD": -3.854192632508447
+        },
+        "dominant_factor": "UMD",
+        "n_weeks": 17,
+        "noisy_short_window": true
+      },
+      "sector_concentration": [],
+      "recovery_weeks": 8,
+      "recovery_ibs_spread_annual": 2.8293182318192667,
+      "recovery_regime_mode": "SIDEWAYS",
+      "not_yet_recovered": false
+    },
+    {
+      "peak_date": "2021-11-12",
+      "trough_date": "2022-07-01",
+      "recovery_date": "2023-03-03",
+      "magnitude": -0.2525864298524313,
+      "duration_weeks": 33,
+      "regime_at_start": "BULL",
+      "classification": "SIGNAL FAILURE",
+      "portfolio_cum_return": -0.2525864298524314,
+      "spy_cum_return": -0.1738792601982978,
+      "beta_used": 0.9837613916303368,
+      "explained_by_beta": -0.1710557029883309,
+      "residual": -0.08153072686410051,
+      "ibs_spread_annual_during_episode": -0.0991140060339264,
+      "factor_regression": {
+        "const": -0.004819493736960931,
+        "Mkt-RF": 1.0669069485301572,
+        "SMB": 0.31093015307545346,
+        "HML": -0.012507069168371104,
+        "RMW": -0.02853658098676536,
+        "CMA": 0.6081672413119389,
+        "UMD": 0.1669390402754923,
+        "tstats": {
+          "const": -1.7467308923338132,
+          "Mkt-RF": 10.246261615073228,
+          "SMB": 1.4993162540564287,
+          "HML": -0.08923903642344513,
+          "RMW": -0.1851581233649319,
+          "CMA": 2.428706240724119,
+          "UMD": 1.2305144748513255
+        },
+        "dominant_factor": "Mkt-RF",
+        "n_weeks": 33,
+        "noisy_short_window": false
+      },
+      "sector_concentration": [],
+      "recovery_weeks": 35,
+      "recovery_ibs_spread_annual": 0.3106769333097663,
+      "recovery_regime_mode": "BEAR",
+      "not_yet_recovered": false
+    },
+    {
+      "peak_date": "2002-04-19",
+      "trough_date": "2002-10-04",
+      "recovery_date": "2003-05-09",
+      "magnitude": -0.2514499881768635,
+      "duration_weeks": 24,
+      "regime_at_start": "BEAR",
+      "classification": "MARKET DRIVEN",
+      "portfolio_cum_return": -0.25144998817686315,
+      "spy_cum_return": -0.28141492706458315,
+      "beta_used": 0.9837613916303368,
+      "explained_by_beta": -0.27684514027460405,
+      "residual": 0.025395152097740903,
+      "ibs_spread_annual_during_episode": 0.39145559273981556,
+      "factor_regression": {
+        "const": -0.0007696873809645522,
+        "Mkt-RF": 0.7380933696445703,
+        "SMB": 0.4752231644514914,
+        "HML": 1.1854250285923653,
+        "RMW": 0.8145433986390678,
+        "CMA": -0.33267370000391794,
+        "UMD": -0.6445248315844262,
+        "tstats": {
+          "const": -0.16845419082548496,
+          "Mkt-RF": 5.502746428499517,
+          "SMB": 1.6400749177212166,
+          "HML": 2.5975706183831377,
+          "RMW": 1.5042972288751506,
+          "CMA": -0.861884302657884,
+          "UMD": -1.488195550454372
+        },
+        "dominant_factor": "HML",
+        "n_weeks": 24,
+        "noisy_short_window": true
+      },
+      "sector_concentration": [],
+      "recovery_weeks": 31,
+      "recovery_ibs_spread_annual": 0.36162198708473703,
+      "recovery_regime_mode": "BEAR",
+      "not_yet_recovered": false
+    }
+  ],
+  "q3_pattern_summary": {
+    "market_driven": 3,
+    "signal_failure": 2,
+    "mixed": 0,
+    "avg_ibs_spread_during_drawdowns_annual": -0.028621905601219865,
+    "avg_ibs_spread_outside_drawdowns_annual": 0.14296977434727864,
+    "regimes_at_start": [
+      "BULL",
+      "BULL",
+      NaN,
+      "BULL",
+      "BEAR"
+    ],
+    "regimes_at_recovery": [
+      "BULL",
+      "BEAR",
+      "SIDEWAYS",
+      "BEAR",
+      "BEAR"
+    ]
+  }
+}

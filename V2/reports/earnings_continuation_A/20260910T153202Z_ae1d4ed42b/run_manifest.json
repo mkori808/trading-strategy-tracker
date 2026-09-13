@@ -1,0 +1,18 @@
+{
+  "created_utc": "20260910T153202Z",
+  "evidence_stage": "historical development; NOT fresh validation",
+  "prospective_confirmation_required": true,
+  "holdout_budget_remaining": 0,
+  "settings": {
+    "start": "2001-01-01",
+    "end": "2024-12-31",
+    "min_price": 1.0,
+    "min_adv": 500000.0,
+    "min_names_per_leg": 1,
+    "min_subgroup_events": 20,
+    "round_trip_bps": 15.0
+  },
+  "preregistration_sha256": "c49065824015a2685fc2bb40acfcf0e672a4044b8a4e33780f8a1f3166d28679",
+  "source_database": "C:\\Users\\micha\\OneDrive\\Desktop\\Projects\\trading-strategy-tracker\\V2\\data\\sharadar.db",
+  "git_commit": "c67cbd0356eaaf0072dee7aaaf8a4a88e276fb2e"
+}

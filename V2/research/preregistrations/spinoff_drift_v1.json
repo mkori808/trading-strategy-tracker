@@ -1,0 +1,145 @@
+{
+  "hypothesis_id": "spinoff_drift_v1",
+  "parent_hypothesis": null,
+  "registered_at": "2026-09-12T00:00:00-07:00",
+  "research_stage": "special-situations / post-reorganization first experiment, following the data-inventory conclusion that spin-offs are feasible with Sharadar alone (spunofffrom: 523 events, spinoff: 512 events, 2000-2026, ~98% price coverage sampled). Holdout budget: 0 -- characterization on already-viewed history, not a fresh validation test.",
+  "status": "PREREGISTERED / NOT YET EVALUATED",
+
+  "integrity": {
+    "holdout_budget_remaining": 0,
+    "historical_holdout_status": "CONSUMED; no date in historical storage may be presented as fresh validation",
+    "development_period": "2000-01-01 to 2024-12-31 (full history; characterization exercise)",
+    "forward_validation": "Prospective paper track ONLY if falsification criteria are met and only after a separate, explicit subsequent instruction. Not built here. Does not modify V3.2 or paper-trading Tracks 1-3.",
+    "taxonomy": ["VIABLE", "HISTORICAL_ONLY", "MARGINAL", "FALSIFIED"]
+  },
+
+  "economic_hypothesis": "Child companies (spunofffrom) generate positive excess returns in the 1, 3, 6, and 12 months after their spin-off date due to temporary forced selling from institutional investors who cannot hold the new security. This selling is mechanical, not information-driven, and creates a predictable price recovery as natural buyers emerge.",
+
+  "mechanism": {
+    "steps": [
+      "Parent shareholders receive child shares automatically.",
+      "Many institutional holders (index funds, mandate-constrained funds) must sell immediately -- the child is too small, wrong sector, or not in their benchmark.",
+      "This selling pressure is temporary and predictable.",
+      "As the child establishes analyst coverage and enters small-cap indices, natural buying absorbs the supply.",
+      "The recovery period is 1-12 months on average."
+    ],
+    "distinct_from_prior_work": "Different mechanism from everything tested so far in this project: IBS is intraday exhaustion (days); PEAD (sub-hypothesis A/A', falsified) and PEAD sub-hypothesis B (falsified, HISTORICAL_ARTIFACT) are information diffusion (days-weeks); this is an institutional-constraint / forced-flow mechanism operating over months, unrelated to information processing speed.",
+    "academic_prior": [
+      "Cusatis, Miles & Woolridge (1993): children outperform market by 25% over 3 years post-spin-off.",
+      "McConnell & Ovtchinnikov (2004): parents also outperform.",
+      "Miles & Rosenfeld (1983): excess returns begin immediately.",
+      "Chemmanur & Yan (2004): forced-selling mechanism confirmed."
+    ]
+  },
+
+  "signal_definition": {
+    "event": "A spunofffrom record in the Sharadar actions table (child leg, primary) and, separately, the corresponding spinoff record (parent leg, secondary).",
+    "entry": "Close price on actions.date. If no price on that exact date, use the first available close within the next 5 trading days. If still no price after 5 trading days, exclude the event and report it in coverage.",
+    "exit": "Fixed calendar (trading-day) horizons, not signal-based."
+  },
+
+  "forward_return_horizons": {
+    "H1": "21 trading days (~1 month)",
+    "H2": "63 trading days (~3 months) -- PRIMARY",
+    "H3": "126 trading days (~6 months)",
+    "H4": "252 trading days (~12 months)",
+    "method": "Buy-and-hold from entry to exit, Sharadar closeadj (split-adjusted close, per the brief's explicit instruction -- not a total-return/dividend-adjusted series)."
+  },
+
+  "benchmark": {
+    "instrument": "SPY buy-and-hold over the identical calendar dates as each event's holding period.",
+    "excess_return_formula": "excess_return = raw_return - spy_return, computed per event per horizon over the SAME entry/exit dates.",
+    "factor_model_note": "FF5+UMD regression is also run (see factor_model below)."
+  },
+
+  "both_legs": {
+    "primary": "Child company (spunofffrom) -- the forced-selling hypothesis applies most directly here.",
+    "secondary": "Parent company (spinoff) -- may also drift as the market re-rates the cleaner remaining business. Same horizons, reported separately. Parent and child are NEVER combined into one series."
+  },
+
+  "universe_filters": {
+    "min_price_at_entry": 1.00,
+    "min_market_cap": "not applied -- small-cap is where the effect should be strongest per theory; do not filter it out",
+    "sector_exclusion": "Exclude events where the entity's SIC code (tickers.siccode) falls in 6000-6999 (financials) -- different accounting and capital-structure issues.",
+    "data_quality_gate": "Exclude an event if more than 5 of the first 21 market trading days after the spin-off are missing a price row for that ticker (thin/halted trading), evaluated against the master trading calendar (union of all tickers' trading dates in the source database over 2000-2024), not the ticker's own truncated calendar."
+  },
+
+  "size_analysis": {
+    "method": "Split child companies into terciles by market cap (Sharadar daily.marketcap, last available value on or before entry date) at spin-off date: Small / Mid / Large.",
+    "reported_at": "H2 (3-month), child leg.",
+    "hypothesis": "Effect is strongest in the small tercile, where forced-selling pressure is most acute and analyst coverage is thinnest."
+  },
+
+  "time_period_analysis": {
+    "buckets": ["2000-2009", "2010-2019", "2020-2026"],
+    "reported_at": "H2 (3-month), child leg.",
+    "question": "Is the effect stable across market regimes, or decade-specific?"
+  },
+
+  "leave_one_crisis_out": {
+    "rule": "Mandatory per research governance. Rerun the primary (H2, child) measurement excluding one crisis episode at a time, using the project's already-established crisis window definitions verbatim: dot-com/2001-2002 (2001-05-25 to 2003-05-09), GFC/2008-2009 (2007-07-13 to 2010-04-09), COVID/2020 (2019-12-20 to 2020-06-05), 2022 bear (2021-11-12 to 2023-03-03). Events whose entry date falls inside a window are excluded for that run only.",
+    "reporting": "N events, H2 excess return, HAC t-stat, sign, for the full sample and each of the four exclusions.",
+    "verdict_bands": ["ROBUST", "PARTIALLY_ROBUST", "DOMINATED_BY_ONE_EPISODE", "UNDERPOWERED"]
+  },
+
+  "factor_model": {
+    "specification": "FF5 + UMD (6-factor), reusing strategies/ibs_conditioning._factor_regression and its FACTOR_COLUMNS constant (Mkt-RF, SMB, HML, RMW, CMA, Mom) exactly as used throughout this project.",
+    "construction": "Event-time regression: for each event, the dependent variable is the event's raw return over the holding window (entry to entry+N trading days, RF-adjusted using the compounded risk-free return over the same window); the independent variables are each FF5+UMD factor compounded (buy-and-hold) over that SAME window. This avoids the single-day date-matching approximation used in earlier project studies and correctly reflects that every observation here is a multi-day cumulative return. HAC standard errors (maxlags=5) account for the overlap between concurrent/adjacent events.",
+    "applies_to": "H2 (primary, 3-month) child leg, reported explicitly. H1/H3/H4 and the parent leg are computed and available in the results file but not required in the primary report table.",
+    "key_loadings_to_watch": {
+      "SMB": "expected positive (small-cap tilt)",
+      "UMD": "expected sign ambiguous -- spun-off children have no prior price history, so momentum exposure at the entry date is not well-defined by construction; report as found, do not assume a direction."
+    },
+    "disqualifying_result": "If alpha is statistically indistinguishable from zero once FF5+UMD is included, the return is pure factor exposure (chiefly SMB), not event alpha."
+  },
+
+  "distribution_ratio_conditioning": {
+    "variable": "actions.value at the event row -- shares of child received per share of parent held.",
+    "test": "Split child events into above/below-median distribution ratio; compare H2 excess return and t-stat between the two groups.",
+    "hypothesis": "A larger distribution ratio implies more child shares landing in portfolios that cannot hold them, and therefore stronger forced selling and stronger drift.",
+    "status": "Secondary conditioning variable. NOT a primary falsification criterion -- reported for interpretation only."
+  },
+
+  "falsification_criteria": {
+    "VIABLE": "H2 (3-month) excess return > 3% AND t > 2.0 on the excess-return series AND effect consistent (same sign, t>1.0) in 2+ of 3 decades AND leave-one-crisis-out verdict is ROBUST or PARTIALLY_ROBUST AND FF5+UMD alpha is positive with t > 1.5.",
+    "HISTORICAL_ONLY": "H2 significant (t>2.0) in 2000-2009 or 2010-2019 but not in 2020-2026 (t<1.0) -- effect may have decayed, matching the pattern already seen in earnings-based signals in this project.",
+    "MARGINAL": "H2 positive but t < 2.0, OR only 1 of 3 decades significant.",
+    "FALSIFIED": "H2 excess return <= 0, OR t < 1.0 at all four horizons."
+  },
+
+  "implementation_notes": {
+    "entry_price": "Close on actions.date; else first available close within 5 trading days; else exclude and report.",
+    "return_calculation": "raw_return = close[entry+N]/close[entry] - 1; spy_return = SPY_close[entry+N]/SPY_close[entry] - 1 (dates matched exactly, not by trading-day count, to keep the benchmark window identical to the event window); excess_return = raw_return - spy_return. Equal-weight all events (not day-clustered) in each horizon. Winsorize excess returns at the 1st/99th percentile per horizon to prevent outlier events (e.g. acquired targets, hyperinflation-scale delistings) from dominating.",
+    "survivorship": "Some child (and parent) companies are acquired or delisted during the holding window. Use the last available closeadj price as the exit price for horizons that extend past the ticker's last trading date (delist/acquisition price proxy). Do NOT exclude these events -- exclusion would bias the result upward by survivorship.",
+    "statistical_test": "t = mean_excess_return / (std_excess_return / sqrt(N)), computed via HAC (maxlags=5) for robustness to residual overlap. Also report median excess return and % positive (sign test) as robustness checks."
+  },
+
+  "constraints": [
+    "Preregistration (this file) committed before any return computation begins.",
+    "Survivorship-adjusted: acquired/delisted events are never excluded, only exit-priced at their last available close.",
+    "Excess returns winsorized at 1st/99th percentile per horizon.",
+    "Leave-one-crisis-out is mandatory and uses the existing, already-established crisis window definitions verbatim.",
+    "Parent and child legs are always reported separately, never combined.",
+    "Small-cap events are never filtered out by a minimum-market-cap screen.",
+    "If VIABLE: a paper-track operational description is written, but the track itself is NOT built, no holdout data is consumed, and V3.2 / paper-trading Tracks 1-3 are not modified.",
+    "Do not optimize thresholds, horizons, or filters after seeing results."
+  ],
+
+  "deliverables": [
+    "This file",
+    "Event coverage report (raw event counts, post-filter counts, events/year)",
+    "Primary results: child company H1-H4 (excess return, t, median, % positive)",
+    "Factor regression (FF5+UMD), H2 child leg",
+    "Secondary results: parent company H1-H4",
+    "Size tercile analysis (H2, child)",
+    "Time period stability (H2, child, by decade)",
+    "Leave-one-crisis-out (H2, child)",
+    "Distribution ratio conditioning (H2, child, secondary)",
+    "Falsification verdict: VIABLE / HISTORICAL_ONLY / MARGINAL / FALSIFIED",
+    "If VIABLE: an operational description of what a spin-off drift paper-trading track would look like (not built)"
+  ],
+
+  "development_period": "2000-01-01 to 2024-12-31. No holdout -- budget exhausted. Forward validation = paper trading if viable.",
+
+  "stop_condition": "Report results and wait for instruction. Do not build a paper track, consume holdout data, or modify V3.2/Tracks 1-3, regardless of verdict."
+}

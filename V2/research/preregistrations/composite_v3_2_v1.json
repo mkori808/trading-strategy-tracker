@@ -1,0 +1,105 @@
+{
+  "hypothesis_id": "composite_v3_2_v1",
+  "version": "v3.2",
+  "parent": "v3.1",
+  "registered_at": "2026-09-10T00:00:00-07:00",
+  "research_stage": "combination/confirmation of two independently-motivated V3.1 changes, not new signal discovery. Holdout budget: 0 -- paper trading is the forward test.",
+  "status": "SUPERSEDED — INVALID METHODOLOGY",
+  "superseded_by": "V2/research/canonical/v3_2_specification.json",
+  "supersession_note": "Preserved for audit. This historical V3.2 proposal included a transition filter whose apparent benefit did not survive controlled methodology. Canonical V3.2 has IBS 0.69, RSI2 0.25, Turnaround Tuesday 0.06, Sector Rotation removed, no Gap Fade, and no transition filter.",
+
+  "prior_claims_verification_note": "The task brief asserts both 'Improvement 1' (remove Sector RS) and 'Improvement 2' (regime transition filter) as 'confirmed' / 'EFFECTIVE' with specific figures. Before writing this preregistration, the repo was checked for computed artifacts supporting each claim, following the same verification practice used in V2/research/preregistrations/v31_transition_filter_v1.json.\n\n(1) Improvement 1 (remove Sector RS) -- CONFIRMED by an existing artifact. V2/reports/v31_regime_decomposition/20260911T002649Z/summary.json's by_regime.sector_rs block shows: FULL-cycle alpha -2.61%/yr (t=-1.09), BULL -2.04%/yr, BEAR -7.65%/yr, SIDEWAYS -4.25%/yr -- negative in every regime, full-cycle figure matching the brief's cited -2.6%/yr almost exactly. This claim is traceable and verified.\n\n(2) Improvement 2 (regime transition filter) -- NOT CONFIRMED; directly CONTRADICTED by an existing artifact. V2/reports/v31_transition_filter/20260911T050458Z/v31_transition_filter_v1.md (hypothesis v31_transition_filter_v1, run the same day as this task) tested this exact mechanism (IBS weight half-sized for 4 weeks after a BULL->BEAR transition) on the live V3.1 spec and found: (a) only 2 BULL->BEAR transitions occur in 2001-2024 under the locked regime-transition definition (2002-04-12, 2011-12-23) -- 8 TRANSITION_ACTIVE weeks out of 1251 (0.64%); (b) neither the COVID 2020 crash nor the 2022 rate-hike bear registers as a BULL->BEAR transition at all, because both pass through one or more intervening SIDEWAYS weeks before reaching BEAR, so the filter's trigger never fires ahead of either episode; (c) measured drawdown reduction for both target episodes was 0.00pp / 0% (not 23% / 20% as this brief asserts); (d) the study's own verdict was MARGINAL (bordering on non-applicable), not EFFECTIVE. The brief's specific '23% COVID reduction' and '20% 2022 reduction' figures are not traceable to this or any other computed artifact in V2/research or V2/reports. A repo-wide grep for '23%' and '20% reduction' found no other transition-filter variant that produced those numbers.\n\nResolution: per the same rule applied in v31_transition_filter_v1.json (repo's existing precedent: do not silently repeat unverified brief claims as fact, and do not re-derive/re-optimize parameters after seeing a result), this preregistration proceeds as follows -- Improvement 1 is implemented as specified (verified). Improvement 2 is implemented EXACTLY as specified in this brief (same transition definition, same 4-week window, same redistribution idea) so that V3.2 is tested fresh with its own specific weights rather than silently reusing Q6's now-contradicted verdict. However, because the regime/transition calendar is unchanged from the Q6 study (same SPY 200d-MA/252d-return regime rule, reused verbatim, independent of Sector RS), the same 2 transitions (2002-04-12, 2011-12-23) and 8 TRANSITION_ACTIVE weeks are expected to recur, and the same non-engagement against the COVID/2022 episodes is expected. This is reported as found in Phase 2, not assumed here, and not used as grounds to alter the locked rule before running.",
+
+  "changes_from_v3_1": {
+    "removed": "sector_rotation",
+    "removed_reason": "consistent drag in all regimes and all conditional cuts -- wrong frequency for 20-day horizon signal (verified above)",
+    "added": "regime_transition_filter",
+    "filter_rule": "IBS weight x 0.5 for 4 weeks after first BULL->BEAR regime transition week. Redistributed weight goes to RSI2.",
+    "filter_rule_unverified_premise_flag": "The brief's framing of this addition as independently 'EFFECTIVE' is not supported by the one existing computed test of this mechanism (see prior_claims_verification_note). It is tested here anyway, on its own terms, as specified."
+  },
+
+  "signals": {
+    "ibs": {
+      "weight_normal": 0.69,
+      "weight_transition": 0.345,
+      "definition": "5-day trailing average IBS, percentile-ranked, earnings-day neutral",
+      "earnings_conditioned": true
+    },
+    "rsi2": {
+      "weight_normal": 0.25,
+      "weight_transition": 0.405,
+      "definition": "RSI(close,2) inverted, percentile-ranked"
+    },
+    "turnaround_tuesday": {
+      "weight_normal": 0.06,
+      "weight_transition": 0.06,
+      "definition": "1 if Friday return < -1%, else 0"
+    },
+    "sector_rotation": "REMOVED",
+    "weight_sum_note": "Normal weights sum to 1.0 (0.69+0.25+0.06). Transition weights as given in the brief sum to 0.81 (0.345+0.405+0.06), an 0.19 (19pp) shortfall from full gross exposure -- larger than the analogous ~6.2pp shortfall noted and left uncorrected in v31_transition_filter_v1.json for V3.1's filter weights. Per that same precedent and this study's own no-reoptimization constraint, the brief's literal weights are used as locked and not re-derived to sum to 1.0; the ~19% reduction in gross exposure during TRANSITION_ACTIVE weeks is treated as part of the tested rule, reported quantitatively, not silently patched."
+  },
+
+  "transition_rule": {
+    "trigger": "BULL->BEAR regime change",
+    "regime_definition": "SPY 200-day MA + 252-day trailing return (same regime calendar as v31_regime_decomposition_v1 / v31_transition_filter_v1, reused verbatim, not recomputed)",
+    "duration": "4 weeks from transition week (inclusive)",
+    "restart": "if second transition within window, restart 4-week clock",
+    "reused_calendar": "V2/reports/v31_transition_filter/20260911T050458Z/weekly_AB_nav.csv's transition_active column and transition_calendar.csv are reused verbatim for the trigger timing, since the transition definition and inputs (regime calendar) are identical to this study's. Only the portfolio weights applied on TRANSITION_ACTIVE weeks differ (V3.2 weights vs V3.1's 0.31/0.375/0.162/0.091)."
+  },
+
+  "exclusions": ["NSI Q5", "Quality Q5"],
+  "universe": "Full Sharadar excl. Fin/RE/HC, price>=1, dvol>=500k, 252d history",
+  "rebalance": "weekly Friday close",
+  "execution": "Monday open",
+  "portfolio": "top quintile equal weight",
+  "cost_model": "10bps round trip on weekly turnover",
+
+  "development_period": {"start": "2001-01-01", "end": "2024-12-31"},
+  "paper_trading": "Track 4, launch at 26-week checkpoint (2027-03-04), virtual-fill scheme -- NOT initiated by this study regardless of verdict; requires a separate, explicit subsequent instruction per the task brief's own constraints.",
+  "holdout": "N/A -- budget exhausted per brief. Paper trading, if later launched, is the forward test.",
+
+  "primary_comparison": "V3.2 vs V3.1 on development period",
+
+  "portfolio_construction_method": {
+    "v31_baseline": "Actual persisted score-blended composite_ret from V2/reports/v31_regime_decomposition/20260911T002649Z/weekly_panel.csv, used verbatim -- not a linear-blend reconstruction.",
+    "v32": "Linear blend of the already-computed standalone top-quintile signal returns (ibs_ret, rsi2_ret, tue_ret; srs_ret dropped) using V3.2's normal/transition weights. This is the same reasoned-approximation method used for Portfolio B in v31_transition_filter_v1.json, and carries the same limitation: it is not the true score-blended, jointly-selected-holdings portfolio a live V3.2 composite would hold, because V3.2's composite score/ranking is not being rebuilt from scratch (precluded by the 'reuse existing infrastructure, do not recompute signals' constraint). A sanity check (V3.1's own linear-blend reconstruction vs its actual persisted composite_ret, reusing the exact check already performed in v31_transition_filter_v1.json: mean abs diff 0.181pp, max abs diff 2.19pp, corr 0.9975) is reported again here as the best available bound on this method's fidelity.",
+    "limitation": "Because V3.1 is measured on its true composite_ret and V3.2 is measured on a linear-blend proxy, part of any CAGR/Sharpe/alpha delta between them reflects this methodological difference, not only the two signal changes. This is disclosed, not hidden, and is a reason to treat a NEEDS REVIEW verdict (if one results) as inconclusive rather than as proof the changes fail live."
+  },
+
+  "acceptance_criteria_written_before_running": {
+    "sharpe": "V3.2 Sharpe >= V3.1 Sharpe",
+    "max_dd": "V3.2 Max DD <= V3.1 Max DD",
+    "alpha": "V3.2 full-cycle alpha within 1.5%/yr of V3.1",
+    "type2_episodes": "V3.2 TYPE 2 (SIGNAL FAILURE) episode losses smaller than V3.1",
+    "adverse_interaction": "No unexpected adverse interaction between the two improvements (Sector RS removal + filter)"
+  },
+
+  "adverse_interaction_check": {
+    "a_calendar_independence": "Does removing Sector RS change which weeks the transition filter activates? Answer expected NO -- the regime calendar (SPY 200d-MA/252d-return) does not depend on Sector RS or on any composite weight; this is verified directly by reusing the identical transition_active column computed in v31_transition_filter_v1 (same 2 transitions, same 8 weeks) rather than recomputing it.",
+    "b_sharpe_compounding": "Does the Sharpe improvement compound or cancel? Reported from Phase 2 results -- not assumed here.",
+    "c_same_weeks": "Do the two changes affect the same weeks disproportionately? Reported from Phase 2 by-regime and episode breakdowns."
+  },
+
+  "constraints": [
+    "Preregistration (this file) committed before any computation.",
+    "Reuses all existing computed data -- signal scores, regime calendar, transition calendar, and factor data are not recomputed.",
+    "The two improvements are applied together in Phase 2, not tested separately again.",
+    "Weights and filter parameters (including the 0.81 weight-sum shortfall noted above) are not optimized or corrected after seeing results.",
+    "If adverse interaction is detected: report it and stop. Do not attempt to fix it by adjusting weights.",
+    "Do not launch Track 4 without explicit instruction after reviewing the development comparison.",
+    "Do not run a bear overlay or crisis sleeve in this study."
+  ],
+
+  "deliverables": [
+    "This file",
+    "Specification confirmation: transition activations vs the Q6 precedent, Sector RS removal confirmation, adverse interaction check",
+    "Full-cycle comparison table V3.1 vs V3.2 (CAGR, alpha/yr, alpha t-stat, Sharpe, Sortino, max DD, worst 12mo, turnover/cost)",
+    "Regime comparison (BULL/BEAR/SIDEWAYS)",
+    "TYPE 2 (SIGNAL FAILURE) episode comparison: COVID 2020, 2022 bear",
+    "TYPE 1 (MARKET DRIVEN) episode comparison: GFC 2008-09, 2002",
+    "Acceptance check verdict: LAUNCH AS TRACK 4 / NEEDS REVIEW",
+    "If LAUNCH: exact V3.2 paper trading configuration for Track 4"
+  ],
+
+  "stop_condition": "Report results and wait for instruction. Do not launch Track 4 without explicit subsequent instruction. Do not run a bear overlay or crisis sleeve."
+}

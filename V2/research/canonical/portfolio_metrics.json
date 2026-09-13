@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "initial_value_usd": 250000,
+  "benchmark": "SPY total return (dividends included) from V2/data/spy_total_return_daily_2001_2024.csv",
+  "calculation_note": "CAGR spread equals Strategy CAGR minus SPY CAGR in percentage points; it is not factor alpha. Strategy and SPY use the same stated start/end date for each row.",
+  "rows": [
+    {
+      "strategy": "V2",
+      "run": "Development equity artifact",
+      "start_date": "2001-01-05",
+      "end_date": "2018-12-28",
+      "strategy_cagr": 0.11413789863562185,
+      "spy_cagr": 0.057009780338971305,
+      "cagr_spread": 0.05712811829665054,
+      "strategy_ending_value_usd": 1744881.9091059258,
+      "spy_ending_value_usd": 677346.1101649838,
+      "dollar_advantage_usd": 1067535.798940942,
+      "status": "AVAILABLE — DEVELOPMENT ARTIFACT ONLY; RECONCILIATION REQUIRED",
+      "source": "V2/data/composite_v2_dev_results.pkl",
+      "caveat": "The persisted artifact's embedded factor-alpha output does not reconcile to the tracker’s later +8.21%/t=3.47 development record. CAGR values describe this persisted equity curve only and must not be assumed to describe the later factor-alpha row. A combined development+consumed-holdout V2 equity curve is not persisted."
+    },
+    {
+      "strategy": "V2",
+      "run": "Consumed historical holdout / full V2 record",
+      "start_date": "NOT AVAILABLE",
+      "end_date": "NOT AVAILABLE",
+      "strategy_cagr": "NOT AVAILABLE",
+      "spy_cagr": "NOT AVAILABLE",
+      "cagr_spread": "NOT AVAILABLE",
+      "strategy_ending_value_usd": "NOT AVAILABLE",
+      "spy_ending_value_usd": "NOT AVAILABLE",
+      "dollar_advantage_usd": "NOT AVAILABLE",
+      "status": "NOT AVAILABLE",
+      "missing_data": "No persisted V2 holdout weekly/equity curve and no SPY total-return series through the stated 2025 holdout end. Factor-alpha summary values alone cannot produce CAGR."
+    },
+    {
+      "strategy": "V3.1",
+      "run": "Full-history characterization",
+      "start_date": "2001-01-05",
+      "end_date": "2024-12-27",
+      "strategy_cagr": 0.16141569272274436,
+      "spy_cagr": 0.08551402467480451,
+      "cagr_spread": 0.07590166804793985,
+      "strategy_ending_value_usd": 9038059.979106069,
+      "spy_ending_value_usd": 1787845.576351524,
+      "dollar_advantage_usd": 7250214.402754544,
+      "status": "HISTORICAL CHARACTERIZATION — NOT INDEPENDENT CONFIRMATION",
+      "source": "V2/reports/v31_regime_decomposition/20260911T002649Z/weekly_panel.csv"
+    },
+    {
+      "strategy": "V3.2",
+      "run": "Canonical no-filter historical proxy",
+      "start_date": "2001-01-05",
+      "end_date": "2024-12-27",
+      "strategy_cagr": 0.14989034961176428,
+      "spy_cagr": 0.08551402467480451,
+      "cagr_spread": 0.06437632493695977,
+      "strategy_ending_value_usd": 7115895.4296080815,
+      "spy_ending_value_usd": 1787845.576351524,
+      "dollar_advantage_usd": 5328049.853256558,
+      "status": "HISTORICAL CHARACTERIZATION / LINEAR-BLEND PROXY — NOT INDEPENDENT CONFIRMATION",
+      "source": "V2/reports/bear_overlay/20260911T141624Z/weekly_s1_panel_eval.csv ret_A",
+      "caveat": "This is the canonical V3.2 no-transition-filter return proxy. It is not a rebuilt score-ranked holdings portfolio, so it must remain labeled as a proxy."
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "hypothesis_id": "negative_selection_v1",
+  "registered_at": "2026-09-10T00:00:00-07:00",
+  "research_stage": "portfolio construction audit, not signal discovery",
+  "status": "PREREGISTERED / NOT YET EVALUATED",
+
+  "research_question": "Do the NSI Q5 (heavy net-share-issuance) and Quality Q5 (lowest composite quality) hard exclusions, applied to the live V3.1 composite specification, independently and jointly improve the finished portfolio's risk-adjusted returns -- and if so, by how much?",
+
+  "background": "Prior signal-level research found NSI Q5 (long-short t=5.26) and Quality Q5 (long-short t=4.39) carry real information, with both spreads driven almost entirely by the short leg (long leg near-zero alpha). A separate exclusion-filter test (Portfolio D in that prior work) showed active alpha t=5.38 vs. an equal-weight benchmark, but that was subsequently identified as factor tilting relative to the benchmark, not genuine alpha vs SPY. V3.1 already applies both exclusions as guardrails; their marginal contribution to the finished, IBS-dominated composite has never been isolated. Framing: a filter that reduces max drawdown while preserving CAGR is valuable for its own sake (it creates room for more aggressive sizing elsewhere), independent of whether it shows measurable factor alpha.",
+
+  "base_portfolio_spec": {
+    "source": "paper_trading/config.json tracks.composite_v3_1, as running in paper trading (Track 3)",
+    "signals": "IBS (earnings-conditioned, 5-day trailing average, percentile-ranked, earnings-day names forced to neutral 0.50), RSI2 (100-RSI(close,2), percentile-ranked), Sector RS (63-day return, percentile-ranked within Fama sector, NaN sector filled to 0.5), Turnaround Tuesday (binary: 1 if that Friday's own daily return < -1%, else 0)",
+    "weights": {"ibs": 0.62, "rsi2": 0.22, "sector_rs": 0.10, "turnaround_tue": 0.06},
+    "universe": "Full Sharadar PIT-eligible common stocks (NASDAQ/NYSE/NYSEMKT/NYSEARCA/BATS), excluding Fama sectors Financial Services, Real Estate, Healthcare; price >= $1; trailing 63-day median dollar volume >= $500,000; >= 252 days price history",
+    "rebalance": "Friday close signal, Monday-open execution (next trading day's open after signal date for entry and for exit)",
+    "selection_and_weighting": "Top quintile of composite score among eligible (post-exclusion) names, equal weight",
+    "cost_model": "10bps round-trip, applied to weekly symmetric-difference turnover: cost_week = turnover_week * 0.0010, annualized as cost_week * 52",
+    "note_on_weight_provenance": "config.json flags these weights as differing from an IC-based re-optimization computed in a prior session (IBS=0.92/RSI2=0/SectorRS=0/Tue=0.08, no earnings conditioning). This audit uses the LIVE spec (.62/.22/.10/.06, earnings-conditioned) as registered, unchanged -- re-optimizing weights is out of scope for this audit."
+  },
+
+  "stripped_base_construction": {
+    "definition": "Identical signals, weights, universe, rebalance cadence, cost model, and position sizing as the base portfolio spec above, with the single change that the NSI Q5 / Quality Q5 exclusion step is skipped entirely -- the composite is scored on the full eligible universe every week, with no names removed pre-scoring.",
+    "implementation_note": "The live pipeline (paper_trading/signals.py::compute_composite) has exactly one exclusion choke point: `syms = [s for s in syms_today if s not in excluded]` before any signal is scored. The stripped base sets `syms = syms_today` directly at that point and otherwise reuses the same scoring/weighting code.",
+    "consequence_disclosed_in_advance": "Because percentile ranks (ibs/rsi2/sector_rs) are computed within the surviving universe each week, a stripped-base run will have a different (larger) universe_size and different rank denominators than the live V3.1 run. This is expected and is the entire point of the test -- it is not a bug to reconcile."
+  },
+
+  "test_portfolios": {
+    "A": "Stripped Base -- no exclusions. Benchmark for this test.",
+    "B": "Stripped Base + NSI Q5 exclusion only",
+    "C": "Stripped Base + Quality Q5 exclusion only",
+    "D": "Stripped Base + NSI Q5 + Quality Q5 (= current live V3.1 spec)",
+    "E": "Stripped Base + NSI Q5 + Quality Q5 + Accruals Q5 -- SKIPPED. The Sloan accruals formula (strategies/accruals.py) has not passed its 2010-01-31 sanity check even after the healthcare-exclusion fix (Q1 ROA ~0, 34.78% loss-making names per TODO.txt item 4); the profitability floor fix referenced in the task brief has not been implemented. Running Portfolio E on an unvalidated signal would produce an uninterpretable comparison, so it is registered as skipped in advance rather than run and discarded post hoc."
+  },
+
+  "exclusion_definitions": {
+    "nsi_q5": "Net share issuance = (sharesbas_now - sharesbas_1yr_ago) / sharesbas_1yr_ago using MRQ fundamentals. Quintiled ascending (Q5 = heaviest issuers/dilution) among that week's eligible (or stripped-base eligible) universe. Excluded: Q5.",
+    "quality_q5": "6-component composite quality score (roe, roa, gm, dte, icr, cfe from strategies/quality.py), each cross-sectionally percentile-ranked and averaged (requires >=4 of 6 non-NaN components, >=5 names). Quintiled descending by score (Q5 = lowest quality). Excluded: Q5.",
+    "recompute_frequency": "Computed once per calendar month and held for every Friday rebalance within that month -- matches the live pipeline's monthly caching exactly. Not changed for this test.",
+    "cutoff_universe_by_portfolio": "For B, C, D, the NSI/Quality Q5 cutoffs are computed on that portfolio's own pre-exclusion eligible universe each month (i.e. the same underlying eligible set as Portfolio A, since none of B/C/D's exclusions are sequentially compounding cutoffs -- NSI and Quality are each computed once on the full eligible set, then applied independently or jointly)."
+  },
+
+  "evaluation_metrics": {
+    "return": ["CAGR (annualized, weekly-return based, periods_per_year=52)", "Excess CAGR over SPY (full-period buy-and-hold CAGR difference)", "Factor-adjusted alpha (FF5+UMD, monthly, local factor files -- no network dependency)", "Alpha t-stat", "R-squared"],
+    "risk": ["Sharpe ratio (weekly, periods_per_year=52)", "Sortino ratio", "Max drawdown", "Max drawdown duration (months)", "Calmar ratio"],
+    "downside": ["Semi-deviation (downside-only, weekly)", "5th percentile monthly return (left tail)", "Worst 12-month (52-week) rolling return", "Crash-period cumulative returns: 2008-2009 (GFC), 2020-02 to 2020-04 (COVID crash), 2022 calendar year (bear market)"],
+    "efficiency": ["Turnover (weekly %, and monthly-equivalent = weekly * 4.33)", "Annual modeled cost (10bps round-trip on weekly turnover, annualized)", "Net CAGR after costs"],
+    "portfolio": ["Average holdings count", "Average position size in dollars (assuming $100,000 total notional per track, matching paper_trading/config.json)", "Concentration (HHI of weights -- exactly 1/n each week under equal weighting)"]
+  },
+
+  "falsification_criteria": {
+    "valuable": "An exclusion is VALUABLE if it improves ANY TWO of: Sharpe ratio by >= 0.05; Max drawdown by >= 2 percentage points (less negative); Left-tail 5th-percentile monthly return by >= 0.5%/month; Factor alpha by >= 0.5%/yr -- each measured relative to Portfolio A (Stripped Base).",
+    "neutral": "An exclusion is NEUTRAL if it improves fewer than two of the above metrics by the stated thresholds.",
+    "harmful": "An exclusion is HARMFUL if it materially worsens more than two metrics: decreases CAGR by > 1%/yr, OR increases max drawdown by > 2 percentage points, relative to Portfolio A.",
+    "application": "Applied independently and literally to B, C, and D (each vs A). No discretion in edge cases -- the thresholds decide the verdict as written."
+  },
+
+  "sub_period_analysis": {
+    "crash_periods": ["2008-01-01 to 2009-12-31 (GFC)", "2020-02-01 to 2020-04-30 (COVID crash)", "2022-01-01 to 2022-12-31 (bear market)"],
+    "rationale": "These are the periods where downside protection is expected to matter most, per the research background (both exclusion signals' spreads are short-leg-driven)."
+  },
+
+  "active_return_orthogonality_platform_fix": {
+    "purpose": "Fixes the platform orthogonality metric flagged in the prior residual-momentum audit, which reported raw return correlation rather than active-return correlation.",
+    "reported_for_every_portfolio_A_through_D": [
+      "Correlation of (portfolio weekly return - SPY weekly return) vs (Portfolio D weekly return - SPY weekly return)",
+      "Correlation of monthly FF5+UMD regression residuals vs Portfolio D's residuals, over overlapping months",
+      "Holdings Jaccard similarity vs Portfolio D's holdings, averaged over all shared rebalance dates"
+    ],
+    "note": "SPY weekly return is approximated by compounding the local daily total-return series (data/spy_total_return_daily_2001_2024.csv) over each portfolio week's [entry_date, exit_date) window on a close-to-close basis, while portfolio legs are entered/exited at Monday opens. This open-vs-close mismatch is a known, disclosed approximation, not a lookahead violation -- it affects the SPY leg of a correlation calculation, not the portfolio return itself."
+  },
+
+  "development_period": {
+    "start": "2001-01-01",
+    "end": "2024-12-31",
+    "rationale": "Full history. This is a portfolio construction audit of an existing, already-registered live specification, not a signal discovery exercise -- no holdout split is applied. Holdout budget for new-signal research is exhausted per project convention; forward validation for this audit is the existing 26-week paper-trading checkpoint on the live V3.1 track, which already runs with both exclusions applied."
+  },
+
+  "constraints": [
+    "Preregistration is committed (this file, before any portfolio is run) and not edited post-hoc based on results.",
+    "Stripped Base must be genuinely V3.1 minus exclusions -- identical signals, weights, universe, rebalance frequency, cost model, and position sizing to the live spec, changed only at the single exclusion choke point.",
+    "All test portfolios that are run (A-D; E registered as skipped) are reported in full -- no selective reporting of only the best-looking variant.",
+    "Active-return orthogonality is reported for every portfolio.",
+    "No new exclusion signals (short interest, momentum decile, etc.) are tested until NSI Q5 and Quality Q5 are fully audited under this preregistration.",
+    "No new composite or paper track is built from these results. This is an audit; construction changes, if any, are a separate future decision.",
+    "paper_trading/state/ is not read from or written to by this audit -- Tracks 1-3 remain frozen and untouched, per RESEARCH_PLATFORM.md."
+  ],
+
+  "deliverables": [
+    "This file",
+    "Full output table, Portfolios A-D (E noted as skipped)",
+    "Crash-period behavior table",
+    "Marginal contribution verdicts (B/C/D vs A) per the falsification criteria above",
+    "Active-return orthogonality table (platform fix)",
+    "Honest paragraph: do the existing V3.1 exclusions earn their place, or are they cosmetic?"
+  ],
+
+  "stop_condition": "Report results and wait for instruction. Do not build a new composite or paper track. Do not test additional exclusion signals."
+}

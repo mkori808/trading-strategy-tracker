@@ -1,0 +1,1034 @@
+{
+  "S1_orb_30": {
+    "intraday": {
+      "full_sample": {
+        "spread_ann": 3398.076020603218,
+        "spread_mean_daily": 0.032793121477980615,
+        "tstat": 115.39729650525452,
+        "n": 1516,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": 2247.8369764055947,
+          "spread_mean_daily": 0.031101504464626697,
+          "tstat": 93.83762249423214,
+          "n": 792,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": 3364.9181579485717,
+          "spread_mean_daily": 0.03275294638194888,
+          "tstat": 39.68989541919658,
+          "n": 169,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": 3637.3051335378223,
+          "spread_mean_daily": 0.033071907972041015,
+          "tstat": 32.36835058777255,
+          "n": 130,
+          "thin": false
+        },
+        "NOT_COVERED_post_2024": {
+          "spread_ann": 7203.093849200604,
+          "spread_mean_daily": 0.03587619917581077,
+          "tstat": 58.92302385431085,
+          "n": 425,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": 4800.40711529705,
+          "spread_mean_daily": 0.03420969647483541,
+          "tstat": 51.38635649514892,
+          "n": 371,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": 3445.9376598506337,
+          "spread_mean_daily": 0.03285042901221897,
+          "tstat": 88.3748025537434,
+          "n": 758,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": 2372.838230049186,
+          "spread_mean_daily": 0.03132286712452893,
+          "tstat": 59.34350319877278,
+          "n": 387,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": 3281.657678674373,
+          "spread_mean_daily": 0.03265030150021481,
+          "tstat": 95.91922708896985,
+          "n": 1013,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": 3356.6102312227235,
+          "spread_mean_daily": 0.03274281848197199,
+          "tstat": 51.41284201582562,
+          "n": 340,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": 4328.963499877436,
+          "spread_mean_daily": 0.033785634705708834,
+          "tstat": 40.48381836762385,
+          "n": 163,
+          "thin": false
+        }
+      }
+    },
+    "1day": {
+      "full_sample": {
+        "spread_ann": -0.09365615039518327,
+        "spread_mean_daily": -0.0003901481580822081,
+        "tstat": -1.7112706035970846,
+        "n": 1515,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": -0.1554076283025163,
+          "spread_mean_daily": -0.0006700181691622595,
+          "tstat": -2.2179230578024907,
+          "n": 792,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": 0.11918828152474781,
+          "spread_mean_daily": 0.00044693982369133734,
+          "tstat": 0.7242502090306615,
+          "n": 169,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": 0.1733432930836145,
+          "spread_mean_daily": 0.0006345551709132746,
+          "tstat": 0.7061518392023535,
+          "n": 130,
+          "thin": false
+        },
+        "NOT_COVERED_post_2024": {
+          "spread_ann": -0.12178515535814693,
+          "spread_mean_daily": -0.0005152006413693332,
+          "tstat": -1.1406644739324723,
+          "n": 424,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": -0.025621681365988636,
+          "spread_mean_daily": -0.00010299324053612583,
+          "tstat": -0.1733255878237999,
+          "n": 371,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": -0.05321260856962318,
+          "spread_mean_daily": -0.00021696343807160173,
+          "tstat": -0.7377571884425569,
+          "n": 758,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": -0.22407406615785785,
+          "spread_mean_daily": -0.0010062323347082085,
+          "tstat": -2.6407918502707854,
+          "n": 386,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": -0.13717112684920219,
+          "spread_mean_daily": -0.0005853004723917942,
+          "tstat": -2.1256903950545687,
+          "n": 1012,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": -0.01369759157160877,
+          "spread_mean_daily": -5.472972903160609e-05,
+          "tstat": -0.10501245150678401,
+          "n": 340,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": 0.031174474174926692,
+          "spread_mean_daily": 0.00012182654255642073,
+          "tstat": 0.2116326450938304,
+          "n": 163,
+          "thin": false
+        }
+      }
+    }
+  },
+  "S2_vwap_position": {
+    "intraday": {
+      "full_sample": {
+        "spread_ann": -0.9981259300283744,
+        "spread_mean_daily": -0.024611296614026057,
+        "tstat": -94.74945364247371,
+        "n": 1534,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": -0.9973922560931171,
+          "spread_mean_daily": -0.02333171987049396,
+          "tstat": -77.20802439049467,
+          "n": 810,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": -0.9980704111816526,
+          "spread_mean_daily": -0.02449829046831735,
+          "tstat": -34.26166280382056,
+          "n": 169,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": -0.9987665526684559,
+          "spread_mean_daily": -0.026229019744441952,
+          "tstat": -25.026618631171356,
+          "n": 130,
+          "thin": false
+        },
+        "NOT_COVERED_post_2024": {
+          "spread_ann": -0.9988795194124006,
+          "spread_mean_daily": -0.02660012295268888,
+          "tstat": -46.378826244445946,
+          "n": 425,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": -0.9987986497673053,
+          "spread_mean_daily": -0.026330900379476385,
+          "tstat": -38.96879554551421,
+          "n": 371,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": -0.9980577218877792,
+          "spread_mean_daily": -0.024472916889585458,
+          "tstat": -74.33375196919931,
+          "n": 774,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": -0.9973343519690604,
+          "spread_mean_daily": -0.02324659972388454,
+          "tstat": -52.94434082852073,
+          "n": 389,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": -0.9979083869486436,
+          "spread_mean_daily": -0.024186123996213657,
+          "tstat": -83.7911484292763,
+          "n": 1031,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": -0.9984469266582219,
+          "spread_mean_daily": -0.0253382195005017,
+          "tstat": -37.66141294862809,
+          "n": 340,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": -0.9986161419523378,
+          "spread_mean_daily": -0.02578429776471846,
+          "tstat": -32.78802822398409,
+          "n": 163,
+          "thin": false
+        }
+      }
+    },
+    "1day": {
+      "full_sample": {
+        "spread_ann": 0.15037487304871933,
+        "spread_mean_daily": 0.0005560587728381588,
+        "tstat": 2.2083019432765343,
+        "n": 1533,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": 0.14080066508356737,
+          "spread_mean_daily": 0.0005228761508130477,
+          "tstat": 1.7103810793810432,
+          "n": 810,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": -0.06336368615600096,
+          "spread_mean_daily": -0.00025972900662873184,
+          "tstat": -0.4017713435126517,
+          "n": 169,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": 0.07552816833425702,
+          "spread_mean_daily": 0.0002889776995945135,
+          "tstat": 0.300942860522347,
+          "n": 130,
+          "thin": false
+        },
+        "NOT_COVERED_post_2024": {
+          "spread_ann": 0.2950444747418626,
+          "spread_mean_daily": 0.0010264988626775887,
+          "tstat": 1.7597101353537474,
+          "n": 424,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": 0.1881671937253755,
+          "spread_mean_daily": 0.0006844084915460367,
+          "tstat": 1.0053937906977157,
+          "n": 371,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": 0.0986815258619318,
+          "spread_mean_daily": 0.00037352548947194636,
+          "tstat": 1.1808994943416837,
+          "n": 774,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": 0.22247733853871088,
+          "spread_mean_daily": 0.0007974582977990505,
+          "tstat": 1.9983610565879864,
+          "n": 388,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": 0.21199842356808163,
+          "spread_mean_daily": 0.0007632696618330901,
+          "tstat": 2.7256377343762623,
+          "n": 1030,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": 0.05191197444391271,
+          "spread_mean_daily": 0.0002008512644688735,
+          "tstat": 0.3637991289795867,
+          "n": 340,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": -0.0031166792283939815,
+          "spread_mean_daily": -1.2387011328849385e-05,
+          "tstat": -0.013578039097180127,
+          "n": 163,
+          "thin": false
+        }
+      }
+    }
+  },
+  "S3_gap_fade": {
+    "intraday": {
+      "full_sample": {
+        "spread_ann": 0.23753857829914837,
+        "spread_mean_daily": 0.0008460894357001285,
+        "tstat": 3.4688327935740686,
+        "n": 1534,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": 0.21769410195123617,
+          "spread_mean_daily": 0.0007818888091518451,
+          "tstat": 2.594888485606614,
+          "n": 810,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": 0.05069313897282024,
+          "spread_mean_daily": 0.00019624972562088842,
+          "tstat": 0.2602555908656841,
+          "n": 169,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": 0.6826670879460619,
+          "spread_mean_daily": 0.0020671339265550498,
+          "tstat": 2.1817651811740033,
+          "n": 130,
+          "thin": false
+        },
+        "NOT_COVERED_post_2024": {
+          "spread_ann": 0.23980586346799715,
+          "spread_mean_daily": 0.0008533591643974494,
+          "tstat": 1.6445282727138055,
+          "n": 425,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": 0.3417894865966473,
+          "spread_mean_daily": 0.0011673640174152044,
+          "tstat": 1.8501719831747199,
+          "n": 371,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": 0.27504065886158835,
+          "spread_mean_daily": 0.0009646636691618485,
+          "tstat": 2.974392112881388,
+          "n": 774,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": 0.07953872072941004,
+          "spread_mean_daily": 0.00030375183540279013,
+          "tstat": 0.8513086528484969,
+          "n": 389,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": 0.1287369161591838,
+          "spread_mean_daily": 0.0004806680006812817,
+          "tstat": 1.8180625859712178,
+          "n": 1031,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": 0.6209626168558013,
+          "spread_mean_daily": 0.0019185848821166496,
+          "tstat": 3.09059877230738,
+          "n": 340,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": 0.260888017857396,
+          "spread_mean_daily": 0.0009203289922818077,
+          "tstat": 0.9925366890110945,
+          "n": 163,
+          "thin": false
+        }
+      }
+    },
+    "1day": {
+      "full_sample": {
+        "spread_ann": 0.03285278547096837,
+        "spread_mean_daily": 0.00012828072066888466,
+        "tstat": 0.44641853400225034,
+        "n": 1533,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": 0.052044484426186255,
+          "spread_mean_daily": 0.0002013512168392455,
+          "tstat": 0.6248486141794024,
+          "n": 810,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": 0.23753064462874707,
+          "spread_mean_daily": 0.0008460639742256775,
+          "tstat": 0.8736011687137053,
+          "n": 169,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": -0.16072328183347107,
+          "spread_mean_daily": -0.0006950551937515606,
+          "tstat": -0.8320531566217763,
+          "n": 130,
+          "thin": false
+        },
+        "NOT_COVERED_post_2024": {
+          "spread_ann": -0.011269013976134223,
+          "spread_mean_daily": -4.497117290288964e-05,
+          "tstat": -0.06469408205408952,
+          "n": 424,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": -0.1105818200346097,
+          "spread_mean_daily": -0.00046492268520356727,
+          "tstat": -0.6352381257969197,
+          "n": 371,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": 0.10717667795295238,
+          "spread_mean_daily": 0.0004041024276813168,
+          "tstat": 1.0680822114569701,
+          "n": 774,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": 0.037284027444057566,
+          "spread_mean_daily": 0.0001452716030169704,
+          "tstat": 0.31599212837764684,
+          "n": 388,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": 0.08589216361707575,
+          "spread_mean_daily": 0.00032704521258043436,
+          "tstat": 1.0078593408927567,
+          "n": 1030,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": -0.13536255038152623,
+          "spread_mean_daily": -0.0005769961454906992,
+          "tstat": -0.9177022444633682,
+          "n": 340,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": 0.09037911315473957,
+          "spread_mean_daily": 0.00034341389751159894,
+          "tstat": 0.3010688109277201,
+          "n": 163,
+          "thin": false
+        }
+      }
+    }
+  },
+  "S4_gap_and_go": {
+    "intraday": {
+      "full_sample": {
+        "spread_ann": -0.1924507499185022,
+        "spread_mean_daily": -0.0008478595500355014,
+        "tstat": -3.4771137849881257,
+        "n": 1534,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": -0.17872063281099948,
+          "spread_mean_daily": -0.0007810121157804097,
+          "tstat": -2.590689690557796,
+          "n": 810,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": -0.050962686724959405,
+          "spread_mean_daily": -0.00020754656488845662,
+          "tstat": -0.27496345205597006,
+          "n": 169,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": -0.3999924650163106,
+          "spread_mean_daily": -0.0020249829243755616,
+          "tstat": -2.13500347480972,
+          "n": 130,
+          "thin": false
+        },
+        "NOT_COVERED_post_2024": {
+          "spread_ann": -0.19691127280005205,
+          "spread_mean_daily": -0.0008698202031467172,
+          "tstat": -1.679541633398818,
+          "n": 425,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": -0.25610445421483763,
+          "spread_mean_daily": -0.0011733374873713533,
+          "tstat": -1.8576283071278752,
+          "n": 371,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": -0.21498476053040438,
+          "spread_mean_daily": -0.0009600632411318681,
+          "tstat": -2.964899083029184,
+          "n": 774,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": -0.07613376571664154,
+          "spread_mean_daily": -0.00031418867173167324,
+          "tstat": -0.8795227737469956,
+          "n": 389,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": -0.11453405790521765,
+          "spread_mean_daily": -0.0004825870264431197,
+          "tstat": -1.8274499544999967,
+          "n": 1031,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": -0.3841877039341074,
+          "spread_mean_daily": -0.0019220119777860639,
+          "tstat": -3.099391592019789,
+          "n": 340,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": -0.20655163660967446,
+          "spread_mean_daily": -0.0009177009389223366,
+          "tstat": -0.9871924673174047,
+          "n": 163,
+          "thin": false
+        }
+      }
+    },
+    "1day": {
+      "full_sample": {
+        "spread_ann": -0.03454748173817679,
+        "spread_mean_daily": -0.00013950755646966316,
+        "tstat": -0.4852464828391715,
+        "n": 1533,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": -0.050102276166388515,
+          "spread_mean_daily": -0.00020395125985050544,
+          "tstat": -0.6342193611265082,
+          "n": 810,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": -0.2019615586955299,
+          "spread_mean_daily": -0.00089483158426685,
+          "tstat": -0.9234418620511765,
+          "n": 169,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": 0.19312585315186426,
+          "spread_mean_daily": 0.0007009464631322144,
+          "tstat": 0.8375585266480317,
+          "n": 130,
+          "thin": false
+        },
+        "NOT_COVERED_post_2024": {
+          "spread_ann": 0.006821682374470672,
+          "spread_mean_daily": 2.6978617794400013e-05,
+          "tstat": 0.03872705540175246,
+          "n": 424,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": 0.11907603461180916,
+          "spread_mean_daily": 0.0004465416372537556,
+          "tstat": 0.6087918375402269,
+          "n": 371,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": -0.09829093689177437,
+          "spread_mean_daily": -0.000410484606671263,
+          "tstat": -1.0844096478896925,
+          "n": 774,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": -0.03935692511244182,
+          "spread_mean_daily": -0.00015932202558139008,
+          "tstat": -0.34767270701769537,
+          "n": 388,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": -0.08085456437733096,
+          "spread_mean_daily": -0.0003345111614125558,
+          "tstat": -1.0313275148808831,
+          "n": 1030,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": 0.15226380434767384,
+          "spread_mean_daily": 0.0005625729979103382,
+          "tstat": 0.894363883286341,
+          "n": 340,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": -0.08944007552520739,
+          "spread_mean_daily": -0.0003717386938808349,
+          "tstat": -0.3248331075882775,
+          "n": 163,
+          "thin": false
+        }
+      }
+    }
+  },
+  "S5_pivot_reversal": {
+    "intraday": {
+      "full_sample": {
+        "spread_ann": 0.16983238659283661,
+        "spread_mean_daily": 0.0006226559889555048,
+        "tstat": 2.6072649861375523,
+        "n": 1534,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": 0.1965794006614925,
+          "spread_mean_daily": 0.0007124242367550576,
+          "tstat": 2.4515196046811645,
+          "n": 810,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": -0.0401570601258876,
+          "spread_mean_daily": -0.0001626280928824833,
+          "tstat": -0.22550995618347397,
+          "n": 169,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": 0.6516350201443342,
+          "spread_mean_daily": 0.0019931174271108306,
+          "tstat": 2.079967818196527,
+          "n": 130,
+          "thin": false
+        },
+        "NOT_COVERED_post_2024": {
+          "spread_ann": 0.09071436022694246,
+          "spread_mean_daily": 0.000344634205785598,
+          "tstat": 0.6729757139410865,
+          "n": 425,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": 0.1038175208919152,
+          "spread_mean_daily": 0.00039203970504971436,
+          "tstat": 0.6628093419859865,
+          "n": 371,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": 0.2237605743180029,
+          "spread_mean_daily": 0.0008016249222667801,
+          "tstat": 2.4878045404688853,
+          "n": 774,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": 0.13039719686319184,
+          "spread_mean_daily": 0.0004865035132385925,
+          "tstat": 1.2831170502196259,
+          "n": 389,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": 0.12114459569207692,
+          "spread_mean_daily": 0.00045387330226949414,
+          "tstat": 1.7394328151442504,
+          "n": 1031,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": 0.31335411556029746,
+          "spread_mean_daily": 0.0010822687963240837,
+          "tstat": 1.6015917768759573,
+          "n": 340,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": 0.20235047376240245,
+          "spread_mean_daily": 0.0007315308077773456,
+          "tstat": 0.8957295036721616,
+          "n": 163,
+          "thin": false
+        }
+      }
+    },
+    "1day": {
+      "full_sample": {
+        "spread_ann": -0.025353918649451024,
+        "spread_mean_daily": -0.00010190301138057022,
+        "tstat": -0.36860472209779266,
+        "n": 1533,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": -0.023589952799878633,
+          "spread_mean_daily": -9.472825296033705e-05,
+          "tstat": -0.30122233677879023,
+          "n": 810,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": 0.14677228927395247,
+          "spread_mean_daily": 0.000543605204602197,
+          "tstat": 0.6359189577178422,
+          "n": 169,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": -0.06522923001473024,
+          "spread_mean_daily": -0.0002676385654815513,
+          "tstat": -0.28254629069693943,
+          "n": 130,
+          "thin": false
+        },
+        "NOT_COVERED_post_2024": {
+          "spread_ann": -0.07797071211691742,
+          "spread_mean_daily": -0.0003220841924851667,
+          "tstat": -0.4879113778161441,
+          "n": 424,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": -0.17547553108485547,
+          "spread_mean_daily": -0.0007653754433183768,
+          "tstat": -1.08639458953248,
+          "n": 371,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": 0.055170234141951546,
+          "spread_mean_daily": 0.000213126332346237,
+          "tstat": 0.5807954827245381,
+          "n": 774,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": -0.02388688038750264,
+          "spread_mean_daily": -9.59350727094943e-05,
+          "tstat": -0.22555018980427172,
+          "n": 388,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": -0.017548488578176036,
+          "spread_mean_daily": -7.025264605216846e-05,
+          "tstat": -0.22383459932455468,
+          "n": 1030,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": -0.018301942538332505,
+          "spread_mean_daily": -7.329689712361002e-05,
+          "tstat": -0.11931203128178099,
+          "n": 340,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": -0.08710323885206162,
+          "spread_mean_daily": -0.0003615714477954182,
+          "tstat": -0.33136822633534857,
+          "n": 163,
+          "thin": false
+        }
+      }
+    }
+  },
+  "S6_intraday_reversal": {
+    "intraday": {
+      "full_sample": {
+        "spread_ann": -0.9971462639065931,
+        "spread_mean_daily": -0.02298229072396754,
+        "tstat": -91.44161795794318,
+        "n": 1534,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": -0.9956597489039647,
+          "spread_mean_daily": -0.02135527635335145,
+          "tstat": -75.67388195857365,
+          "n": 810,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": -0.9976499438068179,
+          "spread_mean_daily": -0.02373488515591254,
+          "tstat": -32.86566336619896,
+          "n": 169,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": -0.9974175976334858,
+          "spread_mean_daily": -0.023369566306337963,
+          "tstat": -23.081879064079036,
+          "n": 130,
+          "thin": false
+        },
+        "NOT_COVERED_post_2024": {
+          "spread_ann": -0.9985729450033017,
+          "spread_mean_daily": -0.02566546097218444,
+          "tstat": -47.127609140978215,
+          "n": 425,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": -0.9980583109991705,
+          "spread_mean_daily": -0.024474091220257864,
+          "tstat": -39.03055415409265,
+          "n": 371,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": -0.9970343246004482,
+          "spread_mean_daily": -0.022833106753732436,
+          "tstat": -72.38476530623095,
+          "n": 774,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": -0.996185260717815,
+          "spread_mean_daily": -0.02185635347162377,
+          "tstat": -47.350865692381504,
+          "n": 389,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": -0.9969289711905762,
+          "spread_mean_daily": -0.022697737174934285,
+          "tstat": -78.54632355122399,
+          "n": 1031,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": -0.9973865081680506,
+          "spread_mean_daily": -0.023323186582435387,
+          "tstat": -39.18920715236085,
+          "n": 340,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": -0.9978453086767448,
+          "spread_mean_daily": -0.024071064448962794,
+          "tstat": -29.566034574246643,
+          "n": 163,
+          "thin": false
+        }
+      }
+    },
+    "1day": {
+      "full_sample": {
+        "spread_ann": 0.013736538365793027,
+        "spread_mean_daily": 5.414054218120536e-05,
+        "tstat": 0.22845647644347508,
+        "n": 1533,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": 0.04791980617420588,
+          "spread_mean_daily": 0.00018575956126955272,
+          "tstat": 0.6265429292870665,
+          "n": 810,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": 0.08613264893956862,
+          "spread_mean_daily": 0.0003279242258906028,
+          "tstat": 0.47451588682074164,
+          "n": 169,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": -0.24802892672851462,
+          "spread_mean_daily": -0.001130540703485985,
+          "tstat": -1.2256620330109769,
+          "n": 130,
+          "thin": false
+        },
+        "NOT_COVERED_post_2024": {
+          "spread_ann": 0.014416180321379146,
+          "spread_mean_daily": 5.680024484225522e-05,
+          "tstat": 0.11225711379804505,
+          "n": 424,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": 0.029466977447422993,
+          "spread_mean_daily": 0.00011524938145197105,
+          "tstat": 0.1949595604028407,
+          "n": 371,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": 0.02990776647022919,
+          "spread_mean_daily": 0.00011694831060174169,
+          "tstat": 0.37296462084078896,
+          "n": 774,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": -0.032129459255331616,
+          "spread_mean_daily": -0.00012958263340371527,
+          "tstat": -0.2970152454038018,
+          "n": 388,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": -0.005336391945022112,
+          "spread_mean_daily": -2.1232637056926393e-05,
+          "tstat": -0.07766462433973341,
+          "n": 1030,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": 0.005678583137238791,
+          "spread_mean_daily": 2.2470572947695994e-05,
+          "tstat": 0.0363730136322704,
+          "n": 340,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": 0.16214732349924654,
+          "spread_mean_daily": 0.0005964851075472718,
+          "tstat": 0.925708757893891,
+          "n": 163,
+          "thin": false
+        }
+      }
+    }
+  }
+}

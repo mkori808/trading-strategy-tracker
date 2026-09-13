@@ -1,0 +1,57 @@
+{
+  "experiment_id": "ibs_daily_overnight_v1",
+  "registered_at": "2026-09-10T00:00:00-07:00",
+  "status": "PREREGISTERED / NOT YET LAUNCHED",
+  "hypothesis": "Daily close-to-open IBS execution captures at least 2% per year more net alpha than Track 1 weekly IBS execution after realistic costs.",
+  "economic_context": "Historical characterization found that IBS-related relative performance is concentrated in the overnight window while next-open-to-close long-only implementation is not viable. This is a prospective execution-frequency experiment, not a historical validation exercise.",
+  "signal": {
+    "formula": "IBS=(close-low)/(high-low); score=percentile_rank(1-mean(IBS[t-4..t]))",
+    "earnings_policy": "ARQ filing-date earnings names are assigned neutral score 0.50 and excluded from overnight portfolio selection; non-earnings IBS only.",
+    "source_equivalence": "Uses the existing paper-trading IBS implementation and eligibility/exclusion formulas."
+  },
+  "universe": {
+    "common": "Domestic common stocks, same price/history/sector filters as Tracks 1-3; exclude Financial Services, Real Estate, Healthcare; then apply NSI Q5 and Quality Q5 exclusions.",
+    "full": "Track 4A: all eligible names after exclusions.",
+    "liquid": "Track 4B: retain the top trailing-20-session median-dollar-volume quintile before applying the same exclusions.",
+    "expected_sizes": {"full_pre_exclusion": [1300, 1600], "liquid_pre_exclusion": [260, 320], "liquid_minimum_top_quintile": 50}
+  },
+  "execution": {
+    "signal_time": "regular-session close on trading day t",
+    "virtual_entry": "same regular-session close on t, using Sharadar close; this is a virtual close fill for prospective measurement",
+    "virtual_exit": "first Alpaca IEX one-minute bar open at or after 09:30 ET on the next trading session, retrieved after 10:00 ET",
+    "holding_window": "close[t] to open[t+1] only; no intraday hold",
+    "timing_resolution_note": "The phrase 'next-day open entry' in the request conflicts with a close-to-open holding period. This specification intentionally uses close entry and next-open exit to measure the stated overnight window."
+  },
+  "portfolio": {
+    "selection": "top IBS-score quintile, equal weight",
+    "rebalance": "every trading-session close",
+    "notional": "same configured virtual notional as Tracks 1-3"
+  },
+  "cost_model": {
+    "round_trip_bps_per_overnight": 10,
+    "application": "charged once per completed overnight portfolio, independent of realized gap",
+    "annual_cost_flag_pct": 5,
+    "cost_dominates_pct": 10
+  },
+  "comparisons": {
+    "primary": "Track 1 IBS Standalone weekly virtual-fill return",
+    "secondary": "SPY adjusted-total-return performance over aligned dates",
+    "liquid_secondary": "Track 4B versus Track 4A"
+  },
+  "acceptance_criteria": {
+    "daily_adds_value": "net alpha versus Track 1 >= 2% per year and t-statistic > 1.5",
+    "marginal": "net alpha versus Track 1 is positive but <2% per year, or t-statistic <1.5; weekly remains preferred",
+    "weekly_superior": "net alpha versus Track 1 is negative; discard daily execution"
+  },
+  "observation": {
+    "minimum_weeks": 26,
+    "inception": "next Friday after preregistration commit and dry-run approval",
+    "historical_backtest": "prohibited; original historical holdout is exhausted",
+    "frozen_tracks": ["ibs_standalone", "composite_v2", "composite_v3_1"]
+  },
+  "required_outputs": [
+    "append-only daily ledger", "daily turnover", "annualized cost flags", "fill-quality distribution",
+    "day-of-week returns", "mean overnight gap", "mean abnormal-volume ratio", "SPY comparison", "Track 1 comparison"
+  ],
+  "launch_gate": "Run --dry-run-daily and review its output. Do not register scheduled tasks or invoke --record-daily until explicit user approval."
+}

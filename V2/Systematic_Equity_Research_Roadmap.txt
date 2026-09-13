@@ -1,0 +1,879 @@
+SYSTEMATIC EQUITY RESEARCH ROADMAP
+Research Charter, Current Evidence, Targets, and Next Steps
+Updated: September 11, 2026
+
+
+======================================================================
+0. CURRENT BEST UNDERSTANDING
+======================================================================
+
+Current core:
+    V3.2 — IBS 0.69 / RSI2 0.25 / Turnaround Tuesday 0.06.
+    Sector Rotation removed. No Gap Fade. No transition filter.
+    The specification is frozen in V2/research/canonical/v3_2_specification.json.
+
+Evidence status:
+    Historical characterization is promising, but it uses already-consumed history.
+    Independent magnitude remains uncertain. Forward validation is the primary new
+    evidence stream.
+
+Historical holdout:
+    V2 was positive (+3.84% factor alpha, t=1.74) but below the confirmation
+    threshold. Status: UNRESOLVED / UNDERPOWERED, not fully holdout-confirmed.
+
+TYPE 2 defensive-filter research:
+    CLOSED. Regime label, volatility level, drawdown velocity, and rolling IBS
+    spread failed to provide reliable early discrimination. The original apparent
+    success is SUPERSEDED — INVALID METHODOLOGY.
+
+Primary new research direction:
+    An orthogonal event-driven / PEAD engine, not another closely related oversold
+    or mean-reversion indicator.
+
+Portfolio target:
+    Approximately 20% long-run net CAGR with material absolute and risk-adjusted
+    outperformance versus SPY total return.
+
+
+======================================================================
+1. PURPOSE
+======================================================================
+
+The objective is not to find one magical indicator that independently returns 20% per year.
+
+The objective is to build a systematic equity portfolio from multiple validated,
+independent sources of alpha that can ultimately produce approximately 20%+ long-run
+net CAGR while materially outperforming SPY buy-and-hold on both absolute and
+risk-adjusted performance.
+
+This document should be used as the steering document for future research.
+
+
+======================================================================
+2. PRIMARY PERFORMANCE TARGETS
+======================================================================
+
+FINISHED-PORTFOLIO TARGET
+
+Primary objective:
+    Approximately 20% long-run NET CAGR
+
+The portfolio should also:
+    - Materially outperform SPY total-return buy-and-hold over comparable periods.
+    - Produce statistically credible alpha rather than merely higher beta or factor exposure.
+    - Maintain acceptable volatility and drawdowns.
+    - Avoid dependence on extreme leverage.
+    - Be implementable after realistic commissions, spreads, slippage, borrow costs,
+      taxes where relevant, and turnover.
+    - Remain robust across market regimes.
+    - Have adequate capacity for the intended account size.
+    - Behave in paper/live trading in a manner consistent with backtest assumptions.
+
+INTERPRETATION OF LONG-RUN PORTFOLIO CAGR
+
+    <10%        Generally unattractive unless risk is dramatically lower than SPY.
+    10-15%      Potentially useful; complexity needs excellent risk-adjusted results.
+    ~15%        Minimum compelling finished-portfolio outcome.
+    ~20%        Primary target / excellent outcome.
+    ~25%        Stretch target.
+    30%+        Exceptional; do not make this a requirement.
+
+The approximate 10% historical nominal S&P 500 total-return figure is a planning
+baseline only. Historical experiments must compare against SPY's ACTUAL total-return
+performance over the same dates.
+
+A strategy returning 20% during a period when SPY also returns 20% has not achieved
+the project's objective.
+
+Likewise, a strategy returning 15% with much lower volatility, drawdown, and beta
+may be more valuable than a 20% strategy that takes dramatically more risk.
+
+
+======================================================================
+3. INDIVIDUAL EDGE VS. FINISHED PORTFOLIO
+======================================================================
+
+Do NOT require every individual strategy or signal to produce 15-20% CAGR.
+
+An individual edge can be extremely valuable if it has characteristics such as:
+    - 3-8% genuine annual alpha.
+    - Strong statistical evidence.
+    - Low correlation with existing strategies.
+    - Low or manageable correlation with SPY.
+    - Robustness across regimes and subperiods.
+    - Realistic implementation costs.
+    - Sufficient capacity.
+    - A plausible economic or behavioral mechanism.
+
+Example:
+
+    A strategy with:
+        4-6% annual alpha
+        Sharpe around 1.2-1.5
+        low correlation to the existing alpha engine
+        stable regime behavior
+        realistic costs
+
+    can be an outstanding discovery even if its standalone CAGR is nowhere near 20%.
+
+The research goal is therefore:
+
+    FIND REPEATABLE, STATISTICALLY SUPPORTED SOURCES OF ALPHA.
+
+The portfolio goal is:
+
+    COMBINE INDEPENDENT EDGES TO MAXIMIZE NET RISK-ADJUSTED EXCESS RETURN.
+
+The stretch performance goal is:
+
+    BUILD THE COMBINED PORTFOLIO TOWARD >=20% LONG-RUN NET CAGR.
+
+
+======================================================================
+4. CURRENT DATA / RESEARCH FOUNDATION
+======================================================================
+
+The research platform now has a validated point-in-time data layer using the full
+Sharadar bundle.
+
+The daily cross-sectional signal library was tested on approximately 1,300-1,600
+U.S. common stocks over 2001-2024.
+
+The platform has also been extended into intraday research where daily-resolution
+signals are structurally insufficient.
+
+The important implication is that the project has moved beyond "Can simple signals
+predict returns?" The next problem is how to turn real predictive information into
+a diversified, implementable portfolio with enough economic magnitude.
+
+
+======================================================================
+5. CURRENT DAILY SIGNAL EVIDENCE
+======================================================================
+
+STRONGEST SIGNAL: IBS / INTERNAL BAR STRENGTH
+
+    1-day t-stat: 16.95
+    Verified with corruption testing and random-baseline testing.
+
+IBS is the strongest signal discovered by a wide margin.
+
+Earnings conditioning produced an important refinement:
+
+    Non-earnings IBS:
+        ~49.2% annualized signal spread
+        t = 17.31
+
+    Earnings-day IBS:
+        ~-8.4% annualized
+        t = -1.89
+
+These are opposite-direction effects.
+
+Current implementation:
+    IBS is neutralized on earnings days.
+
+Interpretation:
+    IBS may primarily capture temporary liquidity/technical dislocations rather than
+    genuine information shocks. Earnings moves may belong to a different economic
+    regime and should not automatically be faded.
+
+
+RSI2
+
+    t = 6.22
+    Robust across bull, bear, and sideways regimes.
+
+RSI2 is a strong short-term mean-reversion signal, but it is economically related
+to IBS rather than being a fully independent alpha engine.
+
+
+TURNAROUND TUESDAY
+
+    t = 5.56 at 10-day horizon.
+
+Appears to be a genuine calendar effect.
+
+
+SECTOR ROTATION / SECTOR RELATIVE STRENGTH
+
+    t = 2.84 at 20-day horizon.
+
+This is the only tested daily signal that strengthens with horizon, making it useful
+as a slower component that is more economically distinct from short-term reversal.
+
+
+WEAKER / REDUNDANT / NEGATIVE SIGNALS
+
+    - S1 and S3 were highly redundant: correlation ~0.93.
+    - S2 EMA Crossover was negative.
+    - S6 Breakout was negative at short horizons.
+    - S8 Gap Fade was effectively empty at daily resolution and requires intraday execution.
+
+These signals should not be discarded conceptually. Negative or asymmetric signals
+may still be useful for:
+    - short selection
+    - exclusion filters
+    - regime identification
+    - drawdown reduction
+    - event continuation
+    - portfolio conditioning
+
+A signal that is poor as a long strategy may still contain economically valuable
+information.
+
+
+======================================================================
+6. COMPOSITE HISTORY
+======================================================================
+
+COMPOSITE V1
+
+Construction:
+    inverse 20-day momentum + breakout + fundamental exclusions
+
+Development result:
+    ~9.54%/yr alpha
+
+Holdout result:
+    FAILED comprehensively.
+
+The sign flipped and the small-cap alpha collapsed from approximately 19.6% to 0.5%.
+
+Interpretation:
+    textbook regime overfitting to 2001-2016 small-cap conditions.
+
+Lesson:
+    A spectacular development result is not enough.
+    Robustness and untouched forward evidence matter more than optimized historical CAGR.
+
+
+COMPOSITE V2
+
+Construction:
+    IBS + RSI2 + Sector Relative Strength + Turnaround Tuesday
+    hand-weighted
+
+Development:
+    2001-2009: t = 3.21
+    2010-2018: t = 2.84
+
+Holdout:
+    alpha ~3.84%/yr
+    t = 1.74
+
+Preregistered pass threshold:
+    t > 2.0
+
+Conclusion:
+    Did not formally pass the preregistered threshold.
+    However, the sign remained positive and the result was not catastrophic.
+    Best characterization: real-looking but decayed / statistically underpowered,
+    not a V1-style failure.
+
+
+COMPOSITE V3.1
+
+Current best specification.
+
+Weights:
+    IBS                0.62
+    RSI2               0.22
+    Sector RS          0.10
+    Turnaround Tuesday 0.06
+
+IBS uses the earnings-conditioned implementation.
+
+Important structural observation:
+    IBS + RSI2 = 84% of the composite.
+
+Therefore V3.1 is primarily a SHORT-HORIZON MEAN-REVERSION ENGINE, not four fully
+independent strategies.
+
+V3.1 is going directly to paper trading without a new historical holdout test.
+
+
+======================================================================
+7. CURRENT PAPER-TRADING PROGRAM
+======================================================================
+
+Inception:
+    September 4, 2026
+
+Minimum observation period:
+    26 weeks
+
+26 weeks after September 4, 2026:
+    March 5, 2027 (exact checkpoint; review milestone, not automatic approval)
+
+Operational state files were initialized on September 9, 2026. That bookkeeping
+date does not replace the September 4 research/signal inception date.
+
+Execution:
+    virtual-fill framework
+    uses real Monday open prices
+    does not send actual Alpaca orders
+
+Automation:
+    Windows Task Scheduler
+
+Tracks:
+
+    Track 1:
+        IBS Standalone
+
+    Track 2:
+        Composite V2
+
+    Track 3:
+        Composite V3.1
+
+    Track 4:
+        Composite V3.2 — frozen September 11, 2026; prospective observations only,
+        no historical backfill
+
+These tracks should remain unchanged during the preregistered observation period.
+Interim performance should be observed and recorded, not used to modify the rules.
+
+
+======================================================================
+8. HOLDOUT / RESEARCH-INTEGRITY RULES
+======================================================================
+
+The original holdout budget is exhausted:
+    3 of 3 holdout uses consumed.
+
+The historical holdout period must now be treated as USED information.
+
+Do not repeatedly modify a strategy after viewing that period and then describe
+performance on the same period as independent validation.
+
+Use the hypothesis taxonomy:
+
+    SUPPORTED
+    FALSIFIED
+    UNRESOLVED / UNDERPOWERED
+
+Do not force ambiguous evidence into "passed" or "failed."
+
+Future research programs should be preregistered before evaluation.
+
+Preregistering now does NOT create another clean historical holdout. A newly frozen
+hypothesis may be characterized on already-viewed history, but independent evidence
+must come from future prospective data or a genuinely untouched dataset/universe.
+
+Each genuinely distinct hypothesis should define:
+    - economic hypothesis
+    - universe
+    - signal formula
+    - direction
+    - horizon
+    - portfolio construction
+    - execution timing
+    - cost assumptions
+    - evaluation metrics
+    - acceptance / rejection threshold
+    - development period
+    - forward or future validation procedure
+
+Do not consume new forward evidence casually.
+
+Different economic hypotheses should be evaluated individually before combining
+them. This is important both statistically and for debugging.
+
+
+======================================================================
+9. WHAT THE CURRENT EVIDENCE IS REALLY SAYING
+======================================================================
+
+The strongest emerging economic hypothesis is not simply:
+
+    "Stocks mean revert."
+
+It is closer to:
+
+    TEMPORARY LIQUIDITY / TECHNICAL PRICE PRESSURE -> REVERSAL
+
+    GENUINE NEW INFORMATION -> CONTINUATION OR NO REVERSAL
+
+Evidence pointing in this direction includes:
+
+    - Extremely strong non-earnings IBS.
+    - Earnings-day IBS losing or reversing its effect.
+    - Strong RSI2 / short-term reversal evidence.
+    - Evidence that some extreme losers continue falling rather than bouncing.
+    - Gap/event-type behavior that may differ from ordinary technical dislocations.
+
+This may be the most important clue produced by the research platform so far.
+
+The next stage should try to distinguish:
+    "temporary price pressure"
+from
+    "information-driven repricing."
+
+
+======================================================================
+10. NEXT RESEARCH PRIORITIES
+======================================================================
+
+PRIORITY 1 — DEEPEN THE IBS / REVERSAL MECHANISM
+
+Core hypothesis:
+
+    Short-term mean reversion should be strongest when a move looks liquidity-driven
+    or technically driven and weakest, absent, or reversed when the move appears
+    information-driven.
+
+Test conditioning variables ONE AT A TIME before building another composite.
+
+Candidate conditioning variables:
+    - earnings-event flag
+    - overnight gap as fraction of total move
+    - abnormal volume
+    - turnover
+    - liquidity
+    - intraday range
+    - idiosyncratic volatility
+    - market capitalization
+    - liquidity bucket
+    - volatility bucket
+    - market regime
+
+Goal:
+    discover WHEN IBS/reversal works, not another oscillator that restates IBS.
+
+Avoid:
+    adding many RSI/oscillator/EMA-distance variants that are likely to be redundant.
+
+
+PRIORITY 2 — TEST WHETHER IBS SHOULD TRADE MORE FREQUENTLY
+
+Current mismatch:
+
+    strongest IBS evidence = approximately 1-day horizon
+    current implementation = weekly rebalance
+
+Do not alter the existing paper tracks.
+
+Instead create a separate prospective execution experiment.
+
+Candidate variants:
+    - daily IBS
+    - every-two-day IBS
+    - weekly IBS
+    - daily with rank/no-trade buffers
+    - turnover-constrained daily IBS
+
+Evaluate:
+    - net alpha
+    - turnover
+    - spread/slippage
+    - alpha captured per unit turnover
+    - drawdown
+    - implementation burden
+
+The goal is not maximum gross alpha.
+The goal is maximum IMPLEMENTABLE net value.
+
+
+PRIORITY 3 — BUILD AN ORTHOGONAL EVENT / INFORMATION-CONTINUATION ENGINE
+
+The existing portfolio is heavily dominated by mean reversion.
+
+A high-priority new family should have the opposite economic mechanism:
+    continuation after genuine information.
+
+Earnings events are the obvious starting point because the IBS conditioning result
+already indicates that earnings days behave differently.
+
+Possible daily-data hypotheses:
+    - earnings-gap direction
+    - earnings open-to-close continuation
+    - post-earnings 1-day continuation
+    - post-earnings 5-day continuation
+    - post-earnings 10-day continuation
+    - abnormal-volume event continuation
+
+This should be developed as its own preregistered signal family rather than being
+quietly folded into IBS.
+
+
+PRIORITY 4 — MONETIZE THE NEGATIVE / SHORT SIDE
+
+Several tested variables appear much better at identifying LOSERS than WINNERS.
+
+Potential sources include:
+    - weak fundamental / quality tails
+    - high net share issuance
+    - extreme information-driven losers
+    - other signals whose long leg is weak but whose bottom-ranked stocks underperform
+
+A long-only architecture discards this information.
+
+Create a separate prospective short research program.
+
+Requirements:
+    - focus first on liquid/easy-to-borrow securities
+    - record actual broker borrowability prospectively
+    - record actual borrow fees
+    - include short-specific execution costs
+    - evaluate short legs independently before combining them
+    - do not assume historical borrow was available merely because a stock existed
+
+Potential endpoint:
+    a long/short or market-neutral alpha sleeve that can diversify the long-only engine.
+
+
+PRIORITY 5 — EXPLOIT SMALL-CAP / CAPACITY ADVANTAGES CAREFULLY
+
+Small capital can potentially exploit opportunities that are unattractive to large
+institutions because of:
+    - limited capacity
+    - lower liquidity
+    - high operational overhead relative to dollars deployed
+    - higher turnover
+    - niche event-driven opportunities
+
+But V1 demonstrated the danger:
+    historical small-cap alpha can be highly regime-dependent.
+
+Therefore capacity should be tested directly.
+
+Measure signal strength across:
+    - market-cap buckets
+    - dollar-volume buckets
+    - spread/liquidity buckets
+
+Compare:
+    gross edge
+    vs.
+    realistic trading cost and capacity
+
+Do not automatically equate "small cap" with "retail edge."
+
+
+PRIORITY 6 — NONLINEAR CONDITIONAL MODELING
+
+Machine learning should come AFTER individual mechanisms are understood.
+
+The purpose of ML here is not:
+    "feed the system hundreds of technical indicators and let it find alpha."
+
+The purpose is:
+    model nonlinear interactions among already-vetted predictors.
+
+Potential features:
+    - IBS
+    - RSI2
+    - Sector RS
+    - short-term reversal
+    - size
+    - liquidity / turnover
+    - volatility
+    - overnight gap
+    - earnings/event flag
+    - validated fundamental-negative variables
+
+Candidate modeling approach:
+    shallow / constrained boosted trees or another interpretable nonlinear model.
+
+Primary question:
+    Can conditional interactions improve out-of-sample IC / alpha beyond a simple
+    hand-weighted composite?
+
+Maintain strict multiple-testing controls.
+
+
+======================================================================
+11. WHAT NOT TO DO NEXT
+======================================================================
+
+Do NOT:
+
+    - Search randomly through hundreds of indicators.
+    - Optimize directly for maximum CAGR.
+    - Add another oscillator simply because IBS and RSI2 worked.
+    - Reuse spent holdout data as if it were untouched.
+    - Reject a 3-8% genuine alpha source because it does not independently make 20%.
+    - Combine unvalidated signals before understanding them individually.
+    - Assume negative long performance means a signal is useless.
+    - Assume small caps automatically provide exploitable alpha.
+    - Ignore turnover, spreads, slippage, borrow fees, or capacity.
+    - Modify current paper tracks in reaction to interim performance.
+    - Treat six months of paper returns as enough time to statistically prove a
+      modest annual alpha.
+
+
+======================================================================
+12. HOW TO EVALUATE THE PAPER PERIOD
+======================================================================
+
+The 26-week paper period is primarily an IMPLEMENTATION and CONSISTENCY test.
+
+Do not expect six months to prove a modest annual alpha with a t-statistic above 2.
+
+At the paper checkpoint, evaluate:
+
+    - Did the system run correctly?
+    - Did signal calculations match the research implementation?
+    - Were virtual fills realistic?
+    - Was realized slippage consistent with assumptions?
+    - Did turnover match expectations?
+    - Did cross-sectional IC generally have the expected sign?
+    - Did V3.1 rank stocks better than V2?
+    - Did V3.1 add value beyond IBS alone?
+    - Did earnings-conditioned IBS behave as expected?
+    - Were drawdowns consistent with historical expectations?
+    - Were factor exposures stable?
+    - Were any operational assumptions unrealistic?
+    - Were there unexplained divergences between modeled and observed execution?
+
+Do NOT rewrite the strategy because of a few bad weeks.
+
+
+======================================================================
+13. PORTFOLIO ARCHITECTURE TO AIM TOWARD
+======================================================================
+
+Do not assume the final system will be one stock-ranking model.
+
+A plausible eventual architecture is:
+
+    CORE MARKET / BETA EXPOSURE
+        +
+    ALPHA ENGINE
+
+The alpha engine may contain multiple sleeves:
+
+    Sleeve A:
+        short-horizon liquidity / mean reversion
+        (IBS / RSI2 family)
+
+    Sleeve B:
+        event / information continuation
+
+    Sleeve C:
+        slower sector / relative-strength effects
+
+    Sleeve D:
+        negative-selection / short / market-neutral anomalies
+
+    Sleeve E:
+        future orthogonal discoveries
+
+The purpose of diversification is not simply to add expected returns together.
+
+If independent sleeves increase the combined portfolio's Sharpe ratio, the portfolio
+may support more active risk while maintaining tolerable drawdowns.
+
+That is how several modest but genuine edges can become a high-return finished system.
+
+
+======================================================================
+14. CORE METRICS TO TRACK
+======================================================================
+
+Every strategy and portfolio should report at minimum:
+
+RETURN
+    - CAGR
+    - SPY CAGR over same dates
+    - CAGR spread (Strategy CAGR minus SPY CAGR, in percentage points; not alpha)
+    - excess return only with benchmark and calculation stated explicitly
+    - cumulative return
+
+RISK
+    - annualized volatility
+    - Sharpe ratio
+    - Sortino ratio if available
+    - maximum drawdown
+    - drawdown duration
+    - beta to SPY
+
+ALPHA / UNIQUENESS
+    - factor-regression alpha
+    - alpha t-statistic
+    - factor exposures
+    - correlation to SPY
+    - correlation to existing strategies
+
+SIGNAL QUALITY
+    - IC
+    - IC t-statistic
+    - spread return
+    - monotonicity across signal buckets
+    - regime consistency
+    - horizon decay
+
+IMPLEMENTATION
+    - turnover
+    - commissions
+    - spread estimate
+    - slippage
+    - borrow fees where relevant
+    - capacity
+    - average position size
+    - concentration
+
+ROBUSTNESS
+    - subperiod performance
+    - bull / bear / sideways regimes
+    - volatility regimes
+    - size buckets
+    - liquidity buckets
+    - parameter sensitivity
+    - corruption/randomization controls where appropriate
+
+
+======================================================================
+15. DECISION FRAMEWORK FOR NEW SIGNALS
+======================================================================
+
+For each new hypothesis, ask:
+
+1. Is there a plausible economic or behavioral mechanism?
+
+2. Is it genuinely different from what is already in the system?
+
+3. Does it predict returns individually before being combined?
+
+4. Does the effect survive realistic execution timing?
+
+5. Does it survive costs?
+
+6. Is the effect concentrated in one historical regime?
+
+7. Does it survive across size and liquidity groups?
+
+8. Is the long leg useful, the short leg useful, or both?
+
+9. What horizon contains the signal?
+
+10. Does it improve the portfolio after considering correlation with existing edges?
+
+Classify the result:
+
+    SUPPORTED
+        Evidence is strong enough to continue.
+
+    FALSIFIED
+        The preregistered economic claim is contradicted by adequate evidence.
+
+    UNRESOLVED / UNDERPOWERED
+        Evidence is insufficient to confidently support or reject the hypothesis.
+
+Avoid calling an underpowered test a failure merely because p > 0.05.
+
+
+======================================================================
+16. NEXT RESEARCH SEQUENCE
+======================================================================
+
+Recommended order from the current state:
+
+STEP 1
+    Freeze and continue Paper Tracks 1-3.
+
+STEP 2
+    Deepen IBS:
+        test liquidity-driven vs information-driven conditioning variables individually.
+
+STEP 3
+    Launch a separate prospective IBS execution-frequency experiment.
+
+STEP 4 — HIGHEST-PRIORITY NEW ALPHA ENGINE
+    Develop an orthogonal Post-Earnings Announcement Drift (PEAD) / event-driven
+    earnings family. Do not substitute another IBS/RSI-style oversold signal.
+
+STEP 5
+    Build a prospective short-side research track using signals that reliably identify losers.
+
+STEP 6
+    Measure every successful signal across size/liquidity/capacity buckets.
+
+STEP 7
+    Search for additional economically distinct alpha families.
+
+STEP 8
+    Once several validated inputs exist, test a constrained nonlinear interaction model.
+
+STEP 9
+    Estimate correlations and marginal portfolio contribution across validated sleeves.
+
+STEP 10
+    Optimize the FINISHED PORTFOLIO for net risk-adjusted return rather than optimizing
+    each component for maximum standalone CAGR.
+
+STEP 11
+    Only after the alpha engine demonstrates strong forward evidence should controlled
+    risk scaling / leverage become a major portfolio-construction question.
+
+
+======================================================================
+17. THE CENTRAL RESEARCH QUESTION
+======================================================================
+
+The most promising current question is:
+
+    CAN WE DISTINGUISH TEMPORARY PRICE PRESSURE FROM GENUINE INFORMATION-DRIVEN MOVES?
+
+If yes:
+
+    temporary dislocation
+        -> mean-reversion engine
+
+    genuine information shock
+        -> continuation/event engine
+
+This would create two economically distinct sides of the same market process and
+could be substantially more powerful than simply adding more technical indicators.
+
+
+======================================================================
+18. PROJECT NORTH STAR
+======================================================================
+
+The project is NOT trying to prove that one signal can make 20% per year.
+
+The project is trying to build an evidence-based collection of independent alpha
+engines and combine them intelligently.
+
+FINAL NORTH STAR:
+
+    Build a systematic equity portfolio capable of >=20% long-run net CAGR while
+    materially outperforming SPY total-return buy-and-hold on both absolute and
+    risk-adjusted performance, with the excess return supported by statistically
+    credible alpha rather than merely greater beta, factor exposure, or leverage.
+
+TARGET INTERPRETATION:
+
+    ~15% CAGR
+        Lower bound where the finished product starts becoming genuinely compelling.
+
+    ~20% CAGR
+        Primary target.
+
+    ~25% CAGR
+        Stretch target / exceptional outcome.
+
+    ~30%+ CAGR
+        Outstanding and unusual; require correspondingly stronger evidence.
+
+INDIVIDUAL EDGE STANDARD:
+
+    Do not judge individual discoveries by the 20% portfolio target.
+
+    A robust 3-8% source of annual alpha with strong statistics, manageable costs,
+    and low correlation to existing strategies may be exactly what the portfolio needs.
+
+RESEARCH PHILOSOPHY:
+
+    Find real edges.
+    Understand their mechanisms.
+    Validate them independently.
+    Preserve forward evidence.
+    Combine orthogonal edges.
+    Control implementation costs.
+    Scale only after the alpha is proven.
+
+That is the path toward the 20%+ portfolio.

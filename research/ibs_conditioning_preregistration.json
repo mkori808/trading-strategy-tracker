@@ -1,0 +1,142 @@
+{
+  "program_id": "ibs_liquidity_vs_information_conditioning_v1",
+  "registered_at": "2026-09-09T00:00:00-07:00",
+  "research_stage": "historical development and characterization only",
+  "integrity": {
+    "original_holdout_budget_remaining": 0,
+    "historical_holdout_status": "CONSUMED; no date in historical storage may be presented as fresh validation",
+    "development_start": "2001-01-01",
+    "development_end": "2018-12-31",
+    "development_period": "2001-01-01 to 2018-12-31",
+    "prospective_confirmation": "A separate forward experiment may begin only after this specification is frozen; do not alter Paper Tracks 1-3.",
+    "taxonomy": ["SUPPORTED", "FALSIFIED", "UNRESOLVED / UNDERPOWERED"]
+  },
+  "core_hypothesis": "IBS reversal is stronger when the signal-day move resembles temporary liquidity or technical pressure and weaker or reversed when it resembles information-driven repricing.",
+  "signal": {
+    "formula": "IBS=(close-low)/(high-low); favorable_score=1-IBS",
+    "formation": "signal-day close",
+    "cross_section": "rank once across the full eligible universe; Q1 is the most favorable 20% and Q5 the least favorable 20%",
+    "primary_horizon": "enter next session open and exit that session close",
+    "secondary_horizon_diagnostics": "The same next-session-open entry through session 2 and session 5 closes is reported for horizon decay only and does not affect classification.",
+    "reason": "The signal is not fully known until the close, so same-close execution is not assumed."
+  },
+  "universe": {
+    "source": "Sharadar domestic common stocks including delisted issues",
+    "listing_policy": "firstpricedate <= signal date <= lastpricedate where lastpricedate exists",
+    "exchanges": ["NASDAQ", "NYSE", "NYSEMKT", "NYSEARCA", "BATS"],
+    "excluded_fama_sectors": ["Financial Services", "Real Estate", "Healthcare"],
+    "minimum_price": 1.0,
+    "minimum_trailing_pre_event_adv": 500000,
+    "minimum_history_sessions": 252
+  },
+  "conditioning_method": "Test each variable independently. Continuous variables are assigned to daily cross-sectional terciles. IBS thresholds are formed globally before intersecting with a condition bucket, preserving a common definition of extreme IBS. No conditioning variables are combined in this program.",
+  "hypotheses": [
+    {
+      "hypothesis_id": "ibs_earnings_event",
+      "condition": "exact Sharadar ARQ filing/publication date",
+      "contrast": "non_event minus event",
+      "expected_sign": "positive"
+    },
+    {
+      "hypothesis_id": "ibs_overnight_gap_share",
+      "condition": "abs(open/previous_close-1) / (abs(gap)+abs(open_to_close_return))",
+      "contrast": "low tercile minus high tercile",
+      "expected_sign": "positive"
+    },
+    {
+      "hypothesis_id": "ibs_abnormal_volume",
+      "condition": "signal-day volume / median volume over t-20..t-1",
+      "contrast": "low tercile minus high tercile",
+      "expected_sign": "positive"
+    },
+    {
+      "hypothesis_id": "ibs_turnover",
+      "condition": "signal-day dollar volume / prior-day market capitalization",
+      "contrast": "low tercile minus high tercile",
+      "expected_sign": "positive"
+    },
+    {
+      "hypothesis_id": "ibs_liquidity",
+      "condition": "median dollar volume over t-20..t-1",
+      "contrast": "low tercile minus high tercile",
+      "expected_sign": "positive gross; net results after costs are mandatory implementation evidence"
+    },
+    {
+      "hypothesis_id": "ibs_intraday_range",
+      "condition": "(high-low)/previous_close",
+      "contrast": "low tercile minus high tercile",
+      "expected_sign": "positive"
+    },
+    {
+      "hypothesis_id": "ibs_idiosyncratic_volatility",
+      "condition": "20-session volatility through t-1 of beta-adjusted daily residuals; beta estimated over prior 60 sessions",
+      "contrast": "low tercile minus high tercile",
+      "expected_sign": "positive"
+    },
+    {
+      "hypothesis_id": "ibs_market_cap",
+      "condition": "prior-day market capitalization",
+      "contrast": "small/low tercile minus large/high tercile",
+      "expected_sign": "positive"
+    },
+    {
+      "hypothesis_id": "ibs_volatility_bucket",
+      "condition": "20-session total-return volatility through t-1",
+      "contrast": "low tercile minus high tercile",
+      "expected_sign": "positive"
+    },
+    {
+      "hypothesis_id": "ibs_market_regime",
+      "condition": "PIT lagged-cap-weighted internal market index relative to its 200-session moving average; bull above MA, bear below 95% of MA, sideways otherwise",
+      "contrast": "bull minus bear; sideways reported separately",
+      "expected_sign": "positive"
+    }
+  ],
+  "outcomes": {
+    "primary": "Daily gross Q1-minus-Q5 next-open-to-close IBS spread within each condition bucket; test paired favorable-minus-adverse bucket spreads with HAC(5) errors. The market-regime contrast is an HAC(5) difference in mean between bull and bear sessions because those sessions are mutually exclusive and cannot be paired on the same date.",
+    "implementation": "Q1 long-only next-open-to-close return after ADV-tiered entry and exit costs.",
+    "required_metrics": [
+      "CAGR", "SPY total-return CAGR over identical dates", "excess CAGR", "cumulative return",
+      "annualized volatility", "Sharpe", "Sortino", "maximum drawdown", "drawdown duration",
+      "FF5+momentum alpha", "HAC alpha t-statistic", "factor exposures", "SPY correlation",
+      "IC", "HAC IC t-statistic", "Q1-Q5 spread", "quintile monotonicity", "regime behavior",
+      "2-session and 5-session horizon decay", "2001-2009 and 2010-2018 subperiod behavior",
+      "turnover", "cost drag", "ADV-tier cost", "capacity at 0.5% ADV", "position count", "concentration"
+    ]
+  },
+  "cost_model": {
+    "per_side_bps_by_trailing_adv": {
+      "below_5m": 35,
+      "5m_to_25m": 20,
+      "25m_to_100m": 12.5,
+      "100m_and_above": 7.5
+    },
+    "application": "charged once at entry and once at exit for every long position"
+  },
+  "multiple_testing": {
+    "family_size": 10,
+    "method": "Bonferroni familywise 5% two-sided normal approximation",
+    "absolute_t_threshold": 2.81,
+    "minimum_paired_days": 250
+  },
+  "decision_rule": {
+    "SUPPORTED": "paired favorable-minus-adverse spread t-stat >= 2.81",
+    "FALSIFIED": "paired favorable-minus-adverse spread t-stat <= -2.81",
+    "UNRESOLVED / UNDERPOWERED": "fewer than 250 paired days, non-estimable result, or absolute t-stat below 2.81",
+    "qualification": "All classifications describe historical development evidence, not independent validation. Prospective confirmation is required before promotion into a portfolio or modification of a frozen paper track."
+  },
+  "known_limitations": [
+    "Sharadar ARQ has filing/publication dates but no announcement timestamp, so before-open and after-close earnings cannot be separated.",
+    "Historical quoted spreads and order-book depth are unavailable; costs are estimated from ADV tiers.",
+    "Sharadar ticker history is not CRSP PERMNO continuity.",
+    "Historical borrowability and borrow fees are unavailable and are not assumed; the Q1-Q5 spread is a signal diagnostic, while the costed long leg is the implementable portfolio result."
+  ],
+  "amendments": [
+    {
+      "amended_at": "2026-09-10T00:00:00-07:00",
+      "scope": "ibs_market_regime comparator only",
+      "reason": "The initial executable paired bull and bear spreads by signal date. A date cannot be both bull and bear, making the paired series structurally empty (0 observations) rather than providing a statistical result. The correction uses the already-stated bull-minus-bear contrast as an HAC difference in means across mutually exclusive sessions.",
+      "integrity_note": "No signal definition, universe, execution timing, costs, date range, threshold, or other nine hypothesis calculations changed. The first immutable output bundle remains preserved; the rerun is required only to make the registered market-regime comparison estimable."
+    }
+  ]
+}

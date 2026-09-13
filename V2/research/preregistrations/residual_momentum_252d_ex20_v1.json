@@ -1,0 +1,16 @@
+{
+  "experiment_id": "residual_momentum_252d_ex20_v1",
+  "registered_at": "2026-09-10T08:05:00-07:00",
+  "status": "PREREGISTERED / NOT YET EVALUATED",
+  "hypothesis": "Stocks in the highest quintile of residual momentum from trading days t-251 through t-20 outperform the lowest quintile over the following 20 trading days.",
+  "signal": "Each daily stock return is decomposed into same-day PIT eligible-universe market return plus same-day PIT eligible sector excess return; residual = stock return - market - sector_excess. Score is cumulative residual return from t-251 through t-20; the most recent 20 sessions are excluded.",
+  "direction": "High residual momentum (Q5) minus low residual momentum (Q1) is positive.",
+  "universe": "PIT Sharadar domestic common stocks, price >= $1, trailing 63-session median dollar volume >= $500,000, >=252 sessions history; exclude Fama Financial Services, Real Estate, Healthcare.",
+  "formation_and_execution": "Signal is formed with data through close t. Cross-sectional characterization uses close[t] to close[t+h] forward returns for h in 1,5,10,20. The costed long-only implementation forms at t close, enters next-session open, holds 20 sessions, and exits at open.",
+  "primary_forward_horizon_days": 20,
+  "implementation": "Top-quintile long, equal weight, rebalance every 20 trading days, 10bp round-trip cost under the standardized model. Weekly and 10-session turnover are diagnostic only.",
+  "evaluation": ["Q1-Q5 returns", "Q5-Q1 HAC t-stat", "IC and HAC t-stat", "six-factor alpha", "orthogonality", "regimes", "costs"],
+  "multiple_testing": {"family": "residual_momentum_60d_v1,residual_momentum_126d_v1,residual_momentum_252d_ex20_v1", "method": "Bonferroni", "absolute_t_threshold": 2.39},
+  "classification": {"supported": "primary 20-day Q5-Q1 HAC t >= 2.39, positive 20-day IC, and positive factor-adjusted spread alpha with no material implementation/orthogonality failure", "falsified": "primary 20-day Q5-Q1 spread <= 0 with HAC t <= -1.0, or factor-adjusted alpha <= 0 with t <= -1.0", "otherwise": "UNRESOLVED / UNDERPOWERED"},
+  "integrity": {"development_start": "2001-01-01", "development_end": "2018-12-31", "used_holdout_start": "2019-01-01", "used_holdout_rule": "Not evaluated by this program; results are development characterization only and cannot constitute fresh holdout validation."}
+}

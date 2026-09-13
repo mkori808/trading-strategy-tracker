@@ -1,0 +1,109 @@
+{
+  "diagnostics": {
+    "corr_s1_ibs_in_overlay_on": 0.4384400135931926,
+    "corr_s1_ibs_all_weeks": 0.44625613042758455,
+    "overlay_on_weeks": 87,
+    "overlay_on_pct": 6.954436450839328,
+    "bear_weeks": 194,
+    "high_vol_weeks": 287
+  },
+  "full_cycle": {
+    "A": {
+      "alpha_annual": 0.0649666120635286,
+      "tstat": 2.842763659202296,
+      "n": 1251,
+      "sharpe": 0.7001141911337126,
+      "cagr": 0.1493441380600362,
+      "max_dd": -0.5728185970333155
+    },
+    "B": {
+      "alpha_annual": 0.06641727255189811,
+      "tstat": 2.863192780196587,
+      "n": 1251,
+      "sharpe": 0.6987724592106005,
+      "cagr": 0.15047507017869277,
+      "max_dd": -0.5733566712555388
+    }
+  },
+  "bear_high_vol_weeks": {
+    "A": {
+      "alpha_annual": 0.4548670667397279,
+      "tstat": 2.2734451366836974,
+      "n": 87,
+      "sharpe": 0.6664558206228868,
+      "cagr": null,
+      "max_dd": null
+    },
+    "B": {
+      "alpha_annual": 0.49846637901664437,
+      "tstat": 2.3874020065254062,
+      "n": 87,
+      "sharpe": 0.686706995298717,
+      "cagr": null,
+      "max_dd": null
+    }
+  },
+  "type2_episodes": {
+    "COVID 2020": {
+      "A_loss": -0.4856035338965282,
+      "B_loss": -0.4875810063888998,
+      "weeks": 13,
+      "overlay_on_weeks": 1,
+      "direction": "Worse"
+    },
+    "2022 bear": {
+      "A_loss": -0.23990651716539946,
+      "B_loss": -0.23893389701520396,
+      "weeks": 33,
+      "overlay_on_weeks": 7,
+      "direction": "Better"
+    }
+  },
+  "type1_episodes": {
+    "GFC 2008-09": {
+      "A_loss": -0.5728185970333157,
+      "B_loss": -0.5733566712555387,
+      "weeks": 86,
+      "overlay_on_weeks": 25,
+      "pct_of_episode_on": 29.069767441860467
+    },
+    "2002 bear": {
+      "A_loss": -0.2743565239756175,
+      "B_loss": -0.2721626712862607,
+      "weeks": 24,
+      "overlay_on_weeks": 16,
+      "pct_of_episode_on": 66.66666666666666
+    }
+  },
+  "sub_period_s1_strength": {
+    "2001-2008": {
+      "s1_spread_ann": 0.7937269120951447,
+      "tstat": 2.4243513029559303,
+      "overlay_on_weeks": 46
+    },
+    "2009-2016": {
+      "s1_spread_ann": 0.6605272188172788,
+      "tstat": 1.7784400504568516,
+      "overlay_on_weeks": 13
+    },
+    "2017-2024": {
+      "s1_spread_ann": 1.4146676134843035,
+      "tstat": 1.7184879189437288,
+      "overlay_on_weeks": 28
+    }
+  },
+  "signal_attribution_bear_high_vol": {
+    "contrib": {
+      "ibs": 0.003494193124397383,
+      "rsi2": 0.0011379071416561962,
+      "tue": 0.00022298697736474935,
+      "s1": 0.0016687032205552742
+    },
+    "contrib_pct": {
+      "ibs": 53.56078101670191,
+      "rsi2": 17.442423203811845,
+      "tue": 3.4180585442796287,
+      "s1": 25.57873723520661
+    }
+  }
+}

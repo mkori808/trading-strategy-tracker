@@ -1,0 +1,105 @@
+{
+  "hypothesis_id": "short_sleeve_v1",
+  "registered_at": "2026-09-10T00:00:00-07:00",
+  "research_stage": "standalone signal test -- cost-screened short-sleeve feasibility, not a new signal search",
+  "status": "PREREGISTERED / NOT YET EVALUATED",
+
+  "economic_hypothesis": "Stocks in NSI Q5 (heavy issuers) and Quality Q5 (low quality) systematically underperform due to capital misallocation and fundamental deterioration, and that underperformance is large enough to survive realistic borrow costs in liquid, exchange-traded names.",
+  "mechanism": "Heavy issuers are systematically overvalued -- management issues equity when they believe the stock is overpriced. Low-quality firms have deteriorating fundamentals: weak profitability, high leverage, unstable earnings. Both effects are information-based, not liquidity-based, so they are expected to persist after borrow costs, unlike a pure technical short signal.",
+  "counterparty": "Long-only institutional investors constrained by benchmark mandates who cannot short; index funds forced to hold all index members regardless of quality.",
+  "prior_evidence_this_builds_on": "NSI Q1-Q5 long-short spread 10.5%/yr, t=5.26. Quality Q1-Q5 long-short spread 10.2%/yr, t=4.39. Both spreads are short-leg-driven (long leg near-zero alpha) -- already validated at the signal level in prior research. This experiment does not re-derive or re-test that spread; it asks whether the already-validated short leg alone survives realistic borrow/margin costs in a liquid, investable universe.",
+
+  "universe": {
+    "restriction": "S&P 500 PIT-eligible names only (from the `sp500` table's quarterly historical/current snapshots, via the same point-in-time reconstruction used elsewhere in this codebase -- NOT today's constituent list applied retroactively). This is the binding constraint: it is not relaxed without explicit instruction, even if breadth turns out to be thin.",
+    "min_price": 5.0,
+    "min_dollar_volume": 5000000,
+    "dollar_volume_window": "trailing 63-day median (same window convention as the long book; explicit function differs only in universe and thresholds)",
+    "min_history_days": 252,
+    "excluded_fama_sectors": ["Financial Services", "Real Estate"],
+    "sector_exclusion_note": "The task brief's universe section explicitly lists only Financial Services and Real Estate, with the parenthetical 'same exclusion as long book' -- the long book (V3.1) actually excludes three sectors (also Healthcare). This preregistration resolves the ambiguity by following the EXPLICIT two-sector list as written, not the parenthetical. Flagged here for the record; if Healthcare should also be excluded, that is a scope change requiring explicit instruction, not something inferred silently."
+  },
+
+  "signal_definition": {
+    "nsi_q5": "Bottom quintile by trailing 12-month share count change (most shares issued), computed via the same _nsi_signal formula as the long book (sharesbas MRQ, now vs 365 days prior), quintiled ascending, Q5 = heaviest issuers -- but computed fresh each month on the S&P-500-restricted, liquid universe defined above, NOT on the long book's broader eligible universe.",
+    "quality_q5": "Bottom quintile by the same 6-component quality composite as the long book (roe, roa, gm, dte, icr, cfe from strategies/quality.py), quintiled descending, Q5 = lowest quality -- computed fresh each month on the same S&P-500-restricted universe.",
+    "recompute_frequency": "Monthly, held for the month (same cadence as the filters themselves).",
+    "primary_group": "Intersection: names in BOTH NSI Q5 AND Quality Q5 (highest-conviction shorts).",
+    "secondary_groups": "NSI Q5 only (no Quality Q5 requirement) and Quality Q5 only (no NSI Q5 requirement), reported as sub-group analysis after the primary result, not as alternative primaries."
+  },
+
+  "portfolio_construction": {
+    "direction": "Short. Equal-weight short portfolio of the qualifying names.",
+    "rebalance": "Monthly (matches the monthly cadence of the exclusion filters).",
+    "expected_size": "20-80 names for the primary (both-Q5) group, depending on overlap between NSI Q5 and Quality Q5 within the restricted universe.",
+    "insufficient_breadth_rule": "If the primary group averages fewer than 20 names/month, report INSUFFICIENT_BREADTH and fall back to reporting the two single-filter sub-groups as the de facto primary evidence -- the experiment is not abandoned.",
+    "return_measurement": "Short portfolio return = negative of the equal-weighted long-only return of the same names over the same month (month-end price to next month-end price, matching the realization-month convention already used by strategies/quality.py -- the formation month's signal pairs with the FOLLOWING month's realized price change). Winsorized by group/date at the 1st/99th percentile, same convention as the existing quality/composite studies. Both gross and net (post-cost) are reported."
+  },
+
+  "cost_model": {
+    "borrow_tiers": {"BASE": 0.01, "STRESS": 0.03, "SEVERE": 0.05},
+    "borrow_application": "Modeled as a continuous drag on the short notional: monthly borrow drag = annual_rate / 12 (equivalent in effect to the brief's daily_borrow_drag = annual_rate/252 compounded over a month; applied monthly here because the return series itself is monthly).",
+    "margin_drag": "0.5%/yr additional drag (opportunity cost of ~50% margin posted against the short), applied at ALL THREE borrow tiers, monthly-equivalent = 0.5%/12.",
+    "short_proceeds_treatment": "Modeled as earning zero interest (conservative). This understates the true net short return by roughly the contemporaneous risk-free rate (~5%/yr in recent history) -- explicitly noted as a limitation, not corrected for.",
+    "no_historical_borrow_data": "Actual historical borrow rates are not available in this project's data. The three tiers are an assumption, not a measurement, and are reported as such. Context for realism: GC S&P 500 large-cap 0.25-0.50%/yr, moderate-demand mid-cap 0.50-2.0%/yr, hard-to-borrow 5-50%+/yr. BASE=1%/yr is deliberately conservative for a liquid S&P-500-restricted universe; SEVERE=5%/yr is meant to bound the worst liquid names, not hard-to-borrow specials.",
+    "cost_screen_gate": "Runs BEFORE any factor regression or further analysis. Rule, applied to GROSS short alpha (FF5+UMD, annualized, from the primary both-Q5 group): alpha < 1%/yr (BASE) -> COST_DOMINATES, stop; 1%/yr <= alpha < 3%/yr (STRESS) -> MARGINAL, note sensitivity, do not treat as durable; alpha >= 3%/yr (STRESS) -> VIABLE tier, proceed to full analysis. This mirrors the brief's literal wording: the gate compares alpha itself (not raw CAGR) to the cost rate."
+  },
+
+  "factor_model": {
+    "specification": "FF5 + UMD (6-factor), monthly, local factor CSVs (data/factors_ff5_mom_daily_2001_2024.csv compounded to monthly) -- no network dependency.",
+    "regression_convention": "Raw return regressed WITHOUT subtracting RF (is_long_short-style convention, matching how this codebase already treats zero-cost/self-financing spreads elsewhere) -- appropriate here because short-sale proceeds are already modeled as earning zero (no RF credit taken), so subtracting RF again in the regression would double-count that conservatism.",
+    "expected_signs": {"MKT": "negative (short book should have negative market beta)", "RMW": "negative (shorting unprofitable names)", "SMB": "unclear -- depends on the size distribution of S&P-500-restricted Q5 names"},
+    "implementation_error_flag": "A positive MKT beta on the short portfolio is flagged explicitly as a likely implementation error, not just an unexpected result."
+  },
+
+  "development_period": {
+    "start": "2001-01-01",
+    "end": "2018-12-31",
+    "holdout_status": "2019-2025 is preserved, untouched. This is registered as a standalone signal test, not a composite -- the note in the task brief that a strong result COULD justify one additional holdout consumption is preserved here as written, but that decision is explicitly NOT made in advance. It is made after seeing development results, and only by explicit instruction, not by this preregistration's own authority."
+  },
+
+  "falsification_criteria": {
+    "VIABLE": "Net short alpha (after BASE borrow + margin drag) t > 2.0 AND portfolio size >= 20 names/month average AND MKT beta negative.",
+    "MARGINAL": "Net alpha positive but t < 2.0, OR net alpha is positive under BASE but turns negative under STRESS.",
+    "FALSIFIED": "Gross alpha < BASE borrow cost (1%/yr), OR net alpha (BASE) is negative, OR MKT beta positive, OR portfolio averages fewer than 20 names/month."
+  },
+
+  "sub_group_analysis": {
+    "single_filter": "NSI Q5 only and Quality Q5 only, each reported with N/month, gross alpha, t-stat -- regardless of how the primary (both) result comes out.",
+    "market_cap": "Within the S&P-500-restricted universe, primary group split at that month's cross-sectional median market cap into Large vs Mid, each regressed separately.",
+    "time_period": "Pre-2010 (2001-2009) and 2010-2018, primary group, each regressed separately."
+  },
+
+  "combined_long_short_secondary": {
+    "trigger": "Runs ONLY if the primary cost-screen result is VIABLE (not MARGINAL, not COST_DOMINATES).",
+    "long_leg": "Live V3.1 composite paper-trading spec (weekly, as run in the negative_selection_v1 audit's Portfolio D -- the actual live weights/exclusions, not the stripped base), compounded to monthly for comparability with the monthly short sleeve.",
+    "combination_assumption": "Combined monthly return = long monthly return + short net (BASE) monthly return -- i.e. the short sleeve is modeled as a 100%-notional overlay added on top of the fully-invested long book (no capital netting or leverage adjustment). This is the simplest transparent construction, not a claim about how it would actually be funded/margined in practice; sizing and leverage are explicitly out of scope for this exploratory secondary analysis.",
+    "metrics": ["Net beta vs long-only V3.1", "Combined Sharpe vs long-only V3.1", "Crash-period behavior (2008-09; 2020-03 reported as illustrative/out-of-development-period context only, explicitly labeled as outside the holdout boundary and not used for any pass/fail decision)", "Correlation with SPY"]
+  },
+
+  "constraints": [
+    "Preregistration committed before running anything.",
+    "Cost screen runs FIRST. If COST_DOMINATES, stop immediately -- do not proceed to factor regression, sub-groups, or the combined analysis.",
+    "Development period only (2001-01-01 to 2018-12-31). Do not touch 2019-2025 without a separate, explicit holdout-consumption decision made after seeing these results.",
+    "S&P 500 PIT-eligible names only -- not relaxed without explicit instruction.",
+    "$5M/day minimum dollar volume -- not lowered.",
+    "Price >= $5 -- not lowered.",
+    "All sub-groups are reported regardless of how they look -- no selective reporting of only the best-looking one.",
+    "If the primary group averages < 20 names/month, report INSUFFICIENT_BREADTH and report the single-filter sub-groups as the de facto primary evidence rather than abandoning the experiment.",
+    "The combined long-short analysis is secondary and conditional on a VIABLE primary result.",
+    "No live short trading system is built. This is research only."
+  ],
+
+  "deliverables": [
+    "This file",
+    "Cost screen output (stop here if COST_DOMINATES)",
+    "Portfolio coverage (names/month, breadth check)",
+    "Development period results, gross and net at all three borrow tiers",
+    "Factor regression (FF5+UMD)",
+    "Sub-group analysis (single-filter, market cap, time period) -- reported in full regardless of primary result",
+    "Combined long-short analysis, only if primary is VIABLE",
+    "Honest verdict: VIABLE / MARGINAL / FALSIFIED / COST_DOMINATES / INSUFFICIENT_BREADTH",
+    "If VIABLE: a description of what a prospective paper track would require operationally -- description only, not built"
+  ],
+
+  "stop_condition": "Report results and wait for instruction. Do not build a live short system. Do not consume 2019-2025 holdout data without explicit separate instruction."
+}

@@ -1,0 +1,101 @@
+{
+  "hypothesis_id": "v33_vol_filter_v1",
+  "registered_at": "2026-09-11T00:00:00-07:00",
+  "research_stage": "risk-management overlay characterization on V3.2, not signal discovery or optimization",
+  "status": "PREREGISTERED / NOT YET EVALUATED",
+
+  "prior_context": "v31_transition_filter_v1 (Q6) tested a BULL->BEAR regime-label trigger for the same IBS-half-weight idea and found it never fires before COVID 2020 or the 2022 bear (both pass through intervening SIDEWAYS weeks before the regime calendar flags BEAR), for 0% measured drawdown reduction in either episode -- verdict MARGINAL. composite_v3_2_v1 confirmed removing Sector RS is a real, method-controlled +0.88pp/yr alpha improvement over V3.1, independent of the filter question. This study tests a faster, volatility-based trigger for the same underlying idea (IBS fails when markets move fast and vol spikes) on top of V3.2, per this brief's own diagnosis that the regime-label trigger was too slow, not that the underlying protective idea is wrong.",
+
+  "research_question": "Does reducing IBS composite weight when SPY 20-day realized volatility spikes above its trailing 75th percentile reduce TYPE 2 (SIGNAL FAILURE) drawdown severity without materially reducing V3.2's full-cycle alpha?",
+
+  "base_portfolio": "V3.2 as computed in composite_v3_2_v1 (V3.1 minus Sector RS; IBS/RSI2/Tue weights 0.69/0.25/0.06 normal). Not modified, not re-optimized. Measured via the same linear-blend-of-standalone-signal-returns method used there (ibs_ret, rsi2_ret, tue_ret from weekly_panel.csv), since V3.2's true score-blended holdings were never rebuilt.",
+
+  "data_source": {
+    "weekly_panel": "V2/reports/v31_regime_decomposition/20260911T002649Z/weekly_panel.csv, reused verbatim for signal_date/realization_date alignment and standalone signal returns (ibs_ret, rsi2_ret, tue_ret) and FF5+UMD factor columns. Not recomputed.",
+    "spy_daily_returns": "V2/data/spy_total_return_daily_2001_2024.csv, reused verbatim for the new vol computation (the only new input this study requires)."
+  },
+
+  "vol_trigger_definition_locked": {
+    "realized_vol_20d": "Annualized (x sqrt(252)) standard deviation of SPY daily returns over the trailing 20 trading days, evaluated as of each Friday signal_date (the same date the weekly_panel.csv regime column and composite weights are assigned at -- i.e. the signal is set at signal_date and realized over the week ending realization_date). PIT-safe: only daily returns up to and including signal_date are used.",
+    "vol_75th_pct": "75th percentile of realized_vol_20d over the trailing 252-week (5-year) rolling window ending at signal_date, inclusive. Updated each week. PIT-safe: only weekly vol observations up to and including the current week are used. Weeks before a full 252-week trailing window exists (first ~5 years of sample) have no defined threshold; the filter is treated as inactive (FILTER_OFF, no data) for those weeks -- reported explicitly as a limitation, not silently backfilled.",
+    "vol_60th_pct": "60th percentile, same rolling window and PIT-safety, used as the hysteresis exit threshold.",
+    "filter_state_machine": {
+      "FILTER_ON": "realized_vol_20d > vol_75th_pct",
+      "FILTER_OFF": "realized_vol_20d < vol_60th_pct",
+      "HOLD": "vol_60th_pct <= realized_vol_20d <= vol_75th_pct -- maintain the previous week's state",
+      "initial_state": "FILTER_OFF at the first week a valid 252-week threshold exists"
+    }
+  },
+
+  "filter_rule_locked": {
+    "FILTER_OFF_weeks": {"ibs": 0.69, "rsi2": 0.25, "tue": 0.06},
+    "FILTER_ON_weeks": {"ibs": 0.345, "rsi2": 0.405, "tue": 0.06},
+    "note": "Same weights, and the same 0.81 (19pp) weight-sum shortfall, as V3.2's own transition-filter weights in composite_v3_2_v1.json -- locked as specified in this brief, not re-derived to sum to 1.0."
+  },
+
+  "test_portfolios": {
+    "A": "V3.2 as-is (no vol filter) -- baseline, linear-blend method",
+    "B": "V3.3 = V3.2 with the vol filter substituting FILTER_ON weights on FILTER_ON weeks"
+  },
+
+  "diagnostic_gate": {
+    "rule": "Run the trigger diagnostic FIRST, before any full-cycle or episode evaluation. Confirm FILTER_ON actually activates within 4 weeks of each target episode's onset (COVID 2020 peak: 2019-12-20; 2022 bear drawdown start: 2021-11-12).",
+    "stop_condition": "If the trigger never fires within 4 weeks of onset in EITHER target episode, STOP after the diagnostic. Report trigger failure and do not proceed to the full evaluation section. The trigger would need redesign, which is out of scope for this study."
+  },
+
+  "evaluation_metrics": {
+    "primary_risk_reduction": {
+      "rule": "COVID 2020: B loss < A loss by >= 20%. 2022 bear: B loss < A loss by >= 20%. BOTH must pass.",
+      "measurement": "Peak-to-trough cumulative loss over each episode's window (same episode windows as composite_v3_2_v1 / v31_deepening_q2q3: COVID 2019-12-20 to 2020-03-20; 2022 bear 2021-11-12 to 2022-07-01)."
+    },
+    "secondary_alpha_preservation": {
+      "alpha_cost": "Full-cycle alpha: B within 1.5%/yr of A (FF5+UMD weekly HAC regression, periods_per_year=52, matching the convention used in composite_v3_2_v1 and strategies/signal_library.py's _hac_regress).",
+      "sharpe": "B Sharpe >= A Sharpe."
+    },
+    "tertiary_operational": {
+      "sub_period_activation": "Weeks FILTER_ON per sub-period (2001-2008, 2009-2016, 2017-2024). If FILTER_ON in more than 20% of weeks in any sub-period, reported as OVERACTIVE (may be costing alpha in normal elevated-vol periods, e.g. 2008-2012, beyond the intended crisis-onset protection)."
+    }
+  },
+
+  "type1_gfc_tradeoff": {
+    "expectation": "Unlike the BULL->BEAR regime trigger (which never activated during GFC because regime was still BULL through the peak), the vol trigger is expected to fire during GFC 2008-09 because realized vol was extreme throughout. This means the filter may reduce bear-market alpha during a TYPE 1 (MARKET DRIVEN) episode where the underlying IBS signal was not broken -- a real cost of using a fast, content-free vol trigger instead of a slower regime-label trigger. This tradeoff is measured and reported explicitly, not treated as a disqualifying failure on its own (GFC is a TYPE 1 episode, not one of the two falsification-gating TYPE 2 episodes)."
+  },
+
+  "falsification_criteria": {
+    "EFFECTIVE": "Both COVID and 2022 reduction >= 20% AND full-cycle alpha cost <= 1.5%/yr AND Sharpe(B) >= Sharpe(A).",
+    "MARGINAL": "One episode passes but not the other, OR reduction is 10-20% in one/both episodes (partial benefit), without breaching the alpha-cost or Sharpe conditions.",
+    "FALSIFIED": "Either TYPE 2 episode reduction < 20% (and not in the 10-20% MARGINAL band) OR full-cycle alpha cost > 1.5%/yr OR Sharpe(B) < Sharpe(A)."
+  },
+
+  "sub_period_validation": {
+    "periods": ["2001-01-01 to 2008-12-31", "2009-01-01 to 2016-12-31", "2017-01-01 to 2024-12-31"],
+    "rationale": "Identical thirds to prior V3.1/V3.2 studies for direct comparability."
+  },
+
+  "development_period": {"start": "2001-01-01", "end": "2024-12-31"},
+
+  "constraints": [
+    "Preregistration (this file) committed before the vol series, percentile thresholds, or filter states are computed.",
+    "Rolling 252-week percentile window is PIT-safe -- only data available as of each Friday signal_date is used.",
+    "Hysteresis (60th/75th pct thresholds) is mandatory and implemented exactly as specified; not simplified to a single threshold.",
+    "The trigger diagnostic runs first. If it fails to fire within 4 weeks of onset in either target episode, this study STOPS at the diagnostic and reports that -- it does not proceed to full evaluation, and does not redesign the trigger to make it fire.",
+    "The 75th/60th percentile thresholds, the 20-day/252-week windows, and the FILTER_ON weights are not optimized or altered after seeing results.",
+    "The GFC (TYPE 1) tradeoff is measured and reported explicitly regardless of verdict -- it is an expected, disclosed cost of this trigger design, not evidence to discard the study.",
+    "Uses only the existing weekly_panel.csv signal returns/factors and the existing SPY daily return series. No new signal or regime data is computed beyond the vol series itself.",
+    "paper_trading/ is not read from or modified. No live weight changes made by this study."
+  ],
+
+  "deliverables": [
+    "This file",
+    "Trigger diagnostic: total FILTER_ON weeks and sub-period breakdown; week-by-week vol/filter-state table for the 8 weeks around each target episode's onset; explicit YES/NO on whether the trigger fires within 4 weeks in each episode",
+    "If the diagnostic gate fails: a trigger-failure report only, ending here",
+    "If the diagnostic gate passes: full-cycle comparison table A (V3.2) vs B (V3.3): CAGR, alpha/yr, alpha t-stat, Sharpe, max drawdown, worst rolling-12mo",
+    "TYPE 2 episode comparison (COVID 2020, 2022 bear) with % reduction and pass/fail vs the 20% bar",
+    "TYPE 1 / GFC tradeoff: A vs B during GFC 2008-09 and 2002, with filter-active week counts and the alpha sacrificed during GFC quantified explicitly",
+    "Sub-period FILTER_ON activation rates, flagging OVERACTIVE sub-periods (>20% of weeks)",
+    "Falsification verdict: EFFECTIVE / MARGINAL / FALSIFIED",
+    "If EFFECTIVE: a V3.3 paper trading configuration for Track 4 (not launched by this study without a separate explicit instruction)"
+  ],
+
+  "stop_condition": "Report results and wait for instruction. Do not launch Track 4. Do not optimize the vol thresholds or filter weights after seeing results, regardless of verdict."
+}

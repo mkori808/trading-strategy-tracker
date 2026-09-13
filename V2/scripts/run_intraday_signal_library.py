@@ -13,6 +13,12 @@ from strategies.intraday_signal_library import (
     correlation_with_daily_library,
 )
 
+UNIVERSE_FILE = Path(__file__).resolve().parent / 'pit_sp500_universe.txt'
+
+
+def load_clean_universe() -> set[str]:
+    return {line.strip() for line in UNIVERSE_FILE.read_text().splitlines() if line.strip()}
+
 MECHANISM = {
     'S1_orb_30': 'Opening-range breakout (30min) -- close relative to the first-30-minute high/low, in ATR units.',
     'S1b_orb_60': 'Opening-range breakout (60min) -- close relative to the first-60-minute high/low, in ATR units.',
@@ -69,6 +75,14 @@ def print_signal_report(sname: str, res: dict):
         betas = row.get('spread_betas', {})
         print(f'{HLABEL[hz]:<12}{fmt_pct(row["spread_ann"]):<14}{fmt_t(row["spread_tstat"]):<9}{primary_factor(betas):<20}')
 
+    ss = res.get('size_spreads_5d', {})
+    if ss:
+        print('\nSize-tercile breakdown (5-day spread; terciles are WITHIN this large-cap-skewed')
+        print('universe -- "Small" here means relatively smaller, not small-cap in absolute terms):')
+        for label in ('Small', 'Mid', 'Large'):
+            v = ss.get(label, {})
+            print(f'  {label:<6} {fmt_pct(v.get("spread_ann")):<14} t={fmt_t(v.get("tstat"))}  n={v.get("n", 0)}')
+
     reg = res['ff5_regression']
     print('\nFactor regression (FF5, daily 1-day spread series):')
     alpha_ann = (1 + reg['alpha_daily']) ** 252 - 1 if pd.notna(reg['alpha_daily']) else np.nan
@@ -88,8 +102,18 @@ def print_signal_report(sname: str, res: dict):
 
 
 def main():
+    universe = load_clean_universe()
+    print(f'Universe file: {len(universe)} PIT S&P 500 tickers requested from {UNIVERSE_FILE.name}')
+    print('(excludes 34 non-member small/mid-caps left in bars_15m from the original 106-ticker build;')
+    print('FRCB/SBNY -- both acquired in 2023 -- kept intentionally to avoid survivorship bias).')
+    print('This universe skews heavily large/mega-cap (93% by Sharadar scalemarketcap) -- the daily')
+    print('library\'s strong small>mid>large size-concentration pattern on IBS/RSI2 may be weaker or')
+    print('absent here. That is an informative finding about WHERE these signals work, not a defect.')
     print('Building daily summary, joining Sharadar, applying filters...')
-    out = run('data/alpaca_intraday.db', 'data/sharadar.db')
+    out = run('data/alpaca_intraday.db', 'data/sharadar.db', universe_tickers=universe)
+    n_actual = out['daily_summary'].ticker.nunique()
+    print(f'Universe actually used (intersected with bars_15m coverage): {n_actual} tickers')
+    print(f'Size-tercile avg eligible names/day: {out["size_tercile_counts"]}')
 
     fr = out['filter_report']
     print('\n' + '=' * 74)

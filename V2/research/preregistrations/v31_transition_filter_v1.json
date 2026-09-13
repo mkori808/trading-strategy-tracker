@@ -1,0 +1,92 @@
+{
+  "hypothesis_id": "v31_transition_filter_v1",
+  "registered_at": "2026-09-10T00:00:00-07:00",
+  "research_stage": "risk-management overlay characterization on the live V3.1 spec, not signal discovery or optimization",
+  "status": "SUPERSEDED — INVALID METHODOLOGY / CLOSED RESEARCH LINE",
+  "outcome_note": "Preserved for audit. Controlled testing found only two qualifying transitions and no activation before COVID 2020 or the 2022 bear. The earlier apparent EFFECTIVE result was a methodology artifact. Regime label, volatility level, drawdown velocity, and rolling IBS spread were subsequently tested; none jointly provided adequate timing and discrimination.",
+
+  "prior_claims_verification_note": "The task brief asserts prior findings under the labels 'Q2/Q3 drawdown anatomy TYPE 1/TYPE 2' and a 'DIM 5' conditional signal map (STABLE +18.7%/yr, TRANSITIONING +2.1%/yr, TRANSITIONING+BULL->BEAR -12.3%/yr, STABLE BEAR normal). Before proceeding, the repo was searched (grep across V2/research and V2/reports) for these labels and figures. Findings: (1) V2/research/preregistrations/v31_deepening_q2q3_v1.json and V2/reports/v31_deepening_q2q3/20260911T043543Z/summary.json DO exist and DO contain a drawdown-episode classification, but its labels are 'MARKET DRIVEN' / 'SIGNAL FAILURE' (not literally 'TYPE 1'/'TYPE 2'), no markdown report was ever written for that run (only summary.json + weekly_panel_extended.csv), and its own IBS-spread-during-episode numbers for the two episodes matching COVID 2020 and the 2022 bear (-49.7%/yr and -9.9%/yr respectively, per q3_episodes in that summary.json) do NOT match the brief's cited -12.3%/yr figure. (2) V2/reports/conditional_signal_map/20260911T044626Z/ exists and uses DIM1 (market regime), DIM2 (volatility regime), DIM3 (drawdown depth), and a day-of-week dimension -- there is no 'DIM 5' transition-state dimension anywhere in that study's markdown, JSON, or CSV outputs. Conclusion: the brief's specific DIM-5 numbers and the 'TYPE 1/TYPE 2' terminology are NOT traceable to any computed artifact in this repo. They are treated here strictly as the requester's informal framing/motivation for the hypothesis, not as verified prior results, and are not repeated as established facts anywhere in this study's output. This hypothesis is tested fresh from the transition calendar and weekly_panel.csv data that DO exist.",
+
+  "research_question": "Does reducing IBS composite weight from 0.62 to 0.31 for the 4 weeks immediately following a BULL->BEAR regime transition improve V3.1's risk-adjusted returns without materially reducing full-cycle alpha?",
+
+  "base_portfolio": "Live V3.1 composite spec exactly as running in paper trading and as characterized in v31_regime_decomposition_v1 (weights .62/.22/.10/.06 on IBS/RSI2/Sector RS/Turnaround-Tue-as-actually-implemented, IBS earnings-conditioned, NSI Q5 + Quality Q5 exclusions). Not modified, not re-optimized.",
+
+  "data_source": {
+    "weekly_panel": "V2/reports/v31_regime_decomposition/20260911T002649Z/weekly_panel.csv, used verbatim. Not recomputed. Provides realization_date, signal_date, regime, composite_ret, and the four standalone top-quintile signal returns (ibs_ret, rsi2_ret, srs_ret, tue_ret) plus FF5+UMD weekly factor columns.",
+    "regime_calendar": "The 'regime' column of the same file, reused verbatim (SPY 200d MA / 252d trailing return rule, PIT-safe, assigned at the Friday signal date, per v31_regime_decomposition_v1's regime_definition). Not recomputed."
+  },
+
+  "regime_transition_definition_locked": {
+    "bull_to_bear_transition_week": "The first week classified as BEAR immediately following a week classified as BULL, using row order in weekly_panel.csv (already time-ordered by realization_date). Weeks classified SIDEWAYS between a BULL and a later BEAR week do NOT count as a BULL->BEAR transition at that later week.",
+    "transition_window": "Weeks 1-4 after the transition, inclusive of the transition week itself (i.e. the transition week plus the following 3 weeks).",
+    "post_window_behavior": "After week 4, IBS weight returns to 0.62 regardless of whether the regime is still BEAR.",
+    "overlapping_transitions": "If a second BULL->BEAR transition is detected within an already-active 4-week window, the 4-week clock restarts from the second transition week."
+  },
+
+  "filter_rule_locked": {
+    "normal_weeks": {"ibs": 0.62, "rsi2": 0.22, "sector_rs": 0.10, "turnaround_tue": 0.06},
+    "transition_weeks": {"ibs": 0.31, "rsi2": 0.375, "sector_rs": 0.162, "turnaround_tue": 0.091},
+    "note": "Sector RS retained here even though V3.2 removes it, because this test is on V3.1-as-preregistered. A V3.2 filter variant would need its own preregistration. The 0.31/0.375/0.162/0.091 weights are taken verbatim from the task brief, not independently re-derived (they sum to 0.938 as specified in the brief, a ~6.2pp shortfall from 1.0 attributable to the brief's own rounding of the redistribution deltas -- this is not corrected here since the rule is locked before running; the ~0.6% of unassigned weight during transition weeks is treated as reducing gross exposure, and is noted as a minor rounding artifact of the brief, not resolved by re-deriving new weights)."
+  },
+
+  "portfolio_construction_method": {
+    "portfolio_A": "V3.1 as-is, reconstructed each week as 0.62*ibs_ret + 0.22*rsi2_ret + 0.10*srs_ret + 0.06*tue_ret using the standalone signal returns already in weekly_panel.csv.",
+    "portfolio_B": "Identical construction, substituting the transition-week weights (0.31/0.375/0.162/0.091) on TRANSITION_ACTIVE weeks and the normal weights otherwise.",
+    "linear_blend_vs_actual_composite_deviation_noted": "The live V3.1 composite selects its weekly top-quintile holdings by ranking a single BLENDED SCORE (weighted sum of each signal's percentile rank/flag) and then averages the REALIZED returns of that one set of held names. This is NOT identical to a linear blend of four separately-selected top-quintile standalone portfolios' returns, because (a) the blended-score holdings are a single overlapping set of names chosen jointly, not a return-weighted mix of four different holding sets, and (b) covariance between signals' cross-sectional ranks and realized returns is captured differently. weekly_panel.csv's composite_ret column is the ACTUAL score-blended composite return; the ibs_ret/rsi2_ret/srs_ret/tue_ret columns are each signal's OWN standalone top-quintile return on the same eligible universe. A linear blend of the four standalone returns (0.62/0.22/0.10/0.06) reproduces composite_ret closely but not exactly -- this was checked directly (see full_cycle sanity check in the output report) and the discrepancy is reported, not hidden. Reconstructing the TRUE score-blended holdings under alternate (transition-window) weights would require rebuilding the composite's ranking and holding-selection logic from scratch, which the task brief's 'do not recompute signals' constraint is read here to preclude. The linear blend of standalone returns is therefore used as a reasoned, imperfect proxy for both Portfolio A (validated by comparison to the persisted composite_ret) and Portfolio B (not independently validatable, since no ground-truth score-blended Portfolio B return exists anywhere in this repo). This is an explicit, accepted approximation, not a silent assumption -- if Portfolio A's linear-blend reconstruction diverges materially from the persisted composite_ret, that divergence bounds the likely error in Portfolio B's approximation and is reported quantitatively."
+  },
+
+  "test_portfolios": {
+    "A": "V3.1 as-is (no filter) -- baseline, reconstructed via the linear blend described above",
+    "B": "V3.1 with the transition filter (this experiment), same reconstruction method with transition-window weights substituted"
+  },
+
+  "evaluation_metrics": {
+    "primary_risk_reduction": ["Max drawdown (B should be smaller than A)", "TYPE-2-labeled episode severity: COVID 2020 (B vs A loss), 2022 rate-hike bear (B vs A loss) -- episode windows identified from the regime/transition calendar computed in this study, cross-checked against known calendar dates", "Worst rolling 12-month (52-week) return"],
+    "secondary_alpha_preservation": ["Full-cycle alpha: B should not sacrifice more than 1%/yr vs A over 2001-2024 (FF5+UMD weekly regression, long-only convention, periods_per_year=52, HAC/Newey-West standard errors matching strategies/signal_library.py's _hac_regress convention)", "Sharpe ratio: B should be >= A", "Stable-bear performance: B should match A (filter is OFF -- i.e. TRANSITION_INACTIVE -- during stable bear weeks by construction)"],
+    "tertiary_operational": ["Filter activation frequency: count of BULL->BEAR transitions 2001-2024", "Average transition window length actually used (4 weeks unless truncated by end-of-sample or restarted by an overlapping transition)", "Cost impact: reported qualitatively, see cost_measurement_limitation below -- not fabricated as a precise number"]
+  },
+
+  "cost_measurement_limitation": "weekly_panel.csv does not contain a per-week holdings list or turnover series for the composite, and the 'do not recompute signals' constraint precludes reconstructing actual weekly holdings under the alternate weight sets. An exact turnover delta between A and B is therefore not computable from the persisted data. This is reported as a stated limitation: changing composite SCORE weights during transition weeks does not by itself force holdings turnover beyond whatever quintile-membership churn the score change induces, but the magnitude of that induced churn is not measurable without the underlying score/ranking data. The tertiary cost item is answered qualitatively/directionally, not with a fabricated cost figure.",
+
+  "falsification_criteria": {
+    "EFFECTIVE": "TYPE-2-labeled drawdown severity reduced by >= 20% in BOTH the COVID 2020 and 2022 episodes AND full-cycle alpha not sacrificed by more than 1%/yr vs A AND Sharpe ratio of B >= A. Implementation candidate for V3.2 (not implemented by this study).",
+    "MARGINAL": "Reduces one TYPE-2 episode but not the other, OR reduces severity by less than 20% in one/both episodes, OR costs more than 1%/yr in full-cycle alpha (but not more than 2%/yr). Noted but not implemented.",
+    "HARMFUL": "Full-cycle alpha reduced by more than 2%/yr vs A, OR stable-bear performance materially worse for B than A. Abandoned."
+  },
+
+  "sub_period_validation": {
+    "periods": ["2001-01-01 to 2008-12-31", "2009-01-01 to 2016-12-31", "2017-01-01 to 2024-12-31"],
+    "rationale": "Identical thirds to v31_regime_decomposition_v1 and v31_deepening_q2q3_v1, for direct comparability. 2017-2024 covers the two target TYPE-2-labeled episodes (COVID 2020, 2022 bear).",
+    "reporting": "Number of transitions and alpha cost (B vs A) reported for each sub-period regardless of result. If the filter helps in 2017-2024 (target period) but hurts in 2001-2008 or 2009-2016, classified REGIME_SPECIFIC -- noted but not implemented until understood."
+  },
+
+  "development_period": {
+    "start": "2001-01-01", "end": "2024-12-31",
+    "rationale": "Full history for characterization. No holdout split -- this is risk-management research on known historical transition events, not new-signal discovery; there is no out-of-sample concern in the same sense as signal discovery. If implemented in V3.2, the filter's prospective performance would be observed forward in paper trading, which is the forward test."
+  },
+
+  "constraints": [
+    "Preregistration (this file) committed before the transition calendar is computed or Portfolio B is simulated.",
+    "Uses only the existing signal scores/returns and regime calendar already persisted in weekly_panel.csv. Signals and regimes are not recomputed from scratch.",
+    "The filter rule (0.31 IBS weight, 4-week window, redistribution to RSI2/SRS/Tue) is exactly as specified in the task brief and is not optimized or altered after seeing results. If results are MARGINAL, that is reported as MARGINAL, not treated as an invitation to retry with a different weight or window.",
+    "All sub-periods are reported regardless of result.",
+    "TYPE-1-labeled (market-driven) episodes -- GFC 2008-09 and 2002 -- are reported: the filter should neither help nor hurt materially there, since it is only active in the 4 weeks after a BULL->BEAR transition, not throughout an entire bear market.",
+    "paper_trading/ is not read from or modified. No live weight changes.",
+    "V3.2 is not built by this study.",
+    "The filter is not implemented in live paper trading regardless of verdict; that would require a separate, subsequent decision."
+  ],
+
+  "deliverables": [
+    "This file",
+    "Transition calendar: all BULL->BEAR transition weeks 2001-2024, with TRANSITION_ACTIVE week counts",
+    "Full-cycle comparison table: A vs B on CAGR, alpha/yr, alpha t-stat, Sharpe, max drawdown, worst rolling-12mo return, turnover/cost (qualitative)",
+    "COVID 2020 and 2022 rate-hike-bear episode-level NAV comparison, filter activation timing, loss avoided",
+    "TYPE-1-labeled episode check (GFC 2008-09, 2002): A vs B, expected similar",
+    "Sub-period performance table (2001-2008, 2009-2016, 2017-2024)",
+    "Stable-bear check: weeks classified BEAR and TRANSITION_INACTIVE, A vs B alpha (should be identical by construction)",
+    "Falsification verdict: EFFECTIVE / MARGINAL / HARMFUL",
+    "If EFFECTIVE: a recommended-implementation paragraph for V3.2 (not itself an implementation)"
+  ],
+
+  "stop_condition": "Report results and wait for instruction. Do not implement the filter in live paper trading. Do not optimize the weight reduction percentage or transition window length after seeing results. Do not build V3.2."
+}

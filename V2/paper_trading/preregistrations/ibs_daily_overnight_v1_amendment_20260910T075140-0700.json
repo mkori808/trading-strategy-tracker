@@ -1,0 +1,29 @@
+{
+  "amendment_id": "ibs_daily_overnight_v1_amendment_20260910T075140-0700",
+  "amends": "ibs_daily_overnight_v1.json",
+  "amended_at": "2026-09-10T07:51:40-07:00",
+  "status": "STRUCTURAL CORRECTION / NOT LAUNCHED",
+  "basis": "No Track 4 target, fill, ledger observation, or prospective performance has been created or inspected.",
+  "preserved_original_terms": {
+    "primary_cost": "10 bps round-trip per overnight portfolio",
+    "earnings_policy": "Earnings-event names receive IBS score 0.50 and are excluded from overnight selection, as explicitly specified in the original preregistration.",
+    "track_4b_order": "liquidity quintile -> NSI/Quality exclusions -> earnings treatment -> IBS ranking -> top-quintile selection"
+  },
+  "concentration_correction": {
+    "original_rule": "Flag Track 4B if final holdings < 50.",
+    "reason": "The original 50-name floor assumed the top 20% of the 260-320 liquidity-filtered universe before NSI/Quality exclusions and earnings removal. Under the registered ordering, 294 -> 207 after exclusions -> 201 non-earnings tradable names -> floor(201/5)=40 holdings. The 50-name floor is structurally inconsistent with the original selection chain.",
+    "replacement_rule": "For Track 4B, require exact top-quintile construction after all registered filters and flag final holdings < 40. The original >=50 diagnostic remains printed as SUPERSEDED_BY_AMENDMENT for provenance."
+  },
+  "execution_audit": {
+    "finding": "LOOKAHEAD_INVALID",
+    "reason": "Current code calculates day-t IBS from final post-close official Sharadar OHLC, selects the portfolio after that calculation, and assigns the same official close as the entry fill. The portfolio was not knowable before the entry price.",
+    "effect": "Track 4 cannot be authorized or launched under the current implementation, regardless of user launch approval.",
+    "required_remediation": "Implement and separately audit a PIT-safe pre-close signal and executable closing-auction (or later) entry-price source. No performance data may be used to select that design."
+  },
+  "predeclared_cost_sensitivities": {
+    "diagnostic_round_trip_bps_per_overnight": [2, 5, 10],
+    "primary": 10,
+    "annualized_cost_pct_at_252_nights": {"2": 5.04, "5": 12.6, "10": 25.2},
+    "relative_to_weekly_track_1_at_10bps_x_52": "Daily 10bp cost exceeds weekly full-turnover 10bp cost by 20.00 percentage points/year. A 2% net-alpha acceptance threshold therefore requires 22.00 percentage points of daily gross annual advantage versus Track 1 before cost."
+  }
+}

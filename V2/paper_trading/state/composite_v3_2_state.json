@@ -1,0 +1,15 @@
+{
+  "inception_date": "2026-09-11",
+  "research_inception_date": "2026-09-04",
+  "checkpoint_date": "2027-03-05",
+  "specification_version": "V3.2",
+  "specification_sha256": "781967907860b84a7e1afd507a780c67a17c79e780c18085ff8f3c59cf307025",
+  "notional": 100000,
+  "current_holdings": {},
+  "cash": 100000,
+  "nav_history": [],
+  "fill_history": [],
+  "implementation_failures": [],
+  "pending": null,
+  "status": "AWAITING FIRST PROSPECTIVE RECORD — DO NOT BACKFILL"
+}

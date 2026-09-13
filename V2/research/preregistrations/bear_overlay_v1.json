@@ -1,0 +1,113 @@
+{
+  "hypothesis_id": "bear_overlay_v1",
+  "registered_at": "2026-09-11T00:00:00-07:00",
+  "research_stage": "offensive overlay characterization on V3.2, following 4 failed defensive (TYPE 2 trigger) attempts",
+  "status": "PREREGISTERED / NOT YET EVALUATED",
+
+  "prior_claims_verification_note": "The task brief cites specific 'evidence already established' from conditional_signal_map (V2/reports/conditional_signal_map/20260911T044626Z/). Checked against that study's persisted daily_conditional_results.json and conditional_signal_map_v1.md before writing this preregistration: (1) S1's FULL-SAMPLE figure (15.9%/yr, t=3.46) is CONFIRMED exactly. (2) S1's BEAR-only cell (DIM1, market regime alone) is 63.76%/yr, t=2.64 -- NOT 89.4%/yr t=4.21 as the brief states for 'BEAR+HIGH_VOL'. (3) S1's HIGH_VOL-only cell (DIM2, volatility regime alone) is 72.19%/yr, t=3.95 -- also not 89.4%/t4.21. (4) No joint BEAR-AND-HIGH_VOL intersection cell was ever computed in that study -- it reports market regime (DIM1) and volatility regime (DIM2) as two SEPARATE marginal cuts, never crossed. The brief's cited 'BULL+LOW_VOL: -3.2%/yr t=-0.44' similarly does not match either marginal cell (BULL alone: 1.9%/t0.58; LOW_VOL alone: -0.9%/t-0.23) -- both are near-zero/insignificant, consistent in direction, but the joint cell itself was never computed. (5) No pairwise signal correlation (S1 vs RSI14 or S1 vs IBS, in any regime) appears anywhere in that study's report, JSON, or CSV outputs -- the brief's 'Corr with RSI14: 0.91' claim is likewise not traceable to any computed artifact.\n\nResolution: consistent with this research thread's established practice (v31_transition_filter_v1, composite_v3_2_v1, v33_vol_filter_v1), these untraceable figures are not repeated as established fact. This is not treated as grounds to halt, because the brief's own diagnostic check #3 already requires confirming the joint BEAR+HIGH_VOL standalone S1 spread on this exact universe/period before proceeding -- this preregistration therefore treats that check as the FIRST computation of this specific joint statistic in this repo, not a replication of a prior result. Likewise, diagnostic check #1 (S1-vs-IBS correlation in BEAR+HIGH_VOL) is the first computation of that statistic here, not a verification of the brief's 0.91 (RSI14) figure, which concerns a different signal pair than the one this study's own diagnostic actually tests.",
+
+  "economic_hypothesis": "S1 Pullback to 21 EMA captures mean reversion from extended technical dislocation. In calm markets, stocks below their 21 EMA are just weak trend followers -- no reversal mechanism. In stressed markets (BEAR + HIGH_VOL), they represent genuine overshoots from forced selling that resolve sharply when selling pressure abates. Regime activation is essential -- the signal is harmful when always-on (full-sample 15.9%/yr masks a BULL cell that is statistically zero, per the confirmed conditional_signal_map figures above).",
+
+  "mechanism": "BEAR+HIGH_VOL creates the conditions where mean reversion is strongest: forced selling from margin calls and redemptions pushes stocks far below fundamental value; buyers step in when selling exhausts. Same underlying mechanism as IBS but at a longer horizon (21-day EMA vs intraday range).",
+
+  "signal_definition": {
+    "s1_score": "-(close - EMA(close, 21)) / EMA(close, 21), computed exactly as strategies/signal_library.py's compute_signals() defines S1_pullback_ema21 (reused verbatim, not redefined). High score = price far below 21-day EMA. Percentile-ranked within the eligible universe. Computed at Friday close, same cadence as V3.2's other signals.",
+    "reuse_note": "The scoring formula is reused from strategies/signal_library.py exactly. However, that module's run() harness computes DAILY quintile spreads over the full sample and by DIM1/DIM2 SEPARATELY (the conditional_signal_map study) -- it does not produce a WEEKLY top-quintile return series aligned to V3.2's signal_date/realization_date convention, nor a joint BEAR-AND-HIGH_VOL intersection. Both of those are new computations this study performs, following the same weekly rebalance/realization methodology as scripts/run_v31_regime_decomposition.py (reused for universe construction, eligibility, weekly dates, and the IBS/RSI2/Tue scoring already used for V3.2)."
+  },
+
+  "overlay_construction": {
+    "note": "The bear overlay does NOT replace V3.2 signals. It adds S1 as a fifth signal during BEAR+HIGH_VOL weeks and redistributes weights.",
+    "OVERLAY_OFF_weeks_BULL_or_LOW_VOL": {"ibs": 0.69, "rsi2": 0.25, "tue": 0.06, "s1": 0.00},
+    "OVERLAY_ON_weeks_BEAR_AND_HIGH_VOL": {"ibs": 0.55, "rsi2": 0.20, "tue": 0.05, "s1": 0.20}
+  },
+
+  "regime_definition": {
+    "BEAR": "SPY close < SPY 200-day MA AND SPY 252-day trailing return < 0 -- identical to build_regime_calendar() in scripts/run_v31_regime_decomposition.py, reused verbatim (same function, not redefined).",
+    "HIGH_VOL": "SPY 20-day realized vol > 75th percentile of trailing 252-week rolling window -- identical methodology to v33_vol_filter_v1's vol trigger (same 20-day/252-week windows, same PIT-safety), recomputed here since v33_vol_filter_v1's persisted series only carries the ON/OFF/HOLD hysteresis state (needed for that study's filter), not a raw HIGH_VOL/MID_VOL/LOW_VOL 3-way split; the underlying vol20 and 75th-percentile-threshold computation is otherwise identical.",
+    "OVERLAY_ON": "BEAR AND HIGH_VOL simultaneously (both conditions true in the same week)",
+    "OVERLAY_OFF": "everything else (BULL, SIDEWAYS, or BEAR-but-not-HIGH_VOL, or HIGH_VOL-but-not-BEAR)"
+  },
+
+  "universe": "Same as V3.2 -- full Sharadar excl. Fin/RE/HC, price>=1, dvol>=500k, 252d history, NSI Q5 + Quality Q5 exclusions. S1 computed on the identical universe and eligibility rule as run_v31_regime_decomposition.py (reused function calls: load_universe_candidates, build_eligibility).",
+
+  "cost_model": "10bps round-trip on weekly turnover. Adding S1 changes portfolio composition in OVERLAY_ON weeks; turnover increase vs V3.2 baseline is measured directly from the two portfolios' weekly holdings sets in OVERLAY_ON weeks (unlike the prior V3.3 studies, which could not measure turnover because they only had standalone-signal RETURNS, not HOLDINGS -- this study computes standalone S1 holdings directly, so an actual turnover comparison is possible here). Flagged if annualized cost increase exceeds 0.5%/yr.",
+
+  "base_portfolio": "V3.2 (V3.1 minus Sector RS), NOT V3.1. Measured via the same linear-blend-of-standalone-signal-returns method used throughout this thread (ibs_ret, rsi2_ret, tue_ret from weekly_panel.csv), with s1_ret computed fresh by this study using the identical weekly rebalance/quintile-selection methodology.",
+
+  "test_portfolios": {"A": "V3.2 as-is (no overlay)", "B": "V3.2 + bear overlay"},
+
+  "diagnostic_checks_locked": {
+    "order": "Run in order below. Stop at first failure. Do not proceed to full evaluation if any diagnostic fails.",
+    "1_correlation_check": {
+      "rule": "Compute the cross-sectional correlation of S1 percentile scores with IBS percentile scores, pooled across all eligible names in BEAR+HIGH_VOL weeks only (per-week Pearson correlation across the cross-section, then pooled/averaged over BEAR+HIGH_VOL weeks).",
+      "verdict_bands": "corr > 0.85: STOP (overlay adds no new information -- just a noisier IBS). corr < 0.70: PROCEED (genuine addition). 0.70-0.85: BORDERLINE, proceed with caution (noted, does not itself stop the study)."
+    },
+    "2_activation_frequency": {
+      "rule": "Count BEAR+HIGH_VOL weeks in 2001-2024 (full development period).",
+      "verdict_bands": "10-15% expected. <5%: too little opportunity, does not itself stop the study but is reported as a concern. >25%: definition too broad / effectively always-on, reported as a concern."
+    },
+    "3_standalone_s1_replication": {
+      "rule": "Compute S1's own top-quintile-minus-bottom-quintile weekly spread, annualized, restricted to BEAR+HIGH_VOL weeks only, on this study's own universe/period computation (not copied from conditional_signal_map, which never computed this joint cell).",
+      "verdict_bands": "If spread >= 50%/yr AND t >= 3.5: replication confirmed per the brief's stated bar, proceed. If spread < 30%/yr OR t < 2.5: STOP -- the conditional finding does not replicate at the joint-regime level on this universe. Between 30-50%/yr or t 2.5-3.5: reported as PARTIAL, proceeds (this band is not itself a stop condition per the brief, only the <30%/t<2.5 floor is)."
+    }
+  },
+
+  "falsification_criteria": {
+    "primary_composite_improvement": {
+      "rule": "B Sharpe >= A Sharpe + 0.05 in BEAR+HIGH_VOL weeks AND B full-cycle Sharpe >= A full-cycle Sharpe (no regression) AND B full-cycle alpha within 1%/yr of A full-cycle alpha."
+    },
+    "secondary_type2_improvement": {
+      "rule": "COVID 2020: B loss < A loss (directional only, no quantified threshold). 2022 bear: B loss < A loss (directional only). Reported as informative given 4 prior defensive-attempt failures, not as a quantified pass/fail gate."
+    },
+    "falsified_if": [
+      "B full-cycle Sharpe < A Sharpe - 0.03 (overlay hurts the base portfolio)",
+      "OR correlation > 0.85 in BEAR+HIGH_VOL (diagnostic check 1 fails)",
+      "OR standalone S1 in BEAR+HIGH_VOL < 30%/yr OR t < 2.5 (diagnostic check 3 fails / conditional finding doesn't replicate)",
+      "OR activation frequency < 5% or > 30%"
+    ]
+  },
+
+  "sub_period_validation": {
+    "periods": ["2001-01-01 to 2008-12-31", "2009-01-01 to 2016-12-31", "2017-01-01 to 2024-12-31"],
+    "rationale": "Identical thirds to all prior studies in this thread. BEAR+HIGH_VOL week counts and S1 conditional strength reported per sub-period; if concentrated in one sub-period, classified REGIME_SPECIFIC (noted, not itself a stop condition)."
+  },
+
+  "type1_check": {
+    "episodes": ["GFC 2008-09 (2007-07-13 to 2009-03-06)", "2002 bear (2002-04-19 to 2002-10-04)"],
+    "note": "If GFC was BEAR+HIGH_VOL (plausible given vol was extreme and the regime calendar showed BULL only through the initial peak per prior studies -- but most of GFC's duration was BEAR), the overlay was ON for much of it. Reported explicitly whether it helped or hurt, since GFC is a TYPE 1 (signal-not-broken) episode where amplifying an already-working IBS engine with S1 should, per the economic hypothesis, help rather than hurt."
+  },
+
+  "signal_attribution": "When overlay is ON, marginal contribution of S1 vs IBS vs RSI2 to the composite return in BEAR+HIGH_VOL weeks, using the same contribution-decomposition method as v31_regime_decomposition_v1 (contrib_x = mean(pct_rank_x * weight_x * realized_return) over held names).",
+
+  "onset_dates_for_type2_check": {"covid_2020": "2019-12-20", "bear_2022": "2021-11-12", "note": "Same locked onset dates as all four V3.3 studies, reused for consistency, not redefined."},
+
+  "development_period": {"start": "2001-01-01", "end": "2024-12-31"},
+
+  "constraints": [
+    "Preregistration (this file) committed before S1 scores are computed for the V3.2 universe.",
+    "Diagnostic checks run in the locked order. Stop at first hard-failure (correlation > 0.85, OR standalone S1 replication below the 30%/t2.5 floor). Do not proceed to full evaluation if a diagnostic hard-fails.",
+    "Onset dates for the TYPE 2 directional check are locked to 2019-12-20 and 2021-11-12, consistent with all four prior V3.3 studies -- not redefined here.",
+    "Overlay weights (0.55/0.20/0.05/0.20 ON; 0.69/0.25/0.06/0.00 OFF) are fixed and not optimized after seeing results. If 20% S1 weight turns out to be suboptimal, that is accepted and reported, not corrected.",
+    "All sub-periods are reported regardless of result.",
+    "RSI14 is not added as a separate signal (brief's stated reason: corr 0.91 with S1 -- noted above as itself unverified in this repo, but the brief's decision not to add RSI14 is followed as an instruction, not re-litigated by this study).",
+    "If EFFECTIVE: describe a V3.4 paper-track configuration. Do not build or launch it.",
+    "If FALSIFIED: record the result and defer to crisis-sleeve research as the brief directs -- no fifth iteration of the overlay is attempted within this study.",
+    "paper_trading/ is not read from or modified. No live weight changes made by this study."
+  ],
+
+  "deliverables": [
+    "This file",
+    "Diagnostic outputs: correlation check, activation frequency, standalone S1 replication in BEAR+HIGH_VOL",
+    "If any diagnostic hard-fails: stop here, report only the diagnostics",
+    "If diagnostics pass: full-cycle comparison A (V3.2) vs B (overlay): CAGR, alpha/yr, alpha t-stat, Sharpe, max drawdown, annual cost increase from the overlay",
+    "BEAR+HIGH_VOL-weeks-only comparison: alpha/yr, Sharpe, N weeks, A vs B",
+    "TYPE 2 directional check (COVID 2020, 2022 bear): A vs B, Better/Worse/Same",
+    "TYPE 1 check (GFC 2008-09, 2002 bear): A vs B, whether overlay helped or hurt given ON/OFF status",
+    "Sub-period S1 strength in BEAR+HIGH_VOL: spread, t-stat, week count per sub-period; consistency verdict",
+    "Signal attribution in BEAR+HIGH_VOL weeks: marginal contribution of S1 vs IBS vs RSI2",
+    "Falsification verdict: EFFECTIVE / MARGINAL / FALSIFIED",
+    "If EFFECTIVE: a V3.4 paper-track configuration description (not built or launched by this study)"
+  ],
+
+  "stop_condition": "Report results and wait for instruction. Do not launch a V3.4 paper track. Do not optimize the 20% S1 weight or the BEAR/HIGH_VOL thresholds after seeing results, regardless of verdict."
+}

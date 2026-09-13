@@ -1,0 +1,40 @@
+{
+  "run_utc": "2026-09-10T20:35:06.444715+00:00",
+  "evidence_stage": "historical development; NOT fresh validation",
+  "development_period": [
+    "2001-01-01",
+    "2018-12-31"
+  ],
+  "holdout": "2019+ not evaluated",
+  "cost_bps": 10.0,
+  "familywise_t": 2.39,
+  "correction_note": "Supersedes incomplete 20260910T163536Z artifact: corrected frozen t-251..t-20 window, uses Q5-Q1 factor alpha for classification, and removes optional report dependency.",
+  "preregistrations": {
+    "residual_momentum_60d_v1.json": "8c94b3d6396f4aaf59acb70647819c223d7ea0c80e91da90ff7550b2a0892f7e",
+    "residual_momentum_126d_v1.json": "689a84286998ab4752842177f008d065d66f0de7020c30f5c6ccdcc8b9145bec",
+    "residual_momentum_252d_ex20_v1.json": "44f7d016e1555e50d68808f424e2bda94e8459ed9447d82ab7f7663cc0e705c7"
+  },
+  "source_database": "C:\\Users\\micha\\OneDrive\\Desktop\\Projects\\trading-strategy-tracker\\V2\\data\\sharadar.db",
+  "source_database_size": 18090061824,
+  "source_database_mtime_utc": "2026-09-06T16:32:46.098757+00:00",
+  "result_files_sha256": {
+    "hypothesis_summary.csv": "539050e2097a052936618ba114b39865cc82d04b6558e65c5a9b8817941f95b5",
+    "orthogonality.csv": "56d3f8832e6f3e44baf16acc74031cfcc2e3d58cefe63fbeb0f83574f595ea44",
+    "report.md": "add14a4888f798b2609c2661ec5a550427e3a88f39bb36e92e000f854d99fa53",
+    "residual_momentum_126d_ic.csv": "38ebf4ba1dbebd5c0bd3b2bbdef7953de02ae24dd4d2479fcc531814efd5c1e2",
+    "residual_momentum_126d_implementation_periods.csv": "f7a332d1da16b3bc679853013add3c2f530176372905368bd8d6a60ee7683169",
+    "residual_momentum_126d_quintile_returns.csv": "d948d5ed4bdb66c32b5b87b5d4ec6b964ce2ee6142ea03133ce11c515aab0fbe",
+    "residual_momentum_126d_regimes.csv": "45d53344e9fca2ce5e14e4948fa5bbcf27f318acfe482341bf432e5338f7e499",
+    "residual_momentum_126d_universe.csv": "c27babd15179c58d294aa5483acb6fe94133b2f7c328659e37192acacacc7e7f",
+    "residual_momentum_252d_ex20_ic.csv": "5f40e5bb510f302d415655b1f5cb6d142ac085d5bd74bf40182289a4baa2350c",
+    "residual_momentum_252d_ex20_implementation_periods.csv": "cc32da24f3c57b30b871214abab2c3afed132a3b557f9ce404ee0dcc0dffedae",
+    "residual_momentum_252d_ex20_quintile_returns.csv": "aa369e3819a8ee86f686aeb2271f9f4e93d94953a89d410778ba71d2f5ac16cc",
+    "residual_momentum_252d_ex20_regimes.csv": "6e2d223542bd4d6d9c1c5e75d67745e2dae101b3e8d65c10b232ec1d23e5ffac",
+    "residual_momentum_252d_ex20_universe.csv": "c27babd15179c58d294aa5483acb6fe94133b2f7c328659e37192acacacc7e7f",
+    "residual_momentum_60d_ic.csv": "ff636f3cba7d3b2640859a6c890ac9ac696bc6275ea0a2534341fd7059e02ccc",
+    "residual_momentum_60d_implementation_periods.csv": "f7211bd8cc3e6018cdda52aaeba268b24c42490f3039dab06332213e62a085ff",
+    "residual_momentum_60d_quintile_returns.csv": "e94800522a12525aa9baa5b43c2e78440c8dbf8c1e9e8a52e73a792443f417f5",
+    "residual_momentum_60d_regimes.csv": "68a85dd4218b75717d26455d0d05dfef044e223432c02ac9c295e408aaee6889",
+    "residual_momentum_60d_universe.csv": "c27babd15179c58d294aa5483acb6fe94133b2f7c328659e37192acacacc7e7f"
+  }
+}

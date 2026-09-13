@@ -1,0 +1,96 @@
+{
+  "hypothesis_id": "conditional_signal_map_v1",
+  "registered_at": "2026-09-10T00:00:00-07:00",
+  "research_stage": "conditional characterization of already-computed signals, not new-signal discovery or optimization",
+  "status": "COMPLETED — EXPLORATORY / HYPOTHESIS-GENERATING",
+  "evidence_caveat": "This was a broad conditional search across multiple signals, regimes, volatility states, drawdown states, weekdays, transitions, and related cuts. Nominal t-statistics are descriptive and do not have the interpretation of a single preregistered hypothesis test. Forward validation or a genuinely untouched independent dataset is required.",
+
+  "research_question": "Which signals from the daily and intraday libraries show meaningful conditional performance in specific market regimes, volatility regimes, or drawdown states that was hidden by full-sample averaging?",
+
+  "background": "The V3.1 regime decomposition (v31_regime_decomposition_v1) found that some signals discarded under the full-sample 'consistent across all conditions' framework -- S1 Pullback-to-21EMA, S3 RSI14 Oversold -- carry extreme bear-regime spreads (bear=91.2%/yr, bear=104.7%/yr respectively) alongside near-zero bull-regime spreads. That framework was correct for finding always-on primary signals, but it structurally cannot detect a signal that is powerful in one regime and flat/negative in others, since averaging the two washes out the edge. This study re-examines all 9 daily-library signals and 6 intraday-library signals across four conditioning dimensions to build a complete conditional signal map, without building or optimizing any new composite.",
+
+  "data_availability_finding_and_resolution": {
+    "finding": "V2/data/signal_library_results.pkl (the persisted output of strategies/signal_library.py's run()) stores only AGGREGATE per-signal stats per horizon (spread_ann, spread_tstat, spread_n, q1/spread alpha+betas, size_spreads, regime_spreads) plus exactly ONE per-day series across the whole library: spread_series_5d (the Q1-Q5 daily return series for the 5-day horizon only). There is no per-day series for the 1-day horizon, and no per-name/per-day raw data at all. Its regime_spreads field also uses a DIFFERENT bull/bear/sideways definition (SPY vs its 200d MA, computed inline in run()) than this study's DIM 1, which uses the Q1 weekly_panel.csv regime calendar -- the two are not interchangeable and the pkl's regime_spreads field is not reused here. Separately, there is NO persisted pkl or CSV of any kind for the intraday library (I1-I6) -- strategies/intraday_signal_library.py has never had its output saved to disk, and no driver script for the daily pkl survives in the repo either (only signal_library.py's own run()/__main__ remain as a reconstructable driver).",
+    "resolution": "DEVIATION NOTED: faithfully executing the brief's four conditioning dimensions requires per-day (not aggregate) Q1-Q5 spread observations, which do not exist as saved artifacts for daily h=1, for daily h=5's full per-day granularity beyond what's already in the pkl (it does exist there and is reused as a cross-check), or for ANY intraday horizon. This study therefore re-runs the EXISTING, already-vetted signal-computation and quintile-mask functions -- compute_signals, build_eligibility, _quintile_masks, _binary_group_masks, _fwd_returns, _hac_regress, imported directly from strategies/signal_library.py and strategies/intraday_signal_library.py, never reimplemented -- to regenerate per-day Q1/Q5 spread return series. This is extraction of daily-granularity output from identical formulas, not new signal design or a new methodology; no signal definition, quintile threshold, eligibility rule, or universe construction was changed from what those two files already implement. Before any conditional slicing was computed, the daily-library re-run's full-sample aggregate stats (spread_ann, spread_tstat, spread_n) for h=1 and h=5 across all 9 signals were checked against the values already stored in signal_library_results.pkl to confirm the re-run pipeline reproduces the vetted numbers.",
+    "intraday_specific_note": "The intraday library (I1-I6) has never been persisted anywhere, so its per-day series required a genuinely fresh run of intraday_signal_library.py's run() against data/alpaca_intraday.db + data/sharadar.db (no prior aggregate exists to cross-check against -- this is the first time these six signals' numbers have been computed and recorded at all, not a re-derivation of a known-good prior result). The intraday universe (613-ticker PIT S&P 500, Alpaca IEX 15-minute bars, 2020-07-27 to 2026-09-05) is a genuinely different sample from the daily library's full Sharadar PIT-eligible universe (2001-2024) in both breadth and period -- this is flagged explicitly in every intraday output table and is never pooled with daily-library figures in any aggregate statistic."
+  },
+
+  "conditioning_dimensions": {
+    "DIM1_market_regime": {
+      "source": "V2/reports/v31_regime_decomposition/20260911T002649Z/weekly_panel.csv `regime` column (BULL/BEAR/SIDEWAYS), NOT recomputed. This is a WEEKLY (Friday signal_date) calendar; daily observation dates are mapped to a regime by taking the most recent weekly signal_date <= the observation date (as-of join, no lookahead -- the regime assigned to a Friday is not known until that Friday). The 42 early rows with regime=NaN (200d MA warmup, pre-~2001-10) are dropped from this dimension's cells, not zero-filled.",
+      "levels": ["BULL", "BEAR", "SIDEWAYS"]
+    },
+    "DIM2_volatility_regime": {
+      "definition": "SPY 20-trading-day realized volatility (trailing, excluding the current day -- a 'pre' window, matching the PIT convention used elsewhere in this codebase, e.g. ibs_conditioning.py's total_vol20_pre) of daily returns, annualized. HIGH_VOL: > 75th percentile of the full-sample realized-vol distribution (percentile computed once over the full sample, not rolling/expanding -- a fixed threshold, since this is a characterization exercise on completed history, not a live filter). LOW_VOL: < 25th percentile. MID_VOL: everything else.",
+      "source": "SPY daily closes. For the daily-signal sample (2001-2024): V2/data/spy_total_return_daily_2001_2024.csv (total-return daily pct series, compounded into a synthetic price index, matching the convention already used in v31_regime_decomposition_v1's regime_definition). For the intraday-signal sample (2020-2026), that CSV does not cover the range (ends 2024-12-31) and Sharadar's `stocks` table does not carry SPY (confirmed: zero rows for ticker='SPY' in data/sharadar.db -- SPY is an ETF, outside Sharadar's core equities coverage) or alpaca_intraday.db (zero SPY bars). DEVIATION NOTED: SPY daily closes for the intraday window are instead pulled fresh via yfinance (auto_adjust=True, 'Close'), the SAME external source signal_library.py's own run() already uses for its inline bull/bear regime_spreads field -- not a new data dependency introduced by this study.",
+      "percentile_basis": "75th/25th percentiles computed separately within each sample's own history (2001-2024 for daily signals, 2020-2026 for intraday signals) -- the two samples are not pooled for threshold-setting, consistent with treating them as genuinely different universes/periods throughout."
+    },
+    "DIM3_drawdown_depth": {
+      "definition": "SPY drawdown from its trailing all-time high (rolling running max of the SPY close series computed PIT-safe -- the running max as of date t uses only closes up to and including t, no centered window). SHALLOW: within 5% of that running high. MODERATE: 5-15% below. DEEP: >15% below.",
+      "source": "Same SPY price series as DIM2 per sample (spy_total_return_daily_2001_2024.csv-derived index for daily signals, yfinance for intraday signals)."
+    },
+    "DIM4_day_of_week": {
+      "definition": "Day of the WEEK ON WHICH THE SIGNAL IS FORMED (the day whose close the signal score is computed from), for DAILY signals' 1-day horizon only. Five buckets: Mon close->Tue open forward return, Tue->Wed, Wed->Thu, Thu->Fri, Fri->Mon (matches the naming in the brief; 'X->Y' means the signal is scored off X's close and the 1-day forward return realized through Y's close is attributed to that bucket).",
+      "scope": "Daily signals only, 1-day horizon only, per the brief. Not applied to intraday signals (which already have an intrinsic within-day structure) or to longer daily horizons.",
+      "note_on_S7": "S7 Turnaround Tuesday is BY CONSTRUCTION only defined on Mondays (signal_library.py's S7_turnaround_tuesday is NaN on every non-Monday) -- its day-of-week row will show a single populated cell (Mon->Tue) and NaN/no-observations elsewhere. This is not a bug; it is reported as-is, not redistributed."
+    }
+  },
+
+  "signals_to_reexamine": {
+    "daily_library": {
+      "source_file": "V2/strategies/signal_library.py",
+      "universe": "Full Sharadar PIT-eligible common stocks, price>=$1, trailing 63d median dollar volume>=$500K, >=252d history, ex-Financial Services/Real Estate/Healthcare (Fama sector). 2001-01-01 to 2024-12-31.",
+      "signals": ["S1_pullback_ema21", "S2_ema_crossover", "S3_rsi14_oversold", "S4_rsi2_connors", "S5_ibs", "S6_breakout", "S7_turnaround_tuesday", "S8_gap_fade", "S9_sector_rotation"],
+      "horizons": [1, 5]
+    },
+    "intraday_library": {
+      "source_file": "V2/strategies/intraday_signal_library.py",
+      "universe": "613-ticker clean PIT S&P 500 list (V2/scripts/pit_sp500_universe.txt) intersected with Alpaca IEX 15-minute bar coverage, 2020-07-27 to 2026-09-05. A genuinely different sample from the daily library (narrower, later, mega/large-cap-skewed) -- never pooled with daily-library statistics.",
+      "signals_mapped_to_brief_labels": {
+        "I1_orb30": "S1_orb_30", "I2_vwap_position": "S2_vwap_position", "I3_gap_fade": "S3_gap_fade",
+        "I4_gap_and_go": "S4_gap_and_go", "I5_pivot_reversal": "S5_pivot_reversal", "I6_intraday_reversal": "S6_intraday_reversal"
+      },
+      "excluded_from_brief_scope": "S1b_orb_60 exists in intraday_signal_library.py's compute_signals() output but is not one of the brief's named I1-I6 signals; excluded from this study's tables for consistency with the brief's explicit list (not because it looks weak -- it is simply out of scope).",
+      "horizons": ["intraday (open-to-close)", "1-day (close-to-close)"]
+    }
+  },
+
+  "statistical_conventions": {
+    "t_stats": "Newey-West (HAC) via the SAME _hac_regress helper imported from each library file (maxlags = horizon in trading days for close-to-close cells; maxlags=1 for the intraday open-to-close cell, matching intraday_signal_library.py's own convention for its 'intraday' horizon row).",
+    "thin_sample_flag": "Any cell with N < 100 observations is flagged THIN_SAMPLE and still reported numerically (spread, t-stat, N) -- never suppressed or omitted.",
+    "winsorization": "Cross-sectional 1%/99% winsorization of forward returns before Q1/Q5 averaging, matching each library file's own _winsorize_wide convention (already baked into the imported forward-return construction, not altered here).",
+    "pit_safety": "DIM1 (Q1 calendar) is already PIT-safe by construction (see v31_regime_decomposition_v1). DIM2 (realized vol) and DIM3 (drawdown) use only trailing/backward-looking windows as of the signal-formation date -- no centered or forward window at any point. DIM4 is a same-day-of-week partition of already-PIT signal scores and forward returns; introduces no new lookahead."
+  },
+
+  "outputs_per_signal_per_dimension": ["Q1-Q5 spread (annualized)", "Newey-West t-stat", "N observations", "THIN_SAMPLE flag if N<100"],
+
+  "reporting_requirements": [
+    "A. Consolidated regime table -- all 15 signals x 3 regimes x applicable horizons",
+    "B. Volatility regime table -- same structure, HIGH/MID/LOW_VOL",
+    "C. Drawdown depth table -- same structure, SHALLOW/MODERATE/DEEP",
+    "D. Day-of-week table -- daily signals, 1-day horizon only",
+    "E. Signal opportunity map -- best regime/vol/drawdown/DoW per signal with a one-line 'when to use' statement",
+    "F. Tier classification per signal: TIER 1 always-on, TIER 2 bear/correction overlay candidate, TIER 3 crisis-sleeve candidate, TIER 4 seasonal/calendar",
+    "G. Honest paragraph on which signals deserve a second look as regime-activated overlays vs. which are not useful in any condition",
+    "All 15 signals and all conditions reported regardless of result -- no selective reporting of only the best-looking cells."
+  ],
+
+  "constraints": [
+    "Use existing signal_library_results.pkl full-sample aggregate stats as a sanity-check baseline for the daily-signal re-run; do not trust the re-run's per-day series until the aggregate check passes.",
+    "Use the existing weekly_panel.csv regime calendar; do not recompute the Q1 regime definition.",
+    "Reuse imported signal/quintile/HAC functions from signal_library.py and intraday_signal_library.py verbatim; no new signal formulas, no new quintile logic, no new universe construction.",
+    "Flag THIN_SAMPLE (N<100) explicitly; do not over-interpret or hide thin cells.",
+    "Intraday signals are restricted to the 613-ticker PIT S&P 500 universe (2020-2026) and are never pooled with daily-signal (2001-2024) statistics in any combined table.",
+    "Do not build a new composite. Do not optimize a combined overlay.",
+    "paper_trading/ live tracks and state files are not read from or modified.",
+    "This preregistration is committed before any of the four conditioning dimensions are computed (the pkl aggregate-stat sanity check, which validates already-published numbers rather than performing new analysis, may precede this file)."
+  ],
+
+  "deliverables": [
+    "This file",
+    "V2/reports/conditional_signal_map/<UTC timestamp>/ containing the full per-signal x per-dimension x per-horizon data (CSV/JSON, all cells including thin-sample-flagged ones) and a markdown report with sections A-G",
+    "Strategy_Research_Tracker_v2 (6).xlsx updates (Behavioral Signals Library sheet) for signals whose classification changes, plus new entries for bear-specific/crisis-specific signal families"
+  ],
+
+  "stop_condition": "Report the conditional signal map and wait for instruction. Do not build any regime-activated overlay, composite, or combined signal. Do not modify anything under paper_trading/."
+}

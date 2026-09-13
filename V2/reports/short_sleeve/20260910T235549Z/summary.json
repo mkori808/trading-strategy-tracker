@@ -1,0 +1,10 @@
+{
+  "cost_screen": "COST_DOMINATES",
+  "coverage": {
+    "avg_sp500_members": 501.02314814814815,
+    "avg_restricted_universe": 328.5046296296296
+  },
+  "primary_gross_alpha_annual": -0.03955980518432867,
+  "primary_gross_alpha_tstat": -1.3372540933765773,
+  "primary_avg_n_per_month": 21.36574074074074
+}

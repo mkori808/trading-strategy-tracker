@@ -1,0 +1,114 @@
+{
+  "hypothesis_id": "pead_B_v1",
+  "parent_hypothesis": "earnings_continuation_A_v1 (different horizon -- NOT a retest of the falsified same-day hypothesis)",
+  "registered_at": "2026-09-11T00:00:00-07:00",
+  "research_stage": "orthogonal second-engine candidate characterization, following the research-governance cleanup's item-14 priority (PEAD is the highest-priority next research direction). Holdout budget: 0 -- this is characterization on already-viewed history, not a fresh validation test.",
+  "status": "PREREGISTERED / NOT YET EVALUATED",
+
+  "integrity": {
+    "holdout_budget_remaining": 0,
+    "historical_holdout_status": "CONSUMED; no date in historical storage may be presented as fresh validation",
+    "development_period": "2001-01-01 to 2024-12-31 (full history; characterization exercise)",
+    "forward_validation": "Prospective paper track ONLY if falsification criteria are met and only after a separate, explicit subsequent instruction. Not built here. Does not modify V3.2 or paper-trading Tracks 1-3.",
+    "taxonomy": ["VIABLE", "HISTORICAL_ARTIFACT", "FALSIFIED", "MARGINAL"]
+  },
+
+  "relationship_to_falsified_prior_work": "earnings_continuation_A_v1 (sub-hypothesis A, same-day open-to-close continuation) and its A' amendment (realistic open-to-next-close) were both FALSIFIED, and A' additionally showed regime decay (H2 full-sample t=3.14 -> 2020+ subperiod t=0.22). This is preserved, not re-litigated. PEAD sub-hypothesis B tests a DIFFERENT, non-overlapping forward window -- close[announcement day] to close[t+5]/[t+10]/[t+20] -- using the same earnings_gap sign as a cheap, already-available proxy for earnings surprise direction (no new data purchase). If B also collapses in 2020+, that is independent corroborating evidence for the same regime-decay finding, not proof B was never viable; if B survives where A/A' did not, that is informative about WHERE in time the earnings-information-diffusion edge lives (announcement-day pricing vs multi-day drift), since the two sub-hypotheses test different economic claims (same-day efficiency vs multi-day underreaction) despite sharing a signal proxy.",
+
+  "economic_hypothesis": "After earnings announcements, stocks continue to drift in the direction of their earnings surprise over the subsequent 5-20 trading days, driven by slow information diffusion across market participants (sell-side revision lags, gradual institutional position adjustment, delayed retail processing). The initial gap direction predicts multi-day drift direction even after the announcement-day return has been fully realized and removed from the measurement window.",
+
+  "mechanism": {
+    "claim": "Market underreaction to earnings news persists for days because information diffuses slowly across investor types.",
+    "predicted_cross_sectional_pattern": [
+      "Stronger for larger earnings surprises (larger gap)",
+      "Stronger for smaller, less-covered firms (slower diffusion)",
+      "Stronger in periods of lower market attention (less crowded)"
+    ]
+  },
+
+  "signal_definition": {
+    "formula": "earnings_gap = (open[t] - close[t-1]) / close[t-1], where t = earnings announcement anchor trading day -- IDENTICAL formula and event-anchoring methodology to earnings_continuation_A_v1 (SF1 datekey, dimension='ARQ', anchored to that date if a trading session else the next session). Reused verbatim, not redefined.",
+    "pead_direction": "sign(earnings_gap): positive gap (beat) -> PEAD signal = +1 (go long); negative gap (miss) -> PEAD signal = -1 (avoid/short).",
+    "long_only_implementation": {
+      "LONG": "earnings_gap > +threshold",
+      "AVOID": "earnings_gap < -threshold",
+      "NEUTRAL": "|earnings_gap| < threshold"
+    },
+    "thresholds_tested": [0.01, 0.02, 0.03],
+    "primary_threshold": 0.02
+  },
+
+  "forward_return_window_locked": {
+    "critical_distinction": "Returns are measured starting from the CLOSE of the announcement day (not the open, not the same-day open-to-close move), so there is zero overlap with the announcement-day return already tested and falsified in sub-hypotheses A/A'.",
+    "H1_5day": "close[t] -> close[t+5]",
+    "H2_10day": "close[t] -> close[t+10] (NEW -- not computed by earnings_continuation_A_v1, which only had H3=5-day/H4=20-day; a 10-day horizon is added specifically for this study)",
+    "H3_20day": "close[t] -> close[t+20]",
+    "reuse_note": "H1 (5-day) and H3 (20-day) use the identical close-to-close return construction already implemented in strategies/earnings_continuation.py's build_features() (return_H3 and return_H4 there). Only the 10-day horizon and the sequential-earnings exclusion below are new computations."
+  },
+
+  "universe": {
+    "source": "Full Sharadar common stocks, identical filters to V3.2/earnings_continuation_A_v1: firstpricedate<=signal date<=lastpricedate (or no lastpricedate), excl. Financial Services/Real Estate/Healthcare Fama sectors, price>=$1, trailing 20-day median dollar volume>=$500k (pre-event), >=252 trading days history.",
+    "earnings_event_definition": "SF1 datekey (fundamentals.date, dimension='ARQ') within the anchor-day convention reused from earnings_continuation_A_v1 -- identical to the definition used throughout this project's earnings research.",
+    "sequential_earnings_exclusion_NEW": "Exclude an earnings event if it falls within 5 trading days (by the ticker's own trading-session index) of that same ticker's immediately PRIOR earnings event in this dataset. This prevents one ticker's overlapping/compressed earnings cycle (e.g. a restatement, late 10-Q, or unusually tight cadence) from contaminating the 5/10/20-day forward-return window with a second, different earnings event's gap. A ticker's very first observed event is never excluded by this rule (no prior event to compare against)."
+  },
+
+  "cost_model": {
+    "round_trip_bps": 20,
+    "rationale": "10bps entry + 10bps exit, same per-event total as the weekly composite's round-trip assumption. Lower turnover than the weekly composite (positions held 5-20 days, not 7) is noted qualitatively; annualized cost is reported per-event-per-year using the measured events-per-stock-per-year rate (~4 expected, confirmed or corrected by the actual coverage count)."
+  },
+
+  "regime_check_2020_plus_MANDATORY": {
+    "rule": "Run and report BEFORE any full characterization. Pre-2020: 2001-01-01 to 2019-12-31. Post-2020: 2020-01-01 to 2024-12-31. This repeats, for PEAD specifically, the diagnostic that found earnings_continuation_A' decayed from full-sample t=3.14 to 2020+ t=0.22.",
+    "stop_condition": "If ALL THREE horizons (H1/H2/H3) show 2020+ subperiod t < 1.0 at the primary (2%) threshold: STOP here and report HISTORICAL_ARTIFACT. Do not proceed to the full characterization table, factor regression, leave-one-crisis-out, or size analysis."
+  },
+
+  "leave_one_crisis_out_MANDATORY": {
+    "rule": "Per research-governance item 9 (V2/research/canonical/research_state.json), rerun the frozen primary-threshold/H2(10-day) measurement excluding one crisis episode at a time. Episode windows are REUSED VERBATIM from the already-established project definitions (same windows used in V2/reports/crisis_robustness/20260911T162542Z/ and v31_deepening_q2q3) -- not redefined here: dot-com/2001-2002 (2001-05-25 to 2003-05-09), GFC/2008-2009 (2007-07-13 to 2010-04-09), COVID/2020 (2019-12-20 to 2020-06-05), 2022 bear (2021-11-12 to 2023-03-03). Events whose anchor date falls inside a window are excluded for that run only.",
+    "reporting": "full sample, each of the four exclusions: N events, spread %/yr, HAC t-stat, sign.",
+    "verdict_bands": ["ROBUST", "PARTIALLY_ROBUST", "DOMINATED_BY_ONE_EPISODE", "UNDERPOWERED"]
+  },
+
+  "factor_model": {
+    "specification": "FF5 + UMD (6-factor), reusing strategies/ibs_conditioning._factor_regression and its FACTOR_COLUMNS constant (Mkt-RF, SMB, HML, RMW, CMA, Mom) exactly as used throughout this project -- UMD is the 'Mom' column and is ALWAYS included, never run without it for this study.",
+    "applies_to": "H1(5d) and H2(10d) daily per-event-day spread and long-leg series at the primary threshold (best horizon reported per the brief's output format; both computed regardless).",
+    "key_diagnostic": "UMD loading on the long leg. If alpha disappears once UMD is included, the 'PEAD' finding is statistically indistinguishable from buying recent momentum winners, not a distinct post-earnings-drift effect."
+  },
+
+  "size_subgroups": {
+    "method": "Reuse strategies/earnings_continuation.market_cap_subgroups() methodology (marketcap terciles, pre-event) applied to the H1(5d)/H2(10d) return columns at the primary threshold.",
+    "prediction_to_check": "Theory predicts PEAD is stronger in smaller, less-covered firms. Reported as observed, not assumed."
+  },
+
+  "falsification_criteria": {
+    "VIABLE": "H1 or H2 long-leg t > 2.0 AND 2020+ subperiod t > 1.5 (on the same horizon) AND alpha survives UMD inclusion (not pure momentum replication) AND leave-one-crisis-out verdict is ROBUST or PARTIALLY_ROBUST.",
+    "HISTORICAL_ARTIFACT": "Full-sample significant (t>2.0 on at least one horizon) BUT 2020+ subperiod t < 1.0 on that same horizon -- effect existed historically but appears gone now.",
+    "FALSIFIED": "H1, H2, AND H3 all t < 1.5 at the primary (2%) threshold, OR UMD absorbs essentially all of the alpha (long-leg alpha_tstat collapses to non-significance once Mom/UMD is added vs a no-UMD check).",
+    "MARGINAL": "H2 or H3 significant but H1 is not, OR 2020+ subperiod t falls between 1.0 and 1.5."
+  },
+
+  "multiple_testing_note": "Three thresholds (1%/2%/3%) times three horizons (5/10/20-day) are preregistered and ALL reported regardless of outcome -- no cherry-picking. The 2% threshold is the preregistered primary result, selected before any computation, matching earnings_continuation_A_v1's own primary-threshold convention for direct comparability.",
+
+  "constraints": [
+    "Preregistration (this file) committed before any return computation begins.",
+    "The 2020+ regime check runs FIRST and is reported before the full characterization table. If it is fatal (HISTORICAL_ARTIFACT on all three horizons), this study stops there.",
+    "Leave-one-crisis-out is mandatory (research-governance item 9) and uses the existing, already-established crisis window definitions verbatim -- not redefined after seeing results.",
+    "UMD (the 'Mom' factor) is always included in the factor regression. No FF5-without-UMD run is reported as a standalone result for PEAD.",
+    "This study does not conflate with or re-test earnings_continuation_A/A' (already falsified) -- it measures a non-overlapping forward window.",
+    "All three preregistered thresholds are reported regardless of result; none are cherry-picked or dropped from the output.",
+    "If VIABLE: a paper-track operational description is written, but the track itself is NOT built, no holdout data is consumed, and V3.2 / paper-trading Tracks 1-3 are not modified.",
+    "Do not optimize thresholds, horizons, or exclusion rules after seeing results."
+  ],
+
+  "deliverables": [
+    "This file",
+    "2020+ regime check (H1/H2/H3, full-sample/pre-2020/post-2020, at the primary threshold) -- run and reported first",
+    "If not fatal: full characterization table across all 3 thresholds x 3 horizons (long spread, t-stat, avoid spread, t-stat, N events)",
+    "Factor regression (FF5+UMD) on the primary-threshold long leg and spread, for H1 and H2",
+    "Leave-one-crisis-out robustness table and verdict",
+    "Size (marketcap tercile) analysis at the primary threshold for H1/H2",
+    "Falsification verdict: VIABLE / HISTORICAL_ARTIFACT / FALSIFIED / MARGINAL",
+    "If VIABLE: an operational description of what a PEAD paper-trading track would look like (not built)"
+  ],
+
+  "stop_condition": "Report results and wait for instruction. Do not build a PEAD paper track, consume holdout data, or modify V3.2/Tracks 1-3, regardless of verdict."
+}

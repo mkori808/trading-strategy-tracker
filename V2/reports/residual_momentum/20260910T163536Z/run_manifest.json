@@ -1,0 +1,15 @@
+{
+  "run_utc": "2026-09-10T16:35:37.401026+00:00",
+  "development_period": [
+    "2001-01-01",
+    "2018-12-31"
+  ],
+  "holdout": "2019+ not evaluated",
+  "cost_bps": 10.0,
+  "familywise_t": 2.39,
+  "preregistrations": [
+    "residual_momentum_60d_v1.json",
+    "residual_momentum_126d_v1.json",
+    "residual_momentum_252d_ex20_v1.json"
+  ]
+}

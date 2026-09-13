@@ -1,0 +1,26 @@
+{
+  "B": {
+    "verdict": "VALUABLE",
+    "sharpe_delta": 0.060677881117803145,
+    "maxdd_delta": -0.003867196381438509,
+    "tail_delta": 0.007004357607681089,
+    "alpha_delta": 0.008525139638557278,
+    "cagr_delta": 0.01575969921980347
+  },
+  "C": {
+    "verdict": "VALUABLE",
+    "sharpe_delta": 0.15413019446652498,
+    "maxdd_delta": 0.06763120564440739,
+    "tail_delta": 0.018043158427049302,
+    "alpha_delta": 0.025089627578221085,
+    "cagr_delta": 0.038374701559367175
+  },
+  "D": {
+    "verdict": "VALUABLE",
+    "sharpe_delta": 0.17294729023929944,
+    "maxdd_delta": 0.06696259690203255,
+    "tail_delta": 0.018702416465490354,
+    "alpha_delta": 0.025524484499093614,
+    "cagr_delta": 0.041625310481825384
+  }
+}

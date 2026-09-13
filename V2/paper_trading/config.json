@@ -30,6 +30,36 @@
     "note": "Order submission (V1/engine/alpaca_trading.py) hardcodes TradingClient(paper=True) at the SDK level -- there is no live code path to accidentally hit. Env vars used: ALPACA_PAPER_API_KEY / ALPACA_PAPER_SECRET_KEY (V1's existing convention -- the ALPACA_API_KEY_PAPER/ALPACA_SECRET_KEY_PAPER names from the original task spec do not exist in this codebase and were not invented)."
   },
   "single_account_caveat": "Only one Alpaca paper credential pair exists in V1/.env (ALPACA_PAPER_API_KEY/SECRET) -- one brokerage account. If two tracks hold overlapping tickers (likely, since IBS dominates both composite_v2 and composite_v3_1), real order submission through a single shared Alpaca account would net/commingle positions across tracks and make per-track P&L attribution impossible. Dry-run target-portfolio computation is unaffected (each track's signals/weights are computed independently), but --submit is NOT wired to actually call Alpaca until this is resolved -- see engine.py.",
+  "daily_overnight": {
+    "launch_authorized": false,
+    "launch_note": "Track 4A/4B are preregistered but blocked: official post-close OHLC signal construction followed by an official same-close fill is LOOKAHEAD_INVALID. A PIT-safe pre-close/closing-auction signal and fill source must be implemented and audited before authorization.",
+    "execution_audit": {
+      "market_data_cutoff": "After regular-session close; final daily Sharadar OHLC is available only post-close.",
+      "signal_calculation_time": "After final day-t official daily OHLC has been received.",
+      "portfolio_selection_time": "After the post-close signal calculation.",
+      "entry_fill": "Same day-t regular-session official Sharadar close (virtual).",
+      "exit_fill": "First Alpaca IEX one-minute bar open at or after 09:30 ET on t+1, retrieved after 10:00 ET.",
+      "status": "LOOKAHEAD_INVALID",
+      "reason": "The selected portfolio is not knowable before the official day-t close used as its entry fill.",
+      "pit_safe_implementation": null
+    },
+    "cost_sensitivity_bps_round_trip": [2, 5, 10],
+    "liquid_count_amendment": {
+      "original_minimum_holdings": 50,
+      "amended_minimum_holdings": 40,
+      "effective_only_with_amendment": true
+    },
+    "tracks": {
+      "ibs_daily_overnight_full": {
+        "liquid_only": false,
+        "expected_pre_exclusion_universe": [1300, 1600]
+      },
+      "ibs_daily_overnight_liquid": {
+        "liquid_only": true,
+        "expected_pre_exclusion_universe": [260, 320]
+      }
+    }
+  },
   "tracks": {
     "ibs_standalone": {
       "weights": { "ibs": 1.00, "rsi2": 0.00, "sector_rs": 0.00, "turnaround_tue": 0.00 },
@@ -37,12 +67,25 @@
     },
     "composite_v2": {
       "weights": { "ibs": 0.50, "rsi2": 0.30, "sector_rs": 0.15, "turnaround_tue": 0.05 },
-      "ibs_earnings_conditioned": false
+      "ibs_earnings_conditioned": false,
+      "specification_version": "V2",
+      "specification_sha256": "78947aa252d3d7dcd16f2735c9672a5764805ca6de9879d4fc6b2844ad8a8303"
     },
     "composite_v3_1": {
       "weights": { "ibs": 0.62, "rsi2": 0.22, "sector_rs": 0.10, "turnaround_tue": 0.06 },
       "ibs_earnings_conditioned": true,
+      "specification_version": "V3.1",
+      "specification_sha256": "098664b2f209687a70956ff21c64a3de8dea0658b561c7a1ead8fa243a2d5533",
       "note": "Weights as specified in this task's config -- differ from this session's own IC-weighting computation (IBS=0.92/RSI2=0/SectorRS=0/Tue=0.08, no earnings conditioning recommended by Task A's 'minor effect, same direction' finding). Using the values given here as the live specification; flagged for the record, not overridden."
+    },
+    "composite_v3_2": {
+      "weights": { "ibs": 0.69, "rsi2": 0.25, "sector_rs": 0.00, "turnaround_tue": 0.06 },
+      "ibs_earnings_conditioned": true,
+      "specification_version": "V3.2",
+      "specification_sha256": "781967907860b84a7e1afd507a780c67a17c79e780c18085ff8f3c59cf307025",
+      "frozen": true,
+      "canonical_specification": "V2/research/canonical/v3_2_specification.json",
+      "note": "Frozen V3.2: Sector Rotation removed; no Gap Fade; no transition filter; no other additions. Any rule change requires a new version identifier. Forward observations begin after the 2026-09-11 freeze and are not backfilled."
     }
   }
 }

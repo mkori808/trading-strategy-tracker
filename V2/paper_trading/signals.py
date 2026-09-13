@@ -168,3 +168,69 @@ def compute_composite(panel: dict, as_of: pd.Timestamp, weights: dict[str, float
         "scores": scores, "excluded_nsi_q5": excl["nsi_q5"], "excluded_quality_q5": excl["quality_q5"],
         "universe_size": len(syms_today), "post_exclusion_size": len(syms),
     }
+
+
+def _daily_exclusions_for_symbols(panel: dict, as_of: pd.Timestamp, syms: list[str]) -> dict[str, set[str]]:
+    """Apply the existing NSI/Quality Q5 definitions to an explicit universe.
+
+    Daily Track 4B first restricts to its liquidity quintile, then applies
+    exclusions.  The weekly cache cannot be reused because its Q5 cutoffs are
+    defined on the wider universe, so this intentionally recomputes only the
+    same formulas for the supplied universe.
+    """
+    nsi_excl, qual_excl = set(), set()
+    nsi = _nsi_signal(panel["shares_panel"], as_of, syms)
+    if len(nsi) >= 5:
+        q = _quintile(nsi, ascending=True)
+        nsi_excl = set(q.index[q == 5])
+    qual = _quality_score(panel["qual_panel"], as_of, syms)
+    if len(qual) >= 5:
+        q = _quintile(qual, ascending=False)
+        qual_excl = set(q.index[q == 5])
+    return {"nsi_q5": nsi_excl, "quality_q5": qual_excl}
+
+
+def daily_overnight_ibs(panel: dict, as_of: pd.Timestamp, liquid_only: bool) -> dict:
+    """Close-known, non-earnings IBS target for the separate daily experiment.
+
+    This function has no side effects and does not use the monthly weekly-track
+    exclusion cache.  The liquid filter is applied before exclusions, exactly
+    as registered for Track 4B.
+    """
+    eligible = panel["eligible"].loc[as_of]
+    syms = list(eligible.index[eligible])
+    C, V = panel["C"], panel["V"]
+    dollar_volume = C * V
+    adv20 = dollar_volume.rolling(20, min_periods=20).median().loc[as_of].reindex(syms)
+    if liquid_only:
+        cutoff = adv20.rank(method="first", pct=True).ge(.80)
+        syms = list(cutoff.index[cutoff.fillna(False)])
+
+    exclusions = _daily_exclusions_for_symbols(panel, as_of, syms)
+    excluded = exclusions["nsi_q5"] | exclusions["quality_q5"]
+    syms_after_exclusions = [symbol for symbol in syms if symbol not in excluded]
+
+    C, H, L, V = panel["C"], panel["H"], panel["L"], panel["V"]
+    ibs = (C - L) / (H - L).replace(0, np.nan)
+    raw = (1 - ibs.rolling(5, min_periods=5).mean()).loc[as_of].reindex(syms_after_exclusions)
+    earnings = is_earnings_day(panel, as_of, syms_after_exclusions)
+    score = raw.rank(pct=True, ascending=True).where(~earnings, 0.50)
+    # The neutral score is retained for the dry-run audit, but the registered
+    # portfolio is explicitly non-earnings IBS only.
+    tradable = (~earnings) & score.notna()
+    volume_baseline = V.shift(1).rolling(20, min_periods=15).median().loc[as_of].reindex(syms_after_exclusions)
+    volume_ratio = V.loc[as_of].reindex(syms_after_exclusions) / volume_baseline.replace(0, np.nan)
+    scores = pd.DataFrame({
+        "ibs": score, "ibs_raw_score": raw, "earnings_event": earnings,
+        "adv20": adv20.reindex(syms_after_exclusions), "volume_ratio": volume_ratio,
+    })
+    scores["tradable"] = tradable
+    ranked = scores[scores.tradable].sort_values("ibs", ascending=False)
+    top_n = max(1, len(ranked) // 5)
+    held = ranked.iloc[:top_n].copy()
+    return {
+        "scores": scores, "held": held, "universe_size": len(syms),
+        "post_exclusion_size": len(syms_after_exclusions),
+        "excluded_nsi_q5": exclusions["nsi_q5"], "excluded_quality_q5": exclusions["quality_q5"],
+        "earnings_neutral_count": int(earnings.sum()), "liquid_only": liquid_only,
+    }

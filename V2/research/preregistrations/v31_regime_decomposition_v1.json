@@ -1,0 +1,98 @@
+{
+  "hypothesis_id": "v31_regime_decomposition_v1",
+  "registered_at": "2026-09-10T00:00:00-07:00",
+  "research_stage": "characterization of the live V3.1 spec, not signal discovery or optimization",
+  "status": "PREREGISTERED / NOT YET EVALUATED",
+
+  "research_questions": {
+    "Q1": "Does V3.1 composite alpha differ materially across bull, bear, and sideways market regimes?",
+    "Q2": "Which of the four signals (IBS, RSI2, Sector RS, Turnaround Tuesday) contributes most in each regime?",
+    "Q3": "Is V3.1 alpha consistently positive across all three regimes, or concentrated in one or two?",
+    "Q4": "Does the IBS conditioning-variable finding (signal stronger in low-volume, low-overnight-gap conditions) translate into stronger composite performance in regimes where those conditions prevail?"
+  },
+
+  "base_portfolio": "Live V3.1 composite spec exactly as running in paper trading (weights .62/.22/.10/.06, IBS earnings-conditioned, NSI Q5 + Quality Q5 exclusions) -- identical construction to Portfolio D in negative_selection_v1. Not the stripped base.",
+
+  "regime_definition": {
+    "moving_average": "SPY 200-trading-day trailing moving average, computed PIT-safe from a synthetic SPY total-return price index built by compounding data/spy_total_return_daily_2001_2024.csv (only data available on or before the classification date is used -- no forward information).",
+    "trailing_return": "SPY 252-trading-day trailing return (approx. 52 weeks), same synthetic price index.",
+    "rule": {
+      "BULL": "SPY price > 200d MA AND 252d trailing return > 0",
+      "BEAR": "SPY price < 200d MA AND 252d trailing return < 0",
+      "SIDEWAYS": "everything else (above MA but down over the year, or below MA but up over the year)"
+    },
+    "assignment_timing": "Regime is assigned using values as of the Friday signal date (same date the composite's own signals are evaluated) -- not the following Monday execution date. No forward-looking regime information.",
+    "expected_distribution": "Approximately 60% bull, 20% bear, 20% sideways over 2001-2024 (includes dot-com bust tail, 2008-09 GFC, 2020 COVID crash, 2022 bear market)."
+  },
+
+  "signal_attribution_method": {
+    "standalone_portfolios": "For each of the four signals, a standalone weekly top-quintile equal-weight portfolio, computed on the IDENTICAL post-exclusion universe as V3.1 each week (same NSI Q5 / Quality Q5 exclusions, same eligibility, same rebalance calendar, same Monday-open execution and cost model) -- no separate universe or shortcut.",
+    "turnaround_tuesday_definitional_note": "The task brief names this signal 'Tue (Mondays)', matching the ORIGINAL standalone technical signal in strategies/signal_library.py (S7_turnaround_tuesday: is Monday's close down from Friday's close, evaluated the following Monday). The live V3.1 composite does NOT use that signal -- its embedded 'turnaround_tue' component is actually a same-day Friday-down flag (Friday's own daily return < -1%, evaluated at Friday close), which paper_trading/signals.py and strategies/composite_v2.py both implement and which composite_v2.py's own docstring calls a 'Friday-down bonus', not Turnaround Tuesday. This preregistration uses the SAME Friday-based formula V3.1 actually runs for the standalone comparison and the contribution decomposition -- using the differently-defined Monday signal instead would make the standalone/composite comparison apples-to-oranges and would not decompose what V3.1 is actually doing. The naming mismatch in the codebase is noted here for the record, not silently resolved.",
+    "binary_signal_construction": "Turnaround Tue's standalone portfolio holds all names with the flag=1 that week (not a continuous-score quintile, since the signal itself is binary 0/1 -- matches how it enters the composite, as a raw 0/1 term, not a percentile rank). Weeks with fewer than 5 flagged names are recorded as NaN for that portfolio, not zero-filled.",
+    "composite_vs_best_standalone": "For each regime, V3.1's realized alpha/Sharpe is compared against whichever single standalone signal performed best in that regime, to test whether the composite is additive or whether one signal is doing essentially all the work."
+  },
+
+  "signal_contribution_decomposition": {
+    "formula": "For each week, restricted to the names actually HELD in that week's V3.1 top-quintile portfolio: contribution_signal(name) = component_value(name, signal) * weight(signal) * realized_return(name), where component_value is the percentile rank for IBS/RSI2/Sector RS and the raw 0/1 flag for Turnaround Tue (matching how each term actually enters the composite score -- see composite formula in negative_selection_v1.json). Averaged across held names each week, then averaged again within each regime.",
+    "interpretation_caveat": "This is a diagnostic decomposition of the composite SCORE's weighted terms interacted with realized return, not a rigorous linear return-attribution (summing the four terms does not reconstruct the portfolio's mean return, since it also captures covariance between each signal's rank and realized return). Reported as specified in the task brief; not over-interpreted as an exact P&L split."
+  },
+
+  "conditioning_variable_analysis": {
+    "purpose": "Tests whether bear regimes systematically carry adverse values of the five conditioning variables found supported in prior IBS conditioning research, which would explain regime-dependent alpha structurally rather than requiring a separate regime filter.",
+    "variables_and_definitions": {
+      "overnight_gap_share": "abs(open_t - close_t-1)/close_t-1 divided by [abs(open_t-close_t-1)/close_t-1 + abs(close_t-open_t)/open_t] -- same ratio-of-gap-to-total-move definition as strategies/ibs_conditioning.py, computed directly from the OHLC wide panels already loaded for this run.",
+      "abnormal_volume": "V_t / (20-day trailing mean volume, excluding day t) -- same ratio definition as ibs_conditioning.py's abnormal_volume, computed from the volume panel already loaded.",
+      "turnover": "dollar_volume_t / marketcap_t (marketcap from the Sharadar daily table), matching ibs_conditioning.py's turnover definition.",
+      "total_volatility": "20-day trailing rolling standard deviation of daily returns, excluding day t (a 'pre' window, not looking at today's own return) -- same specification as ibs_conditioning.py's total_vol20_pre.",
+      "idiosyncratic_volatility": "20-day trailing rolling standard deviation of (stock daily return - eligible-universe equal-weighted market return), excluding day t. DEVIATION NOTED: ibs_conditioning.py's idio_vol20_pre instead nets out a 60-day rolling per-stock market beta before computing residual volatility. This run uses an unweighted excess-over-market approximation instead, for computational tractability given this is a secondary (Q4) characterization question, not the primary regime finding. Directionally comparable, not numerically identical to the prior conditioning research's figure."
+    },
+    "aggregation": "Cross-sectional mean of each variable each week, computed over the same post-exclusion eligible universe as the composite (not restricted to held names, since the question is about structural regime conditions, not just the portfolio's own holdings), then averaged by regime."
+  },
+
+  "factor_regression_by_regime": {
+    "frequency": "Weekly, not monthly. Regime is assigned per week and a given calendar month frequently contains weeks from more than one regime, so compounding to monthly returns before splitting by regime would misattribute mixed-regime months. Regression is run directly on weekly portfolio returns against weekly-compounded FF5+UMD factor returns (local CSV, compounded over the same Friday-to-Friday realization window as each portfolio return), periods_per_year=52 for annualization.",
+    "regression_convention": "Long-only convention (dependent = return - RF), consistent with the rest of this project's long-only portfolio regressions."
+  },
+
+  "falsification_criteria": {
+    "REGIME_ROBUST": "V3.1 alpha positive in ALL THREE regimes AND no single regime accounts for more than 60% of total (full-period) alpha.",
+    "REGIME_CONCENTRATED": "V3.1 alpha strongly positive in 1-2 regimes AND near-zero or negative in the remaining regime.",
+    "REGIME_DEPENDENT": "V3.1 alpha negative in any regime AND that regime's t-stat < -2.0."
+  },
+
+  "sub_period_validation": {
+    "periods": ["2001-01-01 to 2008-12-31", "2009-01-01 to 2016-12-31", "2017-01-01 to 2024-12-31"],
+    "rationale": "Dot-com bust/GFC-onset, QE-era bull market, and late-cycle/COVID/AI-rally thirds. A regime pattern that only holds in one third is regime-within-period overfitting, not a durable regime effect.",
+    "consistency_check": "Reports whether the sign and rough magnitude ordering of regime alphas (bull vs bear vs sideways) is stable across all three sub-periods, not just present in the pooled full-period result."
+  },
+
+  "development_period": {
+    "start": "2001-01-01", "end": "2024-12-31",
+    "rationale": "Full history. This is a characterization exercise on the already-live V3.1 spec, not a new-signal search -- no holdout split. Forward validation is the paper trading already running (Tracks 1-3, inception 2026-09-04)."
+  },
+
+  "constraints": [
+    "Preregistration committed before the regime calendar is computed. The regime definition (200d MA, 252d trailing return, bull/bear/sideways rule) is not changed after seeing results.",
+    "Regime calendar is PIT-safe: every classification uses only data available at or before the Friday being classified.",
+    "Standalone signal portfolios use the IDENTICAL universe, exclusions, rebalance calendar, execution timing, and cost model as V3.1 -- no shortcuts or a separately-constructed universe.",
+    "All three regimes are reported regardless of result, including sideways.",
+    "Sub-period validation is mandatory and reported in full.",
+    "No regime-switching composite is built. This is characterization only.",
+    "2019-2025 or any other holdout convention is not applicable here (full-history characterization, per development_period above) -- but no forward-looking data of any kind is used in the regime calendar itself.",
+    "paper_trading/state/ and the live tracks are not read from or modified."
+  ],
+
+  "deliverables": [
+    "This file",
+    "Regime calendar with key-period validation (2008 Q4, 2009 Q2, 2020 Q1, 2020 Q3, 2022)",
+    "V3.1 performance by regime (alpha, t, Sharpe, weekly-frequency regression)",
+    "Standalone signal performance by regime, plus V3.1-vs-best-standalone comparison per regime",
+    "Signal contribution decomposition by regime",
+    "Conditioning variable cross-sectional means by regime",
+    "Sub-period stability check",
+    "Falsification verdict: REGIME_ROBUST / REGIME_CONCENTRATED / REGIME_DEPENDENT",
+    "Forward implication paragraph for interpreting the 26-week paper trading observation window"
+  ],
+
+  "stop_condition": "Report results and wait for instruction. Do not build a regime-switching composite. Do not modify paper trading tracks."
+}

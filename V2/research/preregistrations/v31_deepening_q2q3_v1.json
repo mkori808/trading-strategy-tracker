@@ -1,0 +1,78 @@
+{
+  "hypothesis_id": "v31_deepening_q2q3_v1",
+  "registered_at": "2026-09-10T00:00:00-07:00",
+  "research_stage": "characterization of the live V3.1 spec, not signal discovery or optimization",
+  "status": "PREREGISTERED / NOT YET EVALUATED",
+  "prior_result_referenced": "v31_regime_decomposition_v1 (Q1): bear alpha +20.8%/yr and durable across sub-periods, bull alpha post-2009 ~zero, Sector RS a consistent drag in every regime, weekly regime calendar locked.",
+
+  "research_questions": {
+    "Q2": "Marginal contribution by regime: which of IBS, RSI2, Sector RS, Turnaround Tue contributes most to V3.1 composite alpha in each regime, and is that stable across sub-periods?",
+    "Q3": "Drawdown anatomy: what caused V3.1's five worst historical drawdowns -- market beta, signal failure, regime transition, or sector/factor concentration -- and how did each recover?"
+  },
+
+  "base_portfolio": "Live V3.1 composite spec exactly as running in paper trading (weights .62/.22/.10/.06, IBS earnings-conditioned, NSI Q5 + Quality Q5 exclusions), identical construction to v31_regime_decomposition_v1 and negative_selection_v1 Portfolio D. Not the stripped base. Not modified, not re-optimized, not rebuilt into a new composite.",
+
+  "regime_calendar": "Reused verbatim from v31_regime_decomposition_v1's saved output (reports/v31_regime_decomposition/20260911T002649Z/weekly_panel.csv, column 'regime'). Not recomputed. SPY 200d MA / 252d trailing return bull/bear/sideways rule, PIT-safe, assigned at the Friday signal date.",
+
+  "q2_marginal_contribution_method": {
+    "definition": "For each week, four counterfactual composites are scored on the IDENTICAL post-exclusion universe, rebalance calendar, execution timing (Monday open), and cost-free realized-return field as the full V3.1 top-quintile portfolio -- only the composite score weights and consequent top-quintile holdings differ. No exclusion, universe, or timing logic is changed.",
+    "weight_sets": {
+      "V3.1_full": {"ibs": 0.62, "rsi2": 0.22, "sector_rs": 0.10, "turnaround_tue": 0.06},
+      "V3.1_minus_IBS": {"ibs": 0.0, "rsi2": 0.297, "sector_rs": 0.135, "turnaround_tue": 0.081, "note": "0.22/0.10/0.06 renormalized to sum to 1 over the remaining three, i.e. divided by 0.38"},
+      "V3.1_minus_RSI2": {"ibs": 0.775, "rsi2": 0.0, "sector_rs": 0.125, "turnaround_tue": 0.075, "note": "0.62/0.10/0.06 renormalized, divided by 0.78"},
+      "V3.1_minus_Tue": {"ibs": 0.659, "rsi2": 0.234, "sector_rs": 0.106, "turnaround_tue": 0.0, "note": "0.62/0.22/0.10 renormalized, divided by 0.94"},
+      "V3.1_minus_SRS": {"ibs": 0.689, "rsi2": 0.244, "sector_rs": 0.0, "turnaround_tue": 0.067, "note": "0.62/0.22/0.06 renormalized, divided by 0.90"}
+    },
+    "weight_values_are_task_specified": "The four ablation weight sets above are taken verbatim from the task brief, not independently re-derived. They match renormalizing the remaining three live weights to sum to 1 (values agree with the brief to 3dp).",
+    "marginal_contribution_formula": "marginal_contribution(signal X, week) = V3.1_full_return(week) - V3.1_minus_X_return(week), where each return is the equal-weight mean realized return of that weighting's own top-quintile holdings (holdings are re-selected under each weight set, not the same names re-scored -- this is the point of the ablation).",
+    "aggregation": "Weekly marginal contributions are averaged within each regime (BULL/BEAR/SIDEWAYS/FULL) and annualized as (1+mean_weekly)^52-1, matching the annualization convention in v31_regime_decomposition_v1.",
+    "caveat": "This measures the marginal effect of REMOVING a signal from the score and reselecting holdings, not a linear P&L attribution -- interaction effects between signals (e.g. two signals agreeing on the same names) are captured in the residual, not double-counted or split out further. Sector RS is included for completeness per Q1's confirmed consistent-drag finding, not because it is expected to show positive marginal contribution."
+  },
+
+  "q2_sub_period_breakdown": {
+    "periods": ["2001-01-01 to 2008-12-31", "2009-01-01 to 2016-12-31", "2017-01-01 to 2024-12-31"],
+    "rationale": "Identical thirds to v31_regime_decomposition_v1, for direct comparability. Tests whether which signal is marginally responsible for composite alpha is stable over time or has shifted (e.g. IBS mean-reversion edge decaying, RSI2 or Sector RS becoming relatively more/less important)."
+  },
+
+  "q3_drawdown_identification": {
+    "return_series": "V3.1 full composite weekly realized returns (composite_ret column, reused from v31_regime_decomposition_v1's weekly_panel.csv -- NOT the ablated composites). Recomputed independently in this run's own pass as a consistency check against the saved Q1 panel; if the two disagree by more than rounding, the discrepancy is reported, not silently resolved.",
+    "method": "Standard peak-to-trough drawdown on the cumulative wealth index of composite_ret. Top 5 non-overlapping episodes ranked by peak-to-trough magnitude. An episode's trough is the local minimum before wealth first exceeds the prior peak again (recovery); an episode still in drawdown at 2024-12-27 (last available week) is reported with recovery_date = null and flagged NOT YET RECOVERED, not excluded."
+  },
+
+  "q3_classification_method": {
+    "market_beta_contribution": "beta is the full-sample (2001-2024) CAPM slope of weekly (composite_ret - RF) on weekly (SPY_ret - RF), estimated once, not re-estimated per episode (an episode-specific beta from ~10-40 weekly observations would be too noisy to be meaningful). explained_by_beta = beta * SPY_cumulative_return(episode); residual = portfolio_cumulative_return(episode) - explained_by_beta. If |residual| is small relative to the total loss, classified MARKET DRIVEN; if the residual is large and negative (portfolio lost materially more than beta-implied), classified SIGNAL FAILURE or MIXED per the residual's sign and the IBS spread test below.",
+    "signal_failure_test": "IBS standalone quintile spread (top-quintile mean return minus bottom-quintile mean return, both quintiles cut on the same ibs_pct field used in the composite, same universe/timing) computed for every week in this run's pass, then averaged over each drawdown episode's weeks. Positive average spread during the episode = IBS pointed the right way and market/other factors overwhelmed it (MARKET DRIVEN); negative = IBS itself was wrong that period (SIGNAL FAILURE).",
+    "factor_exposure": "FF5+UMD weekly regression (composite_ret - RF on Mkt-RF, SMB, HML, RMW, CMA, UMD) run on the episode's weeks only, using the same weekly-compounded local factor CSV as v31_regime_decomposition_v1. Episodes with fewer than 26 weekly observations are flagged NOISY -- SHORT WINDOW in the output and the regression is still reported (not suppressed), since Q3 explicitly calls for reporting the dominant factor loading even when noisy.",
+    "sector_concentration": "For each week in the episode, the sector composition of V3.1's actual top-quintile holdings (Fama sector, from the same universe/candidates table as the composite) is compared to the sector composition of the full eligible (post-exclusion) universe that week. Averaged over the episode. A sector is flagged as concentrated if the portfolio's average weight exceeds the universe's average weight by more than 1.5x, provided the universe weight is at least 3%."
+  },
+
+  "q3_recovery_method": {
+    "recovery_definition": "First week the cumulative wealth index (from the drawdown's peak date) returns to or exceeds its pre-drawdown peak level.",
+    "recovery_diagnostics": "IBS standalone spread during the recovery window (peak-exceeded date back to trough date), and the modal regime label during that recovery window."
+  },
+
+  "constraints": [
+    "Preregistration committed before any ablation, drawdown, or attribution computation is run.",
+    "Regime calendar reused from v31_regime_decomposition_v1, not recomputed.",
+    "Drawdown identification uses the V3.1 composite return series only, never an individual signal's own return series.",
+    "Ablation weight sets are exactly as specified in the task brief -- not re-derived, not tuned.",
+    "No composite is modified, re-optimized, or rebuilt. No V3.2 or regime-switching variant is constructed.",
+    "paper_trading/state/, paper_trading/config.json, paper_trading/signals.py, and the live tracks are not read from for computation and are not modified.",
+    "No holdout data is consumed (this is full-history characterization of an already-live spec, consistent with v31_regime_decomposition_v1's development_period rationale; the 2019-2025 holdout convention referenced project-wide applies to composite validation, not to this characterization exercise).",
+    "All 5 drawdown episodes are reported regardless of classification outcome, including any that are ambiguous or mixed.",
+    "Short-window (<26 week) factor regressions are reported with an explicit noise caveat, not suppressed or excluded."
+  ],
+
+  "deliverables": [
+    "This file",
+    "Q2: signal marginal contribution table by regime (BULL/BEAR/SIDEWAYS/FULL)",
+    "Q2: sub-period stability of marginal contributions",
+    "Q3: top 5 drawdown episodes (dates, magnitude, duration, regime)",
+    "Q3: episode-by-episode classification (beta contribution, IBS spread, dominant factor, sector concentration)",
+    "Q3: recovery analysis per episode",
+    "Q3: drawdown pattern summary (market-driven vs signal-failure vs mixed counts; IBS spread in vs out of drawdowns; regime at drawdown start vs recovery)",
+    "Integrated findings paragraph connecting Q2 and Q3"
+  ],
+
+  "stop_condition": "Report results and wait for instruction. Do not build V3.2. Do not run Q4 or Q5 without instruction. Do not modify paper trading tracks. Do not build a new composite."
+}

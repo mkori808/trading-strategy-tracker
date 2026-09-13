@@ -8,6 +8,23 @@ Two Windows Task Scheduler tasks, registered under the `micha` user account
 | `PaperTrading-Friday-Record` | Friday 1:15 PM | ~4:15pm ET | `python run_rebalance.py --record` |
 | `PaperTrading-Monday-Fill` | Monday 7:15 AM | ~10:15am ET | `python run_rebalance.py --fill` |
 
+## Proposed, unregistered Track 4 daily schedule
+
+Track 4 is deliberately **not registered**.  The two wrapper scripts exist
+only so that, after explicit approval of the dry run and a separate launch
+authorization, they can be registered without modifying Tracks 1–3.
+
+| Proposed task name | Trigger (local Pacific time) | ~ET equivalent | Runs |
+|---|---|---|---|
+| `PaperTrading-Daily-Record` | Monday–Friday 1:15 PM | ~4:15pm ET | `scheduled_daily_record.ps1` / `--record-daily` |
+| `PaperTrading-Daily-Fill` | Monday–Friday 7:15 AM | ~10:15am ET | `scheduled_daily_fill.ps1` / `--fill-daily` |
+
+The record step is a virtual close entry; the fill step reads first-minute
+IEX opening bars, records close-to-open only, and never submits broker
+orders. Both commands fail closed while `daily_overnight.launch_authorized`
+is false in `config.json`. Do not register either task until the user has
+approved the dry run and enabled that explicit launch gate.
+
 Local time is Pacific (matches this machine's current timezone, UTC-07:00
 during DST). **If this machine's timezone or DST convention changes, the
 trigger times need updating** to keep the ~15-minute buffer after the 4pm/

@@ -1,0 +1,75 @@
+{
+  "coverage": {
+    "total_earnings_filings_seen": 621642,
+    "valid_gap_measurements_post_exclusions": 157375,
+    "events_per_year_avg": 6558.039788933257,
+    "unique_tickers": 4961,
+    "long_bucket_primary": 17899,
+    "avoid_bucket_primary": 15789,
+    "long_bucket_primary_pct": 0.11373471008737093,
+    "avoid_bucket_primary_pct": 0.10032724384432089
+  },
+  "regime_check_2020": {
+    "H1": {
+      "full_sample": {
+        "n_events": 17899,
+        "annualized": -0.33432477434441854,
+        "tstat": -1.1203344801432316,
+        "n": 3524
+      },
+      "pre_2020": {
+        "n_events": 12207,
+        "annualized": 0.0642316162162968,
+        "tstat": 0.15547338043826436,
+        "n": 2682
+      },
+      "post_2020": {
+        "n_events": 5692,
+        "annualized": -0.8515272852042663,
+        "tstat": -2.3388592081850326,
+        "n": 842
+      }
+    },
+    "H2": {
+      "full_sample": {
+        "n_events": 17899,
+        "annualized": 0.08858149352668554,
+        "tstat": 0.15883272595571343,
+        "n": 3523
+      },
+      "pre_2020": {
+        "n_events": 12207,
+        "annualized": 0.9548049735947874,
+        "tstat": 1.127558045370298,
+        "n": 2681
+      },
+      "post_2020": {
+        "n_events": 5692,
+        "annualized": -0.8327468760376678,
+        "tstat": -1.5181823123767118,
+        "n": 842
+      }
+    },
+    "H3": {
+      "full_sample": {
+        "n_events": 17899,
+        "annualized": 0.8108359841800765,
+        "tstat": 0.749874660637519,
+        "n": 3523
+      },
+      "pre_2020": {
+        "n_events": 12207,
+        "annualized": 2.3518377927816343,
+        "tstat": 1.3826452354268817,
+        "n": 2681
+      },
+      "post_2020": {
+        "n_events": 5692,
+        "annualized": -0.7476148250243382,
+        "tstat": -0.7717954666140749,
+        "n": 842
+      }
+    }
+  },
+  "fatal_stop": true
+}

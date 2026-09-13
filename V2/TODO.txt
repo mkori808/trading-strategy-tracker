@@ -9,6 +9,56 @@ none of them block starting paper trading, and none require restarting
 the existing tracks. Each is additive: if one clears the bar, add it as
 a new track; if not, note the finding and move on.
 
+0. IBS liquidity-driven vs information-driven conditioning
+   - Status: DEVELOPMENT RUN COMPLETE; prospective confirmation required.
+   - Runner: V2/scripts/run_ibs_conditioning.py
+   - Frozen spec: research/ibs_conditioning_preregistration.json
+   - Scope: earnings, gap share, abnormal volume, turnover, liquidity,
+     range, idiosyncratic volatility, size, total volatility, and regime.
+   - Integrity: 2001-2018 development only by default; consumed holdout is
+     not reused as fresh validation; prospective confirmation required.
+   - Corrected artifact: V2/reports/ibs_conditioning/20260910T142457Z_397369113e/
+     (the earlier 20260910T063224Z_aaf3b1e0e4 bundle is preserved; its
+     market-regime comparator had zero structural pairs and was superseded
+     only for that comparator by the documented HAC difference-in-means fix).
+   - Gross spread result: SUPPORTED for low overnight-gap share, low abnormal
+     volume, low turnover, low idiosyncratic volatility, and low total
+     volatility. FALSIFIED in the preregistered direction for low liquidity
+     and small cap: the gross spread was stronger in the liquid/larger buckets.
+     Earnings, intraday range, and bull-vs-bear regime are UNRESOLVED / UNDERPOWERED.
+   - Implementation result: the costed daily next-open-to-close long leg is
+     not viable under the ADV-tier model (roughly 504 annual two-way turnover;
+     deeply negative net CAGRs). Do not promote it, change Paper Tracks 1-3,
+     or call the gross spread an investable long-only alpha source.
+   - Output: independent hypothesis classifications and machine-readable
+     artifacts. No composite and no changes to Paper Tracks 1-3.
+
+0b. Prospective IBS execution-frequency experiment
+   - Status: next after the conditioning development result is reviewed.
+   - Compare daily, every-two-day, weekly, buffered daily, and
+     turnover-constrained daily variants in a separate forward program.
+   - Gate: prioritize reducing turnover and explicitly measure whether any
+     gross cross-sectional discrimination survives realistic execution; do
+     not assume the daily next-open-to-close result is tradable.
+
+0c. Residual / idiosyncratic intermediate-horizon momentum
+   - Status: DEVELOPMENT RUN COMPLETE; all three frozen hypotheses are
+     UNRESOLVED / UNDERPOWERED. Do not promote or add to a composite.
+   - Runner: V2/scripts/run_residual_momentum.py
+   - Frozen specs: V2/research/preregistrations/residual_momentum_*_v1.json
+   - Corrected artifact: V2/reports/residual_momentum/20260910T203505Z/
+     (supersedes the incomplete 20260910T163536Z bundle, whose 252-minus-20
+     window and factor-alpha classification did not match the frozen specs).
+   - Result: 60d and 126d primary 20-session spreads were approximately flat
+     to negative. The corrected t-251 through t-20 variant was directionally
+     best, but its 1.40% annualized spread (HAC t=0.40), 20d IC (0.0134), and
+     2.10% spread factor alpha (t=0.61) did not clear the familywise gate.
+   - Implementation: long-only net CAGRs of 5.2%-6.8% came with 300%-559%
+     annual turnover, 57%-61% maximum drawdowns, and roughly 0.94-0.95 return
+     correlation to Composite V3.1. This is not additive portfolio evidence.
+   - Integrity: development history only (2001-2018); 2019+ was not evaluated.
+     No Paper Track 1-3 changes and no historical rerun as fresh validation.
+
 1. Overnight hold signal — proper characterization
    - Task A/B produced this as a side output; needs its own session.
    - If strong and uncorrelated with IBS: upgrades the composite,

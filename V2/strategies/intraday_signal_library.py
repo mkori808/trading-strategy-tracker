@@ -3,12 +3,22 @@ exercise). Six cross-sectional intraday/gap signals, characterized -- not
 validated -- across 4 forward-return horizons on the full 2020-2026 history
 available from the Alpaca IEX 15-minute bar feed.
 
-Universe: PIT S&P 500 membership (2020-2026), intersected with whatever
-tickers actually have Alpaca bars_15m coverage. This is a different, much
-narrower universe than the daily library's full Sharadar PIT-eligible
-universe -- see the correlation-matrix step, which restricts to the
-overlapping universe/date range before comparing against daily-library
-signals.
+Universe: the clean PIT S&P 500 list (V2/scripts/pit_sp500_universe.txt),
+intersected with what actually has Alpaca bars_15m coverage -- 613 names.
+Excludes 34 small/mid-cap tickers that were left over in bars_15m from the
+original 106-ticker build but are not S&P 500 constituents (kept in the
+raw table, just filtered out here via `universe_tickers`, to avoid
+confounding the size-tercile breakdown with names that don't belong to
+this universe). Historical constituents that later failed (FRCB, SBNY --
+both acquired in 2023) are intentionally kept for the period they were
+alive: excluding them would introduce survivorship bias for 2020-2023.
+
+This is still a different, much narrower universe than the daily
+library's full Sharadar PIT-eligible universe, and it skews heavily
+large/mega-cap (93% by Sharadar scalemarketcap) -- see the size-tercile
+breakdown per signal, and the correlation-matrix step (which restricts to
+the overlapping universe/date range before comparing against daily-library
+signals).
 
 Step 0 (build_daily_summary / join_sharadar / apply_baseline_filters) is
 computed once and its output reused for all six signals, per the exercise
@@ -295,10 +305,20 @@ def _factor_h_returns(factors_daily_pct: pd.DataFrame, h: int) -> pd.DataFrame:
     return np.exp(cumlog.shift(-h) - cumlog) - 1
 
 
-def run(intraday_db_path: str, sharadar_db_path: str, start: str = '2020-07-27', end: str = '2026-09-05') -> dict:
+def run(intraday_db_path: str, sharadar_db_path: str, start: str = '2020-07-27', end: str = '2026-09-05',
+        universe_tickers: set[str] | None = None) -> dict:
+    """`universe_tickers`, if given, restricts the daily summary to exactly
+    that ticker set before anything else runs (join, filters, signals) --
+    e.g. the clean 613-name PIT S&P 500 list, excluding the 34 non-member
+    small/mid-caps left over from the original 106-ticker build. Failed
+    historical constituents (FRCB, SBNY -- both acquired in 2023) are
+    intentionally kept if present in `universe_tickers`: excluding them
+    would introduce survivorship bias for the 2020-2023 window."""
     icon = sqlite3.connect(intraday_db_path)
     daily = build_daily_summary(icon)
     icon.close()
+    if universe_tickers is not None:
+        daily = daily[daily.ticker.isin(universe_tickers)].reset_index(drop=True)
 
     scon = sqlite3.connect(sharadar_db_path)
     panel = join_sharadar(daily, scon, start, end)
@@ -321,7 +341,15 @@ def run(intraday_db_path: str, sharadar_db_path: str, start: str = '2020-07-27',
     ff5_only = ff5_daily[['Mkt-RF', 'SMB', 'HML', 'RMW', 'CMA']]
     factor_h = {h: _factor_h_returns(ff5_only, h) for h in HORIZONS_CC}
 
+    from utils.research_utils import load_marketcap_panel
+    mc_panel = load_marketcap_panel(scon, filtered.ticker.unique().tolist(), start, end)
     scon.close()
+
+    mc_wide = mc_panel.pivot_table(index='date', columns='ticker', values='marketcap', aggfunc='last').sort_index()
+    mc_wide = mc_wide.reindex(eligible.index).ffill(limit=5)
+    mc_pct = mc_wide.rank(axis=1, pct=True)
+    size_tercile_mask = {'Small': mc_pct <= (1 / 3), 'Mid': (mc_pct > 1 / 3) & (mc_pct <= 2 / 3), 'Large': mc_pct > (2 / 3)}
+    size_tercile_counts = {label: int((mask & eligible).sum(axis=1).mean()) for label, mask in size_tercile_mask.items()}
 
     results = {}
     for sname, score in signals.items():
@@ -363,7 +391,24 @@ def run(intraday_db_path: str, sharadar_db_path: str, start: str = '2020-07-27',
         one_day_spread = (fwd_cc[1].where(q1).mean(axis=1) - fwd_cc[1].where(q5).mean(axis=1)).dropna()
         ff5_reg = _hac_regress(one_day_spread, factor_h[1].reindex(one_day_spread.index), 1)
 
-        results[sname] = {'horizons': horizon_rows, 'ff5_regression': ff5_reg,
+        # Size-tercile breakdown at the 5-day horizon (matches the daily
+        # library's convention). This universe is 93% Large+Mega by
+        # scalemarketcap, so the Small tercile here is still large-cap in
+        # absolute terms relative to the daily library's broader universe --
+        # read these terciles as "relatively smaller within an already
+        # large-cap universe," not as a true small-cap comparison.
+        size_spreads = {}
+        for label, mask in size_tercile_mask.items():
+            elig_t = eligible & mask
+            q1t, q5t, _ = _quintile_masks(score, elig_t, min_names=max(10, MIN_PER_QUINTILE))
+            st = (fwd_cc[5].where(q1t).mean(axis=1) - fwd_cc[5].where(q5t).mean(axis=1)).dropna()
+            test_t = _hac_regress(st, None, 5)
+            size_spreads[label] = {
+                'spread_ann': (1 + st.mean()) ** (252 / 5) - 1 if len(st) else np.nan,
+                'tstat': test_t['tstat'], 'n': test_t['n'],
+            }
+
+        results[sname] = {'horizons': horizon_rows, 'ff5_regression': ff5_reg, 'size_spreads_5d': size_spreads,
                            'spread_series_1d': one_day_spread, 'avg_names_per_day': float(score.where(eligible).notna().sum(axis=1)[valid_day].mean()) if valid_day.any() else np.nan}
 
     return {
@@ -374,6 +419,7 @@ def run(intraday_db_path: str, sharadar_db_path: str, start: str = '2020-07-27',
         'daily_summary': daily,
         'panel_filtered': filtered,
         'panel_unfiltered': unfiltered,
+        'size_tercile_counts': size_tercile_counts,
         'fwd_cc': fwd_cc,
         'fwd_intraday': fwd_intraday,
     }

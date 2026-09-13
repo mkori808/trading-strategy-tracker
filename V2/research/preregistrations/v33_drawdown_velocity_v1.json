@@ -1,0 +1,97 @@
+{
+  "hypothesis_id": "v33_drawdown_velocity_v1",
+  "parent_hypothesis": "v33_vol_filter_v1 (trigger redesign after failed diagnostic gate)",
+  "registered_at": "2026-09-11T00:00:00-07:00",
+  "research_stage": "risk-management overlay characterization on V3.2, trigger redesign attempt #2 for the IBS-half-weight-during-fast-selloffs idea",
+  "status": "PREREGISTERED / NOT YET EVALUATED",
+
+  "prior_context": "Two prior triggers for the same underlying idea (IBS fails when markets move fast) both failed their diagnostic gates: v31_transition_filter_v1 (Q6, BULL->BEAR regime-label trigger) never activated in either target episode (0% engagement, both episodes pass through intervening SIDEWAYS weeks). v33_vol_filter_v1 (vol-level trigger, 75th/60th pct hysteresis) activated in both episodes but too late against the locked onset dates (11 weeks for COVID, 5 weeks for 2022 -- both failing a 4-week bar) and was overactive (25.9% of all weeks, >20% in 2 of 3 sub-periods). This study tests a third trigger design -- SPY's own trailing-20-trading-day (~4-week) return, a direct velocity measure rather than a level-vs-history vol measure -- on the same base portfolio (V3.2) and same filter weights as both prior attempts, per this brief's own framing that the underlying protective idea is not yet falsified, only the first two trigger designs.",
+
+  "research_question": "Does reducing IBS composite weight when SPY's trailing 4-week (20-trading-day) return drops below -7% reduce TYPE 2 (SIGNAL FAILURE) drawdown severity by >=20% in both COVID 2020 and the 2022 bear, without costing more than 2%/yr of V3.2's full-cycle alpha?",
+
+  "base_portfolio": "V3.2 as computed in composite_v3_2_v1 (V3.1 minus Sector RS; IBS/RSI2/Tue weights 0.69/0.25/0.06 normal). Measured via the same linear-blend-of-standalone-signal-returns method used in composite_v3_2_v1 and v33_vol_filter_v1 (ibs_ret, rsi2_ret, tue_ret from weekly_panel.csv) -- V3.2's true score-blended holdings are not rebuilt.",
+
+  "data_source": {
+    "weekly_panel": "V2/reports/v31_regime_decomposition/20260911T002649Z/weekly_panel.csv, reused verbatim for signal_date/realization_date alignment, standalone signal returns, and FF5+UMD factor columns. Not recomputed.",
+    "spy_daily_returns": "V2/data/spy_total_return_daily_2001_2024.csv, reused verbatim (already used in v33_vol_filter_v1) for the new SPY 4-week-return trigger series."
+  },
+
+  "trigger_definition_locked": {
+    "spx_4wk_return": "(SPY_close_t - SPY_close_t-20) / SPY_close_t-20, using the daily SPY total-return price index built by cumulating V2/data/spy_total_return_daily_2001_2024.csv's daily returns. Evaluated as of each Friday signal_date, PIT-safe (only daily closes up to and including signal_date used; t-20 = 20 trading days prior, approximately 4 calendar weeks).",
+    "filter_state_machine": {
+      "FILTER_ON": "spx_4wk_return < -0.07 (SPY down more than 7% over the trailing 4 weeks)",
+      "FILTER_OFF": "spx_4wk_return > -0.03 (SPY recovered to within 3% of its 4-weeks-ago level)",
+      "HOLD": "-0.07 <= spx_4wk_return <= -0.03 -- maintain the previous week's state",
+      "initial_state": "FILTER_OFF at the first week a valid 20-trading-day-lagged return exists"
+    }
+  },
+
+  "filter_rule_locked": {
+    "FILTER_OFF_weeks": {"ibs": 0.69, "rsi2": 0.25, "tue": 0.06},
+    "FILTER_ON_weeks": {"ibs": 0.345, "rsi2": 0.405, "tue": 0.06},
+    "note": "Identical weights (and the same 0.81/19pp weight-sum shortfall, locked and not re-derived) to both prior trigger attempts (v33_vol_filter_v1, composite_v3_2_v1's transition filter). Only the trigger mechanism differs across the three studies."
+  },
+
+  "test_portfolios": {
+    "A": "V3.2 as-is (no drawdown-velocity filter) -- baseline, linear-blend method",
+    "B": "V3.3 (attempt 2) = V3.2 with the drawdown-velocity filter substituting FILTER_ON weights on FILTER_ON weeks"
+  },
+
+  "diagnostic_gate": {
+    "rule": "Run first, before any full-cycle or episode evaluation. Confirm FILTER_ON activates within 4 weeks of each target episode's LOCKED onset date: COVID 2020 onset 2019-12-20 (portfolio-drawdown peak, reused verbatim from v31_deepening_q2q3 / composite_v3_2 / v33_vol_filter_v1 -- not redefined here); 2022 bear onset 2021-11-12 (same source, reused verbatim). Onset dates are locked and are not adjusted after seeing trigger-timing results, per this brief's explicit instruction and consistent with how both prior studies in this thread treated onset dates.",
+    "stop_condition": "If the trigger does not fire within 4 weeks of onset for EITHER target episode, STOP after the diagnostic. Report and wait for instruction. Do not proceed to full evaluation.",
+    "overactivity_handling": "If FILTER_ON in more than 20% of all weeks, flag as OVERACTIVE but CONTINUE to full evaluation regardless (per this brief's explicit instruction -- overactivity is a cost to measure in the full-cycle/sub-period tables, not a gate-failure reason, unlike late triggering)."
+  },
+
+  "evaluation_metrics": {
+    "primary_risk_reduction": {
+      "rule": "COVID 2020: B loss < A loss by >= 20%. 2022 bear: B loss < A loss by >= 20%. BOTH must pass.",
+      "measurement": "Peak-to-trough cumulative loss over each episode's window (same locked windows as composite_v3_2_v1 / v31_deepening_q2q3: COVID 2019-12-20 to 2020-03-20; 2022 bear 2021-11-12 to 2022-07-01)."
+    },
+    "secondary_alpha_preservation": {
+      "alpha_cost": "Full-cycle alpha: B within 2%/yr of A (higher tolerance than the two prior attempts, per this brief, given the GFC tradeoff is now expected and known). FF5+UMD weekly HAC regression, periods_per_year=52, matching prior studies' convention.",
+      "sharpe": "B Sharpe >= A Sharpe."
+    },
+    "gfc_tradeoff": {
+      "status": "Informational, NOT a falsification criterion.",
+      "expectation": "The trigger is expected to fire during GFC 2008-09 (SPY dropped >7% in 4 weeks repeatedly). Reported: filter-ON week count and % of the GFC episode window, and the alpha cost attributable to the filter during GFC specifically. If GFC cost exceeds 3%/yr of alpha, flagged as COSTLY -- reported, not auto-falsifying, since the tradeoff may still be worthwhile if TYPE 2 protection is large."
+    }
+  },
+
+  "falsification_criteria": {
+    "EFFECTIVE": "Diagnostic gate PASSES for both episodes AND both TYPE 2 reductions >= 20% AND full-cycle alpha cost <= 2%/yr AND Sharpe(B) >= Sharpe(A).",
+    "MARGINAL": "Both TYPE 2 reductions in the 10-20% band, OR one episode passes (>=20%) and the other fails, without breaching the alpha-cost or Sharpe conditions.",
+    "FALSIFIED": "Either TYPE 2 reduction < 10% (and not in the MARGINAL band) OR full-cycle alpha cost > 2%/yr OR Sharpe(B) < Sharpe(A)."
+  },
+
+  "sub_period_validation": {
+    "periods": ["2001-01-01 to 2008-12-31", "2009-01-01 to 2016-12-31", "2017-01-01 to 2024-12-31"],
+    "rationale": "Identical thirds to all prior V3.1/V3.2/V3.3-attempt-1 studies for direct comparability. FILTER_ON% reported per sub-period alongside alpha, since overactivity is a continued-to-evaluation cost, not a gate.",
+    "development_period": {"start": "2001-01-01", "end": "2024-12-31"}
+  },
+
+  "constraints": [
+    "Preregistration (this file) committed before the SPY 4-week-return series or filter states are computed.",
+    "Onset dates (2019-12-20, 2021-11-12) are locked exactly as given and are not redefined after seeing trigger-timing results -- unlike v33_vol_filter_v1, which reported (but did not act on) an alternate SPY-price-peak reading for COVID, this study uses only the single locked onset per episode, with no alternate reading computed or substituted.",
+    "Diagnostic gate is mandatory and runs first. If either target episode fails the 4-week bar, this study stops at the diagnostic and does not proceed to full evaluation, regardless of how close the miss is.",
+    "Hysteresis (-7% ON / -3% OFF) is mandatory and implemented exactly as specified; not simplified to a single threshold.",
+    "The -7%/-3% thresholds and the 20-trading-day lookback are not optimized or altered after seeing results.",
+    "GFC tradeoff is measured and reported but is explicitly not a falsification criterion.",
+    "Uses only the existing weekly_panel.csv signal returns/factors and the existing SPY daily return series (already loaded for v33_vol_filter_v1). No new signal or regime data computed beyond the trigger series itself.",
+    "paper_trading/ is not read from or modified. No live weight changes made by this study."
+  ],
+
+  "deliverables": [
+    "This file",
+    "Diagnostic gate: total FILTER_ON weeks and %, week-by-week SPY 4wk-return/filter-state table for 8 weeks before/after each locked onset, explicit YES/NO on the 4-week bar per episode, PASS/FAIL verdict",
+    "If gate fails: stop here, report only the diagnostic",
+    "If gate passes: full-cycle comparison A (V3.2) vs B (V3.3 attempt 2): CAGR, alpha/yr, alpha t-stat, Sharpe, max drawdown, worst rolling-12mo, FILTER_ON week count",
+    "TYPE 2 episode comparison (COVID 2020, 2022 bear) with % reduction and pass/fail vs the 20% bar",
+    "GFC 2008-09 tradeoff (informational): A vs B, filter-ON weeks during the episode, alpha cost attributable to the filter during GFC",
+    "Sub-period breakdown: alpha A vs B and FILTER_ON% per sub-period, flagging OVERACTIVE (>20%) sub-periods",
+    "Falsification verdict: EFFECTIVE / MARGINAL / FALSIFIED",
+    "If EFFECTIVE: a V3.3 paper trading configuration for Track 4 (not launched by this study without a separate explicit instruction)"
+  ],
+
+  "stop_condition": "Report results and wait for instruction. Do not launch Track 4. Do not optimize the -7%/-3% thresholds or the lookback window after seeing results, regardless of verdict."
+}

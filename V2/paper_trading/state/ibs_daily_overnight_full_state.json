@@ -1,0 +1,11 @@
+{
+  "track": "ibs_daily_overnight_full",
+  "inception_date": "2026-09-11",
+  "notional": 100000.0,
+  "cash": 100000.0,
+  "active_overnight": null,
+  "last_target_symbols": [],
+  "nav_history": [],
+  "launch_authorized": false,
+  "created_utc": "2026-09-10T14:42:00.004741+00:00"
+}

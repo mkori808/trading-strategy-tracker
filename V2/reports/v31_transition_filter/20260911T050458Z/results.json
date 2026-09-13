@@ -1,0 +1,149 @@
+{
+  "sanity_check_ret_A_vs_composite_ret": {
+    "n_compared": 1251,
+    "mean_abs_diff": 0.0018064153312619857,
+    "max_abs_diff": 0.021935832283418027,
+    "corr": 0.9975227141219103
+  },
+  "transition_calendar": {
+    "n_transitions": 2,
+    "transition_dates": [
+      "2002-04-12",
+      "2011-12-23"
+    ],
+    "n_transition_active_weeks": 8,
+    "pct_of_sample_active": 0.6394884092725819,
+    "n_weeks_total": 1251
+  },
+  "full_cycle": {
+    "cagr_A": 0.14023093104586382,
+    "cagr_B": 0.14004104937245088,
+    "alpha_A": {
+      "alpha_annual": 0.05549196493501318,
+      "tstat": 2.5738894349222945,
+      "n": 1251
+    },
+    "alpha_B": {
+      "alpha_annual": 0.055289884524536426,
+      "tstat": 2.563756342164111,
+      "n": 1251
+    },
+    "sharpe_A": 0.6079913842892152,
+    "sharpe_B": 0.6073314239628337,
+    "max_drawdown_A": -0.5710860712641201,
+    "max_drawdown_B": -0.5710860712641199,
+    "worst_rolling_12mo_A": -0.49633546149931473,
+    "worst_rolling_12mo_B": -0.49633546149931473
+  },
+  "episodes": {
+    "GFC_2008_09": {
+      "peak_date": "2007-07-13",
+      "trough_date": "2009-03-06",
+      "n_weeks": 87,
+      "loss_A": -0.5674496495869685,
+      "loss_B": -0.5674496495869685,
+      "reduction_pp": 0.0,
+      "reduction_pct_of_A_loss": 0.0,
+      "week_of_first_filter_activation_in_episode": null,
+      "n_transition_active_weeks_in_episode": 0
+    },
+    "COVID_2020": {
+      "peak_date": "2019-12-20",
+      "trough_date": "2020-03-20",
+      "n_weeks": 14,
+      "loss_A": -0.47108511784913765,
+      "loss_B": -0.47108511784913765,
+      "reduction_pp": 0.0,
+      "reduction_pct_of_A_loss": 0.0,
+      "week_of_first_filter_activation_in_episode": null,
+      "n_transition_active_weeks_in_episode": 0
+    },
+    "dotcom_2001": {
+      "peak_date": "2001-05-25",
+      "trough_date": "2001-09-21",
+      "n_weeks": 18,
+      "loss_A": -0.2585714122707061,
+      "loss_B": -0.2585714122707061,
+      "reduction_pp": 0.0,
+      "reduction_pct_of_A_loss": 0.0,
+      "week_of_first_filter_activation_in_episode": null,
+      "n_transition_active_weeks_in_episode": 0
+    },
+    "bear_2022": {
+      "peak_date": "2021-11-12",
+      "trough_date": "2022-07-01",
+      "n_weeks": 34,
+      "loss_A": -0.2395341638407833,
+      "loss_B": -0.2395341638407833,
+      "reduction_pp": 0.0,
+      "reduction_pct_of_A_loss": 0.0,
+      "week_of_first_filter_activation_in_episode": null,
+      "n_transition_active_weeks_in_episode": 0
+    },
+    "bear_2002": {
+      "peak_date": "2002-04-19",
+      "trough_date": "2002-10-04",
+      "n_weeks": 25,
+      "loss_A": -0.25907593219099645,
+      "loss_B": -0.2575583689430696,
+      "reduction_pp": -0.0015175632479268453,
+      "reduction_pct_of_A_loss": -0.585760026063735,
+      "week_of_first_filter_activation_in_episode": 0,
+      "n_transition_active_weeks_in_episode": 3
+    }
+  },
+  "subperiods": {
+    "2001-2008": {
+      "alpha_A": {
+        "alpha_annual": 0.13683984148100325,
+        "tstat": 3.0975151196686954,
+        "n": 416
+      },
+      "alpha_B": {
+        "alpha_annual": 0.1368158281254137,
+        "tstat": 3.0963980219199083,
+        "n": 416
+      },
+      "n_transitions": 1
+    },
+    "2009-2016": {
+      "alpha_A": {
+        "alpha_annual": 0.023619299224495682,
+        "tstat": 0.9228527397127334,
+        "n": 418
+      },
+      "alpha_B": {
+        "alpha_annual": 0.023094754042793042,
+        "tstat": 0.9019194660342242,
+        "n": 418
+      },
+      "n_transitions": 1
+    },
+    "2017-2024": {
+      "alpha_A": {
+        "alpha_annual": 0.013395752476988099,
+        "tstat": 0.4011429674355493,
+        "n": 417
+      },
+      "alpha_B": {
+        "alpha_annual": 0.013395752476988099,
+        "tstat": 0.4011429674355493,
+        "n": 417
+      },
+      "n_transitions": 0
+    }
+  },
+  "stable_bear_check": {
+    "n_weeks": 189,
+    "alpha_A": {
+      "alpha_annual": 0.17381776977160301,
+      "tstat": 1.78598635272258,
+      "n": 189
+    },
+    "alpha_B": {
+      "alpha_annual": 0.17381776977160301,
+      "tstat": 1.78598635272258,
+      "n": 189
+    }
+  }
+}

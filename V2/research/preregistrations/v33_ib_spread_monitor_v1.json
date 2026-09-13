@@ -1,0 +1,105 @@
+{
+  "hypothesis_id": "v33_ibs_spread_monitor_v1",
+  "parent": "v33_drawdown_velocity_v1 (trigger redesign #3)",
+  "registered_at": "2026-09-11T00:00:00-07:00",
+  "research_stage": "risk-management overlay characterization on V3.2, trigger redesign attempt #3 (self-referential: watches the IBS signal's own recent performance rather than SPY price/vol)",
+  "status": "PREREGISTERED / NOT YET EVALUATED",
+
+  "prior_context": "Three prior triggers for the same idea (protect IBS weight when the signal is failing) have failed their diagnostic gates: v31_transition_filter_v1 (Q6, BULL->BEAR regime label) never activates in either target episode. v33_vol_filter_v1 (SPY vol level) fires 11/5 weeks after onset -- too late, and overactive (25.9% of weeks). v33_drawdown_velocity_v1 (SPY 4wk return) fires 11/12 weeks after onset -- also too late. That study's report noted a structural pattern: both locked onset dates (2019-12-20, 2021-11-12) are PORTFOLIO NAV peaks, not SPY price peaks, and SPY itself does not break down until 8-12 weeks later in both episodes -- so no SPY-price-based trigger measured against those onsets under a 4-week bar is likely to pass, independent of trigger design. This study tests a fundamentally different mechanism: watching the IBS signal's own realized quintile spread (Q1-Q5) directly, which by construction should turn negative as soon as the signal itself starts failing -- potentially earlier than SPY's own price action, since the portfolio's NAV peak (used as 'onset' in prior studies) is itself a symptom of the IBS signal beginning to fail.",
+
+  "research_question": "Does reducing IBS composite weight when the IBS quintile spread's trailing 4-week average has been persistently negative reduce TYPE 2 (SIGNAL FAILURE) drawdown severity by >=15% in both COVID 2020 and the 2022 bear, without costing more than 2%/yr of V3.2's full-cycle alpha, and without the trigger merely firing on noise?",
+
+  "base_portfolio": "V3.2 as computed in composite_v3_2_v1 (V3.1 minus Sector RS; IBS/RSI2/Tue weights 0.69/0.25/0.06 normal). Measured via the same linear-blend-of-standalone-signal-returns method used in all three prior V3.3 studies (ibs_ret, rsi2_ret, tue_ret from weekly_panel.csv).",
+
+  "data_source": {
+    "weekly_panel": "V2/reports/v31_regime_decomposition/20260911T002649Z/weekly_panel.csv, reused verbatim for signal_date/realization_date alignment, standalone signal returns (ibs_ret, rsi2_ret, tue_ret), and FF5+UMD factor columns.",
+    "ibs_spread_series": "V2/reports/v31_deepening_q2q3/20260911T043543Z/weekly_panel_extended.csv's `ibs_spread` column, reused verbatim -- this is the already-computed weekly IBS top-quintile-minus-bottom-quintile realized return (same IBS quintile formation, same universe/exclusions as V3.2, per that study's own Q3 methodology). Not recomputed; no new quintile formation or scoring is performed by this study. Both source files share the same realization_date/signal_date alignment (1251 weeks, 2001-01-12 to 2024-12-27) and are merged on realization_date."
+  },
+
+  "trigger_definition_locked": {
+    "weekly_ibs_spread": "Equal-weight Q1 (best-IBS) realized return minus equal-weight Q5 (worst-IBS) realized return for that week, as already computed and persisted in weekly_panel_extended.csv's ibs_spread column.",
+    "rolling_spread_4wk": "Simple mean of the ibs_spread values from weeks t-4 through t-1 (trailing, excluding the current week t). PIT-safe by construction: all four weeks used are fully realized and known as of week t's Friday close.",
+    "filter_state_machine": {
+      "FILTER_ON": "rolling_spread_4wk < -0.001",
+      "FILTER_OFF": "rolling_spread_4wk > 0.002",
+      "HOLD": "-0.001 <= rolling_spread_4wk <= 0.002 -- maintain the previous week's state",
+      "initial_state": "FILTER_OFF for the first 4 weeks of the sample (insufficient trailing history for rolling_spread_4wk)"
+    }
+  },
+
+  "filter_rule_locked": {
+    "FILTER_OFF_weeks": {"ibs": 0.69, "rsi2": 0.25, "tue": 0.06},
+    "FILTER_ON_weeks": {"ibs": 0.345, "rsi2": 0.405, "tue": 0.06},
+    "note": "Identical weights (and the same 0.81/19pp weight-sum shortfall, locked and not re-derived) to all three prior trigger attempts. Only the trigger mechanism differs."
+  },
+
+  "test_portfolios": {
+    "A": "V3.2 as-is (no IBS-spread-monitor filter) -- baseline, linear-blend method",
+    "B": "V3.3 (attempt 3) = V3.2 with the IBS-spread-monitor filter substituting FILTER_ON weights on FILTER_ON weeks"
+  },
+
+  "diagnostic_gate": {
+    "rule": "Run first, before any full-cycle or episode evaluation. Confirm FILTER_ON activates within 4 weeks of each target episode's LOCKED onset date: COVID 2020 onset 2019-12-20 (portfolio NAV peak, reused verbatim, not redefined); 2022 bear onset 2021-11-12 (same source, reused verbatim).",
+    "stop_condition": "If the trigger does not fire within 4 weeks of onset for EITHER target episode, STOP after the diagnostic. Report and wait for instruction. Do not proceed to full evaluation.",
+    "activation_rate_flag": "If FILTER_ON in more than 25% of all weeks, flag as elevated activity (this trigger may be noisier than SPY-based triggers since IBS spread has noisy weeks even in good regimes) -- reported, does not itself gate the study; the noise check below is the substantive quality gate on activation.",
+    "noise_check": {
+      "rule": "Average ibs_spread in FILTER_ON weeks vs FILTER_OFF weeks is reported. If the average spread during FILTER_ON weeks is not meaningfully negative (i.e. >= -0.002), the trigger is flagged as firing on noise rather than genuine signal failure -- this is part of the falsification criteria, evaluated alongside (not instead of) the 4-week timing gate."
+    }
+  },
+
+  "evaluation_metrics": {
+    "primary_risk_reduction": {
+      "rule": "COVID 2020: B loss < A loss by >= 15% (lowered from 20% in prior attempts -- three consecutive failures suggest 20% may be unreachable with a mechanically clean trigger; still a meaningful bar). 2022 bear: B loss < A loss by >= 15%. BOTH must pass.",
+      "measurement": "Peak-to-trough cumulative loss over each episode's locked window (COVID 2019-12-20 to 2020-03-20; 2022 bear 2021-11-12 to 2022-07-01), same as all prior studies in this thread."
+    },
+    "secondary_alpha_preservation": {
+      "alpha_cost": "Full-cycle alpha: B within 2%/yr of A (raised tolerance vs the first two attempts, since a self-referential trigger may cost more alpha reacting to normal noisy-but-ultimately-fine IBS weeks). FF5+UMD weekly HAC regression, periods_per_year=52, matching prior studies' convention.",
+      "sharpe": "B Sharpe >= A Sharpe - 0.05 (small tolerance, exact match unlikely given the trigger acts on noisier information than a market-level signal)."
+    }
+  },
+
+  "falsification_criteria": {
+    "EFFECTIVE": "Diagnostic gate PASSES for both episodes AND both TYPE 2 reductions >= 15% AND full-cycle alpha cost <= 2%/yr AND Sharpe(B) >= Sharpe(A) - 0.05 AND noise check passes (avg spread in FILTER_ON weeks < -0.002).",
+    "MARGINAL": "Both TYPE 2 reductions in the 10-15% band, OR one episode passes (>=15%) and the other is in the 10-15% MARGINAL band, without breaching the alpha-cost, Sharpe, or noise-check conditions.",
+    "FALSIFIED": "Either TYPE 2 reduction < 10% OR full-cycle alpha cost > 3%/yr OR the noise check fails (avg spread in FILTER_ON weeks >= 0, i.e. the trigger is firing on weeks that were not, on average, genuinely bad for IBS)."
+  },
+
+  "sub_period_validation": {
+    "periods": ["2001-01-01 to 2008-12-31", "2009-01-01 to 2016-12-31", "2017-01-01 to 2024-12-31"],
+    "rationale": "Identical thirds to all prior studies in this thread for direct comparability. FILTER_ON% reported per sub-period.",
+    "development_period": {"start": "2001-01-01", "end": "2024-12-31"}
+  },
+
+  "type1_check": {
+    "episodes": ["GFC 2008-09 (2007-07-13 to 2009-03-06)", "2002 bear (2002-04-19 to 2002-10-04)"],
+    "expectation": "Unlike the two SPY-price-based triggers, this trigger may or may not fire heavily during TYPE 1 episodes -- it depends on whether IBS itself was failing (not just whether the market was falling) during GFC/2002. Reported as observed, not assumed. If it fires and costs alpha during a TYPE 1 episode where the standalone regime-decomposition study (v31_regime_decomposition) showed IBS alpha was strongly positive in BEAR regimes overall, that would be a notable inconsistency worth flagging explicitly."
+  },
+
+  "constraints": [
+    "Preregistration (this file) committed before the IBS spread trigger series is computed (the underlying weekly ibs_spread values themselves were already computed and persisted by a separate, earlier study -- v31_deepening_q2q3 -- and are reused verbatim per the 'do not recompute signals' constraint; only the rolling-mean/threshold/state-machine logic on top of that persisted series is new).",
+    "Onset dates (2019-12-20, 2021-11-12) are locked exactly as given and are not redefined after seeing trigger-timing results.",
+    "Diagnostic gate is mandatory and runs first. If either target episode fails the 4-week bar, this study stops at the diagnostic and does not proceed to full evaluation.",
+    "The rolling 4-week spread uses weeks t-4 through t-1 only, never the current week t.",
+    "Hysteresis (-0.001 ON / +0.002 OFF) is mandatory and implemented exactly as specified.",
+    "The -0.001/+0.002 thresholds are not optimized or altered after seeing results.",
+    "The noise check is mandatory and reported explicitly regardless of the other results -- a trigger that fires on noise is not treated as useful even if episode losses happen to improve.",
+    "If FALSIFIED: accepted as a result. This is the fourth attempt at a TYPE 2 protection trigger; if a self-referential trigger on the signal's own recent performance also fails, that is reported honestly as evidence the problem may not be solvable with a simple mechanical rule, not as grounds for a fifth redesign within this study.",
+    "paper_trading/ is not read from or modified. No live weight changes made by this study."
+  ],
+
+  "deliverables": [
+    "This file",
+    "Diagnostic gate: total FILTER_ON weeks and %, avg ibs_spread in FILTER_ON vs FILTER_OFF weeks (noise check), week-by-week ibs_spread/rolling_spread_4wk/filter_state table for 8 weeks before/after each locked onset, explicit YES/NO on the 4-week bar per episode, PASS/FAIL verdict",
+    "If gate fails: stop here, report only the diagnostic",
+    "If gate passes: full-cycle comparison A (V3.2) vs B (V3.3 attempt 3): CAGR, alpha/yr, alpha t-stat, Sharpe, max drawdown, worst rolling-12mo",
+    "TYPE 2 episode comparison (COVID 2020, 2022 bear) with % reduction and pass/fail vs the 15% bar",
+    "TYPE 1 check (GFC 2008-09, 2002 bear): A vs B, filter-ON weeks during each episode",
+    "Sub-period breakdown: alpha A vs B and FILTER_ON% per sub-period",
+    "Noise check result reported explicitly",
+    "Falsification verdict: EFFECTIVE / MARGINAL / FALSIFIED",
+    "If EFFECTIVE or MARGINAL: a recommended next step (not itself undertaken here)",
+    "If FALSIFIED: an honest statement that TYPE 2 protection via a simple mechanical trigger may not be achievable, recommending V3.2 be accepted as the current best specification pending separate bear-overlay/crisis-sleeve research"
+  ],
+
+  "stop_condition": "Report results and wait for instruction. Do not launch Track 4. Do not optimize the -0.001/+0.002 thresholds or the 4-week rolling window after seeing results, regardless of verdict. Do not attempt a fifth trigger redesign within this study."
+}

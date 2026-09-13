@@ -1,0 +1,1550 @@
+{
+  "S1_pullback_ema21": {
+    "1": {
+      "horizon": 1,
+      "full_sample": {
+        "spread_ann": 0.15904342356707435,
+        "tstat": 3.4621771295353856,
+        "n": 6036,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": 0.01916361111622389,
+          "tstat": 0.579216325317907,
+          "n": 4143,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": 0.6376236010747836,
+          "tstat": 2.6443542319602615,
+          "n": 932,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": 0.3795299441799287,
+          "tstat": 2.6005381944989687,
+          "n": 758,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": 0.7218822181972844,
+          "tstat": 3.9489035387101854,
+          "n": 1504,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": 0.004295906402375094,
+          "tstat": 0.09881026391228387,
+          "n": 3008,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": -0.0093611796617038,
+          "tstat": -0.23224201198571967,
+          "n": 1504,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": 0.010094407642233127,
+          "tstat": 0.24975978760498377,
+          "n": 2972,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": 0.0996212887813146,
+          "tstat": 1.1658539421417595,
+          "n": 1518,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": 0.5570841000982689,
+          "tstat": 3.629351772902322,
+          "n": 1545,
+          "thin": false
+        }
+      },
+      "dow": {
+        "Mon->Tue": {
+          "spread_ann": 0.5420027689391937,
+          "tstat": 4.771728054353639,
+          "n": 1132,
+          "thin": false
+        },
+        "Tue->Wed": {
+          "spread_ann": 0.320742372932447,
+          "tstat": 3.156552979131969,
+          "n": 1238,
+          "thin": false
+        },
+        "Wed->Thu": {
+          "spread_ann": 0.23990204493750134,
+          "tstat": 2.376424790526431,
+          "n": 1238,
+          "thin": false
+        },
+        "Thu->Fri": {
+          "spread_ann": 0.07153825520369583,
+          "tstat": 0.9438949978043735,
+          "n": 1217,
+          "thin": false
+        },
+        "Fri->Mon": {
+          "spread_ann": -0.21599626787990245,
+          "tstat": -2.5274286014235487,
+          "n": 1211,
+          "thin": false
+        }
+      }
+    },
+    "5": {
+      "horizon": 5,
+      "full_sample": {
+        "spread_ann": 0.08878525388718317,
+        "tstat": 2.474523006653378,
+        "n": 6032,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": -0.027278551719774113,
+          "tstat": -1.1782883104805402,
+          "n": 4139,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": 0.4574933313286862,
+          "tstat": 2.5510608517900466,
+          "n": 932,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": 0.2664705712065525,
+          "tstat": 2.2933747926307873,
+          "n": 758,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": 0.5503754746252856,
+          "tstat": 4.013507382403389,
+          "n": 1504,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": -0.04632034105307159,
+          "tstat": -1.5112589029238066,
+          "n": 3004,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": -0.04807057770419332,
+          "tstat": -1.5275086770873776,
+          "n": 1504,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": -0.03806127960570793,
+          "tstat": -1.2215897290187736,
+          "n": 2968,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": 0.03167674272086507,
+          "tstat": 0.5128922367294557,
+          "n": 1518,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": 0.45066064884783086,
+          "tstat": 3.858352341133208,
+          "n": 1545,
+          "thin": false
+        }
+      }
+    }
+  },
+  "S2_ema_crossover": {
+    "1": {
+      "horizon": 1,
+      "full_sample": {
+        "spread_ann": -0.05861380489548773,
+        "tstat": -1.384976724200684,
+        "n": 6036,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": 0.05668788517762491,
+          "tstat": 1.717232773655315,
+          "n": 4143,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": -0.29821941114269357,
+          "tstat": -1.8303905097591584,
+          "n": 932,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": -0.1804078347243646,
+          "tstat": -1.634655278284422,
+          "n": 758,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": -0.34143833708665094,
+          "tstat": -2.955619268371272,
+          "n": 1504,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": 0.10771852431623397,
+          "tstat": 2.375233291209347,
+          "n": 3008,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": 0.03451921947561565,
+          "tstat": 0.8333795079983704,
+          "n": 1504,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": 0.04481130125363553,
+          "tstat": 1.0612701735740706,
+          "n": 2972,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": 0.0114598038558551,
+          "tstat": 0.14329011826223828,
+          "n": 1518,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": -0.26824455814124504,
+          "tstat": -2.467889674988282,
+          "n": 1545,
+          "thin": false
+        }
+      },
+      "dow": {
+        "Mon->Tue": {
+          "spread_ann": -0.23756086006316557,
+          "tstat": -3.0582782357299814,
+          "n": 1132,
+          "thin": false
+        },
+        "Tue->Wed": {
+          "spread_ann": -0.17608156497642646,
+          "tstat": -2.0660985352841696,
+          "n": 1238,
+          "thin": false
+        },
+        "Wed->Thu": {
+          "spread_ann": -0.16477048473377365,
+          "tstat": -1.9211993616139367,
+          "n": 1238,
+          "thin": false
+        },
+        "Thu->Fri": {
+          "spread_ann": -0.013347718737690473,
+          "tstat": -0.18331376732106638,
+          "n": 1217,
+          "thin": false
+        },
+        "Fri->Mon": {
+          "spread_ann": 0.4156151905532657,
+          "tstat": 3.7346214708670815,
+          "n": 1211,
+          "thin": false
+        }
+      }
+    },
+    "5": {
+      "horizon": 5,
+      "full_sample": {
+        "spread_ann": -0.038519934098034,
+        "tstat": -1.063825427748309,
+        "n": 6032,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": 0.058045013514020916,
+          "tstat": 2.2845363444805407,
+          "n": 4139,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": -0.2613497229998307,
+          "tstat": -1.9656798873300427,
+          "n": 932,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": -0.12525715301691764,
+          "tstat": -1.286021153415064,
+          "n": 758,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": -0.302988270263845,
+          "tstat": -3.0976718196073345,
+          "n": 1504,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": 0.11028958400372013,
+          "tstat": 3.198536040791145,
+          "n": 3004,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": 0.056052426290780666,
+          "tstat": 1.5792885937508467,
+          "n": 1504,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": 0.05720413314796691,
+          "tstat": 1.524627833312902,
+          "n": 2968,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": 0.027571412508495596,
+          "tstat": 0.43856395594669956,
+          "n": 1518,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": -0.24765191094783812,
+          "tstat": -2.769652711080548,
+          "n": 1545,
+          "thin": false
+        }
+      }
+    }
+  },
+  "S3_rsi14_oversold": {
+    "1": {
+      "horizon": 1,
+      "full_sample": {
+        "spread_ann": 0.1856833831620397,
+        "tstat": 4.591861543610642,
+        "n": 6036,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": 0.02056570259435242,
+          "tstat": 0.7019625415377958,
+          "n": 4143,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": 0.7805731510593201,
+          "tstat": 3.601373454427527,
+          "n": 932,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": 0.4113134765875901,
+          "tstat": 3.3708413826723027,
+          "n": 758,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": 0.8104755251197258,
+          "tstat": 5.105553886956109,
+          "n": 1504,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": 0.0177924815924273,
+          "tstat": 0.4621825598531796,
+          "n": 3008,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": -0.009334656406614683,
+          "tstat": -0.24228837767834702,
+          "n": 1504,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": 0.0021701476867621583,
+          "tstat": 0.05854586227099486,
+          "n": 2972,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": 0.1510900480855537,
+          "tstat": 2.0274403815095576,
+          "n": 1518,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": 0.6518500129735081,
+          "tstat": 4.865998498403181,
+          "n": 1545,
+          "thin": false
+        }
+      },
+      "dow": {
+        "Mon->Tue": {
+          "spread_ann": 0.3896254253569902,
+          "tstat": 4.194211315855833,
+          "n": 1132,
+          "thin": false
+        },
+        "Tue->Wed": {
+          "spread_ann": 0.35527387119820575,
+          "tstat": 3.88915126907466,
+          "n": 1238,
+          "thin": false
+        },
+        "Wed->Thu": {
+          "spread_ann": 0.28969632796112044,
+          "tstat": 3.1122830396086485,
+          "n": 1238,
+          "thin": false
+        },
+        "Thu->Fri": {
+          "spread_ann": 0.1045772634819635,
+          "tstat": 1.5288748399269776,
+          "n": 1217,
+          "thin": false
+        },
+        "Fri->Mon": {
+          "spread_ann": -0.12168250565639438,
+          "tstat": -1.6652559737966448,
+          "n": 1211,
+          "thin": false
+        }
+      }
+    },
+    "5": {
+      "horizon": 5,
+      "full_sample": {
+        "spread_ann": 0.10790082179347338,
+        "tstat": 3.187167914325714,
+        "n": 6032,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": -0.022499342920899057,
+          "tstat": -0.9811999522649201,
+          "n": 4139,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": 0.539436261301393,
+          "tstat": 3.222495490962025,
+          "n": 932,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": 0.2955603688696129,
+          "tstat": 2.9658318784739963,
+          "n": 758,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": 0.6271717989094405,
+          "tstat": 4.91125969749811,
+          "n": 1504,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": -0.03556097993631213,
+          "tstat": -1.2544920670618007,
+          "n": 3004,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": -0.05566664909050112,
+          "tstat": -1.8107176534923142,
+          "n": 1504,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": -0.04603528989443961,
+          "tstat": -1.4720991952455718,
+          "n": 2968,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": 0.05687485105053103,
+          "tstat": 1.0112295379856946,
+          "n": 1518,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": 0.5388537414659778,
+          "tstat": 4.956027697201246,
+          "n": 1545,
+          "thin": false
+        }
+      }
+    }
+  },
+  "S4_rsi2_connors": {
+    "1": {
+      "horizon": 1,
+      "full_sample": {
+        "spread_ann": 0.19607142174243997,
+        "tstat": 6.222515047857696,
+        "n": 6036,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": 0.12335413173791299,
+          "tstat": 4.5650726089278795,
+          "n": 4143,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": 0.4848653718928124,
+          "tstat": 3.4996518493247724,
+          "n": 932,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": 0.3263710196858649,
+          "tstat": 3.116674979859198,
+          "n": 758,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": 0.478992218224497,
+          "tstat": 4.488213952888815,
+          "n": 1504,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": 0.140891028809085,
+          "tstat": 4.003801113820247,
+          "n": 3008,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": 0.05352014436859487,
+          "tstat": 1.5400639513898016,
+          "n": 1504,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": 0.09586105732573635,
+          "tstat": 2.877771117912639,
+          "n": 2972,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": 0.20871690543222376,
+          "tstat": 3.1135443070313,
+          "n": 1518,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": 0.3895684643745234,
+          "tstat": 4.457554853396835,
+          "n": 1545,
+          "thin": false
+        }
+      },
+      "dow": {
+        "Mon->Tue": {
+          "spread_ann": 0.39983734287567185,
+          "tstat": 5.282748206771327,
+          "n": 1132,
+          "thin": false
+        },
+        "Tue->Wed": {
+          "spread_ann": 0.24744249179205258,
+          "tstat": 3.5623583305866697,
+          "n": 1238,
+          "thin": false
+        },
+        "Wed->Thu": {
+          "spread_ann": 0.14315507486948276,
+          "tstat": 2.0366705242797485,
+          "n": 1238,
+          "thin": false
+        },
+        "Thu->Fri": {
+          "spread_ann": 0.10852595539011234,
+          "tstat": 1.8284234580524248,
+          "n": 1217,
+          "thin": false
+        },
+        "Fri->Mon": {
+          "spread_ann": 0.11803563285318819,
+          "tstat": 1.6231445258988884,
+          "n": 1211,
+          "thin": false
+        }
+      }
+    },
+    "5": {
+      "horizon": 5,
+      "full_sample": {
+        "spread_ann": 0.12178022658787624,
+        "tstat": 5.519171368668994,
+        "n": 6032,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": 0.035341734101580036,
+          "tstat": 2.0737411274374424,
+          "n": 4139,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": 0.4050311678634859,
+          "tstat": 3.821632851044641,
+          "n": 932,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": 0.2548563480217094,
+          "tstat": 3.8632788753901517,
+          "n": 758,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": 0.42365314264310605,
+          "tstat": 5.373343712078154,
+          "n": 1504,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": 0.06526317240693125,
+          "tstat": 3.112385776769176,
+          "n": 3004,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": -0.026150585119769754,
+          "tstat": -1.2105355782390863,
+          "n": 1504,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": 0.00861582565427832,
+          "tstat": 0.43270038092189445,
+          "n": 2968,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": 0.10727636608632118,
+          "tstat": 2.6468891058836364,
+          "n": 1518,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": 0.39349786199875547,
+          "tstat": 5.906307082304992,
+          "n": 1545,
+          "thin": false
+        }
+      }
+    }
+  },
+  "S5_ibs": {
+    "1": {
+      "horizon": 1,
+      "full_sample": {
+        "spread_ann": 0.4729944734589171,
+        "tstat": 16.950514629799045,
+        "n": 6035,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": 0.2832821101735259,
+          "tstat": 11.957906079328588,
+          "n": 4143,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": 1.3517370448414674,
+          "tstat": 10.502689832071956,
+          "n": 931,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": 0.5395694739102441,
+          "tstat": 5.569111711227962,
+          "n": 758,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": 1.0051487611778458,
+          "tstat": 10.565943917832893,
+          "n": 1503,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": 0.37354793325901925,
+          "tstat": 11.713495029152009,
+          "n": 3008,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": 0.22684861301054848,
+          "tstat": 7.156155354533756,
+          "n": 1504,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": 0.2305167874366918,
+          "tstat": 8.046961856823138,
+          "n": 2972,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": 0.5100779051878257,
+          "tstat": 8.604717603444483,
+          "n": 1518,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": 1.021022871073229,
+          "tstat": 12.716174833741677,
+          "n": 1544,
+          "thin": false
+        }
+      },
+      "dow": {
+        "Mon->Tue": {
+          "spread_ann": 0.47420366206608544,
+          "tstat": 7.764187540917533,
+          "n": 1131,
+          "thin": false
+        },
+        "Tue->Wed": {
+          "spread_ann": 0.40227547955805476,
+          "tstat": 6.796762611637871,
+          "n": 1238,
+          "thin": false
+        },
+        "Wed->Thu": {
+          "spread_ann": 0.35376978655544655,
+          "tstat": 6.029453802721035,
+          "n": 1238,
+          "thin": false
+        },
+        "Thu->Fri": {
+          "spread_ann": 0.4333571816122348,
+          "tstat": 7.754628968806252,
+          "n": 1217,
+          "thin": false
+        },
+        "Fri->Mon": {
+          "spread_ann": 0.7340413209315659,
+          "tstat": 9.40621136884402,
+          "n": 1211,
+          "thin": false
+        }
+      }
+    },
+    "5": {
+      "horizon": 5,
+      "full_sample": {
+        "spread_ann": 0.1529625257792162,
+        "tstat": 11.392496968305824,
+        "n": 6031,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": 0.08265302612678127,
+          "tstat": 7.843545063975568,
+          "n": 4139,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": 0.3548311220854927,
+          "tstat": 6.465559597355987,
+          "n": 931,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": 0.21695329735332436,
+          "tstat": 4.8289263175007315,
+          "n": 758,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": 0.35954868126842254,
+          "tstat": 8.000640464144402,
+          "n": 1503,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": 0.10698246986927673,
+          "tstat": 8.494644242684407,
+          "n": 3004,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": 0.04405714262665161,
+          "tstat": 3.1670311462461256,
+          "n": 1504,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": 0.06275477915279049,
+          "tstat": 5.153810921854374,
+          "n": 2968,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": 0.14988113129281389,
+          "tstat": 5.539328015695705,
+          "n": 1518,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": 0.35099936688679567,
+          "tstat": 9.483392282141992,
+          "n": 1544,
+          "thin": false
+        }
+      }
+    }
+  },
+  "S6_breakout": {
+    "1": {
+      "horizon": 1,
+      "full_sample": {
+        "spread_ann": -0.1557897445586487,
+        "tstat": -4.976011683485579,
+        "n": 6036,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": -0.023028574257117906,
+          "tstat": -0.8936051121089472,
+          "n": 4143,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": -0.4473218904756149,
+          "tstat": -3.894209251543001,
+          "n": 932,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": -0.2850947346001005,
+          "tstat": -3.5885286879673215,
+          "n": 758,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": -0.44269743029094377,
+          "tstat": -5.434948680734004,
+          "n": 1504,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": -0.034372665920253676,
+          "tstat": -0.9861217659601149,
+          "n": 3008,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": 0.017550567984993437,
+          "tstat": 0.5042219001208199,
+          "n": 1504,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": -0.00048517104950052126,
+          "tstat": -0.01493235503480003,
+          "n": 2972,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": -0.14276245333971782,
+          "tstat": -2.4280116471288427,
+          "n": 1518,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": -0.3890733610883864,
+          "tstat": -5.065996289650145,
+          "n": 1545,
+          "thin": false
+        }
+      },
+      "dow": {
+        "Mon->Tue": {
+          "spread_ann": -0.2737750679228709,
+          "tstat": -4.5196186246344885,
+          "n": 1132,
+          "thin": false
+        },
+        "Tue->Wed": {
+          "spread_ann": -0.24187033307611994,
+          "tstat": -3.8743940490185222,
+          "n": 1238,
+          "thin": false
+        },
+        "Wed->Thu": {
+          "spread_ann": -0.17286772732462063,
+          "tstat": -2.608096814303194,
+          "n": 1238,
+          "thin": false
+        },
+        "Thu->Fri": {
+          "spread_ann": -0.09030277378437046,
+          "tstat": -1.5166062088580343,
+          "n": 1217,
+          "thin": false
+        },
+        "Fri->Mon": {
+          "spread_ann": 0.02733767968939249,
+          "tstat": 0.3841418316355592,
+          "n": 1211,
+          "thin": false
+        }
+      }
+    },
+    "5": {
+      "horizon": 5,
+      "full_sample": {
+        "spread_ann": -0.0979505826090119,
+        "tstat": -3.556664129822886,
+        "n": 6032,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": 0.011566952013308152,
+          "tstat": 0.5461216699758983,
+          "n": 4139,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": -0.3382126592070437,
+          "tstat": -3.340451198662573,
+          "n": 932,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": -0.21712533468775974,
+          "tstat": -2.9886831735572787,
+          "n": 758,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": -0.3707511741173547,
+          "tstat": -5.077391708378409,
+          "n": 1504,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": 0.016402596373794154,
+          "tstat": 0.6045126497355381,
+          "n": 3004,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": 0.053081934695645705,
+          "tstat": 1.8807887581675293,
+          "n": 1504,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": 0.036170205310743775,
+          "tstat": 1.3157172802548687,
+          "n": 2968,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": -0.07000217977456535,
+          "tstat": -1.4099810700814894,
+          "n": 1518,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": -0.3284510009179129,
+          "tstat": -4.980010745884522,
+          "n": 1545,
+          "thin": false
+        }
+      }
+    }
+  },
+  "S7_turnaround_tuesday": {
+    "1": {
+      "horizon": 1,
+      "full_sample": {
+        "spread_ann": 0.1987226342279762,
+        "tstat": 4.1440260538285925,
+        "n": 1131,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": 0.13432501888826187,
+          "tstat": 3.2372827926009684,
+          "n": 777,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": 0.36017320524630736,
+          "tstat": 1.6072863535494213,
+          "n": 172,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": 0.4968936332265115,
+          "tstat": 3.0900185802394287,
+          "n": 144,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": 0.331094788008077,
+          "tstat": 2.0636587685187093,
+          "n": 279,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": 0.17935046460847226,
+          "tstat": 3.333439490946485,
+          "n": 579,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": 0.09981543586315778,
+          "tstat": 2.079768642262163,
+          "n": 270,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": 0.11234790110510473,
+          "tstat": 2.1317405404088503,
+          "n": 557,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": 0.29199987963943785,
+          "tstat": 3.6001377046773033,
+          "n": 278,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": 0.2860323682285981,
+          "tstat": 2.09457006250104,
+          "n": 296,
+          "thin": false
+        }
+      },
+      "dow": {
+        "Mon->Tue": {
+          "spread_ann": 0.1987226342279762,
+          "tstat": 4.1440260538285925,
+          "n": 1131,
+          "thin": false
+        },
+        "Tue->Wed": {
+          "spread_ann": NaN,
+          "tstat": NaN,
+          "n": 0,
+          "thin": true
+        },
+        "Wed->Thu": {
+          "spread_ann": NaN,
+          "tstat": NaN,
+          "n": 0,
+          "thin": true
+        },
+        "Thu->Fri": {
+          "spread_ann": NaN,
+          "tstat": NaN,
+          "n": 0,
+          "thin": true
+        },
+        "Fri->Mon": {
+          "spread_ann": NaN,
+          "tstat": NaN,
+          "n": 0,
+          "thin": true
+        }
+      }
+    },
+    "5": {
+      "horizon": 5,
+      "full_sample": {
+        "spread_ann": 0.08653476322091014,
+        "tstat": 4.581645029779084,
+        "n": 1130,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": 0.04649670123589211,
+          "tstat": 3.185118420460893,
+          "n": 776,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": 0.19209279961763026,
+          "tstat": 2.894928401560948,
+          "n": 172,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": 0.1749127848308285,
+          "tstat": 2.1341534442640535,
+          "n": 144,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": 0.18930848718195747,
+          "tstat": 3.148081412484691,
+          "n": 279,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": 0.05868208732621638,
+          "tstat": 2.9634942585128115,
+          "n": 578,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": 0.02618453771123086,
+          "tstat": 1.0053545985097887,
+          "n": 270,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": 0.049062392199962446,
+          "tstat": 2.2938455980069956,
+          "n": 556,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": 0.04596984787338454,
+          "tstat": 1.411004190818448,
+          "n": 278,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": 0.202634845912812,
+          "tstat": 4.341422303522088,
+          "n": 296,
+          "thin": false
+        }
+      }
+    }
+  },
+  "S8_gap_fade": {
+    "1": {
+      "horizon": 1,
+      "full_sample": {
+        "spread_ann": -0.0025606304492754584,
+        "tstat": -0.0934796595874546,
+        "n": 6036,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": 0.027041597003873985,
+          "tstat": 1.0393975326506184,
+          "n": 4143,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": -0.03394532898525415,
+          "tstat": -0.352906221058655,
+          "n": 932,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": 0.02143564726262781,
+          "tstat": 0.22739728165211395,
+          "n": 758,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": -0.04721416235139664,
+          "tstat": -0.5947822564675586,
+          "n": 1504,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": 0.021248588282568814,
+          "tstat": 0.6491717850383698,
+          "n": 3008,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": 0.015807951587403002,
+          "tstat": 0.46124658597666374,
+          "n": 1504,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": -0.004910415081488817,
+          "tstat": -0.16137976622694808,
+          "n": 2972,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": 0.025357256293494723,
+          "tstat": 0.4110289174308214,
+          "n": 1518,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": -0.02125546587661553,
+          "tstat": -0.3183451423639605,
+          "n": 1545,
+          "thin": false
+        }
+      },
+      "dow": {
+        "Mon->Tue": {
+          "spread_ann": 0.1500704837754574,
+          "tstat": 2.2518581115494896,
+          "n": 1132,
+          "thin": false
+        },
+        "Tue->Wed": {
+          "spread_ann": 0.13999349463612565,
+          "tstat": 1.9776642379472023,
+          "n": 1238,
+          "thin": false
+        },
+        "Wed->Thu": {
+          "spread_ann": -0.05849876062314341,
+          "tstat": -0.9463743903135661,
+          "n": 1238,
+          "thin": false
+        },
+        "Thu->Fri": {
+          "spread_ann": -0.01028504092233895,
+          "tstat": -0.18581604077767616,
+          "n": 1217,
+          "thin": false
+        },
+        "Fri->Mon": {
+          "spread_ann": -0.18582038469256068,
+          "tstat": -3.2532726083883237,
+          "n": 1211,
+          "thin": false
+        }
+      }
+    },
+    "5": {
+      "horizon": 5,
+      "full_sample": {
+        "spread_ann": 0.012028496574217451,
+        "tstat": 0.9691720090817214,
+        "n": 6032,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": 0.019780018447655534,
+          "tstat": 1.7857587215460533,
+          "n": 4139,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": 0.029442088190484883,
+          "tstat": 0.6918751639647569,
+          "n": 932,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": 0.010482928443227513,
+          "tstat": 0.26421414710973123,
+          "n": 758,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": 0.0005044876156132805,
+          "tstat": 0.014608828305185083,
+          "n": 1504,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": 0.027513036926964274,
+          "tstat": 1.8566379778584643,
+          "n": 3004,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": 0.013522989655014639,
+          "tstat": 0.8320019587343093,
+          "n": 1504,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": -0.0012764584604038065,
+          "tstat": -0.0842908740888643,
+          "n": 2968,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": 0.039318531654551014,
+          "tstat": 1.6319558601446034,
+          "n": 1518,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": 0.013348585837029914,
+          "tstat": 0.4143303761011796,
+          "n": 1545,
+          "thin": false
+        }
+      }
+    }
+  },
+  "S9_sector_rotation": {
+    "1": {
+      "horizon": 1,
+      "full_sample": {
+        "spread_ann": 0.05187787176921255,
+        "tstat": 1.691288780403809,
+        "n": 6036,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": -0.028123563415558106,
+          "tstat": -1.3725818945346215,
+          "n": 4143,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": 0.37069689193654276,
+          "tstat": 2.189359448193197,
+          "n": 932,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": 0.1385040091326677,
+          "tstat": 1.3519074899513028,
+          "n": 758,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": 0.3805555634372957,
+          "tstat": 3.1986285157697134,
+          "n": 1504,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": -0.04398473854927398,
+          "tstat": -1.6257276433838914,
+          "n": 3008,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": -0.04769140788610238,
+          "tstat": -1.765599068921441,
+          "n": 1504,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": -0.000521451366218284,
+          "tstat": -0.021022051691873107,
+          "n": 2972,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": 0.007386675138413956,
+          "tstat": 0.14334262146080498,
+          "n": 1518,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": 0.200871767837552,
+          "tstat": 1.9908116629973398,
+          "n": 1545,
+          "thin": false
+        }
+      },
+      "dow": {
+        "Mon->Tue": {
+          "spread_ann": 0.07290304012346271,
+          "tstat": 1.1653707993682025,
+          "n": 1132,
+          "thin": false
+        },
+        "Tue->Wed": {
+          "spread_ann": 0.047134845675401715,
+          "tstat": 0.7339436343579535,
+          "n": 1238,
+          "thin": false
+        },
+        "Wed->Thu": {
+          "spread_ann": 0.024958220498347394,
+          "tstat": 0.3821970864145897,
+          "n": 1238,
+          "thin": false
+        },
+        "Thu->Fri": {
+          "spread_ann": 0.07135721775260828,
+          "tstat": 1.4393537010813022,
+          "n": 1217,
+          "thin": false
+        },
+        "Fri->Mon": {
+          "spread_ann": 0.04577393407862074,
+          "tstat": 0.743823191586544,
+          "n": 1211,
+          "thin": false
+        }
+      }
+    },
+    "5": {
+      "horizon": 5,
+      "full_sample": {
+        "spread_ann": 0.06291828041874936,
+        "tstat": 2.3594876281637607,
+        "n": 6032,
+        "thin": false
+      },
+      "regime": {
+        "BULL": {
+          "spread_ann": -0.009938380604337382,
+          "tstat": -0.5896505598322922,
+          "n": 4139,
+          "thin": false
+        },
+        "BEAR": {
+          "spread_ann": 0.30471320356542764,
+          "tstat": 2.254855497097347,
+          "n": 932,
+          "thin": false
+        },
+        "SIDEWAYS": {
+          "spread_ann": 0.15649591367234428,
+          "tstat": 1.7379185794678866,
+          "n": 758,
+          "thin": false
+        }
+      },
+      "vol": {
+        "HIGH_VOL": {
+          "spread_ann": 0.31725519042822437,
+          "tstat": 3.2339196530630714,
+          "n": 1504,
+          "thin": false
+        },
+        "MID_VOL": {
+          "spread_ann": -0.02439669364858521,
+          "tstat": -1.115598394697495,
+          "n": 3004,
+          "thin": false
+        },
+        "LOW_VOL": {
+          "spread_ann": -0.0094314540107171,
+          "tstat": -0.41792238815060223,
+          "n": 1504,
+          "thin": false
+        }
+      },
+      "drawdown": {
+        "SHALLOW": {
+          "spread_ann": 0.020163415117459005,
+          "tstat": 0.8799016995658111,
+          "n": 2968,
+          "thin": false
+        },
+        "MODERATE": {
+          "spread_ann": 0.02628453856609636,
+          "tstat": 0.6610087587598696,
+          "n": 1518,
+          "thin": false
+        },
+        "DEEP": {
+          "spread_ann": 0.188473794586687,
+          "tstat": 2.180189778852151,
+          "n": 1545,
+          "thin": false
+        }
+      }
+    }
+  }
+}

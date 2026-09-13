@@ -1,0 +1,43 @@
+{
+  "created_utc": "20260910T063224Z",
+  "evidence_stage": "historical development; NOT fresh validation",
+  "prospective_confirmation_required": true,
+  "holdout_budget_remaining": 0,
+  "settings": {
+    "start": "2001-01-01",
+    "end": "2018-12-31",
+    "min_price": 1.0,
+    "min_adv": 500000.0,
+    "min_names": 100,
+    "min_names_per_leg": 2,
+    "bucket_count": 3,
+    "participation_rate": 0.005,
+    "familywise_t_threshold": 2.81,
+    "minimum_contrast_days": 250
+  },
+  "hypotheses": [
+    "ibs_earnings_event",
+    "ibs_overnight_gap_share",
+    "ibs_abnormal_volume",
+    "ibs_turnover",
+    "ibs_liquidity",
+    "ibs_intraday_range",
+    "ibs_idiosyncratic_volatility",
+    "ibs_market_cap",
+    "ibs_volatility_bucket",
+    "ibs_market_regime"
+  ],
+  "execution": "signal at close[t]; enter open[t+1]; exit close[t+1]",
+  "cost_model": "ADV-tiered per-side costs charged on entry and exit",
+  "preregistration_sha256": "215ee57dde8cbe73c531212db12d361da0fee92b0e91ea0233d7e7a996f63852",
+  "source_database": "C:\\Users\\micha\\OneDrive\\Desktop\\Projects\\trading-strategy-tracker\\V2\\data\\sharadar.db",
+  "source_database_size": 18090061824,
+  "source_database_mtime_utc": "2026-09-06T16:32:46.098757+00:00",
+  "git_commit": "c67cbd0356eaaf0072dee7aaaf8a4a88e276fb2e",
+  "result_files_sha256": {
+    "bucket_metrics.csv": "0b8fd8448c89da54288b460e6bbbc74c73f4d9f8ae47600405b1b38645fcbbc8",
+    "hypothesis_contrasts.csv": "aaf3b1e0e45ffc4444cc0eee771016c5a24acd57e4bbf0624caab360c166c42a",
+    "daily_diagnostics.csv": "72014c41997cee8547e46eda0ed1fbf6b5cb13e08e98842dc968a0d4c06077f4",
+    "results.json": "0ca64f2270a66486fdb0e7f25f0a96b5cce5191ceecbabf5e14a20f51bf8f146"
+  }
+}

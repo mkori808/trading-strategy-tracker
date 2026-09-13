@@ -40,7 +40,7 @@ import pandas as pd
 import rebalance_engine as engine
 
 STATE_DIR = Path(__file__).resolve().parent / "state"
-TRACKS = ["ibs_standalone", "composite_v2", "composite_v3_1"]
+TRACKS = ["ibs_standalone", "composite_v2", "composite_v3_1", "composite_v3_2"]
 ET = ZoneInfo("America/New_York")
 MODELED_COST_BPS = 10.0  # applied per trade (buy or sell), per the user's explicit formula
 
@@ -62,12 +62,17 @@ def init_fresh_state(track: str, notional: float, today: pd.Timestamp) -> dict:
     this deliberately -- it discards whatever was there (legacy ledger
     state is a separate, untouched system; this only ever affects this
     module's own state files)."""
+    track_cfg = engine.load_config().get("tracks", {}).get(track, {})
     state = {
         "inception_date": today.date().isoformat(),
+        "specification_version": track_cfg.get("specification_version", track),
+        "specification_sha256": track_cfg.get("specification_sha256"),
         "notional": notional,
         "current_holdings": {},
         "cash": notional,
         "nav_history": [],
+        "fill_history": [],
+        "implementation_failures": [],
     }
     _atomic_write_json(state_path(track), state)
     return state
@@ -182,7 +187,29 @@ def apply_fill(track: str, market_data_client, monday: pd.Timestamp) -> dict:
     state["current_holdings"] = current
     holdings_value = sum(shares * (fill_prices.get(t) or 0.0) for t, shares in current.items())
     nav = state["cash"] + holdings_value
-    state["nav_history"].append({"date": monday.date().isoformat(), "nav": nav, "cash": state["cash"], "holdings_value": holdings_value})
+    modeled_cost_usd = float(sum(f["gross_notional"] * f["modeled_cost_bps"] / 10_000 for f in fills))
+    slippage_values = [f["realized_slippage_bps"] for f in fills if f["realized_slippage_bps"] is not None]
+    failures = [f["ticker"] for f in fills if f["status"] != "OK"]
+    fill_summary = {
+        "date": monday.date().isoformat(),
+        "trade_count": len(fills),
+        "turnover_notional": float(sum(f["gross_notional"] for f in fills)),
+        "modeled_transaction_cost_usd": modeled_cost_usd,
+        "estimated_slippage_bps_mean": (float(sum(slippage_values) / len(slippage_values)) if slippage_values else None),
+        "implementation_failure_count": len(failures),
+        "implementation_failure_tickers": failures,
+    }
+    state.setdefault("fill_history", []).append(fill_summary)
+    if failures:
+        state.setdefault("implementation_failures", []).append({
+            "date": monday.date().isoformat(),
+            "type": "DATA_UNAVAILABLE",
+            "tickers": failures,
+        })
+    state["nav_history"].append({
+        "date": monday.date().isoformat(), "nav": nav, "cash": state["cash"],
+        "holdings_value": holdings_value, "modeled_transaction_cost_usd": modeled_cost_usd,
+    })
     state["pending"] = None
     save_state(track, state)
     return {"track": track, "monday": monday, "fills": fills, "nav": nav, "cash": state["cash"]}

@@ -75,7 +75,30 @@ def load_config() -> dict:
     # sharadar_db is stored repo-root-relative in config.json; resolve it
     # absolutely here so this works regardless of the caller's cwd.
     cfg["sharadar_db"] = str((REPO_ROOT / cfg["sharadar_db"]).resolve())
+    _validate_frozen_v3_2(cfg)
     return cfg
+
+
+def _validate_frozen_v3_2(cfg: dict) -> None:
+    """Fail closed if operational V3.2 diverges from its frozen record."""
+    canonical_path = REPO_ROOT / "V2" / "research" / "canonical" / "v3_2_specification.json"
+    canonical = json.loads(canonical_path.read_text(encoding="utf-8"))
+    frozen = canonical["specification"]
+    track = cfg.get("tracks", {}).get("composite_v3_2")
+    if track is None:
+        raise ValueError("Frozen composite_v3_2 track is missing from config.json")
+    expected_weights = {
+        "ibs": frozen["signals"]["ibs"]["weight"],
+        "rsi2": frozen["signals"]["rsi2"]["weight"],
+        "sector_rs": 0.0,
+        "turnaround_tue": frozen["signals"]["turnaround_tuesday"]["weight"],
+    }
+    if track.get("weights") != expected_weights:
+        raise ValueError(f"Frozen V3.2 weights changed: {track.get('weights')} != {expected_weights}")
+    if not track.get("frozen") or track.get("specification_sha256") != canonical["specification_sha256"]:
+        raise ValueError("Frozen V3.2 status/hash does not match the canonical specification")
+    if not track.get("ibs_earnings_conditioned"):
+        raise ValueError("Frozen V3.2 requires earnings-conditioned IBS")
 
 
 def most_recent_friday(today: pd.Timestamp | None = None) -> pd.Timestamp:
@@ -192,4 +215,3 @@ def append_ledger_row(ledger_dir: Path, track_name: str, row: dict) -> None:
         if is_new:
             writer.writeheader()
         writer.writerow({k: row.get(k, "") for k in LEDGER_COLUMNS})
-

@@ -1,0 +1,103 @@
+{
+  "hypothesis_id": "earnings_continuation_A_v1",
+  "registered_at": "2026-09-10T00:00:00-07:00",
+  "research_stage": "historical development and characterization only",
+  "integrity": {
+    "holdout_budget_remaining": 0,
+    "historical_holdout_status": "CONSUMED; no date in historical storage may be presented as fresh validation",
+    "development_start": "2001-01-01",
+    "development_end": "2024-12-31",
+    "development_period": "2001-01-01 to 2024-12-31 (full history; characterization exercise, not a holdout test)",
+    "forward_validation": "Prospective paper track if the falsification criteria are met. Do not build a composite or paper track and do not consume holdout data as part of this program.",
+    "taxonomy": ["ADVANCE", "SECONDARY", "FALSIFIED"]
+  },
+  "economic_hypothesis": "On earnings announcement days, the direction of the overnight gap (open vs prior close) reflects the market's initial interpretation of the earnings news. Information-driven gaps tend to continue in the same direction intraday and over subsequent days. This is the opposite of non-earnings gaps, which reverse (Gap Fade).",
+  "mechanism": "Earnings gaps are information-driven, not liquidity-driven. The gap reflects genuine repricing based on new information. Subsequent price movement continues as more market participants process and react to the same information. This is distinct from IBS/mean-reversion, which captures temporary technical dislocations.",
+  "counterparty": "Initial market makers and short-term traders who fade the gap expecting mean reversion -- correct on non-earnings days but wrong on earnings days.",
+  "relationship_to_existing_engines": "The IBS engine (V3.1, in paper trading) neutralizes IBS to 0.50 on earnings days and operates on the ~94% of non-earnings days. This engine operates only on the ~6% of earnings days. The two are complementary by construction with no day-level overlap.",
+  "signal_definition": {
+    "formula": "earnings_gap = (open[t] - close[t-1]) / close[t-1]",
+    "score": "raw earnings_gap; not percentile-ranked",
+    "sign": "positive score = gapped up = BUY signal; negative score = gapped down = SELL/AVOID signal",
+    "is_earnings_day": "1 if the SF1 datekey (fundamentals.date, dimension='ARQ') for this ticker falls within +/-1 trading day of this trading date; SF1 datekey (filing date), not calendardate. Same underlying field (fundamentals.date, ARQ dimension) as used in IBS conditioning research.",
+    "event_anchor_day": "If the datekey itself is not a trading session (weekend/holiday), the event is anchored to the next trading session on/after the datekey. earnings_gap is computed on that anchor trading day."
+  },
+  "signal_direction": {
+    "long_signal": "buy stocks with earnings_gap > +threshold",
+    "avoid_signal": "do not hold / consider short stocks with earnings_gap < -threshold",
+    "thresholds_tested": [0.01, 0.02, 0.03],
+    "primary_threshold": 0.02
+  },
+  "universe": {
+    "source": "Sharadar domestic common stocks including delisted issues",
+    "listing_policy": "firstpricedate <= signal date <= lastpricedate where lastpricedate exists",
+    "exchanges": ["NASDAQ", "NYSE", "NYSEMKT", "NYSEARCA", "BATS"],
+    "excluded_fama_sectors": ["Financial Services", "Real Estate", "Healthcare"],
+    "minimum_price": 1.0,
+    "minimum_trailing_pre_event_adv": 500000,
+    "minimum_history_sessions": 252,
+    "restriction": "ONLY earnings-day events per ticker (anchor day, see event_anchor_day). This is not a daily strategy; it fires selectively (~6% of trading days per ticker)."
+  },
+  "forward_return_horizons": {
+    "H1": "open-to-close same day (intraday continuation); requires Alpaca intraday first-bar-at/after-09:30 ET open price; primary horizon",
+    "H2": "close-to-close 1-day: close[t+1]/close[t] - 1",
+    "H3": "close-to-close 5-day: close[t+5]/close[t] - 1",
+    "H4": "close-to-close 20-day: close[t+20]/close[t] - 1",
+    "note": "H1 is the primary horizon because intraday continuation is the mechanism. H2-H4 measure PEAD-style persistence."
+  },
+  "portfolio_construction": {
+    "type": "event-driven signal, not a traditional continuously-invested portfolio",
+    "method": "For each earnings-day event, measure the return of the long bucket (gap > +threshold) and the short/avoid bucket (gap < -threshold), equal-weighted within each bucket per event day. Spread = long bucket minus short bucket.",
+    "reporting": "Events per year, not portfolio NAV."
+  },
+  "cost_model": {
+    "round_trip_bps": 15,
+    "rationale": "Higher than the weekly composite cost assumption because earnings names may have wider spreads.",
+    "note": "H1 execution requires entering at the open and exiting at the close; feasible with Alpaca intraday data where covered."
+  },
+  "factor_model": {
+    "specification": "FF5 + UMD (6-factor)",
+    "applies_to": "H2-H4 daily return series only",
+    "excluded": "No factor regression on H1 (intraday; daily factors do not apply)."
+  },
+  "subgroup_analysis": {
+    "gap_size": ["small: 1%-2%", "medium: 2%-5%", "large: >5%"],
+    "market_cap": ["small tercile", "mid tercile", "large tercile"],
+    "time_period": ["pre-2010", "2010-2020", "2020-2024"],
+    "market_regime": ["SPY above 200-day MA", "SPY below 200-day MA"],
+    "minimum_cell_size": "20 events per bucket per sub-group; fewer than 20 is reported as INSUFFICIENT_DATA"
+  },
+  "falsification_criteria": {
+    "ADVANCE": "H1 long-bucket spread t > 2.0 (same-day continuation) AND H2 1-day spread t > 1.5 (persistence beyond same day) AND effect is directionally consistent across gap-size sub-groups",
+    "SECONDARY": "H1 t between 1.5 and 2.0 with correct direction, OR H2 positive but t < 1.5",
+    "FALSIFIED": "H1 t < 1.5 or wrong direction (if same-day continuation doesn't exist, the mechanism claim is wrong)"
+  },
+  "multiple_testing": {
+    "thresholds_tested": 3,
+    "family": "1%, 2%, 3% gap thresholds",
+    "bonferroni_alpha": 0.05,
+    "adjusted_significance_t_threshold": 2.39,
+    "note": "Applies to claiming any single threshold as independently significant. The 2% primary threshold is the preregistered main result and is not selected post hoc; all three thresholds are reported regardless of outcome."
+  },
+  "data_sources": {
+    "sharadar": "V2/data/sharadar.db -- stocks (daily OHLCV), daily (marketcap), fundamentals (dimension='ARQ', field 'date' = SF1 datekey), tickers (universe metadata)",
+    "alpaca_intraday": "V2/data/alpaca_intraday.db -- bars_15m, first bar at/after 09:30 ET, for H1 only. If a ticker/date is not covered, H1 is skipped for that event and the coverage gap is reported; no imputation or substitution of the daily open."
+  },
+  "winsorization": "All forward returns winsorized at the 1st/99th percentile before aggregation.",
+  "correlation_check": {
+    "purpose": "Correlation of the earnings-continuation daily return series with the V3.1 composite engine, over overlapping dates only.",
+    "expectation": "Low correlation (near zero) because the IBS composite fires on non-earnings days and earnings continuation fires on earnings days -- complementary day-sets by construction.",
+    "action_if_violated": "If correlation > 0.30, investigate why; the two engines may be capturing the same underlying effect.",
+    "caveat_recorded_in_advance": "The live V3.1 paper track has inception 2026-09-09 and effectively zero historical NAV overlap with 2001-2024. If so, the correlation check will instead use the historical IBS-conditioning research daily net-return series (non-earnings-day IBS reversal, the engine underlying V3.1) as the best available historical proxy, and this substitution will be reported explicitly, not silently."
+  },
+  "constraints": [
+    "Preregistration committed before any signal computation.",
+    "is_earnings_day / event-anchor definition uses the same underlying field (fundamentals.date, dimension='ARQ') as IBS conditioning research; do not change it.",
+    "Missing Alpaca data for H1: skip that event, note coverage, do not impute or substitute the daily open.",
+    "Winsorize returns at 1st/99th percentile.",
+    "Minimum 20 events per bucket per sub-group to report that cell; fewer than 20 is INSUFFICIENT_DATA.",
+    "Do not start building a composite or paper track until characterization is complete and reviewed.",
+    "Report all three thresholds (1%, 2%, 3%) regardless of which passes; do not selectively report only the best-looking one.",
+    "Do not read or modify any existing paper-trading state file or ledger as part of this research."
+  ]
+}

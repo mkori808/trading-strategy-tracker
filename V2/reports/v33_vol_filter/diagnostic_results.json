@@ -1,0 +1,28 @@
+{
+  "weeks_with_valid_252wk_threshold": 996,
+  "total_weeks": 1251,
+  "total_filter_on_weeks": 324,
+  "total_filter_on_pct": 25.90,
+  "sub_period_activation": {
+    "2001-2008": {"weeks_on": 79, "total_weeks": 416, "pct": 19.0, "overactive": false},
+    "2009-2016": {"weeks_on": 105, "total_weeks": 418, "pct": 25.1, "overactive": true},
+    "2017-2024": {"weeks_on": 140, "total_weeks": 417, "pct": 33.6, "overactive": true}
+  },
+  "covid_2020": {
+    "episode_onset_used_locked_definition": "2019-12-20 (portfolio-drawdown peak, per v31_deepening_q2q3 / composite_v3_2 episode windows -- reused verbatim, not a SPY price peak)",
+    "spy_actual_price_peak": "2020-02-14 (SPY continued making new highs for ~8 weeks after the locked portfolio-drawdown 'onset')",
+    "first_filter_on_realization_date": "2020-03-06",
+    "weeks_after_locked_onset": 11.0,
+    "weeks_after_spy_price_peak": 2.9,
+    "fires_within_4_weeks_of_locked_onset": false,
+    "brief_claim": "vol crossed 75th pct within 2 weeks of crash onset -- matches only if 'crash onset' is read as SPY's own price peak (2020-02-14), not the locked portfolio-drawdown episode onset (2019-12-20) used throughout this research thread"
+  },
+  "bear_2022": {
+    "episode_onset_used_locked_definition": "2021-11-12 (portfolio-drawdown start, per v31_deepening_q2q3 / composite_v3_2 episode windows -- reused verbatim)",
+    "first_filter_on_realization_date": "2021-12-17",
+    "weeks_after_locked_onset": 5.0,
+    "fires_within_4_weeks_of_locked_onset": false,
+    "brief_claim": "vol crossed 75th pct within 3 weeks -- measured at 5 weeks against the locked episode onset date; off by 2 weeks under any onset reading tried"
+  },
+  "diagnostic_gate_result": "FAIL -- neither target episode's trigger fires within 4 weeks of its locked, established onset date. COVID: 11 weeks. 2022: 5 weeks. Per the preregistration's diagnostic_gate.stop_condition, this study stops here and does not proceed to full-cycle or episode evaluation."
+}

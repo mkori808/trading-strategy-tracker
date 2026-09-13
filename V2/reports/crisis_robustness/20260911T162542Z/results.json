@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "hypothesis": "bear_overlay_v1 \u2014 S1 Pullback in frozen BEAR+HIGH_VOL weeks",
+  "evidence_status": "EXPLORATORY / HYPOTHESIS-GENERATING \u2014 FORWARD VALIDATION REQUIRED",
+  "method": "Leave one pre-existing V3.1 peak-to-recovery crisis episode out at a time; no dates or signal rules selected from these results.",
+  "source_panel": "V2/reports/bear_overlay/20260911T141624Z/weekly_s1_panel_eval.csv",
+  "full_sample": {
+    "observations": 87,
+    "annualized_spread": 0.951604284392225,
+    "hac_tstat": 3.065974040368315,
+    "sign_positive": true
+  },
+  "leave_one_crisis_out": [
+    {
+      "excluded_episode": "dot-com / 2001\u20132002",
+      "episode_start": "2001-05-25",
+      "episode_end": "2003-05-09",
+      "removed_observations": 22,
+      "observations": 65,
+      "annualized_spread": 0.9835589142031778,
+      "hac_tstat": 2.409855969264886,
+      "sign_positive": true,
+      "collapses_without_episode": false
+    },
+    {
+      "excluded_episode": "Global Financial Crisis / 2008\u20132009",
+      "episode_start": "2007-07-13",
+      "episode_end": "2010-04-09",
+      "removed_observations": 25,
+      "observations": 62,
+      "annualized_spread": 0.9881289812387481,
+      "hac_tstat": 2.6551177777871873,
+      "sign_positive": true,
+      "collapses_without_episode": false
+    },
+    {
+      "excluded_episode": "COVID crash / 2020",
+      "episode_start": "2019-12-20",
+      "episode_end": "2020-06-05",
+      "removed_observations": 7,
+      "observations": 80,
+      "annualized_spread": 0.6685086695314195,
+      "hac_tstat": 3.3290383892873163,
+      "sign_positive": true,
+      "collapses_without_episode": false
+    },
+    {
+      "excluded_episode": "2022 bear market",
+      "episode_start": "2021-11-12",
+      "episode_end": "2023-03-03",
+      "removed_observations": 15,
+      "observations": 72,
+      "annualized_spread": 1.117392995222266,
+      "hac_tstat": 2.903624730740793,
+      "sign_positive": true,
+      "collapses_without_episode": false
+    }
+  ],
+  "interpretation": "UNDERPOWERED",
+  "interpretation_note": "The sign remains positive after every exclusion and no one episode causes collapse, but the frozen target condition has only 87 full-sample observations and 62\u201380 after exclusions. This robustness check does not convert a broad-search discovery into independent confirmation.",
+  "not_run": [
+    {
+      "hypothesis": "crisis Breakout / new-high survivor sleeve",
+      "status": "NOT AVAILABLE",
+      "reason": "No frozen crisis-sleeve rule or unambiguous direction-consistent return series exists. The historical 'buy new LOWS' text was an interpretation error; active research direction is buy new 20-day HIGHS. Freeze the exact rule prospectively before computing robustness."
+    },
+    {
+      "hypothesis": "crisis Gap Fade sleeve",
+      "status": "NOT AVAILABLE",
+      "reason": "No frozen portfolio rule combining gap threshold, activation, holdings, and execution exists. Broad conditional-search cells are insufficient for a portfolio robustness rerun."
+    }
+  ]
+}

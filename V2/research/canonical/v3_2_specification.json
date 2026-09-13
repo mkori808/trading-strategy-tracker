@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "version_id": "V3.2",
+  "status": "ACTIVE / FROZEN",
+  "frozen_at": "2026-09-11",
+  "supersedes": "V2/research/preregistrations/composite_v3_2_v1.json",
+  "supersession_reason": "The earlier record included a transition filter whose apparent success was a methodology artifact. Historical record preserved and marked superseded.",
+  "specification": {
+    "version_id": "V3.2",
+    "signals": {
+      "ibs": {"weight": 0.69, "earnings_conditioned": true},
+      "rsi2": {"weight": 0.25},
+      "turnaround_tuesday": {"weight": 0.06}
+    },
+    "removed_signals": ["sector_rotation"],
+    "excluded_additions": ["gap_fade", "transition_filter"],
+    "universe": "Full Sharadar PIT eligible universe excluding Financial Services, Real Estate, and Healthcare; price >= $1; trailing 63-day median dollar volume >= $500K; >=252 trading days history; NSI Q5 and Quality Q5 exclusions",
+    "rebalance": "Friday close signal",
+    "execution": "following Monday open",
+    "portfolio": "top quintile, equal weight",
+    "cost_model": "10 bps round trip on measured weekly turnover"
+  },
+  "specification_sha256": "781967907860b84a7e1afd507a780c67a17c79e780c18085ff8f3c59cf307025",
+  "immutability_rule": "Any allocation change, signal addition, transition rule, or other rule change requires a new strategy/version identifier. Gap Fade, if later validated for portfolio use, belongs in a future version such as V4 and must not be added to V3.2.",
+  "historical_evidence": {
+    "status": "CHARACTERIZED — NOT INDEPENDENT CONFIRMATION",
+    "method_controlled_factor_alpha_change_pp_per_year": 0.88,
+    "method_controlled_sharpe_change": 0.022,
+    "caveat": "Already-viewed historical data and a linear-blend proxy were used. This does not create a new holdout or independently confirm the magnitude."
+  }
+}

@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-09-11",
+  "current_best_understanding": {
+    "current_core": "V3.2 — IBS 0.69 / RSI2 0.25 / Turnaround Tuesday 0.06",
+    "status": "Historical characterization is promising; independent magnitude remains uncertain; forward validation is underway.",
+    "historical_holdout_evidence": "V2 was positive but below the confirmation threshold: UNRESOLVED / UNDERPOWERED, not fully holdout-confirmed.",
+    "type_2_research": "CLOSED. Regime label, volatility level, drawdown velocity, and rolling IBS spread did not jointly provide adequate timing and discrimination.",
+    "next_direction": "Orthogonal event-driven / Post-Earnings Announcement Drift (PEAD) engine.",
+    "portfolio_target": "Approximately 20% long-run net CAGR with material absolute and risk-adjusted outperformance versus SPY total return."
+  },
+  "portfolio_objective": {
+    "primary": "Build a systematic portfolio capable of approximately 20% long-run net CAGR while materially outperforming SPY buy-and-hold on both absolute and risk-adjusted returns.",
+    "interpretation_bands": [
+      {"band": "<10% CAGR", "interpretation": "Generally unattractive versus long-run passive equity returns unless risk is dramatically lower."},
+      {"band": "10–15% CAGR", "interpretation": "Potentially useful, but a finished portfolio may not justify complexity unless risk-adjusted performance is excellent."},
+      {"band": "~15% CAGR", "interpretation": "Minimum compelling finished-portfolio outcome."},
+      {"band": "~20% CAGR", "interpretation": "Primary target / excellent outcome."},
+      {"band": "~25% CAGR", "interpretation": "Stretch target."},
+      {"band": "30%+ CAGR", "interpretation": "Exceptional; not a requirement."}
+    ],
+    "scope_note": "These are portfolio-level goals, not pass/fail thresholds for individual signals. A signal with several percentage points of genuine annual factor alpha, strong evidence, reasonable costs, capacity, and low correlation may still be valuable."
+  },
+  "terminology": {
+    "CAGR": "Actual compounded portfolio return.",
+    "SPY CAGR": "Compounded SPY total return over the identical test period.",
+    "CAGR spread": "Strategy CAGR minus SPY CAGR, expressed in percentage points; never called alpha.",
+    "Factor alpha": "Intercept from the stated factor regression.",
+    "Excess return": "A benchmark-relative return whose benchmark, date range, and calculation must be stated explicitly."
+  },
+  "evidence_taxonomy": [
+    "SUPPORTED",
+    "FALSIFIED",
+    "UNRESOLVED / UNDERPOWERED",
+    "EXPLORATORY",
+    "CHARACTERIZED",
+    "SUPERSEDED",
+    "INVALID METHODOLOGY",
+    "INVALID UNIVERSE",
+    "RETRACTED"
+  ],
+  "holdout_policy": {
+    "historical_holdout_consumed": true,
+    "remaining_clean_historical_holdouts": 0,
+    "statement": "Preregistering a hypothesis now does not create another clean historical holdout. Already-viewed history can characterize a frozen rule but cannot independently confirm it.",
+    "valid_new_evidence": [
+      "prospective future observations under a frozen rule",
+      "a genuinely untouched independent dataset or universe, if one exists"
+    ]
+  },
+  "core_conclusion": [
+    "IBS / short-term mean reversion is the dominant mechanism.",
+    "RSI2 provides related but partially redundant information.",
+    "Turnaround Tuesday provides a smaller calendar contribution.",
+    "Sector Rotation did not justify its portfolio weight at the tested weekly rebalance frequency.",
+    "Quality / exclusion filters can be useful; Quality Q5 is the material guardrail and NSI Q5 is largely redundant insurance.",
+    "No reliable aggregate TYPE 2 regime-transition protection rule was found.",
+    "Further tuning of closely related mean-reversion signals risks overfitting; the core is a frozen engine undergoing forward validation."
+  ],
+  "strategies": {
+    "V2": {
+      "status": "ACTIVE FORWARD PAPER TRACK; HISTORICAL HOLDOUT UNRESOLVED / UNDERPOWERED",
+      "weights": {"ibs": 0.5, "rsi2": 0.3, "sector_rotation": 0.15, "turnaround_tuesday": 0.05},
+      "development_factor_alpha": 0.0821,
+      "development_factor_alpha_t": 3.47,
+      "holdout_factor_alpha": 0.0384,
+      "holdout_factor_alpha_t": 1.74,
+      "holdout_status": "UNRESOLVED / UNDERPOWERED",
+      "holdout_note": "Positive, but below the preregistered t > 2.0 confirmation threshold. Not falsified by sign and not fully confirmed.",
+      "independent_evidence": "Consumed historical holdout; positive but insufficient for confirmation."
+    },
+    "V3.1": {
+      "status": "FROZEN FORWARD PAPER TRACK; HISTORICALLY CHARACTERIZED",
+      "weights": {"ibs": 0.62, "rsi2": 0.22, "sector_rotation": 0.1, "turnaround_tuesday": 0.06},
+      "historical_factor_alpha": 0.074,
+      "historical_factor_alpha_t": 2.43,
+      "historical_sharpe": 0.73,
+      "evidence_status": "CHARACTERIZED — NOT INDEPENDENT CONFIRMATION",
+      "note": "The full-history characterization uses already-consumed history."
+    },
+    "V3.2": {
+      "status": "ACTIVE / FROZEN",
+      "canonical_specification": "V2/research/canonical/v3_2_specification.json",
+      "evidence_status": "CHARACTERIZED — NOT INDEPENDENT CONFIRMATION; FORWARD VALIDATION REQUIRED",
+      "incremental_historical_comparison": {
+        "factor_alpha_change_pp_per_year": 0.88,
+        "sharpe_change": 0.022,
+        "method": "method-controlled linear-blend comparison",
+        "interpretation": "Useful historical characterization, not a new independent holdout test."
+      }
+    }
+  },
+  "paper_trading": {
+    "research_inception_date": "2026-09-04",
+    "state_initialization_date": "2026-09-09",
+    "checkpoint_date": "2027-03-05",
+    "checkpoint_rule": "research inception date plus exactly 26 weeks",
+    "checkpoint_interpretation": "Predefined review milestone, not automatic approval.",
+    "minimum_strong_inference_note": "Do not draw strong statistical conclusions from only a few weeks of data.",
+    "tracks": ["V2", "V3.1", "V3.2"]
+  },
+  "type_2_transition_research": {
+    "status": "CLOSED",
+    "historical_apparent_success_status": "SUPERSEDED — INVALID METHODOLOGY",
+    "historical_apparent_success_note": "The apparent benefit was a methodology artifact and did not survive controlled testing.",
+    "trigger_families_tested": ["regime label", "volatility level", "drawdown velocity", "rolling IBS spread"],
+    "conclusion": "No tested TYPE 2 trigger simultaneously achieved adequate timing and discrimination. Do not continue parameter-searching these trigger families without genuinely new information or a materially different mechanism."
+  },
+  "conditional_search_policy": {
+    "status": "HYPOTHESIS-GENERATING — FORWARD VALIDATION REQUIRED",
+    "note": "Findings came from a broad conditional search involving multiple signals, regimes, volatility states, drawdown states, weekdays, transitions, and related cuts. Nominal t-statistics do not have the interpretation of a single preregistered hypothesis test.",
+    "affected_findings": [
+      "S1 Pullback in BEAR + HIGH_VOL",
+      "RSI14 in BEAR + HIGH_VOL",
+      "crisis Breakout / new-high survivor effect",
+      "crisis Gap Fade",
+      "other regime, volatility, drawdown, weekday, or transition-conditioned discoveries"
+    ]
+  },
+  "universe_audit": [
+    {
+      "label": "Initial intraday library",
+      "claimed_count": 573,
+      "verified_count": 106,
+      "status": "SUPERSEDED — INVALID UNIVERSE METADATA / PRE-CORRECTION",
+      "replacement": "613-ticker PIT S&P 500 rerun"
+    },
+    {
+      "label": "Corrected narrow intraday database",
+      "verified_count": 106,
+      "status": "PRE-CORRECTION / HISTORICAL ONLY",
+      "replacement": "613-ticker PIT S&P 500 rerun"
+    },
+    {
+      "label": "Corrected PIT S&P 500 intraday rerun",
+      "verified_count": 613,
+      "status": "CURRENT CHARACTERIZATION UNIVERSE",
+      "note": "Keep distinct from the 106-name historical run and from the full Sharadar daily universe."
+    }
+  ],
+  "breakout_direction": {
+    "active_rule": "buy new 20-day HIGHS during a frozen deep-drawdown/crisis condition",
+    "historical_error": "The phrase 'buy new LOWS' was a typo / interpretation error and is not an active specification.",
+    "evidence_status": "EXPLORATORY — broad conditional search; forward validation required"
+  },
+  "research_backlog": [
+    {
+      "priority": 1,
+      "engine": "Post-Earnings Announcement Drift (PEAD) / event-driven earnings effects",
+      "objective": "Develop a return stream meaningfully different from the IBS/RSI mean-reversion family.",
+      "status": "NEXT EXPERIMENT — preregistration required"
+    },
+    {
+      "priority": 2,
+      "engine": "Bear overlay",
+      "status": "EXPLORATORY / prospective validation required"
+    },
+    {
+      "priority": 3,
+      "engine": "Crisis survivor / gap sleeve",
+      "status": "EXPLORATORY / prospective validation required"
+    }
+  ],
+  "portfolio_architecture_direction": [
+    "Core engine: frozen cross-sectional short-term mean reversion",
+    "Second engine: earnings/event-driven drift",
+    "Bear overlay: stressed-market pullback only if prospectively validated",
+    "Crisis sleeve: survivor/gap effects only if prospectively validated",
+    "Risk layer: quality exclusions and portfolio-level controls"
+  ]
+}

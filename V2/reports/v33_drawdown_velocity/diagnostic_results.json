@@ -1,0 +1,26 @@
+{
+  "total_filter_on_weeks": 92,
+  "total_weeks": 1251,
+  "total_filter_on_pct": 7.35,
+  "overactive_flag": false,
+  "sub_period_activation": {
+    "2001-2008": {"weeks_on": 45, "total_weeks": 416, "pct": 10.8},
+    "2009-2016": {"weeks_on": 22, "total_weeks": 418, "pct": 5.3},
+    "2017-2024": {"weeks_on": 25, "total_weeks": 417, "pct": 6.0}
+  },
+  "covid_2020": {
+    "locked_onset": "2019-12-20",
+    "first_filter_on_realization_date": "2020-03-06",
+    "weeks_after_onset": 11.0,
+    "fires_within_4_weeks": false,
+    "note": "spx_4wk_ret stays positive (0.02 to 0.047) through the entire 8-week pre-onset and 8-week post-onset window shown -- SPY had not yet dropped meaningfully; the crash itself only begins in late Feb 2020, well outside this window."
+  },
+  "bear_2022": {
+    "locked_onset": "2021-11-12",
+    "first_filter_on_realization_date": "2022-02-04",
+    "weeks_after_onset": 12.0,
+    "fires_within_4_weeks": false,
+    "note": "spx_4wk_ret is positive or mildly negative (-0.039 to +0.070) through the entire displayed window -- the 2022 bear's sharper legs down (which trip the -7% trigger) occur later, starting roughly Jan-Feb 2022."
+  },
+  "diagnostic_gate_result": "FAIL -- neither target episode's trigger fires within 4 weeks of its locked onset date (COVID: 11 weeks, 2022: 12 weeks -- both worse than the vol-level trigger's 11/5 weeks in v33_vol_filter_v1). Per the preregistration's diagnostic_gate.stop_condition, this study stops here and does not proceed to full-cycle or episode evaluation."
+}
